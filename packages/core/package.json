@@ -1,0 +1,35 @@
+{
+  "name": "iotwarden",
+  "version": "0.0.1",
+  "description": "Per-device network anomaly detection for IoT gateways, smart-home hubs, building-management servers and small appliances. Learns each device's normal behavior and reports deviations. Offline, zero dependencies.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "require": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "iot",
+    "security",
+    "anomaly-detection",
+    "gateway",
+    "network",
+    "edge"
+  ],
+  "dependencies": {}
+}

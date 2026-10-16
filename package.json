@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "iotwarden-workspace",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "node --test --test-reporter=spec \"packages/*/test/**/*.test.js\"",
+    "coverage": "node --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=80 \"packages/*/test/**/*.test.js\"",
+    "lint": "eslint . && prettier --check .",
+    "types": "tsc -p tsconfig.json --noEmit",
+    "pack:check": "node scripts/pack-check.mjs",
+    "check": "npm run lint && npm run types && npm run test",
+    "gate": "npm run check && npm run coverage && npm run pack:check && npm run bench && npm run fuzz",
+    "bench": "node scripts/noop.mjs bench",
+    "fuzz": "node scripts/noop.mjs fuzz",
+    "demo": "node packages/core/examples/camera-botnet.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2"
+  }
+}
