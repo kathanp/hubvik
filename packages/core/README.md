@@ -4,7 +4,7 @@ Per-device network anomaly detection for **IoT gateways, smart-home hubs, buildi
 
 Every IoT device talks through a gateway. iotwarden runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: 0.0.1 prototype. Not for production. Not validated on real traffic.
+> Status: 0.1.0 prototype. Not for production. Not validated on real traffic.
 
 ## Install
 
@@ -36,7 +36,9 @@ otherEngine.importBaseline(baseline);
 
 iotwarden never blocks anything by itself. It only reports.
 
-## Detectors (0.0.1)
+## Detectors (0.1.0)
+
+Default enabled tier is `T0`. A detector whose required tiers are not enabled stays inactive. These four ship in 0.1.0:
 
 | Detector          | Catches                                                       | Severity |
 | ----------------- | ------------------------------------------------------------- | -------- |
@@ -47,15 +49,18 @@ iotwarden never blocks anything by itself. It only reports.
 
 ## Options
 
-| Option               | Default  | Meaning                                             |
-| -------------------- | -------- | --------------------------------------------------- |
-| `learnMs`            | 7 days   | Learning period per device, from its first event    |
-| `windowMs`           | 60 s     | Traffic window size                                 |
-| `sigma`              | 4        | Volume spike sensitivity                            |
-| `minFanout`          | 10       | Never flag fan-out below this many hosts per window |
-| `minBytes`           | 1 MB     | Never flag volume below this per window             |
-| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window            |
-| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed  |
+| Option               | Default  | Meaning                                              |
+| -------------------- | -------- | ---------------------------------------------------- |
+| `learnMs`            | 7 days   | Learning period per device, from its first event     |
+| `windowMs`           | 60 s     | Traffic window size                                  |
+| `sigma`              | 4        | Volume spike sensitivity                             |
+| `minFanout`          | 10       | Never flag fan-out below this many hosts per window  |
+| `minBytes`           | 1 MB     | Never flag volume below this per window              |
+| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window             |
+| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed   |
+| `fanoutFactor`       | 3        | Fan-out limit is at least this times the learned max |
+| `peakFactor`         | 2        | Volume limit is at least this times the learned max  |
+| `tiers`              | `['T0']` | Event tiers the host is sending                      |
 
 ## Limits
 

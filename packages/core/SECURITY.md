@@ -4,9 +4,10 @@ iotwarden is a detector. It does not block, drop, or modify traffic.
 
 ## Supported versions
 
-| Version | Supported                                     |
-| ------- | --------------------------------------------- |
-| 0.0.1   | Prototype. Fixes are best-effort until 0.1.0. |
+| Version | Supported                                   |
+| ------- | ------------------------------------------- |
+| 0.1.0   | Prototype. Not validated on real traffic.   |
+| 0.0.1   | Superseded by 0.1.0. Fixes are best-effort. |
 
 ## Reporting a vulnerability
 
