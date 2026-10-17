@@ -12,6 +12,14 @@ const { ALLOW_KINDS, FORBIDDEN_KEYS } = require('./constants');
 const { noteLearning } = require('./learning');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
+const {
+  plainScratch,
+  assertCheckpoint,
+  fit,
+  progressOf,
+  applyProgress,
+  revive,
+} = require('./checkpoint');
 const { CLASSES } = require('./classes');
 const ATTACK = require('../data/attack-map.json');
 const pkg = require('../../package.json');
@@ -559,6 +567,61 @@ class Engine extends EventEmitter {
       windowMs: this.opts.windowMs,
       pkg: PKG,
     });
+  }
+
+  /**
+   * JSON-safe snapshot of the baseline, LAN scratch tables, watermark, and learning progress.
+   * @param {{ devices?: string[], createdAt?: number, sign?: string | Buffer }} [opts]
+   */
+  checkpoint(opts = {}) {
+    const baseline = /** @type {any} */ (
+      this.exportBaseline({
+        devices: opts.devices,
+        createdAt: opts.createdAt ?? Date.now(),
+      })
+    );
+    for (const [id, row] of Object.entries(baseline.devices)) {
+      const device = this.devices.get(id);
+      if (device) row.progress = progressOf(device);
+    }
+    const body = {
+      version: baseline.version,
+      createdAt: baseline.createdAt,
+      engine: baseline.engine,
+      devices: baseline.devices,
+      watermark: this.watermark,
+      scratch: plainScratch(this.scratch),
+    };
+    if (fit(body)) this._warn('CHECKPOINT_TRUNCATED', 'checkpoint dropped the oldest LAN rows');
+    return attachMeta(body, {
+      sign: opts.sign,
+      createdAt: body.createdAt,
+      windowMs: this.opts.windowMs,
+      pkg: PKG,
+    });
+  }
+
+  /**
+   * Replace engine state with a checkpoint. Validates fully before mutating.
+   * @param {object} raw
+   * @param {{ verify?: string | Buffer }} [opts]
+   * @returns {void}
+   */
+  restore(raw, opts = {}) {
+    const cp = /** @type {any} */ (raw);
+    assertCheckpoint(cp);
+    const revived = revive(cp.scratch == null ? {} : cp.scratch);
+    this.importBaseline(cp, { merge: false, verify: opts.verify });
+    this.watermark = typeof cp.watermark === 'number' ? cp.watermark : null;
+    this.lastEventTs = this.watermark;
+    this.scratch = new Map(Object.entries(revived));
+    const devices = cp.devices;
+    if (devices && typeof devices === 'object') {
+      for (const [id, row] of Object.entries(devices)) {
+        const device = this.devices.get(id);
+        if (device && row && typeof row === 'object') applyProgress(device, row.progress);
+      }
+    }
   }
 
   /**

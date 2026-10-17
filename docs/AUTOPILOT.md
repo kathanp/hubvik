@@ -117,9 +117,9 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-7 — `checkpoint()` / `restore()` (D7)
 
-- [ ] Implement as in SPEC A4.1. Include `identity-change` scratch.
-- [ ] Add the ARP-after-restore test and the 1,000 corrupt-checkpoint test.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Implement as in SPEC A4.1. Include `identity-change` scratch.
+- [x] Add the ARP-after-restore test and the 1,000 corrupt-checkpoint test.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### WP-8 — Hardening and release prep
 

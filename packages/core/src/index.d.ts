@@ -306,6 +306,8 @@ export class Engine extends EventEmitter {
     sign?: string | Buffer;
   }): Baseline;
   importBaseline(baseline: object, opts?: { merge?: boolean; verify?: string | Buffer }): void;
+  checkpoint(opts?: { devices?: string[]; createdAt?: number; sign?: string | Buffer }): object;
+  restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
   on(event: 'anomaly', listener: (anomaly: Anomaly) => void): this;
   on(event: 'incident', listener: (incident: Incident) => void): this;
