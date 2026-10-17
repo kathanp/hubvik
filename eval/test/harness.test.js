@@ -1,0 +1,138 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { loadIot23 } = require('../iot23.js');
+const { runEvasion } = require('../evasion/scenarios.js');
+const { main } = require('../cli.js');
+const {
+  DAY,
+  GRACE_MS,
+  wilson,
+  formatRate,
+  planDevice,
+  attackIntervals,
+  aboveGate,
+  inDetectionWindow,
+  hitsFor,
+  evaluate,
+  renderMarkdown,
+} = require('../protocol.js');
+
+const FIXTURE = path.join(__dirname, 'fixtures');
+
+test('wilson intervals stay inside 0..1 and small samples are not percentages', () => {
+  assert.strictEqual(wilson(0, 20).low, 0);
+  assert.strictEqual(wilson(20, 20).high, 1);
+  const mid = wilson(10, 20);
+  assert.ok(mid.low < 0.5 && mid.high > 0.5);
+  assert.strictEqual(
+    formatRate(1, 3, 'attack instances'),
+    'n too small (1 detected, 3 attack instances)',
+  );
+  const full = formatRate(20, 20, 'attack instances');
+  assert.match(full, /20\/20 = 100\.0%/);
+  assert.match(full, /95% Wilson/);
+});
+
+test('a benign prefix under 24 h is recorded, and 24 h is used when the capture has it', () => {
+  const short = planDevice([
+    { ts: 0, malicious: false },
+    { ts: 60_000, malicious: true },
+  ]);
+  assert.strictEqual(short.learningMs, 60_000);
+  assert.strictEqual(short.short, true);
+  assert.strictEqual(short.learn.length, 1);
+  assert.strictEqual(short.rest.length, 1);
+
+  const long = planDevice([
+    { ts: 0, malicious: false },
+    { ts: DAY, malicious: false },
+  ]);
+  assert.strictEqual(long.learningMs, DAY);
+  assert.strictEqual(long.short, false);
+  assert.strictEqual(long.rest.length, 1);
+});
+
+test('attack instances merge within 5 minutes and the detection window adds 5 minutes', () => {
+  const rows = [
+    { ts: 0, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+    { ts: 5 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+    { ts: 10 * 60 * 1000 + 1, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+    { ts: 20 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'DDoS' },
+  ];
+  const intervals = attackIntervals('cam', rows);
+  assert.strictEqual(intervals.length, 3);
+  assert.strictEqual(intervals[0].flows, 2);
+  assert.strictEqual(intervals[0].end, 5 * 60 * 1000);
+
+  const interval = { device: 'cam', start: 0, end: 1000 };
+  const edge = { device: 'cam', ts: 1000 + GRACE_MS, severity: 'high', detector: 'x' };
+  const late = { device: 'cam', ts: 1000 + GRACE_MS + 1, severity: 'high', detector: 'x' };
+  const low = { device: 'cam', ts: 1000, severity: 'low', detector: 'x' };
+  assert.strictEqual(inDetectionWindow(interval, edge), true);
+  assert.strictEqual(inDetectionWindow(interval, late), false);
+  assert.deepStrictEqual(
+    hitsFor(interval, [edge, late, low]).map((item) => item.ts),
+    [edge.ts],
+  );
+});
+
+test('C6.3 proposals fire only above the per-day and per-week gates', () => {
+  assert.strictEqual(aboveGate('medium', 1, 1), true);
+  assert.strictEqual(aboveGate('medium', 1, 1.1), false);
+  assert.strictEqual(aboveGate('high', 1, 7), true);
+  assert.strictEqual(aboveGate('critical', 1, 8), false);
+  assert.strictEqual(aboveGate('low', 100, 1), false);
+  assert.strictEqual(aboveGate('medium', 1, 0), false);
+});
+
+test('IoT-23 conn.log.labeled joins through adapter-zeek on tier T1', () => {
+  const rows = loadIot23(FIXTURE);
+  assert.ok(rows.length > 20);
+  assert.strictEqual(rows[0].event.type, 'flow');
+  assert.strictEqual(rows[0].malicious, false);
+  assert.ok(rows.some((row) => row.detailedLabel === 'PartOfAHorizontalPortScan'));
+  const result = evaluate(rows, { tiers: ['T1'], dataset: 'iot23' });
+  assert.strictEqual(result.tiers.length, 1);
+  assert.strictEqual(result.tiers[0], 'T1');
+  assert.strictEqual(result.attackInstances, 1);
+  assert.strictEqual(result.detected, 1);
+  assert.match(result.detection, /^n too small/);
+  assert.ok(result.hits[0].detectors.includes('horizontal-scan'));
+  assert.ok(result.learning[0].short);
+  assert.match(renderMarkdown(result), /## Misses/);
+  const scan = result.ablation.find((row) => row.detector === 'horizontal-scan');
+  assert.strictEqual(scan.unique, 1);
+  assert.strictEqual(scan.proposal, null);
+});
+
+test('the cli writes json and markdown and rejects an unknown dataset', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-eval-'));
+  const result = main(['--dataset', 'iot23', '--zeek-logs', FIXTURE], { outDir: dir });
+  const json = JSON.parse(fs.readFileSync(path.join(dir, 'iot23.json'), 'utf8'));
+  const md = fs.readFileSync(path.join(dir, 'iot23.md'), 'utf8');
+  assert.strictEqual(json.detected, result.detected);
+  assert.match(md, /n too small/);
+  assert.match(md, /Thresholds were not tuned/);
+  assert.strictEqual(json.evasion.length, 4);
+  assert.throws(() => main(['--dataset', 'ciciot2023', '--zeek-logs', FIXTURE]), /no joiner/);
+  const bad = path.join(dir, 'conn.log.labeled');
+  fs.writeFileSync(bad, '#separator \\x09\n#fields\tts\tuid\n1\tC\n');
+  assert.throws(() => loadIot23(bad), /missing label/);
+});
+
+test('the evasion suite builds the four C6.2 shapes and records what fired', () => {
+  const scenarios = runEvasion();
+  assert.deepStrictEqual(
+    scenarios.map((item) => item.id),
+    ['slow-scan', 'beacon-jitter-40', 'exfil-0.9-limit', 'flood-10-destinations'],
+  );
+  for (const scenario of scenarios) {
+    assert.strictEqual(typeof scenario.fired, 'boolean');
+    assert.ok(Array.isArray(scenario.detectors));
+  }
+});

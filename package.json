@@ -8,8 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "node --expose-gc --test --test-reporter=spec \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\"",
-    "coverage": "node --expose-gc --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=80 \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\"",
+    "test": "node --expose-gc --test --test-reporter=spec \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"eval/test/**/*.test.js\"",
+    "coverage": "node --expose-gc --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=80 \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"eval/test/**/*.test.js\"",
     "lint": "eslint . && prettier --check .",
     "types": "tsc -p tsconfig.json --noEmit",
     "pack:check": "node scripts/pack-check.mjs",

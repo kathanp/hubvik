@@ -1,0 +1,449 @@
+'use strict';
+
+const { createEngine, detectors, SEVERITY } = require('iotwarden');
+
+const DAY = 24 * 60 * 60 * 1000;
+const GRACE_MS = 5 * 60 * 1000;
+const MERGE_MS = 5 * 60 * 1000;
+const Z = 1.959963984540054;
+
+/**
+ * 95% Wilson score interval for k successes in n trials.
+ * @param {number} k
+ * @param {number} n
+ * @returns {{ low: number, high: number }}
+ */
+function wilson(k, n) {
+  if (n <= 0) return { low: 0, high: 1 };
+  const p = k / n;
+  const z2 = Z * Z;
+  const denom = 1 + z2 / n;
+  const center = p + z2 / (2 * n);
+  const margin = Z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
+  return {
+    low: Math.max(0, (center - margin) / denom),
+    high: Math.min(1, (center + margin) / denom),
+  };
+}
+
+/**
+ * Count and interval. Fewer than 20 trials is "n too small", with no percentage.
+ * @param {number} k
+ * @param {number} n
+ * @param {string} noun
+ * @returns {string}
+ */
+function formatRate(k, n, noun) {
+  if (n < 20) return `n too small (${k} detected, ${n} ${noun})`;
+  const interval = wilson(k, n);
+  const pct = (value) => (100 * value).toFixed(1);
+  return `${k}/${n} = ${pct(k / n)}% (95% Wilson ${pct(interval.low)}%–${pct(interval.high)}%)`;
+}
+
+/**
+ * @param {string} severity
+ * @returns {boolean}
+ */
+function counts(severity) {
+  return (SEVERITY[severity] ?? -1) >= SEVERITY.medium;
+}
+
+/**
+ * Per-device learning prefix. The prefix is the benign events before the first
+ * malicious event. A capture with no attack learns 24 h when it has them.
+ * @param {any[]} rows
+ * @returns {{ learn: any[], rest: any[], learningMs: number, short: boolean }}
+ */
+function planDevice(rows) {
+  const sorted = rows
+    .slice()
+    .sort((a, b) => a.ts - b.ts || (a.malicious === b.malicious ? 0 : a.malicious ? 1 : -1));
+  const firstBad = sorted.find((row) => row.malicious);
+  if (!firstBad) {
+    if (sorted.length === 0) return { learn: [], rest: [], learningMs: 0, short: true };
+    const span = sorted[sorted.length - 1].ts - sorted[0].ts;
+    if (span >= DAY) {
+      const cut = sorted[0].ts + DAY;
+      return {
+        learn: sorted.filter((row) => row.ts < cut),
+        rest: sorted.filter((row) => row.ts >= cut),
+        learningMs: DAY,
+        short: false,
+      };
+    }
+    return { learn: sorted, rest: [], learningMs: span, short: true };
+  }
+  const learn = sorted.filter((row) => row.ts < firstBad.ts);
+  const rest = sorted.filter((row) => row.ts >= firstBad.ts);
+  const learningMs = learn.length === 0 ? 0 : firstBad.ts - learn[0].ts;
+  return { learn, rest, learningMs, short: learningMs < DAY };
+}
+
+/**
+ * One instance per run of the same detailed-label. A gap above 5 minutes starts another.
+ * @param {string} device
+ * @param {any[]} rest
+ * @returns {any[]}
+ */
+function attackIntervals(device, rest) {
+  /** @type {any[]} */
+  const out = [];
+  for (const row of rest) {
+    if (!row.malicious) continue;
+    const prev = out[out.length - 1];
+    if (prev && prev.detailedLabel === row.detailedLabel && row.ts - prev.end <= MERGE_MS) {
+      prev.end = row.ts;
+      prev.flows += 1;
+      continue;
+    }
+    out.push({
+      device,
+      label: row.label,
+      detailedLabel: row.detailedLabel,
+      start: row.ts,
+      end: row.ts,
+      flows: 1,
+    });
+  }
+  return out;
+}
+
+/**
+ * @param {any[]} rows
+ * @returns {Map<string, any[]>}
+ */
+function byDevice(rows) {
+  /** @type {Map<string, any[]>} */
+  const groups = new Map();
+  for (const row of rows) {
+    const list = groups.get(row.device);
+    if (list) list.push(row);
+    else groups.set(row.device, [row]);
+  }
+  return groups;
+}
+
+/**
+ * Detectors whose required tiers are all enabled.
+ * @param {string[]} tiers
+ * @returns {any[]}
+ */
+function activeDetectors(tiers) {
+  const enabled = new Set(tiers);
+  return Object.values(detectors).filter((det) => det.requires.every((tier) => enabled.has(tier)));
+}
+
+/**
+ * @param {Map<string, any>} plans
+ * @param {string[]} tiers
+ * @param {string | null} disabled
+ * @returns {any[]}
+ */
+function replay(plans, tiers, disabled) {
+  /** @type {any[]} */
+  const anomalies = [];
+  for (const [device, plan] of plans) {
+    const engine = createEngine({
+      learnMs: plan.learn.length === 0 ? 0 : 1e14,
+      tiers,
+      evidence: false,
+      detectors: disabled ? { [disabled]: { enabled: false } } : undefined,
+    });
+    engine.on('anomaly', (item) => {
+      anomalies.push({
+        detector: item.detector,
+        device: item.device,
+        ts: item.ts,
+        severity: item.severity,
+      });
+    });
+    for (const row of plan.learn) engine.feed(row.event);
+    if (plan.learn.length > 0) engine.lock(device);
+    const last = plan.rest[plan.rest.length - 1] || plan.learn[plan.learn.length - 1];
+    for (const row of plan.rest) engine.feed(row.event);
+    if (last) engine.flush(last.ts + 60_000);
+  }
+  return anomalies;
+}
+
+/**
+ * @param {any} plan
+ * @returns {number}
+ */
+function lockTs(plan) {
+  if (plan.learn.length > 0) return plan.learn[plan.learn.length - 1].ts;
+  if (plan.rest.length > 0) return plan.rest[0].ts;
+  return 0;
+}
+
+/**
+ * Anomalies from the post-lock replay. Learning-prefix alerts are not scored.
+ * @param {any[]} anomalies
+ * @param {Map<string, any>} plans
+ * @returns {any[]}
+ */
+function afterLock(anomalies, plans) {
+  return anomalies.filter((item) => {
+    const plan = plans.get(item.device);
+    if (!plan) return false;
+    if (plan.learn.length > 0) return item.ts > lockTs(plan);
+    return item.ts >= lockTs(plan);
+  });
+}
+
+/**
+ * @param {any} interval
+ * @param {any} item
+ * @returns {boolean}
+ */
+function inDetectionWindow(interval, item) {
+  return (
+    item.device === interval.device &&
+    item.ts >= interval.start &&
+    item.ts <= interval.end + GRACE_MS
+  );
+}
+
+/**
+ * @param {any} interval
+ * @param {any[]} anomalies
+ * @returns {any[]}
+ */
+function hitsFor(interval, anomalies) {
+  return anomalies.filter((item) => counts(item.severity) && inDetectionWindow(interval, item));
+}
+
+/**
+ * @param {string} severity
+ * @param {number} count
+ * @param {number} deviceDays
+ * @returns {boolean}
+ */
+function aboveGate(severity, count, deviceDays) {
+  if (!(deviceDays > 0) || count <= 0) return false;
+  if (severity === 'medium') return count / deviceDays >= 1;
+  if (severity === 'high' || severity === 'critical') return count / (deviceDays / 7) >= 1;
+  return false;
+}
+
+/**
+ * @param {Map<string, any>} plans
+ * @param {any[]} intervals
+ * @returns {number}
+ */
+function benignDeviceDays(plans, intervals) {
+  let ms = 0;
+  for (const [device, plan] of plans) {
+    if (plan.rest.length === 0) continue;
+    const start = plan.rest[0].ts;
+    const end = plan.rest[plan.rest.length - 1].ts;
+    let span = Math.max(0, end - start);
+    for (const interval of intervals) {
+      if (interval.device !== device) continue;
+      const left = Math.max(interval.start, start);
+      const right = Math.min(interval.end, end);
+      if (right > left) span -= right - left;
+    }
+    ms += Math.max(0, span);
+  }
+  return ms / DAY;
+}
+
+/**
+ * Benign stretches in the post-lock replay. An attack, or a gap over 5 minutes, splits them.
+ * @param {Map<string, any>} plans
+ * @param {any[]} intervals
+ * @returns {{ device: string, start: number, end: number }[]}
+ */
+function benignIntervals(plans, intervals) {
+  /** @type {{ device: string, start: number, end: number }[]} */
+  const out = [];
+  for (const [device, plan] of plans) {
+    const attacks = intervals.filter((interval) => interval.device === device);
+    /** @type {{ device: string, start: number, end: number } | null} */
+    let open = null;
+    for (const row of plan.rest) {
+      if (row.malicious) {
+        if (open) out.push(open);
+        open = null;
+        continue;
+      }
+      const inside = attacks.some((interval) => row.ts >= interval.start && row.ts <= interval.end);
+      if (inside) continue;
+      if (open && row.ts - open.end <= MERGE_MS) open.end = row.ts;
+      else {
+        if (open) out.push(open);
+        open = { device, start: row.ts, end: row.ts };
+      }
+    }
+    if (open) out.push(open);
+  }
+  return out;
+}
+
+/**
+ * @param {any[]} rows
+ * @param {{ tiers: string[], dataset?: string }} opts
+ * @returns {any}
+ */
+function evaluate(rows, opts) {
+  const tiers = opts.tiers.slice();
+  const plans = new Map();
+  /** @type {any[]} */
+  const intervals = [];
+  /** @type {any[]} */
+  const learning = [];
+  for (const [device, list] of byDevice(rows)) {
+    const plan = planDevice(list);
+    plans.set(device, plan);
+    learning.push({ device, learningMs: plan.learningMs, short: plan.short });
+    for (const interval of attackIntervals(device, plan.rest)) intervals.push(interval);
+  }
+  const scored = afterLock(replay(plans, tiers, null), plans);
+  const instances = intervals.map((interval) => {
+    const hits = hitsFor(interval, scored);
+    hits.sort((a, b) => a.ts - b.ts);
+    return {
+      ...interval,
+      detected: hits.length > 0,
+      detectors: [...new Set(hits.map((item) => item.detector))],
+      timeToDetectMs: hits.length > 0 ? hits[0].ts - interval.start : null,
+    };
+  });
+  const benign = benignIntervals(plans, intervals);
+  const fpItems = scored.filter(
+    (item) =>
+      counts(item.severity) && !intervals.some((interval) => inDetectionWindow(interval, item)),
+  );
+  const days = benignDeviceDays(plans, intervals);
+  const benignHit = benign.filter((interval) =>
+    fpItems.some(
+      (item) =>
+        item.device === interval.device && item.ts >= interval.start && item.ts <= interval.end,
+    ),
+  ).length;
+  const detected = instances.filter((interval) => interval.detected).length;
+  const ablation = activeDetectors(tiers).map((det) => {
+    const id = det.id;
+    const severity = (det.defaults && det.defaults.severity) || 'medium';
+    const without = afterLock(replay(plans, tiers, id), plans);
+    let unique = 0;
+    for (const interval of instances) {
+      if (!interval.detectors.includes(id)) continue;
+      if (hitsFor(interval, without).length === 0) unique += 1;
+    }
+    const fp = fpItems.filter((item) => item.detector === id).length;
+    const propose = unique === 0 && aboveGate(severity, fp, days);
+    return {
+      detector: id,
+      severity,
+      unique,
+      falsePositives: fp,
+      proposal: propose
+        ? `${id}: zero unique detections and ${fp} ${severity} false positives over ${days} benign device-days, above the C6.3 gate. Proposal: set detectors.${id}.enabled to false, or set severity to info. The human decides.`
+        : null,
+    };
+  });
+  return {
+    dataset: opts.dataset || null,
+    tiers,
+    learning,
+    attackInstances: instances.length,
+    detected,
+    detection: formatRate(detected, instances.length, 'attack instances'),
+    misses: instances.filter((interval) => !interval.detected),
+    hits: instances.filter((interval) => interval.detected),
+    falsePositives: fpItems.length,
+    benignDeviceDays: days,
+    falsePositivesPerDeviceDay: days > 0 ? fpItems.length / days : null,
+    benignIntervals: benign.length,
+    benignIntervalsWithFalsePositive: formatRate(benignHit, benign.length, 'benign intervals'),
+    ablation,
+    proposals: ablation.map((row) => row.proposal).filter(Boolean),
+  };
+}
+
+/**
+ * @param {any} result
+ * @returns {string}
+ */
+function renderMarkdown(result) {
+  const short = result.learning.filter((row) => row.short);
+  const learningNote =
+    short.length === 0
+      ? 'Every device learned at least 24 h.'
+      : short.map((row) => `${row.device} learned ${row.learningMs} ms (under 24 h)`).join('; ') +
+        '.';
+  const lines = [
+    `# ${result.dataset || 'eval'}`,
+    '',
+    `Tiers: ${result.tiers.join(', ')}.`,
+    '',
+    `Learning: ${learningNote}`,
+    '',
+    `Detection: ${result.detection}`,
+    '',
+    `False positives: ${result.falsePositives} anomalies at medium or above, ${result.benignDeviceDays} benign device-days, ${result.falsePositivesPerDeviceDay == null ? 'no rate (0 device-days)' : `${result.falsePositivesPerDeviceDay} per benign device-day`}.`,
+    '',
+    `Benign intervals with a false positive: ${result.benignIntervalsWithFalsePositive}`,
+    '',
+    '## Hits',
+    '',
+  ];
+  if (result.hits.length === 0) lines.push('None.', '');
+  for (const hit of result.hits) {
+    lines.push(
+      `- ${hit.device} ${hit.detailedLabel} at ${hit.start}–${hit.end}, time to detect ${hit.timeToDetectMs} ms, detectors ${hit.detectors.join(', ')}`,
+    );
+  }
+  if (result.hits.length > 0) lines.push('');
+  lines.push('## Misses', '');
+  if (result.misses.length === 0) lines.push('None.', '');
+  for (const miss of result.misses) {
+    lines.push(
+      `- ${miss.device} ${miss.detailedLabel} at ${miss.start}–${miss.end} (${miss.flows} flows)`,
+    );
+  }
+  if (result.misses.length > 0) lines.push('');
+  lines.push('## Ablation', '');
+  for (const row of result.ablation) {
+    lines.push(
+      `- ${row.detector}: ${row.unique} unique detections, ${row.falsePositives} false positives`,
+    );
+  }
+  lines.push('', '## Proposals', '');
+  if (result.proposals.length === 0) lines.push('None. The human decides any later change.', '');
+  for (const proposal of result.proposals) lines.push(`- ${proposal}`);
+  if (result.proposals.length > 0) lines.push('');
+  if (result.evasion) {
+    lines.push(
+      '## Evasion',
+      '',
+      'Synthetic known blind spots. Thresholds were not tuned against this suite.',
+      '',
+    );
+    for (const scenario of result.evasion) {
+      const who = scenario.detectors.length > 0 ? scenario.detectors.join(', ') : 'none';
+      lines.push(
+        `- ${scenario.id}: ${scenario.fired ? 'fired' : 'no medium-or-above anomaly'} (${who})`,
+      );
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
+module.exports = {
+  DAY,
+  GRACE_MS,
+  MERGE_MS,
+  wilson,
+  formatRate,
+  planDevice,
+  attackIntervals,
+  aboveGate,
+  inDetectionWindow,
+  hitsFor,
+  evaluate,
+  renderMarkdown,
+};
