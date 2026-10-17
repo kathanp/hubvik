@@ -272,3 +272,9 @@ Baseline: 100,000 inputs, 58,132 accepted, 41,868 rejected. Checkpoint: 100,000 
 Date: 2026-10-17.
 
 A tier in `tiers` with no events once time reaches the first event plus `learnMs` emits warning `TIER_NEVER_SEEN` once. It is not an anomaly. `tier-silent` still stays quiet for a tier that was never armed.
+
+## WP-8.2 — fingerprint allow
+
+Date: 2026-10-17.
+
+`allow(device, 'fingerprint', value)` is an allow kind. `identity-change` does not alert after lock when the presented fingerprint was allowed. A fingerprint that was not allowed still alerts.

@@ -52,6 +52,23 @@ test('identity-change fires when a learned MAC presents a new fingerprint', () =
   assert.strictEqual(alerts.length, 1);
 });
 
+test('an allowed fingerprint does not alert after lock', () => {
+  const engine = createEngine({ learnMs: 10_000, tiers: ['T4'] });
+  /** @type {any[]} */
+  const alerts = [];
+  engine.on('anomaly', (item) => {
+    if (item.detector === 'identity-change') alerts.push(item);
+  });
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 0));
+  engine.allow('d', 'fingerprint', '1,3,6,12');
+  engine.lock('d');
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6,12', 20_000));
+  assert.strictEqual(alerts.length, 0);
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '9,9,9', 21_000));
+  assert.strictEqual(alerts.length, 1);
+  assert.strictEqual(alerts[0].data.fingerprint, '9,9,9');
+});
+
 test('identity-change stays quiet on 14 benign days for every class', () => {
   for (const profile of Object.keys(PROFILES)) {
     const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS });

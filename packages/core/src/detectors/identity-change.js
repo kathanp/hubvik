@@ -17,7 +17,20 @@ const detector = {
   defaults: { severity: 'high' },
 
   createState() {
-    return { macs: new Map() };
+    return { macs: new Map(), allowed: new Set() };
+  },
+
+  /**
+   * @param {any} dev
+   * @param {string} kind
+   * @param {string} value
+   * @returns {boolean}
+   */
+  allow(dev, kind, value) {
+    if (kind !== 'fingerprint') return false;
+    if (!(dev.allowed instanceof Set)) dev.allowed = new Set();
+    if (dev.allowed.size < CAP) dev.allowed.add(value);
+    return true;
   },
 
   /**
@@ -54,6 +67,7 @@ const detector = {
     const bag = shared(ctx, dev);
     const known = bag.macs.get(row.mac);
     if (known == null || known === row.fingerprint) return;
+    if (dev.allowed instanceof Set && dev.allowed.has(row.fingerprint)) return;
     const key = `${row.mac}\0${row.fingerprint}`;
     if (bag.fired.has(key)) return;
     if (bag.fired.size < CAP) bag.fired.add(key);
@@ -72,7 +86,12 @@ const detector = {
    */
   exportState(dev) {
     const macs = dev.macs instanceof Map ? [...dev.macs.entries()] : [];
-    return { macs };
+    /** @type {{ macs: [string, string][], allowed?: string[] }} */
+    const out = { macs };
+    if (dev.allowed instanceof Set && dev.allowed.size > 0) {
+      out.allowed = [...dev.allowed].sort();
+    }
+    return out;
   },
 
   /**
@@ -82,15 +101,25 @@ const detector = {
   importState(dev, state) {
     assertState(state, detector.id);
     dev.macs = new Map();
-    if (state.macs == null) return;
-    if (!Array.isArray(state.macs)) throw new Error('macs must be an array');
-    if (state.macs.length > CAP) throw new Error('array macs exceeds cap');
-    for (const pair of state.macs) {
-      if (!Array.isArray(pair) || pair.length !== 2) throw new Error('macs must be pairs');
-      if (typeof pair[0] !== 'string' || typeof pair[1] !== 'string') {
-        throw new Error('macs must be strings');
+    dev.allowed = new Set();
+    if (state.macs != null) {
+      if (!Array.isArray(state.macs)) throw new Error('macs must be an array');
+      if (state.macs.length > CAP) throw new Error('array macs exceeds cap');
+      for (const pair of state.macs) {
+        if (!Array.isArray(pair) || pair.length !== 2) throw new Error('macs must be pairs');
+        if (typeof pair[0] !== 'string' || typeof pair[1] !== 'string') {
+          throw new Error('macs must be strings');
+        }
+        dev.macs.set(pair[0], pair[1]);
       }
-      dev.macs.set(pair[0], pair[1]);
+    }
+    if (state.allowed != null) {
+      if (!Array.isArray(state.allowed)) throw new Error('allowed must be an array');
+      if (state.allowed.length > CAP) throw new Error('array allowed exceeds cap');
+      for (const value of state.allowed) {
+        if (typeof value !== 'string') throw new Error('allowed must be strings');
+        dev.allowed.add(value);
+      }
     }
   },
 
@@ -98,7 +127,8 @@ const detector = {
    * @param {any} dev
    */
   memoryEstimate(dev) {
-    return (dev.macs instanceof Map ? dev.macs.size : 0) * 48;
+    const allowed = dev.allowed instanceof Set ? dev.allowed.size : 0;
+    return (dev.macs instanceof Map ? dev.macs.size : 0) * 48 + allowed * 48;
   },
 };
 

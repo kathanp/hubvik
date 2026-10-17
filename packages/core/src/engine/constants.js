@@ -11,7 +11,17 @@ const SEVERITY = Object.freeze({
 const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 const TIER_SET = new Set(TIERS);
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
-const ALLOW_KINDS = ['dst', 'port', 'asn', 'country', 'ja4', 'certIssuer', 'resolver', 'peer'];
+const ALLOW_KINDS = [
+  'dst',
+  'port',
+  'asn',
+  'country',
+  'ja4',
+  'certIssuer',
+  'resolver',
+  'peer',
+  'fingerprint',
+];
 const EVENT_TYPES = [
   'summary',
   'flow',

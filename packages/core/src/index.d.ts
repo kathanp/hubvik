@@ -11,7 +11,7 @@ export const SEVERITY: {
 export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical';
 export type Tier = 'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5';
 export type AllowKind =
-  'dst' | 'port' | 'asn' | 'country' | 'ja4' | 'certIssuer' | 'resolver' | 'peer';
+  'dst' | 'port' | 'asn' | 'country' | 'ja4' | 'certIssuer' | 'resolver' | 'peer' | 'fingerprint';
 
 export interface SummaryEvent {
   device: string;
