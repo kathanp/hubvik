@@ -61,5 +61,5 @@ Checkpoint B gate, same script, 2026-10-17: median 25.75 µs, 2.46 KB/device.
 
 | Host           | median `feed()` | memoryEstimate | measured heap |
 | -------------- | --------------- | -------------- | ------------- |
-| x86            | 5.54 µs         | 1.19 KB        | 12.27 KB      |
+| x86            | 5.83 µs         | 1.19 KB        | 12.33 KB      |
 | Raspberry Pi 4 | not measured    | not measured   | not measured  |

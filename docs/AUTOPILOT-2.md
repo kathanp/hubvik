@@ -33,4 +33,4 @@ Fast check after each WP. Full gate + demo at the end only.
 - [x] docs/QUESTIONS.md: add any open question about label semantics you could not resolve.
 
 ## Final
-- [ ] Full gate + demo. AUTOPILOT REPORT with every field filled from THIS run only (no copied values from earlier reports), plus: corpus summary line, ablation zero-unique list, evasion blind spots, beacon finding, heap per device.
+- [x] Full gate + demo. AUTOPILOT REPORT with every field filled from THIS run only (no copied values from earlier reports), plus: corpus summary line, ablation zero-unique list, evasion blind spots, beacon finding, heap per device.

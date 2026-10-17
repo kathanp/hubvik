@@ -331,10 +331,16 @@ Date: 2026-10-17.
 
 Date: 2026-10-17.
 
-`bench/run.js` prints `memoryEstimate` and the heap delta per watching device. The 100 KB check uses the heap number. `node --expose-gc bench/run.js` printed median 5.54 µs, estimate 1.19 KB/device, heap 12.27 KB/device, 1,000 devices. That is under 100 KB. Detectors were not tuned. `docs/BENCHMARKS.md` has the measured-heap column and a Raspberry Pi 4 row: not measured.
+`bench/run.js` prints `memoryEstimate` and the heap delta per watching device. The 100 KB check uses the heap number. The autopilot-2 gate printed median 5.83 µs, estimate 1.19 KB/device, heap 12.33 KB/device, 1,000 devices. That is under 100 KB. Detectors were not tuned. `docs/BENCHMARKS.md` has the measured-heap column and a Raspberry Pi 4 row: not measured.
 
 ## WP-9.5 — docs
 
 Date: 2026-10-17.
 
 `README.md` and `packages/core/README.md` say: Not yet evaluated on real traffic. Harness: `eval/README.md`. No detection numbers. `docs/QUESTIONS.md` asks whether IoT-23 labels other than Benign and Malicious, such as Background, should be benign.
+
+## Autopilot-2 gate
+
+Date: 2026-10-17.
+
+`npm run gate` exited 0. Check 151/151. Coverage lines 97.82%, branches 86.38%. Pack-check: core 152 files, 351005 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 5.83 µs, estimate 1.19 KB/device, heap 12.33 KB/device. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
