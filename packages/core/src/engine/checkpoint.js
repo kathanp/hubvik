@@ -80,6 +80,44 @@ function assertCheckpoint(raw) {
 }
 
 /**
+ * Reject a revived scratch table whose shape would crash a later feed.
+ * @param {any} scratch
+ * @returns {void}
+ */
+function assertRevived(scratch) {
+  const wave = scratch['fleet-wave'];
+  if (wave != null) {
+    if (!(wave instanceof Map)) throw new Error('checkpoint scratch fleet-wave is invalid');
+    for (const row of wave.values()) {
+      if (!row || typeof row !== 'object' || Array.isArray(row)) {
+        throw new Error('checkpoint scratch fleet-wave is invalid');
+      }
+      if (!(row.devices instanceof Map) || typeof row.first !== 'number') {
+        throw new Error('checkpoint scratch fleet-wave is invalid');
+      }
+    }
+  }
+  const arp = scratch['arp-spoof'];
+  if (arp != null) {
+    if (typeof arp !== 'object' || !(arp.bindings instanceof Map) || !(arp.macIps instanceof Map)) {
+      throw new Error('checkpoint scratch arp-spoof is invalid');
+    }
+  }
+  const identity = scratch['identity-change'];
+  if (identity != null) {
+    if (typeof identity !== 'object' || !(identity.macs instanceof Map)) {
+      throw new Error('checkpoint scratch identity-change is invalid');
+    }
+  }
+  const dhcp = scratch['dhcp-starvation'];
+  if (dhcp != null) {
+    if (typeof dhcp !== 'object' || !(dhcp.macs instanceof Set)) {
+      throw new Error('checkpoint scratch dhcp-starvation is invalid');
+    }
+  }
+}
+
+/**
  * Drop the oldest ARP binding, then the oldest learned MAC, until the body fits.
  * @param {any} body
  * @returns {boolean}
@@ -148,6 +186,7 @@ function applyProgress(device, progress) {
 module.exports = {
   plainScratch,
   assertCheckpoint,
+  assertRevived,
   fit,
   progressOf,
   applyProgress,

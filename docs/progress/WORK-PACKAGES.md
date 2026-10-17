@@ -187,3 +187,16 @@ Date: 2026-10-17.
 The demo prints `went-silent: silent for 2h` at `tick(awake + 2h)`. That tick is two hours after the last event, and the learned limit is 15 minutes, so the camera is not sending when the alert fires. The hijack events are fed after that tick. A device that keeps the learned 5-minute cadence, ticked at each event, stays quiet. The detector was not changed.
 
 Fast check: 122/122 tests, duration 38723.986041 ms.
+
+## WP-8.1 — mutation fuzz
+
+Date: 2026-10-17.
+
+`fuzz/mutate.fuzz.js` starts from one valid baseline and one valid checkpoint, then applies 100,000 seeded mutations to each. A mutation that imports and still accepts a later `feed()` is accepted. A thrown validation error is rejected. `restore()` now rejects a known scratch table with the wrong shape, which is what a mutated `fleet-wave` table was doing before it crashed `feed()`.
+
+| Input      | Accepted | Rejected |
+| ---------- | -------- | -------- |
+| baseline   | 58,132   | 41,868   |
+| checkpoint | 57,967   | 42,033   |
+
+Fast check: 123/123 tests, duration 63370.813875 ms. The mutation run itself is part of `npm run fuzz`, not the fast check.

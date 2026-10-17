@@ -15,6 +15,7 @@ const { noteIncident, ackIncident } = require('./incidents');
 const {
   plainScratch,
   assertCheckpoint,
+  assertRevived,
   fit,
   progressOf,
   applyProgress,
@@ -611,6 +612,7 @@ class Engine extends EventEmitter {
     const cp = /** @type {any} */ (raw);
     assertCheckpoint(cp);
     const revived = revive(cp.scratch == null ? {} : cp.scratch);
+    assertRevived(revived);
     this.importBaseline(cp, { merge: false, verify: opts.verify });
     this.watermark = typeof cp.watermark === 'number' ? cp.watermark : null;
     this.lastEventTs = this.watermark;

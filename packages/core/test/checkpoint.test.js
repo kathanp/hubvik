@@ -71,3 +71,15 @@ test('a thousand corrupt checkpoints are rejected and leave state unchanged', ()
   }
   assert.strictEqual(JSON.stringify(engine.exportBaseline({ createdAt: 1 })), before);
 });
+
+test('a checkpoint with a broken fleet-wave table is rejected', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0'] });
+  engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 0 });
+  const saved = engine.checkpoint({ createdAt: 1 });
+  const before = engine.stats().devices;
+  const broken = JSON.parse(JSON.stringify(saved));
+  broken.scratch['fleet-wave'] = { map: true };
+  assert.throws(() => engine.restore(broken), /fleet-wave/);
+  assert.strictEqual(engine.stats().devices, before);
+  engine.feed({ device: 'd', dst: 'b.example', bytes: 10, ts: 60_000 });
+});
