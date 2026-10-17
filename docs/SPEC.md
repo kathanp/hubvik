@@ -466,14 +466,15 @@ The biggest weakness of learn-then-watch is that a device compromised before or 
 
 In addition, during learning the engine emits **learning quality warnings** with the exact code `SUSPICIOUS_LEARNING` and `{ device, reason, ts }`, at most once per device per reason. Reasons and defaults (new in 0.5; the existing ad-hoc learning warnings are renamed to this code):
 
-| `reason`         | Fires when                                                                                   |
-| ---------------- | -------------------------------------------------------------------------------------------- |
-| `family-churn`   | more than 20 new destination families in one UTC day, after the device's second learning day |
-| `gre`            | any GRE flow                                                                                 |
-| `telnet-out`     | any outbound TCP 23 or 2323                                                                  |
-| `nxdomain-burst` | the `nxdomain-burst` condition is met while learning                                         |
-| `adb`            | any TCP 5555 connection to or from the device                                                |
-| `proxy-shape`    | `proxy-relay`, `proxy-backconnect` or `p2p-pattern` conditions met while learning            |
+| `reason`          | Fires when                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| `family-churn`    | more than 20 new destination families in one UTC day, after the device's second learning day |
+| `gre`             | any GRE flow                                                                                 |
+| `telnet-out`      | any outbound TCP 23 or 2323                                                                  |
+| `nxdomain-burst`  | the `nxdomain-burst` condition is met while learning                                         |
+| `adb`             | any TCP 5555 connection to or from the device                                                |
+| `proxy-shape`     | `proxy-relay`, `proxy-backconnect` or `p2p-pattern` conditions met while learning            |
+| `identity-change` | a known MAC presents a different DHCP fingerprint; the first fingerprint is kept             |
 
 These do not alert. They set `stats().learningQuality[device].ready = false`. `lock()` on a device that is not `ready` still works but emits `warning` `LOCKED_UNREVIEWED`, so a host UI can ask the operator to confirm.
 

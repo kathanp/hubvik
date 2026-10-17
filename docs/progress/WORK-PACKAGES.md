@@ -169,3 +169,13 @@ Date: 2026-10-17.
 `fingerprint.test.js`: one telnet scan fires at 11 hosts during learning and at 76 hosts after lock. The display text differs. The fingerprint matches.
 
 Fast check: 121/121 tests, duration 37988.776 ms.
+
+## WP-8.1 — identity-change
+
+Date: 2026-10-17. Revises D-7.
+
+During learning the first DHCP fingerprint for a MAC is kept. A later fingerprint emits `SUSPICIOUS_LEARNING` reason `identity-change` and does not replace it. While watching, a different fingerprint still alerts at high, and `data.previous` is the first fingerprint.
+
+`identity-change.test.js` expects the warning during learning and an alert after lock whose previous value is `1,3,6`. The benign matrices emit no `SUSPICIOUS_LEARNING`.
+
+Fast check: 121/121 tests, duration 38381.363792 ms.

@@ -32,17 +32,23 @@ test('identity-change fires when a learned MAC presents a new fingerprint', () =
   engine.on('anomaly', (item) => {
     if (item.detector === 'identity-change') alerts.push(item);
   });
+  /** @type {string[]} */
+  const reasons = [];
+  engine.on('warning', (warning) => {
+    if (warning.code === 'SUSPICIOUS_LEARNING') reasons.push(warning.reason);
+  });
   engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 0));
   engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6,12', 1_000));
   assert.strictEqual(alerts.length, 0);
+  assert.deepStrictEqual(reasons, ['identity-change']);
   engine.lock('d');
-  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6,12', 20_000));
-  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,15,3,6', 21_000));
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 20_000));
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6,12', 21_000));
   assert.strictEqual(alerts.length, 1);
   assert.strictEqual(alerts[0].severity, 'high');
-  assert.strictEqual(alerts[0].data.previous, '1,3,6,12');
-  assert.strictEqual(alerts[0].data.fingerprint, '1,15,3,6');
-  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,15,3,6', 22_000));
+  assert.strictEqual(alerts[0].data.previous, '1,3,6');
+  assert.strictEqual(alerts[0].data.fingerprint, '1,3,6,12');
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6,12', 22_000));
   assert.strictEqual(alerts.length, 1);
 });
 

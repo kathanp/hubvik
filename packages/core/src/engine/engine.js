@@ -9,7 +9,7 @@ const { windowStart, planClose } = require('./window');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
 const { ALLOW_KINDS, FORBIDDEN_KEYS } = require('./constants');
-const { noteLearning } = require('./learning');
+const { noteLearning, mark } = require('./learning');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
 const {
@@ -848,7 +848,12 @@ class Engine extends EventEmitter {
       const state = this._state(device, det);
       ctx.options = this._optionsFor(det);
       if (learning && !det.hardRule) {
-        if (typeof det.learn === 'function') det.learn(state, event, ctx);
+        if (typeof det.learn === 'function') {
+          const noted = det.learn(state, event, ctx);
+          if (noted && typeof noted.reason === 'string') {
+            mark(this, device, event, noted.reason, noted.message || noted.reason);
+          }
+        }
       } else if (typeof det.check === 'function') {
         this._take(device, det, det.check(state, event, ctx), learning, event);
       }

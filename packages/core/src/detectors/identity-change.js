@@ -20,16 +20,25 @@ const detector = {
   },
 
   /**
+   * Keep the first fingerprint. A later one is a learning warning, not a replacement.
    * @param {any} dev
    * @param {any} ev
    * @param {any} ctx
+   * @returns {{ reason: string, message: string } | void}
    */
   learn(dev, ev, ctx) {
     const row = dhcpRow(ev);
     if (!row) return;
     const bag = shared(ctx, dev);
-    if (bag.macs.get(row.mac) === row.fingerprint) return;
-    if (!bag.macs.has(row.mac) && bag.macs.size >= CAP) return;
+    const known = bag.macs.get(row.mac);
+    if (known === row.fingerprint) return;
+    if (known != null) {
+      return {
+        reason: 'identity-change',
+        message: `${row.mac} DHCP fingerprint changed during learning`,
+      };
+    }
+    if (bag.macs.size >= CAP) return;
     bag.macs.set(row.mac, row.fingerprint);
   },
 

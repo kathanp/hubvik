@@ -99,4 +99,4 @@ function proxyShape(engine, device, event) {
   }
 }
 
-module.exports = { noteLearning };
+module.exports = { noteLearning, mark };
