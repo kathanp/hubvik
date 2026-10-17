@@ -970,7 +970,7 @@ class Engine extends EventEmitter {
         data: item.data ? { ...item.data } : {},
         hardRule: Boolean(learning),
         schema: 1,
-        fingerprint: fingerprintOf(det.id, device.id, String(item.actual)),
+        fingerprint: fingerprintOf(det.id, device.id, dedupKeyOf(item)),
       };
       if (det.meta && typeof det.meta.dedupGroup === 'string') {
         anomaly.dedupGroup = det.meta.dedupGroup;
@@ -1247,11 +1247,7 @@ class Engine extends EventEmitter {
 }
 
 /**
- * @param {unknown} value
- * @returns {number}
- */
-/**
- * Stable id for one fact. Same detector, device, and actual text hash the same after a restart.
+ * Stable id for one fact. Same detector, device, and dedup key hash the same after a restart.
  * @param {string} detector
  * @param {string} device
  * @param {string} key
@@ -1259,6 +1255,40 @@ class Engine extends EventEmitter {
  */
 function fingerprintOf(detector, device, key) {
   return createHash('sha256').update(`${detector}\0${device}\0${key}`).digest('hex').slice(0, 16);
+}
+
+const MAGNITUDE = new Set([
+  'hosts',
+  'count',
+  'bytes',
+  'limit',
+  'pkts',
+  'gapMs',
+  'maxGap',
+  'ratio',
+  'score',
+  'bytesPerPacket',
+]);
+
+/**
+ * A detector may set `dedupKey`. Otherwise the key is the non-magnitude fields of `data`.
+ * Display text in `actual` is not part of the hash.
+ * @param {{ dedupKey?: string, data?: Record<string, unknown> }} item
+ * @returns {string}
+ */
+function dedupKeyOf(item) {
+  if (typeof item.dedupKey === 'string' && item.dedupKey.length > 0) return item.dedupKey;
+  const data = item.data;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return '';
+  /** @type {string[]} */
+  const parts = [];
+  for (const key of Object.keys(data).sort()) {
+    if (MAGNITUDE.has(key)) continue;
+    const value = data[key];
+    if (value == null || typeof value === 'object') continue;
+    parts.push(`${key}=${String(value)}`);
+  }
+  return parts.join('\0');
 }
 
 /**

@@ -76,6 +76,7 @@ const detector = {
       ts: ev.ts,
       actual: `${count} hosts on port ${ev.dstPort}`,
       expected: `<= ${limit} hosts/window`,
+      dedupKey: String(ev.dstPort),
       data: { dstPort: ev.dstPort, hosts: count, limit },
     };
   },

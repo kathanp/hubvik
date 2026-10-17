@@ -310,7 +310,7 @@ A frozen baseline goes stale: vendors add CDN families, firmware adds ports. Wit
 }
 ```
 
-- `fingerprint` uses `node:crypto` SHA-256, hex, first 16 chars. No new dependency.
+- `fingerprint` uses `node:crypto` SHA-256, hex, first 16 chars, over detector, device, and a stable dedup key. The key is the fact, not the display string `actual`. A horizontal scan's key is the destination port, so a later window with a different host count keeps the same fingerprint. No new dependency.
 - `evidence.sample` never includes fields the host did not send. It is dropped entirely when the host sets `createEngine({ evidence: false })`, for hosts that forward anomalies off-box and do not want event content leaving the gateway.
 - Shared `dedupGroup` values shipped in 0.5: `private-answer` (`dns-rebinding`, `private-answer-for-public-name`), `reflection` (`reflection-participation`, `coap-amplification`), `proxy-relay` (`proxy-relay`, `credential-stuffing-out` when both fire within one window).
 

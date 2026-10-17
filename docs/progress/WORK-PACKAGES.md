@@ -159,3 +159,13 @@ A tier is armed by its first event. A tier that has never been seen does not ale
 | `tierSilentByTier` | none                            | T4 26 h               |
 
 Fast check: 120/120 tests, duration 38274.549375 ms.
+
+## WP-8.1 — fingerprint
+
+Date: 2026-10-17.
+
+`fingerprint` hashes the detector, the device, and a stable dedup key. It does not hash `actual`. A detector may set `dedupKey`. Otherwise the key is the non-magnitude fields of `data`. A horizontal scan's key is the destination port.
+
+`fingerprint.test.js`: one telnet scan fires at 11 hosts during learning and at 76 hosts after lock. The display text differs. The fingerprint matches.
+
+Fast check: 121/121 tests, duration 37988.776 ms.
