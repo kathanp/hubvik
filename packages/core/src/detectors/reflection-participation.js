@@ -15,6 +15,7 @@ const detector = {
     fpRisk: 'Very low',
     attack: ['T1498'],
     stage: 'impact',
+    dedupGroup: 'reflection',
   },
   requires: ['T1'],
   category: 'volume',

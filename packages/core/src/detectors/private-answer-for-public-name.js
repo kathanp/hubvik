@@ -11,6 +11,7 @@ const detector = {
     rel: '0.2',
     fpRisk: '',
     attack: ['T1557'],
+    dedupGroup: 'private-answer',
   },
   requires: ['T2'],
   category: 'dns',

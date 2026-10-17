@@ -92,9 +92,9 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-4 — Anomaly evidence, fingerprint, dedup (D6)
 
-- [ ] Add the A7.1 fields, the C1 dedup rule, the `evidence: false` option, and `index.d.ts`.
-- [ ] Add the done-when tests from SPEC WP-4.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Add the A7.1 fields, the C1 dedup rule, the `evidence: false` option, and `index.d.ts`.
+- [x] Add the done-when tests from SPEC WP-4.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### ▶ CHECKPOINT A — full gate
 

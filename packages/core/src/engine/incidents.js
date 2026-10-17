@@ -8,6 +8,47 @@ const HALF_LIFE = 6 * HOUR;
 const WEIGHT = { info: 5, low: 10, medium: 25, high: 50, critical: 80 };
 
 /**
+ * @param {any} anomaly
+ * @returns {number}
+ */
+function weightOf(anomaly) {
+  return (WEIGHT[anomaly.severity] || 10) * (anomaly.confidence || 0);
+}
+
+/**
+ * @param {any} incident
+ * @param {number} elapsed
+ */
+function decay(incident, elapsed) {
+  const factor = 0.5 ** (elapsed / HALF_LIFE);
+  incident.raw *= factor;
+  if (!incident.groupWeight) return;
+  for (const key of incident.groupWeight.keys()) {
+    incident.groupWeight.set(key, incident.groupWeight.get(key) * factor);
+  }
+}
+
+/**
+ * Same dedupGroup on one device inside the incident window counts once.
+ * @param {any} incident
+ * @param {any} anomaly
+ */
+function addWeight(incident, anomaly) {
+  const weight = weightOf(anomaly);
+  const group = anomaly.dedupGroup;
+  if (!group) {
+    incident.raw += weight;
+    return;
+  }
+  if (!incident.groupWeight) incident.groupWeight = new Map();
+  const prev = incident.groupWeight.get(group) || 0;
+  if (weight > prev) {
+    incident.raw += weight - prev;
+    incident.groupWeight.set(group, weight);
+  }
+}
+
+/**
  * @param {any} incident
  */
 function scoreOf(incident) {
@@ -61,15 +102,15 @@ function noteIncident(engine, device, anomaly) {
       firstTs: anomaly.ts,
       lastTs: anomaly.ts,
       lines: [],
+      groupWeight: new Map(),
     };
     device.incident = incident;
   } else {
-    const elapsed = Math.max(0, anomaly.ts - incident.lastTs);
-    incident.raw *= 0.5 ** (elapsed / HALF_LIFE);
+    decay(incident, Math.max(0, anomaly.ts - incident.lastTs));
   }
   const stage = /** @type {Record<string, string>} */ (STAGES)[anomaly.detector];
   if (stage) incident.stages.add(stage);
-  incident.raw += (WEIGHT[anomaly.severity] || 10) * (anomaly.confidence || 0);
+  addWeight(incident, anomaly);
   incident.lastTs = anomaly.ts;
   incident.anomalyIds.push(anomaly.id);
   incident.detectors.push(anomaly.detector);

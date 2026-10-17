@@ -178,6 +178,15 @@ export interface Anomaly {
   attack?: string[];
   hardRule: boolean;
   incidentId?: string;
+  schema: 1;
+  fingerprint: string;
+  dedupGroup?: string;
+  evidence?: {
+    events: number;
+    sample: Record<string, unknown>[];
+    window?: { start: number; end: number };
+    baseline?: string;
+  };
 }
 
 export interface Incident {
@@ -222,6 +231,7 @@ export interface EngineOptions {
   reorderMs?: number;
   minLearnWindows?: number;
   tierSilentMs?: number;
+  evidence?: boolean;
 }
 
 export interface Baseline {

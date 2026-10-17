@@ -1,5 +1,6 @@
 'use strict';
 
+const { createHash } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
 const { LruSet } = require('./caps');
@@ -321,7 +322,7 @@ class Engine extends EventEmitter {
         if (!device.seen || device.mode !== 'watching') continue;
         const ctx = this._ctx(device, false, at);
         ctx.options = this._optionsFor(det);
-        this._take(device, det, det.tick(this._state(device, det), ctx), false);
+        this._take(device, det, det.tick(this._state(device, det), ctx), false, null);
       }
     }
     this._inputGap(at);
@@ -717,6 +718,7 @@ class Engine extends EventEmitter {
       dstSet: new Set(),
       saturated: false,
       fanoutAlerted: false,
+      events: 0,
       newDst: 0,
       idle: false,
     };
@@ -728,6 +730,7 @@ class Engine extends EventEmitter {
    */
   _note(device, event) {
     if (!device.open) return;
+    device.open.events = (device.open.events || 0) + 1;
     device.open.bytes += event.bytes || 0;
     if (!event.dst) return;
     const win = device.open;
@@ -765,7 +768,7 @@ class Engine extends EventEmitter {
       if (typeof det.onWindowClose !== 'function') continue;
       ctx.options = this._optionsFor(det);
       const draft = det.onWindowClose(this._state(device, det), summary, ctx);
-      this._take(device, det, draft, learning);
+      this._take(device, det, draft, learning, null);
     }
     win.dstSet = null;
   }
@@ -784,7 +787,7 @@ class Engine extends EventEmitter {
       if (learning && !det.hardRule) {
         if (typeof det.learn === 'function') det.learn(state, event, ctx);
       } else if (typeof det.check === 'function') {
-        this._take(device, det, det.check(state, event, ctx), learning);
+        this._take(device, det, det.check(state, event, ctx), learning, event);
       }
     }
   }
@@ -876,8 +879,9 @@ class Engine extends EventEmitter {
    * @param {any} det
    * @param {any} draft
    * @param {boolean} learning
+   * @param {any} event
    */
-  _take(device, det, draft, learning) {
+  _take(device, det, draft, learning, event) {
     if (!draft) return;
     const list = Array.isArray(draft) ? draft : [draft];
     for (const item of list) {
@@ -902,7 +906,15 @@ class Engine extends EventEmitter {
         expected: String(item.expected),
         data: item.data ? { ...item.data } : {},
         hardRule: Boolean(learning),
+        schema: 1,
+        fingerprint: fingerprintOf(det.id, device.id, String(item.actual)),
       };
+      if (det.meta && typeof det.meta.dedupGroup === 'string') {
+        anomaly.dedupGroup = det.meta.dedupGroup;
+      }
+      if (this.opts.evidence !== false) {
+        anomaly.evidence = evidenceOf(device, event, item);
+      }
       if (item.attack) anomaly.attack = item.attack.slice();
       else if (/** @type {Record<string, string[]>} */ (ATTACK)[det.id]) {
         anomaly.attack = /** @type {Record<string, string[]>} */ (ATTACK)[det.id].slice();
@@ -1118,7 +1130,7 @@ class Engine extends EventEmitter {
     ctx.extra = extra;
     ctx.options = this._optionsFor(det);
     const state = device.states ? this._state(device, det) : {};
-    this._take(device, det, det.check(state, event, ctx), learning);
+    this._take(device, det, det.check(state, event, ctx), learning, event);
   }
 
   /**
@@ -1162,6 +1174,59 @@ class Engine extends EventEmitter {
       throw new TypeError('detector.defaults is invalid');
     }
   }
+}
+
+/**
+ * @param {unknown} value
+ * @returns {number}
+ */
+/**
+ * Stable id for one fact. Same detector, device, and actual text hash the same after a restart.
+ * @param {string} detector
+ * @param {string} device
+ * @param {string} key
+ * @returns {string}
+ */
+function fingerprintOf(detector, device, key) {
+  return createHash('sha256').update(`${detector}\0${device}\0${key}`).digest('hex').slice(0, 16);
+}
+
+/**
+ * @param {any} device
+ * @param {any} event
+ * @param {any} item
+ */
+function evidenceOf(device, event, item) {
+  /** @type {{ events: number, sample: object[], window?: { start: number, end: number }, baseline?: string }} */
+  const evidence = {
+    events: event ? 1 : device.open && device.open.events ? device.open.events : 0,
+    sample: event ? [clipSample(event)] : [],
+  };
+  if (device.open) evidence.window = { start: device.open.start, end: device.open.end };
+  if (typeof item.baseline === 'string') evidence.baseline = item.baseline;
+  return evidence;
+}
+
+/**
+ * Copy a normalized event without the engine-stamped tier, and keep it under 1 KB.
+ * @param {any} event
+ * @returns {object}
+ */
+function clipSample(event) {
+  /** @type {Record<string, unknown>} */
+  let copy;
+  try {
+    copy = JSON.parse(JSON.stringify(event));
+  } catch {
+    return {};
+  }
+  delete copy.tier;
+  const keys = Object.keys(copy);
+  while (keys.length > 0 && JSON.stringify(copy).length > 1024) {
+    const key = keys.pop();
+    if (key !== undefined) delete copy[key];
+  }
+  return copy;
 }
 
 /**

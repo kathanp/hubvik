@@ -12,6 +12,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1090'],
     stage: 'impact',
+    dedupGroup: 'proxy-relay',
   },
   requires: ['T1'],
   category: 'proxy',

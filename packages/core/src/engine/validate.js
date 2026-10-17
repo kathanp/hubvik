@@ -28,6 +28,16 @@ function assertSafeKeys(value, path) {
 }
 
 /**
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {boolean}
+ */
+function bool(value, name) {
+  if (typeof value !== 'boolean') throw new TypeError(`${name} must be a boolean`);
+  return value;
+}
+
+/**
  * @param {number} value
  * @param {string} name
  * @param {{ min?: number, max?: number, integer?: boolean }} [rule]
@@ -524,6 +534,7 @@ function validateOptions(raw) {
       input.tierSilentMs == null
         ? 6 * 3600e3
         : num(input.tierSilentMs, 'tierSilentMs', { min: 1, integer: true }),
+    evidence: input.evidence == null ? true : bool(input.evidence, 'evidence'),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

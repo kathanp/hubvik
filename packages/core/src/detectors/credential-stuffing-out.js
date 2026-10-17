@@ -8,6 +8,7 @@ const detector = {
   meta: {
     rel: '0.4',
     fpRisk: '',
+    dedupGroup: 'proxy-relay',
   },
   requires: ['T1'],
   category: 'monetization',
