@@ -1,6 +1,6 @@
 # @iotwarden/export-ocsf
 
-Maps one iotwarden anomaly to an OCSF Detection Finding (`class_uid` 2004, `type_uid` 200401). No dependencies.
+Maps one iotwarden anomaly to an OCSF Detection Finding (`class_uid` 2004). Pass `{ ocsfVersion: '1.4.0' }` to pin the schema version written into `metadata.version`. An incident object becomes an Update. No dependencies.
 
 ```js
 const { toFinding } = require('@iotwarden/export-ocsf');

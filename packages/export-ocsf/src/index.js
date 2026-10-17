@@ -9,35 +9,60 @@ const SEVERITY = {
 };
 
 /**
- * Map one anomaly to an OCSF Detection Finding (class_uid 2004).
- * @param {{ id?: string, device?: string, detector?: string, severity?: string, confidence?: number, ts?: number, actual?: string, expected?: string, attack?: string[] }} anomaly
+ * Map one anomaly or an escalated incident to an OCSF Detection Finding.
+ * @param {any} record
+ * @param {{ ocsfVersion?: string }} [opts]
  */
-function toFinding(anomaly) {
-  const severity = anomaly && SEVERITY[anomaly.severity] ? anomaly.severity : 'info';
-  const ts = anomaly && typeof anomaly.ts === 'number' ? anomaly.ts : 0;
-  return {
+function toFinding(record, opts = {}) {
+  const version = opts && opts.ocsfVersion ? String(opts.ocsfVersion) : '1.4.0';
+  const update = Boolean(record && Array.isArray(record.anomalyIds));
+  const severity = record && SEVERITY[record.severity] ? record.severity : 'info';
+  const ts = record && typeof record.ts === 'number' ? record.ts : 0;
+  const attacks = Array.isArray(record && record.attack) ? record.attack.map(String) : [];
+  const uid =
+    record && record.fingerprint
+      ? String(record.fingerprint)
+      : record && record.id
+        ? String(record.id)
+        : '';
+  /** @type {Record<string, unknown>} */
+  const finding = {
     class_uid: 2004,
     class_name: 'Detection Finding',
     category_uid: 2,
     category_name: 'Findings',
-    activity_id: 1,
-    activity_name: 'Create',
-    type_uid: 200401,
-    type_name: 'Detection Finding: Create',
+    activity_id: update ? 2 : 1,
+    activity_name: update ? 'Update' : 'Create',
+    type_uid: update ? 200402 : 200401,
+    type_name: update ? 'Detection Finding: Update' : 'Detection Finding: Create',
     severity_id: SEVERITY[severity],
     severity,
     time: ts,
-    confidence: anomaly && typeof anomaly.confidence === 'number' ? anomaly.confidence : 0,
-    message: anomaly && anomaly.actual ? String(anomaly.actual) : '',
+    confidence: record && typeof record.confidence === 'number' ? record.confidence : 0,
+    message: update
+      ? record && record.summary
+        ? String(record.summary)
+        : ''
+      : record && record.actual
+        ? String(record.actual)
+        : '',
     finding_info: {
-      uid: anomaly && anomaly.id ? String(anomaly.id) : '',
-      title: anomaly && anomaly.detector ? String(anomaly.detector) : '',
-      desc: anomaly && anomaly.expected ? String(anomaly.expected) : '',
+      uid,
+      title: record && record.detector ? String(record.detector) : '',
+      desc: record && record.expected ? String(record.expected) : '',
+      attacks: attacks.map((technique) => ({ technique: { uid: technique } })),
     },
-    device: { uid: anomaly && anomaly.device ? String(anomaly.device) : '' },
-    attacks: Array.isArray(anomaly && anomaly.attack) ? anomaly.attack.map(String) : [],
-    metadata: { product: { name: 'iotwarden', vendor_name: 'iotwarden' }, version: '1.1.0' },
+    device: { uid: record && record.device ? String(record.device) : '' },
+    attacks,
+    metadata: {
+      version,
+      product: { name: 'iotwarden', vendor_name: 'iotwarden' },
+    },
   };
+  if (record && record.evidence && Array.isArray(record.evidence.sample)) {
+    finding.evidences = record.evidence.sample.map((item) => ({ data: item }));
+  }
+  return finding;
 }
 
 module.exports = { toFinding };

@@ -130,11 +130,11 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-10 — `export-ocsf` version option
 
-- [ ] Add the `{ ocsfVersion }` option, default `'1.4.0'`, written into `metadata.version`. Apply the full C3 mapping table, including `fingerprint` → `finding_info.uid` and `evidence.sample` → `evidences[]` (omitted when `evidence: false`).
-- [ ] Create a vendored fixture of the OCSF 1.4.0 Detection Finding required fields at `packages/export-ocsf/test/fixtures/`. Write it by hand from the spec's C3 table and the fields the exporter already emits. **Do not download anything.** Add a comment at the top of the fixture: `hand-written from SPEC C3; verify against schema.ocsf.io before 1.0`.
-- [ ] Add tests: one anomaly and one escalated incident each validate against the fixture; `ocsfVersion: '1.6.0'` appears in `metadata.version`.
-- [ ] Bump `export-ocsf` minor version and add a CHANGELOG line.
-- [ ] Fast check passes. Write `docs/progress/WP-10.md` and commit.
+- [x] Add the `{ ocsfVersion }` option, default `'1.4.0'`, written into `metadata.version`. Apply the full C3 mapping table, including `fingerprint` → `finding_info.uid` and `evidence.sample` → `evidences[]` (omitted when `evidence: false`).
+- [x] Create a vendored fixture of the OCSF 1.4.0 Detection Finding required fields at `packages/export-ocsf/test/fixtures/`. Write it by hand from the spec's C3 table and the fields the exporter already emits. **Do not download anything.** Add a comment at the top of the fixture: `hand-written from SPEC C3; verify against schema.ocsf.io before 1.0`.
+- [x] Add tests: one anomaly and one escalated incident each validate against the fixture; `ocsfVersion: '1.6.0'` appears in `metadata.version`.
+- [x] Bump `export-ocsf` minor version and add a CHANGELOG line.
+- [x] Fast check passes. Write `docs/progress/WP-10.md` and commit.
 
 ### ▶ CHECKPOINT B — full gate, then version
 
