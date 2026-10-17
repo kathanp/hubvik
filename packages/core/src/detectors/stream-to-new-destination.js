@@ -28,6 +28,7 @@ const detector = {
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (ev.type !== 'flow' || ev.direction !== 'out') return;
+    if (oneWayUdp(ev)) return;
     const dst = ev.dstName || ev.dstIp;
     const media = ev.dstPort === 554 || (ev.bytesOut || 0) >= ctx.options.minMediaBytes;
     if (!media || !dst || dev.seen.has(dst) || dev.fired.has(dst)) return;
@@ -59,6 +60,18 @@ function mediaDst(ev) {
   if (ev.type !== 'flow') return null;
   if (ev.dstPort === 554 || (ev.bytesOut || 0) >= 1000000) return ev.dstName || ev.dstIp;
   return null;
+}
+
+/**
+ * A one-way UDP flood is not a camera stream. `egress-flood` owns that shape.
+ * @param {any} ev
+ * @returns {boolean}
+ */
+function oneWayUdp(ev) {
+  if (ev.proto !== 'udp') return false;
+  const out = ev.bytesOut || 0;
+  if (!(out > 0)) return false;
+  return (ev.bytesIn || 0) / out < 0.05;
 }
 
 module.exports = detector;

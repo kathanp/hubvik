@@ -565,6 +565,12 @@ These are the tunables the 0.2 detectors use when the host does not override the
 
 `ot-new-master`, `ot-write-new`, `ot-dangerous-op`, `ot-spoof`, `mqtt-wildcard-subscribe`, `mqtt-topic-new`, and `onvif-config-change` alert on the first new master, write key, dangerous op, second owner, wildcard subscription, topic prefix, or ONVIF `SetUser` / `SetNetworkInterfaces` / `SetSystemFactoryDefault` / `UpgradeSystemFirmware`. Dangerous operations and ONVIF config changes also fire during learning.
 
+### Defaults shipped in 0.5
+
+| Detector                    | Default                                                               | Meaning                                                                              |
+| --------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `stream-to-new-destination` | no alert when `proto` is `udp` and `bytesIn / bytesOut` is under 0.05 | A one-way UDP flood is not a camera stream. `egress-flood` still reports that upload |
+
 ## B12. Residential proxy and "proxyware" — the main IoT threat of 2025–26
 
 The threat has moved past Mirai-style DDoS. Today, compromised IoT devices are mostly rented out as **residential proxies**:
@@ -602,15 +608,15 @@ Building-management servers are a stated target market, so this group is not opt
 
 ## B14. IoT application protocols (MQTT, CoAP, RTSP/ONVIF)
 
-| ID                          | Catches                                                                                                                               | Needs | Method                                                | Sev      | Rel |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------------------- | -------- | --- |
-| `mqtt-new-broker`           | Device connects to an MQTT broker it never used (1883/8883)                                                                           | T1    | Destination set by port                               | high     | 0.2 |
-| `mqtt-wildcard-subscribe`   | `SUBSCRIBE` to `#` or broad `+/…` wildcards (harvesting every device's messages)                                                      | T5    | Topic pattern check                                   | high     | 0.4 |
-| `mqtt-topic-new`            | Publish/subscribe to topics outside the learned set, especially `cmd`/`ota`/`config` paths                                            | T5    | Topic-prefix set                                      | medium   | 0.4 |
-| `mqtt-publish-rate`         | Publish flood or sudden payload-size jump                                                                                             | T5    | Rate/size bands                                       | medium   | 0.4 |
-| `coap-amplification`        | Device answering CoAP (5683/udp) from WAN with large responses                                                                        | T1    | Reflection logic of `reflection-participation`        | critical | 0.2 |
-| `stream-to-new-destination` | Camera media stream (RTSP 554, RTP, or sustained high-rate upload) starts going to a non-baseline host — someone is watching the feed | T1/T5 | Upload rate > learned media rate threshold to new dst | critical | 0.3 |
-| `onvif-config-change`       | ONVIF `SetUser`, `SetNetworkInterfaces`, `SetSystemFactoryDefault`, firmware upgrade from non-baseline client                         | T5    | Hard rule                                             | critical | 0.4 |
+| ID                          | Catches                                                                                                                               | Needs | Method                                                                                                                    | Sev      | Rel |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------- | -------- | --- |
+| `mqtt-new-broker`           | Device connects to an MQTT broker it never used (1883/8883)                                                                           | T1    | Destination set by port                                                                                                   | high     | 0.2 |
+| `mqtt-wildcard-subscribe`   | `SUBSCRIBE` to `#` or broad `+/…` wildcards (harvesting every device's messages)                                                      | T5    | Topic pattern check                                                                                                       | high     | 0.4 |
+| `mqtt-topic-new`            | Publish/subscribe to topics outside the learned set, especially `cmd`/`ota`/`config` paths                                            | T5    | Topic-prefix set                                                                                                          | medium   | 0.4 |
+| `mqtt-publish-rate`         | Publish flood or sudden payload-size jump                                                                                             | T5    | Rate/size bands                                                                                                           | medium   | 0.4 |
+| `coap-amplification`        | Device answering CoAP (5683/udp) from WAN with large responses                                                                        | T1    | Reflection logic of `reflection-participation`                                                                            | critical | 0.2 |
+| `stream-to-new-destination` | Camera media stream (RTSP 554, RTP, or sustained high-rate upload) starts going to a non-baseline host — someone is watching the feed | T1/T5 | Upload above 1 MB, or destination port 554, to a new host. No alert when `proto` is `udp` and `bytesIn / bytesOut` < 0.05 | critical | 0.3 |
+| `onvif-config-change`       | ONVIF `SetUser`, `SetNetworkInterfaces`, `SetSystemFactoryDefault`, firmware upgrade from non-baseline client                         | T5    | Hard rule                                                                                                                 | critical | 0.4 |
 
 ## B15. Device monetization abuse
 

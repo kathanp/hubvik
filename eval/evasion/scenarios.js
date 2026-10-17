@@ -4,9 +4,11 @@ const { createEngine, SEVERITY } = require('iotwarden');
 
 const WINDOW = 60_000;
 const HOUR = 3600e3;
+const LEARNED = '45.2.1.10';
 
 /**
  * Synthetic evasion suite from SPEC C6.2. Thresholds are not modified.
+ * Every attack uses a port, a protocol, and a /24 the victim learned.
  * @returns {{ id: string, fired: boolean, detectors: string[] }[]}
  */
 function runEvasion() {
@@ -14,38 +16,51 @@ function runEvasion() {
 }
 
 /**
- * One new host per window, after a single benign flow and lock.
+ * One new host per window, on learned ports 80 and 443, inside the learned /24.
  * @returns {{ id: string, fired: boolean, detectors: string[] }}
  */
 function slowScan() {
   /** @type {any[]} */
-  const events = [flow('scan', 0, '1.2.3.4', 443, { bytesOut: 60, pktsOut: 1 })];
+  const events = [
+    flow('scan', 0, LEARNED, 443, { proto: 'tcp', bytesOut: 60, pktsOut: 1 }),
+    flow('scan', 1_000, LEARNED, 80, { proto: 'tcp', bytesOut: 60, pktsOut: 1 }),
+  ];
   for (let i = 0; i < 30; i += 1) {
+    const port = i % 2 === 0 ? 80 : 443;
     events.push(
-      flow('scan', WINDOW + i * WINDOW, `45.1.1.${i + 1}`, 23, { bytesOut: 60, pktsOut: 1 }),
+      flow('scan', WINDOW + i * WINDOW, `45.2.1.${11 + i}`, port, {
+        proto: 'tcp',
+        bytesOut: 60,
+        pktsOut: 1,
+      }),
     );
   }
-  return report('slow-scan', events, 1);
+  return report('slow-scan', events, 2);
 }
 
 /**
- * Beacon gaps alternate ±40% around 60 s, to a destination that was not learned.
+ * 40% jitter around a 60 s gap, to the host whose cadence was learned.
  * @returns {{ id: string, fired: boolean, detectors: string[] }}
  */
 function jitteredBeacon() {
   /** @type {any[]} */
-  const events = [flow('beacon', 0, '1.2.3.4', 443, { bytesOut: 100, pktsOut: 1 })];
-  let ts = WINDOW;
+  const events = [];
+  for (let i = 0; i < 5; i += 1) {
+    events.push(
+      flow('beacon', i * WINDOW, LEARNED, 443, { proto: 'tcp', bytesOut: 120, pktsOut: 1 }),
+    );
+  }
+  let ts = 5 * WINDOW;
   for (let i = 0; i < 25; i += 1) {
     const jitter = i % 2 === 0 ? 0.4 : -0.4;
     ts += Math.round(WINDOW * (1 + jitter));
-    events.push(flow('beacon', ts, '9.9.9.9', 443, { bytesOut: 120, pktsOut: 1 }));
+    events.push(flow('beacon', ts, LEARNED, 443, { proto: 'tcp', bytesOut: 120, pktsOut: 1 }));
   }
-  return report('beacon-jitter-40', events, 1);
+  return report('beacon-jitter-40', events, 5);
 }
 
 /**
- * One closed hour at 0.9 × the slow-exfil limit max(5 × mean, 1 MB).
+ * One closed hour at 0.9 × the slow-exfil limit max(5 × mean, 1 MB), to the learned host.
  * Seven learning hours close six 1,000-byte samples, which is `minSamples`.
  * @returns {{ id: string, fired: boolean, detectors: string[] }}
  */
@@ -55,25 +70,33 @@ function underLimitExfil() {
   /** @type {any[]} */
   const events = [];
   for (let hour = 0; hour < 7; hour += 1) {
-    events.push(flow('exfil', hour * HOUR, '1.2.3.4', 443, { bytesOut: mean, pktsOut: 1 }));
+    events.push(
+      flow('exfil', hour * HOUR, LEARNED, 443, { proto: 'tcp', bytesOut: mean, pktsOut: 1 }),
+    );
   }
   events.push(
-    flow('exfil', 7 * HOUR, '1.2.3.4', 443, { bytesOut: Math.round(0.9 * limit), pktsOut: 1 }),
+    flow('exfil', 7 * HOUR, LEARNED, 443, {
+      proto: 'tcp',
+      bytesOut: Math.round(0.9 * limit),
+      pktsOut: 1,
+    }),
   );
-  events.push(flow('exfil', 8 * HOUR, '1.2.3.4', 443, { bytesOut: mean, pktsOut: 1 }));
+  events.push(flow('exfil', 8 * HOUR, LEARNED, 443, { proto: 'tcp', bytesOut: mean, pktsOut: 1 }));
   return report('exfil-0.9-limit', events, 7);
 }
 
 /**
- * The single-destination flood threshold split evenly across 10 destinations.
+ * The single-destination flood threshold split evenly across 10 hosts in the learned /24.
+ * UDP port 80 was learned. Each flow is one-way.
  * @returns {{ id: string, fired: boolean, detectors: string[] }}
  */
 function splitFlood() {
   /** @type {any[]} */
-  const events = [flow('flood', 0, '1.2.3.4', 443, { bytesOut: 60, pktsOut: 1 })];
+  const events = [flow('flood', 0, LEARNED, 80, { proto: 'udp', bytesOut: 60, pktsOut: 1 })];
   for (let i = 0; i < 10; i += 1) {
     events.push(
       flow('flood', WINDOW, `45.2.1.${i + 1}`, 80, {
+        proto: 'udp',
         bytesOut: 200_000_000 / 10,
         pktsOut: 50_000 / 10,
         bytesIn: 0,
@@ -111,7 +134,7 @@ function report(id, events, learnCount) {
  * @param {number} ts
  * @param {string} dstIp
  * @param {number} dstPort
- * @param {{ bytesOut: number, pktsOut: number, bytesIn?: number }} extra
+ * @param {{ proto: string, bytesOut: number, pktsOut: number, bytesIn?: number }} extra
  */
 function flow(device, ts, dstIp, dstPort, extra) {
   return {
@@ -122,7 +145,7 @@ function flow(device, ts, dstIp, dstPort, extra) {
     srcPort: 40000,
     dstIp,
     dstPort,
-    proto: 'tcp',
+    proto: extra.proto,
     direction: 'out',
     bytesOut: extra.bytesOut,
     bytesIn: extra.bytesIn || 0,
@@ -145,6 +168,10 @@ function renderEvasion(scenarios) {
     'Attack intervals: contiguous Malicious runs per (device, detailed-label), merged when the gap is under 5 minutes.',
     '',
     'T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.',
+    '',
+    'Learning span: the benign prefix of each scenario, then lock.',
+    '',
+    'Malicious-label share inside the learning prefix: 0.',
     '',
   ];
   for (const scenario of scenarios) {

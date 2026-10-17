@@ -25,7 +25,6 @@ The human decides. No default was changed.
 - proxy-relay
 - new-asn
 - new-country
-- upnp-port-open
 - tor-or-proxy
 - lan-sweep
 - brute-force-out

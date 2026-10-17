@@ -95,10 +95,14 @@ const detector = {
 
   /** @param {any} dev */
   memoryEstimate(dev) {
-    return dev.hours.reduce(
-      (/** @type {number} */ sum, /** @type {any} */ ring) => sum + ring.length * 8,
-      64,
-    );
+    if (!Array.isArray(dev.hours)) return 64;
+    let bytes = 64;
+    for (const ring of dev.hours) {
+      if (!ring || typeof ring.length !== 'number') continue;
+      bytes += 104;
+      if (ring.length > 0) bytes += 144 + ring.length * 8;
+    }
+    return bytes;
   },
 };
 

@@ -339,6 +339,30 @@ Date: 2026-10-17.
 
 `README.md` and `packages/core/README.md` say: Not yet evaluated on real traffic. Harness: `eval/README.md`. No detection numbers. `docs/QUESTIONS.md` asks whether IoT-23 labels other than Benign and Malicious, such as Background, should be benign.
 
+## WP-9.6 — harness, evasion, stream guard, memory
+
+Date: 2026-10-17.
+
+The five synthetic misses are `SlowVerticalScan` on `10.0.0.2`, ports 2000, 2001, 2002, 2004, and 2005, one flow each at 172800000, 173400000, 174000000, 175200000, and 175800000. The only medium-or-above anomaly on that device after lock is `beacon-change` at 174600000 (learned gap 120000 ms, later median 360000 ms). That timestamp is the port-2003 hit. It is at least 600000 ms from each miss, outside the 5-minute grace, so it does not count. `vertical-scan` needs more than `max(15, 3 × learned)` ports in one window. `new-port` already learned those ports. Thresholds were not changed.
+
+Evasion attacks now use learned ports, learned protocols, and the learned /24 (`45.2.1.0/24`, D-13). Blind spots: slow-scan, beacon-jitter-40, exfil-0.9-limit. `flood-10-destinations` fired `egress-flood` only.
+
+`stream-to-new-destination` does not alert when `proto` is `udp` and `bytesIn / bytesOut` is under 0.05. Recorded in SPEC "Defaults shipped in 0.5" and the 0.5.0 changelog. Learning still records the destination, so the differential golden stayed byte-identical. The one-way UDP flood is still detected by `egress-flood`.
+
+Ablation lists a detector only when its required tiers are on and the capture has an event of a type it consumes. The other 58 are under "not exercised", not "zero unique". 51 detectors were exercised. 48 of those had zero unique detections. No default was changed.
+
+Results headers state the learning span and the malicious-label share inside the learning prefix. The synthetic corpus is 172800000 ms and 0/55. It does not say POISONED PREFIX.
+
+`memoryEstimate` now counts the 24 hourly rings and two empty `LruSet`s on `blockchain-c2`, `tor-or-proxy`, `cryptomining`, and `tunnel-service`. Stored state was not changed. Each bench device learned 2 summary events before the heap sample. The gate printed median 5.46 µs, estimate 5.70 KB/device, heap 12.27 KB/device. Heap / estimate is 2.15, outside 2×. Ratios are in `docs/BENCHMARKS.md`.
+
+No IoT-23 capture was on disk. None was downloaded.
+
+## WP-9.6 gate
+
+Date: 2026-10-17.
+
+`npm run gate` exited 0. Check 155/155. Coverage lines 97.86%, branches 86.25%. Pack-check: core 152 files, 351746 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 5.46 µs, estimate 5.70 KB/device, heap 12.27 KB/device. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

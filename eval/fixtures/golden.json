@@ -30,6 +30,10 @@
       "short": false
     }
   ],
+  "learnEvents": 55,
+  "maliciousLearnEvents": 0,
+  "maliciousLearnShare": 0,
+  "poisonedPrefix": false,
   "attackInstances": 25,
   "detected": 20,
   "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
@@ -392,8 +396,27 @@
   "benignIntervalsWithFalsePositive": "n too small (0 detected, 5 benign intervals)",
   "ablation": [
     {
+      "detector": "new-destination",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "new-domain-family",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "new-port",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -402,14 +425,25 @@
     {
       "detector": "new-protocol",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "fan-out",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "horizontal-scan",
       "severity": "critical",
+      "exercised": true,
       "unique": 7,
       "falsePositives": 0,
       "zeroUnique": false,
@@ -418,6 +452,7 @@
     {
       "detector": "vertical-scan",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -426,6 +461,7 @@
     {
       "detector": "failed-connection-ratio",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -434,14 +470,34 @@
     {
       "detector": "lan-lateral",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "volume-spike",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "volume-spike-hourly",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "upload-ratio-shift",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -450,6 +506,7 @@
     {
       "detector": "packet-flood",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -458,6 +515,7 @@
     {
       "detector": "egress-flood",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -466,6 +524,7 @@
     {
       "detector": "reflection-participation",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -474,14 +533,88 @@
     {
       "detector": "coap-amplification",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "wrong-time",
+      "severity": "low",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "went-silent",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "tier-silent",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "nxdomain-burst",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "resolver-bypass",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dns-rebinding",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "private-answer-for-public-name",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "threat-intel-match",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "bogon-destination",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -490,14 +623,34 @@
     {
       "detector": "inbound-from-wan",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "new-device",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "policy-violation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "adb-exposure",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -506,6 +659,7 @@
     {
       "detector": "mqtt-new-broker",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -514,6 +668,7 @@
     {
       "detector": "spam-relay",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -522,6 +677,7 @@
     {
       "detector": "tftp-activity",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -530,6 +686,7 @@
     {
       "detector": "posture-listening-risky",
       "severity": "low",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -538,22 +695,106 @@
     {
       "detector": "posture-wan-exposed",
       "severity": "low",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "input-gap",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "clock-jump",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "state-cap",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "alert-storm",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "class-violation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "supply-chain-suspect",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
       "proposal": null
     },
     {
       "detector": "proxy-relay",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "proxy-sdk-traffic",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "blockchain-c2",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "direct-ip",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "new-asn",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -562,6 +803,7 @@
     {
       "detector": "new-country",
       "severity": "low",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -570,14 +812,16 @@
     {
       "detector": "upnp-port-open",
       "severity": "high",
+      "exercised": false,
       "unique": 0,
       "falsePositives": 0,
-      "zeroUnique": true,
+      "zeroUnique": false,
       "proposal": null
     },
     {
       "detector": "tor-or-proxy",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -586,6 +830,7 @@
     {
       "detector": "lan-sweep",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -594,6 +839,7 @@
     {
       "detector": "brute-force-out",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -602,6 +848,7 @@
     {
       "detector": "brute-force-in",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -610,6 +857,7 @@
     {
       "detector": "slow-exfil",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -618,6 +866,7 @@
     {
       "detector": "protocol-mix-shift",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -626,6 +875,7 @@
     {
       "detector": "connection-churn",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -634,6 +884,7 @@
     {
       "detector": "new-beacon",
       "severity": "high",
+      "exercised": true,
       "unique": 6,
       "falsePositives": 0,
       "zeroUnique": false,
@@ -642,14 +893,88 @@
     {
       "detector": "long-connection",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "dga",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dns-tunnel",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "arp-spoof",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "gratuitous-arp-flood",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "rogue-dhcp",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "identity-change",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dhcp-starvation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "rogue-ra",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "src-spoof",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -658,6 +983,7 @@
     {
       "detector": "icmp-redirect",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -666,6 +992,7 @@
     {
       "detector": "zone-violation",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -674,6 +1001,7 @@
     {
       "detector": "stream-to-new-destination",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -682,6 +1010,7 @@
     {
       "detector": "cryptomining",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -690,14 +1019,25 @@
     {
       "detector": "ot-wan-exposure",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "tunnel-service",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "vpn-protocol",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -706,6 +1046,7 @@
     {
       "detector": "icmp-tunnel",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -714,6 +1055,7 @@
     {
       "detector": "ipv6-tunnel",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -722,6 +1064,7 @@
     {
       "detector": "ntp-rogue",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -730,6 +1073,7 @@
     {
       "detector": "update-from-new-source",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -738,30 +1082,97 @@
     {
       "detector": "update-over-cleartext",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "post-update-drift",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
       "proposal": null
     },
     {
       "detector": "posture-cleartext-auth",
       "severity": "low",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-client-fingerprint",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "cert-change",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "sni-missing",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "tls-on-odd-port",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
       "proposal": null
     },
     {
       "detector": "cleartext-regression",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "browser-mimic",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "posture-weak-tls",
+      "severity": "low",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "proxy-backconnect",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -770,6 +1181,7 @@
     {
       "detector": "lan-via-proxy",
       "severity": "critical",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -778,6 +1190,7 @@
     {
       "detector": "p2p-pattern",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -786,14 +1199,25 @@
     {
       "detector": "credential-stuffing-out",
       "severity": "high",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
       "proposal": null
     },
     {
+      "detector": "ad-fraud",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
       "detector": "quic-new",
       "severity": "medium",
+      "exercised": true,
       "unique": 0,
       "falsePositives": 0,
       "zeroUnique": true,
@@ -802,7 +1226,152 @@
     {
       "detector": "beacon-change",
       "severity": "medium",
+      "exercised": true,
       "unique": 1,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "answer-drift",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "fast-flux",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-new-master",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-write-new",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-dangerous-op",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-value-out-of-range",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-write-rate",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-recon",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-spoof",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-error-burst",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-wildcard-subscribe",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-topic-new",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-publish-rate",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "onvif-config-change",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "peer-divergence",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "fleet-wave",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
       "falsePositives": 0,
       "zeroUnique": false,
       "proposal": null
@@ -812,17 +1381,13 @@
   "evasion": [
     {
       "id": "slow-scan",
-      "fired": true,
-      "detectors": [
-        "new-port"
-      ]
+      "fired": false,
+      "detectors": []
     },
     {
       "id": "beacon-jitter-40",
-      "fired": true,
-      "detectors": [
-        "new-beacon"
-      ]
+      "fired": false,
+      "detectors": []
     },
     {
       "id": "exfil-0.9-limit",
@@ -833,9 +1398,7 @@
       "id": "flood-10-destinations",
       "fired": true,
       "detectors": [
-        "new-port",
-        "egress-flood",
-        "stream-to-new-destination"
+        "egress-flood"
       ]
     }
   ]

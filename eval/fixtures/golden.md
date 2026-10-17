@@ -4,6 +4,10 @@ Attack intervals: contiguous Malicious runs per (device, detailed-label), merged
 
 T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.
 
+Learning span: 172800000 ms.
+
+Malicious-label share inside the learning prefix: 0/55.
+
 Tiers: T1.
 
 Learning: Every device learned at least 24 h.
@@ -76,7 +80,6 @@ Benign intervals with a false positive: n too small (0 detected, 5 benign interv
 - proxy-relay: 0 unique detections, 0 false positives, zero unique
 - new-asn: 0 unique detections, 0 false positives, zero unique
 - new-country: 0 unique detections, 0 false positives, zero unique
-- upnp-port-open: 0 unique detections, 0 false positives, zero unique
 - tor-or-proxy: 0 unique detections, 0 false positives, zero unique
 - lan-sweep: 0 unique detections, 0 false positives, zero unique
 - brute-force-out: 0 unique detections, 0 false positives, zero unique
@@ -107,6 +110,67 @@ Benign intervals with a false positive: n too small (0 detected, 5 benign interv
 - quic-new: 0 unique detections, 0 false positives, zero unique
 - beacon-change: 1 unique detections, 0 false positives
 
+## Not exercised
+
+- new-destination
+- new-domain-family
+- fan-out
+- volume-spike
+- volume-spike-hourly
+- wrong-time
+- went-silent
+- tier-silent
+- nxdomain-burst
+- resolver-bypass
+- dns-rebinding
+- private-answer-for-public-name
+- threat-intel-match
+- new-device
+- policy-violation
+- input-gap
+- clock-jump
+- state-cap
+- alert-storm
+- class-violation
+- supply-chain-suspect
+- proxy-sdk-traffic
+- blockchain-c2
+- direct-ip
+- upnp-port-open
+- dga
+- dns-tunnel
+- arp-spoof
+- gratuitous-arp-flood
+- rogue-dhcp
+- identity-change
+- dhcp-starvation
+- rogue-ra
+- tunnel-service
+- post-update-drift
+- new-client-fingerprint
+- cert-change
+- sni-missing
+- tls-on-odd-port
+- browser-mimic
+- posture-weak-tls
+- ad-fraud
+- answer-drift
+- fast-flux
+- ot-new-master
+- ot-write-new
+- ot-dangerous-op
+- ot-value-out-of-range
+- ot-write-rate
+- ot-recon
+- ot-spoof
+- ot-error-burst
+- mqtt-wildcard-subscribe
+- mqtt-topic-new
+- mqtt-publish-rate
+- onvif-config-change
+- peer-divergence
+- fleet-wave
+
 ## Proposals
 
 None. The human decides any later change.
@@ -115,7 +179,7 @@ None. The human decides any later change.
 
 Synthetic known blind spots. Thresholds were not tuned against this suite.
 
-- slow-scan: fired (new-port)
-- beacon-jitter-40: fired (new-beacon)
+- slow-scan: no medium-or-above anomaly (none)
+- beacon-jitter-40: no medium-or-above anomaly (none)
 - exfil-0.9-limit: no medium-or-above anomaly (none)
-- flood-10-destinations: fired (new-port, egress-flood, stream-to-new-destination)
+- flood-10-destinations: fired (egress-flood)

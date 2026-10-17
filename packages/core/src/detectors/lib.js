@@ -35,11 +35,14 @@ function importSeen(dev, state, caps, id) {
   );
 }
 
+/** One empty LruSet, object plus Map, measured on Node 24. */
+const EMPTY_LRU_BYTES = 240;
+
 /**
  * @param {any} dev
  */
 function memorySeen(dev) {
-  return (dev.seen.size + dev.fired.size) * 32 + 16;
+  return 32 + EMPTY_LRU_BYTES * 2 + (dev.seen.size + dev.fired.size) * 64;
 }
 
 /**

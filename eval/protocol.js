@@ -128,13 +128,32 @@ function byDevice(rows) {
 }
 
 /**
- * Detectors whose required tiers are all enabled.
- * @param {string[]} tiers
- * @returns {any[]}
+ * Event types a detector reads. A missing list means every type. An empty list means none.
+ * @param {any} det
+ * @returns {string[] | null}
  */
-function activeDetectors(tiers) {
-  const enabled = new Set(tiers);
-  return Object.values(detectors).filter((det) => det.requires.every((tier) => enabled.has(tier)));
+function consumesList(det) {
+  const raw = det.meta && det.meta.consumes;
+  if (raw == null) return null;
+  if (!Array.isArray(raw)) return [];
+  return raw;
+}
+
+/**
+ * A dataset can exercise a detector when every required tier is enabled and at
+ * least one event has a type that detector consumes.
+ * @param {any} det
+ * @param {string[]} tiers
+ * @param {Set<string>} types
+ * @returns {boolean}
+ */
+function exercised(det, tiers, types) {
+  if (!Array.isArray(det.requires) || !det.requires.every((tier) => tiers.includes(tier))) {
+    return false;
+  }
+  const consumes = consumesList(det);
+  if (consumes == null) return types.size > 0;
+  return consumes.some((type) => types.has(type));
 }
 
 /**
@@ -327,10 +346,33 @@ function evaluate(rows, opts) {
     ),
   ).length;
   const detected = instances.filter((interval) => interval.detected).length;
+  let learnEvents = 0;
+  let maliciousLearnEvents = 0;
+  for (const plan of plans.values()) {
+    learnEvents += plan.learn.length;
+    for (const row of plan.learn) if (row.malicious) maliciousLearnEvents += 1;
+  }
+  const maliciousLearnShare = learnEvents === 0 ? 0 : maliciousLearnEvents / learnEvents;
   const byLabel = typeRates(instances);
-  const ablation = activeDetectors(tiers).map((det) => {
+  /** @type {Set<string>} */
+  const types = new Set();
+  for (const row of rows) {
+    if (row.event && typeof row.event.type === 'string') types.add(row.event.type);
+  }
+  const ablation = Object.values(detectors).map((det) => {
     const id = det.id;
     const severity = (det.defaults && det.defaults.severity) || 'medium';
+    if (!exercised(det, tiers, types)) {
+      return {
+        detector: id,
+        severity,
+        exercised: false,
+        unique: 0,
+        falsePositives: 0,
+        zeroUnique: false,
+        proposal: null,
+      };
+    }
     const without = afterLock(replay(plans, tiers, id), plans);
     let unique = 0;
     for (const interval of instances) {
@@ -342,6 +384,7 @@ function evaluate(rows, opts) {
     return {
       detector: id,
       severity,
+      exercised: true,
       unique,
       falsePositives: fp,
       zeroUnique: unique === 0,
@@ -354,6 +397,10 @@ function evaluate(rows, opts) {
     dataset: opts.dataset || null,
     tiers,
     learning,
+    learnEvents,
+    maliciousLearnEvents,
+    maliciousLearnShare,
+    poisonedPrefix: maliciousLearnShare > 0,
     attackInstances: instances.length,
     detected,
     detection: formatRate(detected, instances.length, 'attack instances'),
@@ -417,7 +464,9 @@ function summaryLines(result) {
  * @returns {string}
  */
 function renderProposals(result) {
-  const zeros = result.ablation.filter((row) => row.zeroUnique).map((row) => row.detector);
+  const zeros = result.ablation
+    .filter((row) => row.exercised && row.zeroUnique)
+    .map((row) => row.detector);
   const lines = [
     '# C6.2 step 6',
     '',
@@ -434,6 +483,31 @@ function renderProposals(result) {
   for (const proposal of result.proposals) lines.push(`- ${proposal}`);
   if (result.proposals.length > 0) lines.push('');
   return lines.join('\n');
+}
+
+/**
+ * Learning span and the malicious share of the events actually used for learning.
+ * @param {any} result
+ * @returns {string[]}
+ */
+function learningHeader(result) {
+  const rows = result.learning || [];
+  const same = rows.length > 0 && rows.every((row) => row.learningMs === rows[0].learningMs);
+  const span =
+    rows.length === 0
+      ? 'Learning span: 0 ms.'
+      : same
+        ? `Learning span: ${rows[0].learningMs} ms.`
+        : `Learning span: ${rows.map((row) => `${row.device} ${row.learningMs} ms`).join('; ')}.`;
+  const events = result.learnEvents || 0;
+  const bad = result.maliciousLearnEvents || 0;
+  const share =
+    events === 0
+      ? 'Malicious-label share inside the learning prefix: 0.'
+      : `Malicious-label share inside the learning prefix: ${bad}/${events}.`;
+  const lines = [span, '', share, ''];
+  if (result.poisonedPrefix) lines.push('POISONED PREFIX', '');
+  return lines;
 }
 
 /**
@@ -458,6 +532,7 @@ function renderMarkdown(result) {
     ...(result.tiers.length === 1 && result.tiers[0] === 'T1'
       ? ['T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.', '']
       : []),
+    ...learningHeader(result),
     `Tiers: ${result.tiers.join(', ')}.`,
     '',
     `Learning: ${learningNote}`,
@@ -493,12 +568,20 @@ function renderMarkdown(result) {
   }
   if (result.misses.length > 0) lines.push('');
   lines.push('## Ablation', '');
-  for (const row of result.ablation) {
+  const exercisedRows = result.ablation.filter((row) => row.exercised);
+  if (exercisedRows.length === 0) lines.push('None.', '');
+  for (const row of exercisedRows) {
     lines.push(
       `- ${row.detector}: ${row.unique} unique detections, ${row.falsePositives} false positives${row.zeroUnique ? ', zero unique' : ''}`,
     );
   }
-  lines.push('', '## Proposals', '');
+  if (exercisedRows.length > 0) lines.push('');
+  lines.push('## Not exercised', '');
+  const skipped = result.ablation.filter((row) => !row.exercised);
+  if (skipped.length === 0) lines.push('None.', '');
+  for (const row of skipped) lines.push(`- ${row.detector}`);
+  if (skipped.length > 0) lines.push('');
+  lines.push('## Proposals', '');
   if (result.proposals.length === 0) lines.push('None. The human decides any later change.', '');
   for (const proposal of result.proposals) lines.push(`- ${proposal}`);
   if (result.proposals.length > 0) lines.push('');

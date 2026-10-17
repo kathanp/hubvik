@@ -63,3 +63,39 @@ Checkpoint B gate, same script, 2026-10-17: median 25.75 µs, 2.46 KB/device.
 | -------------- | --------------- | -------------- | ------------- |
 | x86            | 5.83 µs         | 1.19 KB        | 12.33 KB      |
 | Raspberry Pi 4 | not measured    | not measured   | not measured  |
+
+## WP-9.6 — estimate versus heap
+
+Each of the 1,000 bench devices learned 2 summary events, at `ts` 0 and `ts` 60000, before the heap delta. The timed `feed()` loop runs after that sample.
+
+`memoryEstimate` for the five largest underestimates now counts structures that were already allocated: `volume-spike-hourly` counts its 24 `SampleRing` objects, and `blockchain-c2`, `tor-or-proxy`, `cryptomining`, and `tunnel-service` count two empty `LruSet`s each (240 bytes for the object and its `Map`, measured on Node 24). Their stored state was not changed. The WP-9.6 gate printed median 5.46 µs, estimate 5.70 KB/device, heap 12.27 KB/device. Heap / estimate is 2.15. That is outside 2×. The remaining gap is the other detector objects plus the device record. Closing it by shrinking the 24 hourly rings would change state, so the rings stay.
+
+Fresh-state heap is `createState` measured with `node --expose-gc`. `memoryEstimate` is the bench state after those 2 events. `volume-spike-hourly` holds one sample by then, so its estimate is higher than the empty-ring measurement.
+
+| Detector                | fresh-state heap (bytes) | memoryEstimate (bytes) | heap / estimate |
+| ----------------------- | -----------------------: | ---------------------: | --------------: |
+| volume-spike-hourly     |                    2,414 |                  2,712 |            0.89 |
+| blockchain-c2           |                      503 |                    512 |            0.98 |
+| tunnel-service          |                      502 |                    512 |            0.98 |
+| tor-or-proxy            |                      496 |                    512 |            0.97 |
+| cryptomining            |                      496 |                    512 |            0.97 |
+| new-domain-family       |                      496 |                     80 |            6.21 |
+| new-destination         |                      510 |                    128 |            3.98 |
+| wrong-time              |                      424 |                     40 |           10.61 |
+| peer-divergence         |                      354 |                     40 |            8.86 |
+| threat-intel-match      |                      264 |                      0 |          no est |
+| proxy-sdk-traffic       |                      264 |                      0 |          no est |
+| class-violation         |                      234 |                     32 |            7.32 |
+| went-silent             |                      218 |                     40 |            5.45 |
+| policy-violation        |                      201 |                      0 |          no est |
+| fleet-wave              |                      194 |                     40 |            4.84 |
+| failed-connection-ratio |                      157 |                     32 |            4.92 |
+| upload-ratio-shift      |                      156 |                     32 |            4.88 |
+| nxdomain-burst          |                      150 |                     32 |            4.68 |
+| fan-out                 |                      139 |                     40 |            3.48 |
+| volume-spike            |                      136 |                     40 |            3.41 |
+| protocol-mix-shift      |                       73 |                     24 |            3.06 |
+| ot-write-rate           |                       59 |                     16 |            3.67 |
+| connection-churn        |                       57 |                     16 |            3.59 |
+| new-device              |                       41 |                     16 |            2.59 |
+| clock-jump              |                       41 |                     16 |            2.59 |

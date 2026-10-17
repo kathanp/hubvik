@@ -121,7 +121,15 @@ test('IoT-23 conn.log.labeled joins through adapter-zeek on tier T1', () => {
   assert.match(renderMarkdown(result), /## Misses/);
   const scan = result.ablation.find((row) => row.detector === 'horizontal-scan');
   assert.strictEqual(scan.unique, 1);
+  assert.strictEqual(scan.exercised, true);
   assert.strictEqual(scan.proposal, null);
+  const dga = result.ablation.find((row) => row.detector === 'dga');
+  assert.strictEqual(dga.exercised, false);
+  assert.strictEqual(dga.zeroUnique, false);
+  const md = renderMarkdown(result);
+  assert.match(md, /## Not exercised/);
+  assert.match(md, /- dga\n/);
+  assert.doesNotMatch(md, /dga: 0 unique/);
 });
 
 test('the cli writes json and markdown and rejects an unknown dataset', () => {
@@ -185,6 +193,36 @@ test('the synthetic corpus matches the committed golden report', () => {
   assert.ok(result.attackInstances >= 20);
   assert.strictEqual(result.benignDeviceDays, 3);
   assert.ok(result.learning.every((row) => row.learningMs === 2 * 24 * 60 * 60 * 1000));
+  assert.strictEqual(result.poisonedPrefix, false);
+  assert.strictEqual(result.maliciousLearnShare, 0);
+  assert.match(goldenMd, /Learning span: 172800000 ms/);
+  assert.match(goldenMd, /Malicious-label share inside the learning prefix: 0\//);
+  assert.doesNotMatch(goldenMd, /POISONED PREFIX/);
+});
+
+test('a learning prefix that contains a malicious label is marked poisoned', () => {
+  const md = renderMarkdown({
+    dataset: 'iot23',
+    tiers: ['T1'],
+    learning: [{ device: 'cam', learningMs: 1000, short: true }],
+    learnEvents: 4,
+    maliciousLearnEvents: 1,
+    maliciousLearnShare: 0.25,
+    poisonedPrefix: true,
+    detection: 'no rate',
+    falsePositives: 0,
+    benignDeviceDays: 0,
+    falsePositivesPerDeviceDay: null,
+    benignIntervalsWithFalsePositive: 'no rate',
+    byLabel: [],
+    hits: [],
+    misses: [],
+    ablation: [],
+    proposals: [],
+  });
+  assert.match(md, /Learning span: 1000 ms/);
+  assert.match(md, /Malicious-label share inside the learning prefix: 1\/4/);
+  assert.match(md, /POISONED PREFIX/);
 });
 
 test('the evasion suite builds the four C6.2 shapes and records what fired', () => {
