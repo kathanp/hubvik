@@ -1,0 +1,842 @@
+{
+  "dataset": "iot23",
+  "tiers": [
+    "T1"
+  ],
+  "learning": [
+    {
+      "device": "10.0.0.1",
+      "learningMs": 172800000,
+      "short": false
+    },
+    {
+      "device": "10.0.0.2",
+      "learningMs": 172800000,
+      "short": false
+    },
+    {
+      "device": "10.0.0.3",
+      "learningMs": 172800000,
+      "short": false
+    },
+    {
+      "device": "10.0.0.4",
+      "learningMs": 172800000,
+      "short": false
+    },
+    {
+      "device": "10.0.0.5",
+      "learningMs": 172800000,
+      "short": false
+    }
+  ],
+  "attackInstances": 25,
+  "detected": 20,
+  "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+  "byLabel": [
+    {
+      "detailedLabel": "HorizontalScan",
+      "detected": 7,
+      "instances": 7,
+      "detection": "n too small (7 detected, 7 attack instances)"
+    },
+    {
+      "detailedLabel": "SlowVerticalScan",
+      "detected": 1,
+      "instances": 6,
+      "detection": "n too small (1 detected, 6 attack instances)"
+    },
+    {
+      "detailedLabel": "C2Beacon",
+      "detected": 6,
+      "instances": 6,
+      "detection": "n too small (6 detected, 6 attack instances)"
+    },
+    {
+      "detailedLabel": "UdpFlood",
+      "detected": 6,
+      "instances": 6,
+      "detection": "n too small (6 detected, 6 attack instances)"
+    }
+  ],
+  "misses": [
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 172800000,
+      "end": 172800000,
+      "flows": 1,
+      "detected": false,
+      "detectors": [],
+      "timeToDetectMs": null
+    },
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 173400000,
+      "end": 173400000,
+      "flows": 1,
+      "detected": false,
+      "detectors": [],
+      "timeToDetectMs": null
+    },
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 174000000,
+      "end": 174000000,
+      "flows": 1,
+      "detected": false,
+      "detectors": [],
+      "timeToDetectMs": null
+    },
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 175200000,
+      "end": 175200000,
+      "flows": 1,
+      "detected": false,
+      "detectors": [],
+      "timeToDetectMs": null
+    },
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 175800000,
+      "end": 175800000,
+      "flows": 1,
+      "detected": false,
+      "detectors": [],
+      "timeToDetectMs": null
+    }
+  ],
+  "hits": [
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 172800000,
+      "end": 172800000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 173400000,
+      "end": 173400000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 174000000,
+      "end": 174000000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 174600000,
+      "end": 174600000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 175200000,
+      "end": 175200000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.1",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 175800000,
+      "end": 175800000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.2",
+      "label": "Malicious",
+      "detailedLabel": "SlowVerticalScan",
+      "start": 174600000,
+      "end": 174600000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "beacon-change"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 172800000,
+      "end": 173940000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 174540000,
+      "end": 175680000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 176280000,
+      "end": 177420000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 178020000,
+      "end": 179160000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 179760000,
+      "end": 180900000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.3",
+      "label": "Malicious",
+      "detailedLabel": "C2Beacon",
+      "start": 181500000,
+      "end": 182640000,
+      "flows": 20,
+      "detected": true,
+      "detectors": [
+        "new-beacon"
+      ],
+      "timeToDetectMs": 1140000
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 172800000,
+      "end": 172800000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "new-protocol",
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 173400000,
+      "end": 173400000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 174000000,
+      "end": 174000000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 174600000,
+      "end": 174600000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 175200000,
+      "end": 175200000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.4",
+      "label": "Malicious",
+      "detailedLabel": "UdpFlood",
+      "start": 175800000,
+      "end": 175800000,
+      "flows": 1,
+      "detected": true,
+      "detectors": [
+        "packet-flood",
+        "protocol-mix-shift"
+      ],
+      "timeToDetectMs": 0
+    },
+    {
+      "device": "10.0.0.5",
+      "label": "Malicious",
+      "detailedLabel": "HorizontalScan",
+      "start": 172800000,
+      "end": 172800000,
+      "flows": 21,
+      "detected": true,
+      "detectors": [
+        "horizontal-scan"
+      ],
+      "timeToDetectMs": 0
+    }
+  ],
+  "falsePositives": 0,
+  "benignDeviceDays": 3,
+  "falsePositivesPerDeviceDay": 0,
+  "benignIntervals": 5,
+  "benignIntervalsWithFalsePositive": "n too small (0 detected, 5 benign intervals)",
+  "ablation": [
+    {
+      "detector": "new-port",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-protocol",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "horizontal-scan",
+      "severity": "critical",
+      "unique": 7,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "vertical-scan",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "failed-connection-ratio",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-lateral",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "upload-ratio-shift",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "packet-flood",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "egress-flood",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "reflection-participation",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "coap-amplification",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "bogon-destination",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "inbound-from-wan",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "adb-exposure",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-new-broker",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "spam-relay",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "tftp-activity",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "posture-listening-risky",
+      "severity": "low",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "posture-wan-exposed",
+      "severity": "low",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "proxy-relay",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-asn",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-country",
+      "severity": "low",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "upnp-port-open",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "tor-or-proxy",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-sweep",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "brute-force-out",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "brute-force-in",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "slow-exfil",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "protocol-mix-shift",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "connection-churn",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-beacon",
+      "severity": "high",
+      "unique": 6,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "long-connection",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "src-spoof",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "icmp-redirect",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "zone-violation",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "stream-to-new-destination",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "cryptomining",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ot-wan-exposure",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "vpn-protocol",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "icmp-tunnel",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ipv6-tunnel",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ntp-rogue",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "update-from-new-source",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "update-over-cleartext",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "posture-cleartext-auth",
+      "severity": "low",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "cleartext-regression",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "proxy-backconnect",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-via-proxy",
+      "severity": "critical",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "p2p-pattern",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "credential-stuffing-out",
+      "severity": "high",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "quic-new",
+      "severity": "medium",
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "beacon-change",
+      "severity": "medium",
+      "unique": 1,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    }
+  ],
+  "proposals": [],
+  "evasion": [
+    {
+      "id": "slow-scan",
+      "fired": true,
+      "detectors": [
+        "new-port"
+      ]
+    },
+    {
+      "id": "beacon-jitter-40",
+      "fired": true,
+      "detectors": [
+        "new-beacon"
+      ]
+    },
+    {
+      "id": "exfil-0.9-limit",
+      "fired": false,
+      "detectors": []
+    },
+    {
+      "id": "flood-10-destinations",
+      "fired": true,
+      "detectors": [
+        "new-port",
+        "egress-flood",
+        "stream-to-new-destination"
+      ]
+    }
+  ]
+}

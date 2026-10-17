@@ -2,6 +2,7 @@
 #empty_field (empty)
 #unset_field -
 #fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	duration	orig_bytes	resp_bytes	orig_pkts	resp_pkts	label	detailed-label
+#types	time	string	addr	port	addr	port	enum	interval	count	count	count	count	string	string
 1700000000	Cxx	10.0.0.8	40000	1.2.3.4	9	tcp	0.01	60	0	1	0	Benign	-
 1700000060	Cxx	10.0.0.8	40000	45.1.1.1	9	tcp	0.01	60	0	1	0	Malicious	PartOfAHorizontalPortScan
 1700000060	Cxx	10.0.0.8	40000	45.1.1.2	9	tcp	0.01	60	0	1	0	Malicious	PartOfAHorizontalPortScan

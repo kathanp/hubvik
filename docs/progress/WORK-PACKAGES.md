@@ -306,3 +306,11 @@ Date: 2026-10-17.
 Date: 2026-10-17.
 
 `eval/run.mjs --dataset iot23 --zeek-logs <dir>` follows C6.2: benign learning prefix (24 h when the capture has it, otherwise the actual span), `lock()`, detection at medium or above inside the attack interval plus 5 minutes, false positives per benign device-day, 95% Wilson intervals, `n too small` under 20 instances, per-detector ablation, and a written proposal the human decides. The IoT-23 joiner reads Zeek TSV `conn.log` with `label` and `detailed-label` and parses each row with `adapter-zeek`. The engine runs at T1 only. `eval/evasion/` runs the four synthetic cases and records what fired. Thresholds were not changed. No dataset was downloaded and no detection rate was written into a README. CICIoT2023, the IEEE DataPort ARP set, and CICIoMT2024 have no joiner yet.
+
+## WP-9.1 — harness correctness
+
+Date: 2026-10-17.
+
+Wilson uses z = 1.96. `0/0` prints `no rate`. The synthetic corpus is `eval/fixtures/conn.log.labeled`, written by `eval/fixtures/gen.mjs` with seed 20261017. Five devices each learn for 2 days, then lock. The post-lock benign remainder is 3 device-days. There are 25 labeled attack instances: horizontal scan, slow vertical scan, C2 beacon, and UDP flood. The committed report is `eval/fixtures/golden.md`. It prints a detection percentage with a Wilson interval, `n too small` on each attack type, false positives per device-day, time to detect, and the per-detector table. `eval/run.mjs` prints five summary lines. Ablation marks zero-unique detectors in `golden.proposals.md`. No detector default changed. `eval/results/evasion.md` records the four synthetic cases. The exfil case is a blind spot. The other three fired. Thresholds were not tuned.
+
+The WP-9 fixture `eval/test/fixtures/conn.log.labeled` labels one `PartOfAHorizontalPortScan` and no beacon. The beacon was not labeled, so it was not scored. That is not a missed detection.

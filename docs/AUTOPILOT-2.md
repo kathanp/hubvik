@@ -5,13 +5,13 @@ HARD STOP if: a protected test or the differential golden fails after 3 honest a
 Fast check after each WP. Full gate + demo at the end only.
 
 ## WP-9.1 — Harness correctness
-- [ ] Wilson unit tests against hand-computed values: 18/20, 0/25, 25/25, 0/0 (must print "no rate"). Use z = 1.96. Put the expected bounds in the test to 4 decimals.
-- [ ] Generated synthetic corpus (eval/fixtures/gen.mjs, seeded PRNG, no Date.now/Math.random): 5 devices, 2 days benign learning prefix then lock, 3 benign device-days after lock, and >= 20 labeled attack instances across 4 types (horizontal scan, slow vertical scan, C2 beacon to a new host, UDP flood). Writes Zeek-format conn.log with label / detailed-label columns.
-- [ ] Run eval on it. Every code path must execute: detection %, FP per device-day, Wilson intervals, "n too small", time-to-detect, per-detector table. Commit the output as a golden fixture.
-- [ ] Explain the missing beacon from the WP-9 fixture: not labeled, not scored, or not detected. If not detected, that is a finding, not a bug to tune away. Record it in docs/progress/WORK-PACKAGES.md.
-- [ ] Ablation: per detector, detection with it disabled; mark detectors with zero unique detections. Write the C6.2 step 6 proposal file; do not change any default.
-- [ ] Evasion suite in eval/evasion/: slow scan 1 host/window, beacon 40% jitter, exfil at 0.9 x slow-exfil limit, flood split over 10 destinations. Publish results as known blind spots in eval/results/evasion.md. Do not tune.
-- [ ] eval/run.mjs prints a 5-line summary to stdout (dataset, devices, attack instances, detection, FP/device-day).
+- [x] Wilson unit tests against hand-computed values: 18/20, 0/25, 25/25, 0/0 (must print "no rate"). Use z = 1.96. Put the expected bounds in the test to 4 decimals.
+- [x] Generated synthetic corpus (eval/fixtures/gen.mjs, seeded PRNG, no Date.now/Math.random): 5 devices, 2 days benign learning prefix then lock, 3 benign device-days after lock, and >= 20 labeled attack instances across 4 types (horizontal scan, slow vertical scan, C2 beacon to a new host, UDP flood). Writes Zeek-format conn.log with label / detailed-label columns.
+- [x] Run eval on it. Every code path must execute: detection %, FP per device-day, Wilson intervals, "n too small", time-to-detect, per-detector table. Commit the output as a golden fixture.
+- [x] Explain the missing beacon from the WP-9 fixture: not labeled, not scored, or not detected. If not detected, that is a finding, not a bug to tune away. Record it in docs/progress/WORK-PACKAGES.md.
+- [x] Ablation: per detector, detection with it disabled; mark detectors with zero unique detections. Write the C6.2 step 6 proposal file; do not change any default.
+- [x] Evasion suite in eval/evasion/: slow scan 1 host/window, beacon 40% jitter, exfil at 0.9 x slow-exfil limit, flood split over 10 destinations. Publish results as known blind spots in eval/results/evasion.md. Do not tune.
+- [x] eval/run.mjs prints a 5-line summary to stdout (dataset, devices, attack instances, detection, FP/device-day).
 
 ## WP-9.2 — IoT-23 parser and attack intervals
 - [ ] Parse Zeek TSV exactly: #separator, #fields, #types headers; "-" and "(empty)" as unset. Handle the labeled files where the last three columns (tunnel_parents, label, detailed-label) may be space-separated rather than tab-separated. Test both layouts with hand-written fixture lines.

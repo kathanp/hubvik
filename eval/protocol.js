@@ -5,7 +5,7 @@ const { createEngine, detectors, SEVERITY } = require('iotwarden');
 const DAY = 24 * 60 * 60 * 1000;
 const GRACE_MS = 5 * 60 * 1000;
 const MERGE_MS = 5 * 60 * 1000;
-const Z = 1.959963984540054;
+const Z = 1.96;
 
 /**
  * 95% Wilson score interval for k successes in n trials.
@@ -14,15 +14,17 @@ const Z = 1.959963984540054;
  * @returns {{ low: number, high: number }}
  */
 function wilson(k, n) {
-  if (n <= 0) return { low: 0, high: 1 };
+  if (n <= 0) return null;
   const p = k / n;
   const z2 = Z * Z;
   const denom = 1 + z2 / n;
   const center = p + z2 / (2 * n);
   const margin = Z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
+  const low = Math.max(0, (center - margin) / denom);
+  const high = Math.min(1, (center + margin) / denom);
   return {
-    low: Math.max(0, (center - margin) / denom),
-    high: Math.min(1, (center + margin) / denom),
+    low: low <= 1e-12 ? 0 : low,
+    high: high >= 1 - 1e-12 ? 1 : high,
   };
 }
 
@@ -34,8 +36,10 @@ function wilson(k, n) {
  * @returns {string}
  */
 function formatRate(k, n, noun) {
+  if (n === 0) return 'no rate';
   if (n < 20) return `n too small (${k} detected, ${n} ${noun})`;
   const interval = wilson(k, n);
+  if (!interval) return 'no rate';
   const pct = (value) => (100 * value).toFixed(1);
   return `${k}/${n} = ${pct(k / n)}% (95% Wilson ${pct(interval.low)}%–${pct(interval.high)}%)`;
 }
@@ -323,6 +327,7 @@ function evaluate(rows, opts) {
     ),
   ).length;
   const detected = instances.filter((interval) => interval.detected).length;
+  const byLabel = typeRates(instances);
   const ablation = activeDetectors(tiers).map((det) => {
     const id = det.id;
     const severity = (det.defaults && det.defaults.severity) || 'medium';
@@ -339,6 +344,7 @@ function evaluate(rows, opts) {
       severity,
       unique,
       falsePositives: fp,
+      zeroUnique: unique === 0,
       proposal: propose
         ? `${id}: zero unique detections and ${fp} ${severity} false positives over ${days} benign device-days, above the C6.3 gate. Proposal: set detectors.${id}.enabled to false, or set severity to info. The human decides.`
         : null,
@@ -351,6 +357,7 @@ function evaluate(rows, opts) {
     attackInstances: instances.length,
     detected,
     detection: formatRate(detected, instances.length, 'attack instances'),
+    byLabel,
     misses: instances.filter((interval) => !interval.detected),
     hits: instances.filter((interval) => interval.detected),
     falsePositives: fpItems.length,
@@ -367,6 +374,72 @@ function evaluate(rows, opts) {
  * @param {any} result
  * @returns {string}
  */
+function typeRates(instances) {
+  /** @type {Map<string, any[]>} */
+  const groups = new Map();
+  for (const interval of instances) {
+    const list = groups.get(interval.detailedLabel) || [];
+    list.push(interval);
+    groups.set(interval.detailedLabel, list);
+  }
+  return [...groups.entries()].map(([detailedLabel, list]) => {
+    const hits = list.filter((interval) => interval.detected).length;
+    return {
+      detailedLabel,
+      detected: hits,
+      instances: list.length,
+      detection: formatRate(hits, list.length, 'attack instances'),
+    };
+  });
+}
+
+/**
+ * Five lines for stdout.
+ * @param {any} result
+ * @returns {string[]}
+ */
+function summaryLines(result) {
+  const fp =
+    result.falsePositivesPerDeviceDay == null
+      ? 'no rate'
+      : String(result.falsePositivesPerDeviceDay);
+  return [
+    `dataset: ${result.dataset}`,
+    `devices: ${result.learning.length}`,
+    `attack instances: ${result.attackInstances}`,
+    `detection: ${result.detection}`,
+    `FP/device-day: ${fp}`,
+  ];
+}
+
+/**
+ * @param {any} result
+ * @returns {string}
+ */
+function renderProposals(result) {
+  const zeros = result.ablation.filter((row) => row.zeroUnique).map((row) => row.detector);
+  const lines = [
+    '# C6.2 step 6',
+    '',
+    'The human decides. No default was changed.',
+    '',
+    '## Zero unique detections',
+    '',
+  ];
+  if (zeros.length === 0) lines.push('None.', '');
+  for (const id of zeros) lines.push(`- ${id}`);
+  if (zeros.length > 0) lines.push('');
+  lines.push('## Proposals', '');
+  if (result.proposals.length === 0) lines.push('None.', '');
+  for (const proposal of result.proposals) lines.push(`- ${proposal}`);
+  if (result.proposals.length > 0) lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * @param {any} result
+ * @returns {string}
+ */
 function renderMarkdown(result) {
   const short = result.learning.filter((row) => row.short);
   const learningNote =
@@ -377,6 +450,11 @@ function renderMarkdown(result) {
   const lines = [
     `# ${result.dataset || 'eval'}`,
     '',
+    'Attack intervals: contiguous Malicious runs per (device, detailed-label), merged when the gap is under 5 minutes.',
+    '',
+    ...(result.tiers.length === 1 && result.tiers[0] === 'T1'
+      ? ['T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.', '']
+      : []),
     `Tiers: ${result.tiers.join(', ')}.`,
     '',
     `Learning: ${learningNote}`,
@@ -387,9 +465,15 @@ function renderMarkdown(result) {
     '',
     `Benign intervals with a false positive: ${result.benignIntervalsWithFalsePositive}`,
     '',
-    '## Hits',
+    '## By type',
     '',
   ];
+  if (!result.byLabel || result.byLabel.length === 0) lines.push('None.', '');
+  for (const row of result.byLabel || []) {
+    lines.push(`- ${row.detailedLabel}: ${row.detection}`);
+  }
+  if (result.byLabel && result.byLabel.length > 0) lines.push('');
+  lines.push('## Hits', '');
   if (result.hits.length === 0) lines.push('None.', '');
   for (const hit of result.hits) {
     lines.push(
@@ -408,7 +492,7 @@ function renderMarkdown(result) {
   lines.push('## Ablation', '');
   for (const row of result.ablation) {
     lines.push(
-      `- ${row.detector}: ${row.unique} unique detections, ${row.falsePositives} false positives`,
+      `- ${row.detector}: ${row.unique} unique detections, ${row.falsePositives} false positives${row.zeroUnique ? ', zero unique' : ''}`,
     );
   }
   lines.push('', '## Proposals', '');
@@ -445,5 +529,7 @@ module.exports = {
   inDetectionWindow,
   hitsFor,
   evaluate,
+  summaryLines,
+  renderProposals,
   renderMarkdown,
 };

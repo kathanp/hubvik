@@ -20,15 +20,23 @@ const {
   hitsFor,
   evaluate,
   renderMarkdown,
+  summaryLines,
 } = require('../protocol.js');
 
 const FIXTURE = path.join(__dirname, 'fixtures');
 
-test('wilson intervals stay inside 0..1 and small samples are not percentages', () => {
+test('wilson intervals match the hand-computed z=1.96 bounds', () => {
   assert.strictEqual(wilson(0, 20).low, 0);
   assert.strictEqual(wilson(20, 20).high, 1);
   const mid = wilson(10, 20);
   assert.ok(mid.low < 0.5 && mid.high > 0.5);
+  assert.strictEqual(wilson(18, 20).low.toFixed(4), '0.6990');
+  assert.strictEqual(wilson(18, 20).high.toFixed(4), '0.9721');
+  assert.strictEqual(wilson(0, 25).low.toFixed(4), '0.0000');
+  assert.strictEqual(wilson(0, 25).high.toFixed(4), '0.1332');
+  assert.strictEqual(wilson(25, 25).low.toFixed(4), '0.8668');
+  assert.strictEqual(wilson(25, 25).high.toFixed(4), '1.0000');
+  assert.strictEqual(formatRate(0, 0, 'attack instances'), 'no rate');
   assert.strictEqual(
     formatRate(1, 3, 'attack instances'),
     'n too small (1 detected, 3 attack instances)',
@@ -112,7 +120,11 @@ test('IoT-23 conn.log.labeled joins through adapter-zeek on tier T1', () => {
 
 test('the cli writes json and markdown and rejects an unknown dataset', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-eval-'));
-  const result = main(['--dataset', 'iot23', '--zeek-logs', FIXTURE], { outDir: dir });
+  const result = main(['--dataset', 'iot23', '--zeek-logs', FIXTURE], {
+    outDir: dir,
+    evasionPath: path.join(dir, 'evasion.md'),
+    quiet: true,
+  });
   const json = JSON.parse(fs.readFileSync(path.join(dir, 'iot23.json'), 'utf8'));
   const md = fs.readFileSync(path.join(dir, 'iot23.md'), 'utf8');
   assert.strictEqual(json.detected, result.detected);
@@ -123,6 +135,50 @@ test('the cli writes json and markdown and rejects an unknown dataset', () => {
   const bad = path.join(dir, 'conn.log.labeled');
   fs.writeFileSync(bad, '#separator \\x09\n#fields\tts\tuid\n1\tC\n');
   assert.throws(() => loadIot23(bad), /missing label/);
+});
+
+test('the synthetic corpus matches the committed golden report', () => {
+  const corpus = path.join(__dirname, '..', 'fixtures', 'conn.log.labeled');
+  const goldenMd = fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'golden.md'), 'utf8');
+  const goldenJson = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'golden.json'), 'utf8'),
+  );
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-corpus-'));
+  const stdout = [];
+  const original = console.log;
+  console.log = (line) => stdout.push(String(line));
+  let result;
+  try {
+    result = main(['--dataset', 'iot23', '--zeek-logs', corpus], {
+      outDir: dir,
+      evasionPath: path.join(dir, 'evasion.md'),
+    });
+  } finally {
+    console.log = original;
+  }
+  assert.deepStrictEqual(stdout, summaryLines(result));
+  assert.strictEqual(stdout.length, 5);
+  assert.strictEqual(fs.readFileSync(path.join(dir, 'iot23.md'), 'utf8'), goldenMd);
+  assert.strictEqual(
+    fs.readFileSync(path.join(dir, 'iot23.proposals.md'), 'utf8'),
+    fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'golden.proposals.md'), 'utf8'),
+  );
+  assert.deepStrictEqual(
+    JSON.parse(fs.readFileSync(path.join(dir, 'iot23.json'), 'utf8')),
+    goldenJson,
+  );
+  assert.strictEqual(
+    fs.readFileSync(path.join(dir, 'evasion.md'), 'utf8'),
+    fs.readFileSync(path.join(__dirname, '..', 'results', 'evasion.md'), 'utf8'),
+  );
+  assert.match(result.detection, /% \(95% Wilson/);
+  assert.match(goldenMd, /n too small/);
+  assert.match(goldenMd, /time to detect/);
+  assert.match(goldenMd, /per benign device-day/);
+  assert.match(goldenMd, /## Ablation/);
+  assert.ok(result.attackInstances >= 20);
+  assert.strictEqual(result.benignDeviceDays, 3);
+  assert.ok(result.learning.every((row) => row.learningMs === 2 * 24 * 60 * 60 * 1000));
 });
 
 test('the evasion suite builds the four C6.2 shapes and records what fired', () => {

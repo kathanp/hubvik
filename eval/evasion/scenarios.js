@@ -132,4 +132,28 @@ function flow(device, ts, dstIp, dstPort, extra) {
   };
 }
 
-module.exports = { runEvasion };
+/**
+ * @param {{ id: string, fired: boolean, detectors: string[] }[]} scenarios
+ * @returns {string}
+ */
+function renderEvasion(scenarios) {
+  const lines = [
+    '# Evasion',
+    '',
+    'Synthetic known blind spots. Thresholds were not tuned against this suite.',
+    '',
+    'Attack intervals: contiguous Malicious runs per (device, detailed-label), merged when the gap is under 5 minutes.',
+    '',
+    'T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.',
+    '',
+  ];
+  for (const scenario of scenarios) {
+    const who = scenario.detectors.length > 0 ? scenario.detectors.join(', ') : 'none';
+    const spot = scenario.fired ? 'fired' : 'blind spot';
+    lines.push(`- ${scenario.id}: ${spot} (${who})`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+module.exports = { runEvasion, renderEvasion };

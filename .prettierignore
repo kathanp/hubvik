@@ -4,4 +4,10 @@ coverage
 package-lock.json
 cursor-kit
 eval/data
+docs/AUTOPILOT-2.md
+eval/fixtures/conn.log.labeled
+eval/fixtures/golden.json
+eval/fixtures/golden.md
+eval/fixtures/golden.proposals.md
+eval/results/evasion.md
 test/diff/golden.json
