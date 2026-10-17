@@ -6,6 +6,7 @@ const detector = {
   id: 'gratuitous-arp-flood',
   version: 1,
   meta: {
+    consumes: ['arp'],
     rel: '0.3',
     fpRisk: 'Low',
   },

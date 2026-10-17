@@ -7,6 +7,7 @@ const detector = {
   id: 'tftp-activity',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: '',
     attack: ['T1071'],

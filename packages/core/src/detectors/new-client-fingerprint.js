@@ -6,6 +6,7 @@ const detector = {
   id: 'new-client-fingerprint',
   version: 1,
   meta: {
+    consumes: ['tls'],
     rel: '0.4',
     fpRisk: 'Low on single-purpose IoT, medium after firmware updates',
     attack: ['T1036'],

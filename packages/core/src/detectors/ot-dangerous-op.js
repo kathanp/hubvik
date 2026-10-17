@@ -15,6 +15,7 @@ const detector = {
   id: 'ot-dangerous-op',
   version: 1,
   meta: {
+    consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
     attack: ['T1565'],

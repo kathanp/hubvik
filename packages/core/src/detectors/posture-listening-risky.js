@@ -10,6 +10,7 @@ const detector = {
   id: 'posture-listening-risky',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: '',
   },

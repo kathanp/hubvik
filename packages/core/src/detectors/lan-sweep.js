@@ -7,6 +7,7 @@ const detector = {
   id: 'lan-sweep',
   version: 1,
   meta: {
+    consumes: ['flow', 'arp'],
     rel: '0.3',
     fpRisk: 'Low',
     attack: ['T1046'],

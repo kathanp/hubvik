@@ -7,6 +7,7 @@ const detector = {
   id: 'egress-flood',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.5',
     fpRisk: 'Low. Camera upload is ~15 MB/window and two-way TCP',
     attack: ['T1498'],

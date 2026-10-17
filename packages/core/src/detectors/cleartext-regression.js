@@ -8,6 +8,7 @@ const detector = {
   id: 'cleartext-regression',
   version: 1,
   meta: {
+    consumes: ['flow', 'tls', 'http'],
     rel: '0.4',
     fpRisk: 'Low; downgrade attack or tampered firmware',
     attack: ['T1600'],

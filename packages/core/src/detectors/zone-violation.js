@@ -7,6 +7,7 @@ const detector = {
   id: 'zone-violation',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
   },

@@ -8,6 +8,7 @@ const detector = {
   id: 'volume-spike',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.1',
     fpRisk: 'Medium for cameras',
     attack: ['T1498'],

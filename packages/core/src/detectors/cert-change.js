@@ -6,6 +6,7 @@ const detector = {
   id: 'cert-change',
   version: 1,
   meta: {
+    consumes: ['tls'],
     rel: '0.4',
     fpRisk: 'Low; strong MITM signal',
     attack: ['T1557'],

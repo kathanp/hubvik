@@ -4,6 +4,7 @@ const detector = {
   id: 'tier-silent',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.5',
     fpRisk: '',
   },

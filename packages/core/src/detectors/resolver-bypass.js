@@ -8,6 +8,7 @@ const detector = {
   id: 'resolver-bypass',
   version: 1,
   meta: {
+    consumes: ['flow', 'dns'],
     rel: '0.2',
     fpRisk: 'Low on IoT, though some devices hard-code 8.8.8.8, which the baseline absorbs',
   },

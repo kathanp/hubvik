@@ -6,6 +6,7 @@ const detector = {
   id: 'fast-flux',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.4',
     fpRisk: 'Medium',
   },

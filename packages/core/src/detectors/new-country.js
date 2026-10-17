@@ -6,6 +6,7 @@ const detector = {
   id: 'new-country',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Medium',
   },

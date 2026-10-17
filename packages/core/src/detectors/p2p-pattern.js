@@ -6,6 +6,7 @@ const detector = {
   id: 'p2p-pattern',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.4',
     fpRisk: 'Medium (some cameras use P2P relay legitimately; baseline catches that)',
   },

@@ -8,6 +8,7 @@ const detector = {
   id: 'ot-write-rate',
   version: 1,
   meta: {
+    consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
   },

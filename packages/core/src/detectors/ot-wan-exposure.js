@@ -9,6 +9,7 @@ const detector = {
   id: 'ot-wan-exposure',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
   },

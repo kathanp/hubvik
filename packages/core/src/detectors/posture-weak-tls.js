@@ -8,6 +8,7 @@ const detector = {
   id: 'posture-weak-tls',
   version: 1,
   meta: {
+    consumes: ['tls'],
     rel: '0.4',
     fpRisk: '',
   },

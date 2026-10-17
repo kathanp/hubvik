@@ -12,6 +12,20 @@ const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 const TIER_SET = new Set(TIERS);
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const ALLOW_KINDS = ['dst', 'port', 'asn', 'country', 'ja4', 'certIssuer', 'resolver', 'peer'];
+const EVENT_TYPES = [
+  'summary',
+  'flow',
+  'dns',
+  'tls',
+  'http',
+  'arp',
+  'dhcp',
+  'ra',
+  'discovery',
+  'mapping',
+  'app',
+];
+const EVENT_TYPE_SET = new Set(EVENT_TYPES);
 const SEVERITY_NAMES = new Set(Object.keys(SEVERITY));
 
 const DEFAULTS = {
@@ -34,6 +48,8 @@ module.exports = {
   TIER_SET,
   FORBIDDEN_KEYS,
   ALLOW_KINDS,
+  EVENT_TYPES,
+  EVENT_TYPE_SET,
   SEVERITY_NAMES,
   DEFAULTS,
 };

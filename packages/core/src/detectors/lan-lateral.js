@@ -7,6 +7,7 @@ const detector = {
   id: 'lan-lateral',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low on IoT (devices rarely talk east-west except hub ↔ device)',
     stage: 'spread',

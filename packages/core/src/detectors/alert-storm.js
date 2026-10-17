@@ -4,6 +4,7 @@ const detector = {
   id: 'alert-storm',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.2',
     fpRisk: '',
   },

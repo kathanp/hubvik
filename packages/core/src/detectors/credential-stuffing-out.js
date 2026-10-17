@@ -6,6 +6,7 @@ const detector = {
   id: 'credential-stuffing-out',
   version: 1,
   meta: {
+    consumes: ['flow', 'tls'],
     rel: '0.4',
     fpRisk: '',
     dedupGroup: 'proxy-relay',

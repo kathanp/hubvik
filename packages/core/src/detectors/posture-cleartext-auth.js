@@ -8,6 +8,7 @@ const detector = {
   id: 'posture-cleartext-auth',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
   },

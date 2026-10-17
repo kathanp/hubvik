@@ -8,6 +8,7 @@ const detector = {
   id: 'proxy-relay',
   version: 1,
   meta: {
+    consumes: ['flow', 'dns'],
     rel: '0.3',
     fpRisk: '',
     attack: ['T1090'],

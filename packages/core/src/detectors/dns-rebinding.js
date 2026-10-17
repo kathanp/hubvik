@@ -8,6 +8,7 @@ const detector = {
   id: 'dns-rebinding',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.2',
     fpRisk: 'Low',
     attack: ['T1557'],

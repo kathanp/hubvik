@@ -8,6 +8,7 @@ const detector = {
   id: 'private-answer-for-public-name',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.2',
     fpRisk: '',
     attack: ['T1557'],

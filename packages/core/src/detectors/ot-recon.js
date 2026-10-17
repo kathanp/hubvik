@@ -9,6 +9,7 @@ const detector = {
   id: 'ot-recon',
   version: 1,
   meta: {
+    consumes: ['flow', 'app'],
     rel: '0.4',
     fpRisk: '',
     stage: 'recon',

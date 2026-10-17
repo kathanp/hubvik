@@ -8,6 +8,7 @@ const detector = {
   id: 'brute-force-out',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Very low',
     attack: ['T1110'],

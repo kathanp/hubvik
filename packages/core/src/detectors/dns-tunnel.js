@@ -8,6 +8,7 @@ const detector = {
   id: 'dns-tunnel',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.3',
     fpRisk: 'Low with the combined score',
     attack: ['T1071.004'],

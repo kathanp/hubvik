@@ -8,6 +8,7 @@ const detector = {
   id: 'dga',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.3',
     fpRisk: 'Medium per name, low per burst',
     attack: ['T1568.002'],

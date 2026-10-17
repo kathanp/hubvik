@@ -18,7 +18,8 @@ const require = createRequire(import.meta.url);
 const SPEC = join(ROOT, 'docs/SPEC.md');
 const OUT = join(ROOT, 'docs/DETECTORS.md');
 const DETECTOR_DIR = join(ROOT, 'packages/core/src/detectors');
-const SKIP_FILES = new Set(['index.js', 'lib.js', 'state.js']);
+const SKIP_FILES = new Set(['index.js', 'lib.js', 'state.js', 'samples.js']);
+const { EVENT_TYPE_SET } = require(join(ROOT, 'packages/core/src/engine/constants.js'));
 const SEVERITIES = new Set(['info', 'low', 'medium', 'high', 'critical']);
 
 const pkg = JSON.parse(readFileSync(join(ROOT, 'packages/core/package.json'), 'utf8'));
@@ -215,6 +216,15 @@ for (const row of rows) {
 for (const [id, detector] of code) {
   if (!seen.has(id)) fail(`${id} has a detector file and no Part B row`);
   if (!detector.meta || typeof detector.meta.rel !== 'string') fail(`${id} is missing meta.rel`);
+  if (!detector.meta || !Array.isArray(detector.meta.consumes)) {
+    fail(`${id} is missing meta.consumes`);
+    continue;
+  }
+  for (const type of detector.meta.consumes) {
+    if (typeof type !== 'string' || !EVENT_TYPE_SET.has(type)) {
+      fail(`${id} consumes unknown event type ${type}`);
+    }
+  }
 }
 
 const lines = [

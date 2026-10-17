@@ -8,6 +8,7 @@ const detector = {
   id: 'slow-exfil',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Medium',
     attack: ['T1041'],

@@ -6,6 +6,7 @@ const detector = {
   id: 'arp-spoof',
   version: 1,
   meta: {
+    consumes: ['arp', 'dhcp'],
     rel: '0.3',
     fpRisk: 'Low (DHCP reassignments handled via lease events)',
     attack: ['T1557.002'],

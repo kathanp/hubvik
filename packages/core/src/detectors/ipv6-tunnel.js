@@ -6,6 +6,7 @@ const detector = {
   id: 'ipv6-tunnel',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
     attack: ['T1572'],

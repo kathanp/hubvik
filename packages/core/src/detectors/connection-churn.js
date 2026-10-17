@@ -6,6 +6,7 @@ const detector = {
   id: 'connection-churn',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Low',
   },

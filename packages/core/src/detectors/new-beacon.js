@@ -8,6 +8,7 @@ const detector = {
   id: 'new-beacon',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk:
       '**High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline',

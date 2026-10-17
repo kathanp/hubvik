@@ -6,6 +6,7 @@ const detector = {
   id: 'post-update-drift',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.3',
     fpRisk: '',
   },

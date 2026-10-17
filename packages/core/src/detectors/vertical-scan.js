@@ -6,6 +6,7 @@ const detector = {
   id: 'vertical-scan',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low',
     attack: ['T1046'],

@@ -7,6 +7,7 @@ const detector = {
   id: 'ad-fraud',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.4',
     fpRisk: '',
   },

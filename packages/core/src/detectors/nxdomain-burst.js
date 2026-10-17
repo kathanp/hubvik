@@ -8,6 +8,7 @@ const detector = {
   id: 'nxdomain-burst',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.2',
     fpRisk: 'Low',
     attack: ['T1568'],

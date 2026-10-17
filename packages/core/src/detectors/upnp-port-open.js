@@ -6,6 +6,7 @@ const detector = {
   id: 'upnp-port-open',
   version: 1,
   meta: {
+    consumes: ['mapping'],
     rel: '0.3',
     fpRisk: 'Low',
   },

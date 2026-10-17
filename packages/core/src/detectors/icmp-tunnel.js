@@ -6,6 +6,7 @@ const detector = {
   id: 'icmp-tunnel',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
     attack: ['T1572'],

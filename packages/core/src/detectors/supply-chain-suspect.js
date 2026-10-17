@@ -6,6 +6,7 @@ const detector = {
   id: 'supply-chain-suspect',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.3',
     fpRisk: '',
     attack: ['T1195'],

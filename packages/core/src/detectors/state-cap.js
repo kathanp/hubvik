@@ -4,6 +4,7 @@ const detector = {
   id: 'state-cap',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.2',
     fpRisk: '',
   },

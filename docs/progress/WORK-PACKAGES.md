@@ -240,3 +240,9 @@ Coverage: 123/123 tests, lines 97.30%, branches 86.54%. Pack-check: core 152 fil
 Date: 2026-10-17.
 
 `node --cpu-prof` on watching-state summary `feed()` with every tier on. The top self-time functions are in `docs/BENCHMARKS.md`. `_run` is 24.3% and `_optionsFor` is 23.2%.
+
+## WP-8.2 — dispatch
+
+Date: 2026-10-17.
+
+Each detector declares `meta.consumes`. `feed()` runs only the detectors that list the event type. An empty array still runs on window close and on engine signals. `spec-coverage` fails when `consumes` is missing. Fast check: 125/125.

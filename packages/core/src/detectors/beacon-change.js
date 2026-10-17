@@ -7,6 +7,7 @@ const detector = {
   id: 'beacon-change',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.4',
     fpRisk: 'Medium (firmware updates)',
   },

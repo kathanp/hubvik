@@ -11,6 +11,7 @@ const detector = {
   id: 'inbound-from-wan',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low; means port forward/UPnP exposure',
     attack: ['T1133'],

@@ -13,6 +13,7 @@ const detector = {
   id: 'onvif-config-change',
   version: 1,
   meta: {
+    consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
     attack: ['T1562'],

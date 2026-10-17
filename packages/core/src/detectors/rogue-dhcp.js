@@ -6,6 +6,7 @@ const detector = {
   id: 'rogue-dhcp',
   version: 1,
   meta: {
+    consumes: ['dhcp'],
     rel: '0.3',
     fpRisk: 'Very low',
   },

@@ -6,6 +6,7 @@ const detector = {
   id: 'lan-via-proxy',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.4',
     fpRisk: '',
   },

@@ -6,6 +6,7 @@ const detector = {
   id: 'ot-error-burst',
   version: 1,
   meta: {
+    consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
   },

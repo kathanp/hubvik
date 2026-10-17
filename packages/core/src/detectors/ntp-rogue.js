@@ -6,6 +6,7 @@ const detector = {
   id: 'ntp-rogue',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
   },

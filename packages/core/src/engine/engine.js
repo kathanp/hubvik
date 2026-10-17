@@ -8,7 +8,7 @@ const { validateEvent, validateOptions, validateIndicator } = require('./validat
 const { windowStart, planClose } = require('./window');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
-const { ALLOW_KINDS, FORBIDDEN_KEYS } = require('./constants');
+const { ALLOW_KINDS, EVENT_TYPES, EVENT_TYPE_SET, FORBIDDEN_KEYS } = require('./constants');
 const { noteLearning, mark } = require('./learning');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
@@ -82,10 +82,14 @@ class Engine extends EventEmitter {
   _rebuildActive() {
     /** @type {any[]} */
     this.active = [];
+    /** @type {Record<string, any[]>} */
+    this.byType = Object.create(null);
+    for (const type of EVENT_TYPES) this.byType[type] = [];
     /** @type {Record<string, { active: boolean, reason: string | null }>} */
     this.detectorStatus = Object.create(null);
     const enabled = new Set(this.opts.tiers);
     for (const det of this.registry) {
+      const consumes = consumesOf(det);
       const over = this.opts.detectors[det.id];
       let status;
       if (over && over.enabled === false)
@@ -97,7 +101,9 @@ class Engine extends EventEmitter {
           : { active: true, reason: null };
       }
       this.detectorStatus[det.id] = status;
-      if (status.active) this.active.push(det);
+      if (!status.active) continue;
+      this.active.push(det);
+      for (const type of consumes) this.byType[type].push(det);
     }
   }
 
@@ -846,7 +852,8 @@ class Engine extends EventEmitter {
     const learning = device.mode === 'learning';
     const ctx = this._ctx(device, learning, event.ts);
     ctx.window = device.open;
-    for (const det of this.active) {
+    const list = this.byType[event.type] || [];
+    for (const det of list) {
       const state = this._state(device, det);
       ctx.options = this._optionsFor(det);
       if (learning && !det.hardRule) {
@@ -1251,6 +1258,30 @@ class Engine extends EventEmitter {
       throw new TypeError('detector.defaults is invalid');
     }
   }
+}
+
+/**
+ * Event types `feed()` may pass to this detector. Missing `consumes` means every type.
+ * An empty array means window close and engine signals only.
+ * @param {any} det
+ * @returns {string[]}
+ */
+function consumesOf(det) {
+  const raw = det.meta && det.meta.consumes;
+  if (raw == null) return EVENT_TYPES;
+  if (!Array.isArray(raw)) throw new TypeError(`${det.id} consumes must be an array`);
+  /** @type {string[]} */
+  const out = [];
+  const seen = new Set();
+  for (const type of raw) {
+    if (typeof type !== 'string' || !EVENT_TYPE_SET.has(type)) {
+      throw new TypeError(`${det.id} consumes unknown event type`);
+    }
+    if (seen.has(type)) continue;
+    seen.add(type);
+    out.push(type);
+  }
+  return out;
 }
 
 /**

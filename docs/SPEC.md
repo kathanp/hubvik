@@ -705,7 +705,7 @@ Counts are **generated**, never typed. `scripts/spec-coverage.mjs` parses every 
 - a detector file exists with no spec row;
 - a detector's `meta.rel` or default severity differs from its row.
 
-Each detector file exports `meta: { rel, fpRisk, attack?: string[], stage?: string, dedupGroup?: string }` so the script can compare without parsing code.
+Each detector file exports `meta: { rel, fpRisk, consumes, attack?: string[], stage?: string, dedupGroup?: string }` so the script can compare without parsing code. `consumes` is the event types `feed()` dispatches to that detector. An empty array means the detector runs on window close or an engine signal, not on `feed()`. The catalog script fails when `consumes` is missing or names an unknown event type.
 
 ---
 

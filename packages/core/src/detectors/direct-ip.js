@@ -7,6 +7,7 @@ const detector = {
   id: 'direct-ip',
   version: 1,
   meta: {
+    consumes: ['flow', 'dns'],
     rel: '0.3',
     fpRisk: 'Low on IoT; hard-coded C2 IPs are classic',
     attack: ['T1071'],

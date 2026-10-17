@@ -6,6 +6,7 @@ const detector = {
   id: 'answer-drift',
   version: 1,
   meta: {
+    consumes: ['dns'],
     rel: '0.4',
     fpRisk: 'Medium (CDN changes); could indicate DNS hijack or spoofing',
   },

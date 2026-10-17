@@ -6,6 +6,7 @@ const detector = {
   id: 'ot-value-out-of-range',
   version: 1,
   meta: {
+    consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
   },

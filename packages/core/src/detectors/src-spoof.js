@@ -6,6 +6,7 @@ const detector = {
   id: 'src-spoof',
   version: 1,
   meta: {
+    consumes: ['flow', 'dhcp'],
     rel: '0.3',
     fpRisk: '',
   },

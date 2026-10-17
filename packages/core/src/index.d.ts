@@ -265,6 +265,23 @@ export interface Detector {
   defaults: Record<string, unknown>;
   hardRule?: boolean;
   category?: string;
+  meta?: {
+    rel?: string;
+    fpRisk?: string;
+    consumes?: Array<
+      | 'summary'
+      | 'flow'
+      | 'dns'
+      | 'tls'
+      | 'http'
+      | 'arp'
+      | 'dhcp'
+      | 'ra'
+      | 'discovery'
+      | 'mapping'
+      | 'app'
+    >;
+  };
 }
 
 export interface EngineStats {

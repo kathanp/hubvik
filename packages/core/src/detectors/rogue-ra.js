@@ -6,6 +6,7 @@ const detector = {
   id: 'rogue-ra',
   version: 1,
   meta: {
+    consumes: ['ra'],
     rel: '0.3',
     fpRisk: 'Very low',
   },

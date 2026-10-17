@@ -28,6 +28,7 @@ const detector = {
   id: 'volume-spike-hourly',
   version: 1,
   meta: {
+    consumes: [],
     rel: '0.2',
     fpRisk: 'Lower than flat baseline',
     attack: ['T1498'],

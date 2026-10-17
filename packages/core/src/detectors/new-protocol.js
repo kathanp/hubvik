@@ -13,6 +13,7 @@ const detector = {
   id: 'new-protocol',
   version: 1,
   meta: {
+    consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Very low; GRE from a camera is Mirai GREIP/GREETH territory',
   },

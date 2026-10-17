@@ -8,6 +8,7 @@ const detector = {
   id: 'identity-change',
   version: 1,
   meta: {
+    consumes: ['dhcp'],
     rel: '0.5',
     fpRisk: 'Low; signals MAC cloning or firmware swap',
   },

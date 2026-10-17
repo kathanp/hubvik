@@ -6,6 +6,7 @@ const detector = {
   id: 'sni-missing',
   version: 1,
   meta: {
+    consumes: ['tls'],
     rel: '0.4',
     fpRisk: 'Medium',
   },

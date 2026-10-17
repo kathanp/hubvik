@@ -6,6 +6,7 @@ const detector = {
   id: 'browser-mimic',
   version: 1,
   meta: {
+    consumes: ['tls'],
     rel: '0.4',
     fpRisk: '',
     attack: ['T1036'],
