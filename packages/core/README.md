@@ -4,7 +4,7 @@ Per-device network anomaly detection for **IoT gateways, smart-home hubs, buildi
 
 Every IoT device talks through a gateway. iotwarden runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: 0.4.0 prototype. Not for production. Not validated on real traffic.
+> Status: 0.5.0 prototype. Not for production. Not validated on real traffic.
 
 ## Install
 
@@ -36,7 +36,7 @@ otherEngine.importBaseline(baseline);
 
 iotwarden never blocks anything by itself. It only reports.
 
-## Detectors (0.4.0)
+## Detectors (0.5.0)
 
 Default enabled tier is `T0`. Pass `tiers: ['T0', 'T1', 'T2']` to turn on flow and DNS detectors. A detector whose required tiers are not enabled stays inactive. 0.1.0 shipped these four:
 
@@ -47,7 +47,7 @@ Default enabled tier is `T0`. Pass `tiers: ['T0', 'T1', 'T2']` to turn on flow a
 | `volume-spike`    | Far more data than normal: data theft, flooding               | high     |
 | `wrong-time`      | Activity in an hour the device was never active               | low      |
 
-0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. Those stay off until you enable the tier and send `tls`, `http`, or `app` events. The full list and the tunables are in [`docs/SPEC.md`](../../docs/SPEC.md) and [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
+0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. 0.5.0 adds `identity-change`, `tier-silent`, `egress-flood`, and `proxy-sdk-traffic`. Those stay off until you enable the tier and send `tls`, `http`, or `app` events. The full list and the tunables are in [`docs/SPEC.md`](../../docs/SPEC.md) and [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
 
 ## Options
 
