@@ -86,7 +86,7 @@ Call `flush(now)` or `tick(now)` from a timer. Do not call a bare `flush()` whil
 
 Learning starts at a device's first event and lasts `learnMs` (default 7 days), or until `lock(device)`. Hard-rule detectors still report during learning. Those shipped in this tree include threat-intel matches, telnet/ADB/TR-069 scans, packet floods, reflection, inbound telnet or ADB, policy violations, ADB on 5555, SMTP bursts, and TFTP to the WAN.
 
-During learning the engine can emit `warning` `SUSPICIOUS_LEARNING` for a GRE flow, outbound telnet, an NXDOMAIN burst (10 in one window), or more than 20 new registrable domains in a day after day two. Those warnings are not anomalies. Review them before `lock()`.
+During learning the engine can emit `warning` `SUSPICIOUS_LEARNING` for a GRE flow, outbound telnet, TCP 5555, an NXDOMAIN burst (10 in one window), more than 20 new registrable domains in a day after day two, a proxy shape, or a DHCP fingerprint change on a MAC that already has one (`identity-change`). The first fingerprint is kept. Those warnings are not anomalies. Review them before `lock()`.
 
 `importBaseline` marks the imported devices as already watching. They do not learn from the import itself.
 
@@ -236,4 +236,6 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 ## What this tree does not do yet
 
-Manufacturer Usage Description files, DHCP fingerprint identity, MAC randomization, discovery spoofing, TTL changes, and interactive-session shape are specified and not implemented. Bench and fuzz scripts are still no-ops. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.
+`checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, and learning progress. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text.
+
+Manufacturer Usage Description files, MAC randomization, discovery spoofing, TTL changes, and interactive-session shape are specified and not implemented. DHCP fingerprint identity is `identity-change`: the host supplies `dhcp.fingerprint`, and core does not derive it. `npm run bench` and `npm run fuzz` run. The watching-state bench misses the 10 µs budget; see `docs/BENCHMARKS.md`. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.

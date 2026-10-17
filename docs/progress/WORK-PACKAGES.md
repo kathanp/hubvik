@@ -218,3 +218,11 @@ Date: 2026-10-17. Decision D-10.
 Core stays `0.5.0`. SPEC C10 row 0.5 **Met?** is `No — bench median 22.38 µs, budget < 10 µs`. Reverting the package to 0.4.0 would not make that budget true, and the 0.5 detectors are already in the tree.
 
 Fast check: 123/123 tests, duration 97295.495834 ms.
+
+## WP-8.1 — docs
+
+Date: 2026-10-17.
+
+`docs/handoff/01-PROJECT.md`, `docs/handoff/03-DETECTORS.md`, and `docs/DEVELOPERS.md` now match the tree: core 0.5.0, export-ocsf 0.2.0, 109 detectors, `identity-change`, `tier-silent`, `egress-flood`, `proxy-sdk-traffic`, `checkpoint` / `restore`, and a bench that fails the gate at 22.38 µs.
+
+Fast check: 123/123 tests, duration 137387.237 ms.

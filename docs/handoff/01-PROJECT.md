@@ -10,28 +10,28 @@ Author: Kathan Patel. License: Apache-2.0. Package name: `iotwarden` (unscoped c
 
 Status line, and it must stay until a script in this repo produces real numbers: **prototype — not validated on real traffic.** Do not claim a detection rate, a benchmark, a dataset result, or a market rank. Do not cite CICIoT2023, IoT-23, or N-BaIoT as results. Those names appear only as future evaluation inputs.
 
-Highest version this playbook may publish is `0.4.x`. `1.0.0` requires the spec's evaluation harness results and a 30-day real deployment. Do not bump to 1.0.
+The tree is local `0.5.0`. It is not published. `1.0.0` requires the spec's evaluation harness results and a 30-day real deployment. Do not bump to 1.0.
 
 ## Versions in the tree
 
 | Package                           | Version | Role                                                    |
 | --------------------------------- | ------- | ------------------------------------------------------- |
-| `packages/core` (`iotwarden`)     | 0.4.0   | Engine and all detectors                                |
+| `packages/core` (`iotwarden`)     | 0.5.0   | Engine and all detectors                                |
 | `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                    |
 | `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                 |
 | `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                          |
 | `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                       |
-| `@iotwarden/export-ocsf`          | 0.1.0   | OCSF Detection Finding, class_uid 2004                  |
+| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                  |
 | `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                             |
 | `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch` |
 
-Git: commits on `main` stop at `0.1.0` (`ccdc4d3`, then `bde8b12`). Releases 0.2.0, 0.3.0, and 0.4.0 are implemented and the 0.4.0 gate passed, and they are not committed. Do not commit, push, or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
+Git: `main` includes the local `0.5.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
 
-## Gate that already passed for 0.4.0
+## Gate
 
-`npm run gate`: 91/91 tests, 97.06% lines, 84.99% branches. Thresholds are 90% lines and 80% branches. Core tarball: 146 files, 297,212 bytes unpacked. Cap is 500 KB unpacked. `npm run demo` prints the camera hijack and one critical incident with stages c2, recon, and impact.
+Coverage thresholds are 90% lines and 80% branches. The unpacked core cap is 500 KB. `npm run demo` prints the camera hijack and one critical incident with stages c2, recon, and impact. `went-silent` in that demo is a two-hour tick after the last heartbeat.
 
-`bench` and `fuzz` are no-ops until Phase 5. Do not start Phase 5 unless the human says go.
+`npm run fuzz` feeds 100,000 seeded inputs through `feed`, `importBaseline`, and `restore`, then mutates one valid baseline and one valid checkpoint. `npm run bench` feeds 1,000 devices past `learnMs`, calls `lock()`, and times watching-state `feed()`. It exits non-zero when the median is at least 10 µs or memory is at least 100 KB per device. The 2026-10-17 watching-state run was 22.38 µs and 2.34 KB/device, so the bench fails the gate. SPEC C10 row 0.5 records that miss. Core stays 0.5.0.
 
 Local Node on the default PATH may be 18. This repo needs Node ≥ 22. The known-good binary is `~/.nvm/versions/node/v24.21.0/bin`. Put that directory first on `PATH` before `npm` or `node`.
 
@@ -80,7 +80,7 @@ engine.on('anomaly', (a) => {});
 engine.flush();
 ```
 
-Methods: `feed`, `feedBatch` (sorts by `ts`, does not mutate the input), `flush(now = Date.now())`, `lock`, `relearn`, `allow`, `suppress`, `ack`, `forget`, `setPeerGroup`, `setDeviceClass`, `use`, `stats`, `loadIndicators`, `exportBaseline`, `importBaseline`.
+Methods: `feed`, `feedBatch` (sorts by `ts`, does not mutate the input), `flush` (no argument drains; `flush(now)` closes windows whose end is ≤ `now`), `tick`, `lock`, `relearn`, `allow`, `suppress`, `ack`, `forget`, `setPeerGroup`, `setDeviceClass`, `use`, `stats`, `loadIndicators`, `exportBaseline`, `importBaseline`, `checkpoint`, `restore`.
 
 Events: `anomaly`, `incident`, `learned` `{device, ts}`, `device-new`, `warning`. A throwing listener is caught and re-emitted as `warning` `LISTENER_ERROR`.
 
@@ -88,10 +88,8 @@ Events: `anomaly`, `incident`, `learned` `{device, ts}`, `device-new`, `warning`
 
 Default options that matter: `learnMs` 7 days, `windowMs` 60 seconds, `tiers` `['T0']`, `sigma` 4, `minBytes` 1e6, `minFanout` 10, `fanoutFactor` 3, `peakFactor` 2, `maxNewDstPerWindow` 3. Those root keys override the original four detectors only when the host passes them. Newer detectors read tunables from their own `defaults` and from `detectors[id]` overlay, not from root keys.
 
-## What 0.4.0 does not include
+## What this tree does not include
 
-Phase 5 is not started: fuzz (100,000 seeded inputs), benchmarks, the evaluation harness, generated `docs/DETECTORS.md`, OpenWrt wiring docs.
+WP-9, the evaluation harness, is not started. It needs the human's datasets. GitHub, the npm org, and trusted publishing are not started. Before any future publish the human still has to do a trademark search, create the npm org, and choose a disclosure email. `SECURITY.md` has no disclosure address yet. `repository`, `bugs`, and `homepage` are omitted until a GitHub remote exists.
 
-Phase 6 is not started: GitHub repo, npm org, trusted publishing. Before any future publish the human still has to do a trademark search, create the npm org, and choose a disclosure email. `SECURITY.md` has no disclosure address yet. `repository`, `bugs`, and `homepage` are omitted until a GitHub remote exists.
-
-Spec rows still unimplemented are listed in `03-DETECTORS.md`. The one row marked 0.4 that has no file is `identity-change`.
+Spec rows still unimplemented are listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench misses the 10 µs budget; that is recorded, not tuned away.
