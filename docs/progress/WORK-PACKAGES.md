@@ -226,3 +226,11 @@ Date: 2026-10-17.
 `docs/handoff/01-PROJECT.md`, `docs/handoff/03-DETECTORS.md`, and `docs/DEVELOPERS.md` now match the tree: core 0.5.0, export-ocsf 0.2.0, 109 detectors, `identity-change`, `tier-silent`, `egress-flood`, `proxy-sdk-traffic`, `checkpoint` / `restore`, and a bench that fails the gate at 22.38 µs.
 
 Fast check: 123/123 tests, duration 137387.237 ms.
+
+## WP-8.1 — gate
+
+Date: 2026-10-17.
+
+`npm run gate` passed check, coverage, pack-check, and spec-coverage, then the bench exited 1. Fuzz did not run in this gate because the bench failed first.
+
+Coverage: 123/123 tests, lines 97.30%, branches 86.54%. Pack-check: core 152 files, 341715 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Bench median 21.04 µs, 2.34 KB/device, 1,000 devices.
