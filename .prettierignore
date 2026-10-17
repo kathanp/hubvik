@@ -4,3 +4,4 @@ coverage
 package-lock.json
 cursor-kit
 eval/data
+test/diff/golden.json
