@@ -210,3 +210,11 @@ Date: 2026-10-17.
 Measured: median 22.38 µs, 2.34 KB/device, 1,000 devices. The 10 µs budget was missed. The 100 KB budget was met. The number is in `docs/BENCHMARKS.md`. The detectors were not tuned.
 
 Fast check: 123/123 tests, duration 156276.364334 ms. The fast check does not run the bench.
+
+## WP-8.1 — release row
+
+Date: 2026-10-17. Decision D-10.
+
+Core stays `0.5.0`. SPEC C10 row 0.5 **Met?** is `No — bench median 22.38 µs, budget < 10 µs`. Reverting the package to 0.4.0 would not make that budget true, and the 0.5 detectors are already in the tree.
+
+Fast check: 123/123 tests, duration 97295.495834 ms.
