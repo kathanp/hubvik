@@ -8,6 +8,7 @@ const detector = {
     fpRisk: 'Very low',
     attack: ['T1498'],
     stage: 'impact',
+    dedupGroup: 'flood',
   },
   requires: ['T1'],
   category: 'volume',

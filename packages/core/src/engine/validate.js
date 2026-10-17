@@ -712,7 +712,7 @@ function validateIndicator(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new TypeError('indicator must be an object');
   assertSafeKeys(raw, 'indicator');
-  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad']);
+  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad', 'proxy-sdk']);
   if (typeof raw.value !== 'string' || raw.value.length === 0 || raw.value.length > 255) {
     throw new TypeError('indicator.value is invalid');
   }

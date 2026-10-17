@@ -2,5 +2,6 @@
   "id": "hub",
   "maxFamilies": 30,
   "maxUploadBytesPerHour": 20000000,
-  "allowsInboundLan": true
+  "allowsInboundLan": true,
+  "allowsBrowserJa4": true
 }

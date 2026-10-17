@@ -68,6 +68,8 @@ function severities(cell, count) {
   const named = /default\s+(info|low|medium|high|critical)/i.exec(plain);
   if (named) return Array(count).fill(named[1].toLowerCase());
   if (/^per rule$/i.test(plain)) return Array(count).fill(null);
+  const mentioned = plain.toLowerCase().match(/\b(info|low|medium|high|critical)\b/g) || [];
+  if (new Set(mentioned).size > 1) return Array(count).fill(null);
   if (count === 1 && SEVERITIES.has(plain.toLowerCase())) return [plain.toLowerCase()];
   return Array(count).fill(plain);
 }

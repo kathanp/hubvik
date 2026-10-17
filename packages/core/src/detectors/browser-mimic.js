@@ -2,8 +2,6 @@
 
 const { assertState } = require('./state');
 
-const BROWSER_OK = new Set(['tv-box', 'nas', 'hub']);
-
 const detector = {
   id: 'browser-mimic',
   version: 1,
@@ -26,7 +24,7 @@ const detector = {
     const browsers = ctx.browserJa4 || [];
     if (browsers.length === 0 || !browsers.includes(ev.ja4)) return;
     const classId = ctx.deviceClass && ctx.deviceClass.id;
-    if (!classId || BROWSER_OK.has(classId)) return;
+    if (!classId || ctx.deviceClass.allowsBrowserJa4 === true) return;
     dev.fired = true;
     return {
       severity: ctx.options.severity,

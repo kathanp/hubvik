@@ -170,7 +170,7 @@ export interface PolicyRule {
 
 export interface Indicator {
   value: string;
-  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad';
+  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad' | 'proxy-sdk';
   source: string;
   confidence?: number;
   expiresTs?: number | null;

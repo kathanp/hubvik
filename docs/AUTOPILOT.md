@@ -109,11 +109,11 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-6 — B20: `egress-flood`, `proxy-sdk-traffic`, `smart-tv`
 
-- [ ] Add both detectors, the `proxy-sdk` indicator type, `packet-flood` `data.bytesPerPacket`, and `dedupGroup: 'flood'`.
-- [ ] Fix `browser-mimic` with the class flag from Q-5.
-- [ ] Add both replay tests from SPEC WP-6.
-- [ ] The all-tier benign matrix still passes.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Add both detectors, the `proxy-sdk` indicator type, `packet-flood` `data.bytesPerPacket`, and `dedupGroup: 'flood'`.
+- [x] Fix `browser-mimic` with the class flag from Q-5.
+- [x] Add both replay tests from SPEC WP-6.
+- [x] The all-tier benign matrix still passes.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### WP-7 — `checkpoint()` / `restore()` (D7)
 

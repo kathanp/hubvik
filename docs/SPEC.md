@@ -666,7 +666,7 @@ Posture findings are **not attacks**. They report weaknesses that make attacks l
 
 - A plug never needs more than a handful of destination families.
 - A thermostat never uploads more than ~1 MB/hour.
-- Nothing except `tv-box`/`nas`/`hub` has a reason to emit browser-class JA4.
+- Nothing except `tv-box`/`nas`/`hub`/`smart-tv` has a reason to emit browser-class JA4.
 - No class except `hub`/`nas` needs inbound LAN connections.
 
 Class files are plain JSON shipped in `src/data/classes/` and editable by the host. A violation of a class expectation is reported as `class-violation` (high) even during learning.
@@ -692,7 +692,7 @@ What changed since spec 2.1, and what the package does about it:
 | `egress-flood`      | Device floods one external destination at any packet size (UDP plain, GRE, TCP ACK/SYN) | T1    | Hard rule. Per (device, dstIp) per window: `pktsOut ≥ minPkts` (default 50,000) **or** `bytesOut ≥ minBytesOut` (default 200 MB, about 27 Mbit/s for 60 s), **and** `dstIp` is public, **and** `bytesIn / bytesOut < 0.05` (one-way). While watching, also fires at `10 ×` the learned per-destination max with a floor of 5,000 packets | critical                                      | Low. Camera upload is ~15 MB/window and two-way TCP | 0.5 |
 | `proxy-sdk-traffic` | Device contacts a known residential-proxy SDK control endpoint                          | T2    | Hard rule. `qname`, `dstName` or SNI matches an indicator of type `proxy-sdk` (host-supplied; core ships none). `data.consentPossible = true` when class is `smart-tv` or `tv-box`                                                                                                                                                       | medium on `smart-tv`/`tv-box`, high otherwise | Depends on the host's list                          | 0.5 |
 
-**New device class `smart-tv`** in `src/data/classes/smart-tv.json`: browser-class JA4 allowed, inbound LAN connections not expected, up to 120 destination families per day, upload cap 50 MB/hour (same number as `tv-box`), proxy-relay and lan-via-proxy still alert. Kept separate from `tv-box` because webOS/Tizen sets and AOSP boxes have different supply-chain risk. `browser-mimic` still treats only `tv-box`, `nas`, and `hub` as allowed to use a browser JA4 until WP-6.
+**New device class `smart-tv`** in `src/data/classes/smart-tv.json`: browser-class JA4 allowed, inbound LAN connections not expected, up to 120 destination families per day, upload cap 50 MB/hour (same number as `tv-box`), proxy-relay and lan-via-proxy still alert. Kept separate from `tv-box` because webOS/Tizen sets and AOSP boxes have different supply-chain risk. `browser-mimic` reads `allowsBrowserJa4` from the class file. That flag is true for `tv-box`, `nas`, `hub`, and `smart-tv`.
 
 **Changed: `packet-flood`.** Unchanged thresholds. Its `data` gains `bytesPerPacket` so an operator can see why `egress-flood` and not `packet-flood` fired. Both share `dedupGroup: 'flood'`.
 
