@@ -30,6 +30,18 @@ The gate re-ran the same script: median 21.04 µs, 2.34 KB/device.
 | 9    | `domainFamily`        | `engine/net.js:91`             | 1.1%      |
 | 10   | `exactHit`            | `engine/indicators.js:50`      | 0.9%      |
 
+## WP-8.2 — dispatch, 2026-10-17
+
+Same script as WP-8.1: all tiers, 1,000 devices, past `learnMs`, `lock()`, then 10,000 timed summary `feed()` calls. The 10 µs budget is unchanged.
+
+|            | median `feed()` | memory per device |
+| ---------- | --------------- | ----------------- |
+| Before     | 22.38 µs        | 2.34 KB           |
+| Gate rerun | 21.04 µs        | 2.34 KB           |
+| After      | 6.04 µs         | 1.19 KB           |
+
+Before is the WP-8.1 measurement. After is `node bench/run.js` once `feed()` dispatches by `meta.consumes`. The script exited 0.
+
 ## WP-8 — 100 devices, 2026-10-17
 
 All tiers on. 1,000 warmup feeds, then 10,000 timed feeds across 100 devices. That script recorded the miss and did not fail the gate.
