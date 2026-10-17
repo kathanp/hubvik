@@ -200,3 +200,13 @@ Date: 2026-10-17.
 | checkpoint | 57,967   | 42,033   |
 
 Fast check: 123/123 tests, duration 63370.813875 ms. The mutation run itself is part of `npm run fuzz`, not the fast check.
+
+## WP-8.1 — bench
+
+Date: 2026-10-17.
+
+`bench/run.js` feeds 1,000 devices past `learnMs`, calls `lock()`, then times watching-state `feed()`. A miss exits non-zero, so `npm run gate` fails.
+
+Measured: median 22.38 µs, 2.34 KB/device, 1,000 devices. The 10 µs budget was missed. The 100 KB budget was met. The number is in `docs/BENCHMARKS.md`. The detectors were not tuned.
+
+Fast check: 123/123 tests, duration 156276.364334 ms. The fast check does not run the bench.
