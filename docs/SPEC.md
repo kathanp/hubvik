@@ -877,7 +877,7 @@ Added for 0.2+: one test per detector for "fires on attack", "silent on benign",
 
 # PART E — WORK PACKAGES FOR THE CODING AGENT
 
-Do these in order. One WP per session unless the human says otherwise. Each WP: write the SPEC/CHANGELOG lines it needs first (most are already in this file), implement, test, run the gate, write `docs/progress/WP-<n>.md` with the real gate output, then **stop**.
+Do these in order. One WP per session unless the human says otherwise. Each WP: write the SPEC/CHANGELOG lines it needs first (most are already in this file), implement, test, run the gate, append the real gate output to `docs/progress/WORK-PACKAGES.md`, then **stop**.
 
 Standing rules from `01-PROJECT.md` and `04-HOW-TO-ADD.md` still apply: zero runtime deps, no `Date.now()`/`Math.random()` in tests, caps with a test that hits them, no invented metrics, no publish/push/commit unless asked, no JA4 computation, no bundled feeds.
 
@@ -900,8 +900,8 @@ npm run gate && npm run demo
 
 - New `packages/core/test/benign-matrix-tiers.test.js`: `tiers: ['T0','T1','T2','T3','T4','T5']`, every class in `test/fixtures/profiles.js` plus the new `smart-tv` profile, 14 days × 3 seeds, simulator emitting every tier the profile has. Assertion: zero anomalies at `medium` or above; anomalies at `low`/`info` are listed in the test output.
 - Extend `sim.js` so every profile emits realistic T1–T5 events (flows with both directions and TCP outcomes, DNS with answers and TTLs, TLS with stable JA4 and issuer, ARP/DHCP renewals with lease changes, BACnet reads and scheduled writes for `hvac-controller`, MQTT publishes for `thermostat`). Profiles must include the ordinary noise that breaks naive detectors: DHCP lease renewals with a new IP, CDN answers rotating within one family, NTP to two pool servers, a firmware download of 30 MB once in 14 days.
-- **Expect failures.** For each failing detector: fix the detector logic if it is wrong; if a threshold must move, change SPEC "Defaults shipped" + CHANGELOG in the same commit and record the before/after in `docs/progress/WP-1.md`. Never weaken the assertion, never exclude a detector from the run.
-- **Done when:** the new test passes with no detector excluded, and `docs/progress/WP-1.md` lists every threshold that changed and why.
+- **Expect failures.** For each failing detector: fix the detector logic if it is wrong; if a threshold must move, change SPEC "Defaults shipped" + CHANGELOG in the same commit and record the before/after in `docs/progress/WORK-PACKAGES.md`. Never weaken the assertion, never exclude a detector from the run.
+- **Done when:** the new test passes with no detector excluded, and `docs/progress/WORK-PACKAGES.md` lists every threshold that changed and why.
 
 ### WP-2 — Event time (D2, D3)
 

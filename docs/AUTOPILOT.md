@@ -30,7 +30,7 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
      npm run gate && npm run demo
      ```
    - If a fast check fails, fix it before moving on. Never carry a red check into the next WP.
-8. Write `docs/progress/WP-<n>.md` for each WP. Keep it short: what changed, tests added, the tail of the fast-check output (last 15 lines), and any threshold changes, before and after.
+8. Append a short section to `docs/progress/WORK-PACKAGES.md` for each WP: what changed, tests added, the test count, and any threshold changes, before and after.
 9. Follow the zero-runtime-dependency rule. Do not use `Date.now()` or `Math.random()` in tests. Do not compute JA4. Do not bundle threat feeds. Do not write invented metrics in the README.
 
 ---
@@ -81,7 +81,7 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 - [x] Add a test that an in-window backward step with `reorderMs: 0` gives no `clock-jump`.
 - [x] Keep the WP-2 tests already written: `went-silent` via `tick()`, and the 2 s and 10 s skew tests.
 - [x] Fast check passes. The six prototype tests pass unedited. The demo shows the impact stage again.
-- [x] Write `docs/progress/WP-2.md` and commit.
+- [x] Append the WP-2 section to `docs/progress/WORK-PACKAGES.md` and commit.
 
 ### WP-3 — `tier-silent`, `SUSPICIOUS_LEARNING`, learning quality (D4, D5)
 
@@ -98,7 +98,7 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### ▶ CHECKPOINT A — full gate
 
-- [x] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-A.md`. If it fails, fix before continuing; up to 3 attempts, then HARD STOP.
+- [x] Run the full gate and the demo. Record the result in `docs/progress/WORK-PACKAGES.md`. If it fails, fix before continuing; up to 3 attempts, then HARD STOP.
 
 ### WP-5 — `identity-change`
 
@@ -134,11 +134,11 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 - [x] Create a vendored fixture of the OCSF 1.4.0 Detection Finding required fields at `packages/export-ocsf/test/fixtures/`. Write it by hand from the spec's C3 table and the fields the exporter already emits. **Do not download anything.** Add a comment at the top of the fixture: `hand-written from SPEC C3; verify against schema.ocsf.io before 1.0`.
 - [x] Add tests: one anomaly and one escalated incident each validate against the fixture; `ocsfVersion: '1.6.0'` appears in `metadata.version`.
 - [x] Bump `export-ocsf` minor version and add a CHANGELOG line.
-- [x] Fast check passes. Write `docs/progress/WP-10.md` and commit.
+- [x] Fast check passes. Append the WP-10 section to `docs/progress/WORK-PACKAGES.md` and commit.
 
 ### ▶ CHECKPOINT B — full gate, then version
 
-- [x] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-B.md`.
+- [x] Run the full gate and the demo. Record the result in `docs/progress/WORK-PACKAGES.md`.
 - [x] If it passes: bump `packages/core` to `0.5.0`, add the CHANGELOG release section, and commit `release: core 0.5.0 (local, not published)`.
 - [x] If it fails: fix, up to 3 attempts, then HARD STOP. Do not bump the version.
 

@@ -128,7 +128,7 @@ Webhook tests pass a fake `fetch` and a fake `sleep`. They must not open a socke
 
 ## 6. Docs the human will hand to the next session
 
-Update `docs/DEVELOPERS.md` when the host has a new event field or option. Update `packages/core/README.md` and the root `README.md` status line only when the version changes. Keep the prototype sentence. Update `docs/progress/PHASE-N.md` with the real gate output after the gate, not before.
+Update `docs/DEVELOPERS.md` when the host has a new event field or option. Update `packages/core/README.md` and the root `README.md` status line only when the version changes. Keep the prototype sentence. Append the real gate output to `docs/progress/PHASES.md` or `docs/progress/WORK-PACKAGES.md` after the gate, not before.
 
 ## 7. Run the gate
 

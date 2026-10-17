@@ -5,7 +5,7 @@ You are building an npm package from `docs/SPEC.md` (spec v2.1, 118 detectors). 
 ## How to work
 1. Do phases in order: 0 → 1 → 2 → 3 → 4 → 5 → 6. Never skip one, never merge two.
 2. Inside a phase, do tasks in the listed order. Commit after each task once `npm run check` is green.
-3. At the end of each phase, run the **GATE** commands. Paste the output into `docs/progress/PHASE-<n>.md` with a short summary: what was built, what was skipped and why, open questions.
+3. At the end of each phase, run the **GATE** commands. Append a short summary to `docs/progress/PHASES.md`: what was built, what was skipped and why, open questions, and the gate output.
 4. **Then STOP and wait for the human to say "go".**
 5. If a task is blocked for more than 2 attempts, stop and report. Do not paper over it.
 
@@ -120,7 +120,7 @@ Copy the existing 0.0.1 files into the new layout: `src/index.js`, `test/engine.
 node scripts/check-name.mjs <chosen-name>   # verdict CLEAR
 npm ci && npm run check                     # 6/6 prototype tests pass
 ```
-Write `docs/progress/PHASE-0.md`. **STOP.**
+Append the Phase 0 section to `docs/progress/PHASES.md`. **STOP.**
 
 ---
 
@@ -177,7 +177,7 @@ Implement in this order, each with tests:
 npm run gate        # lint, types, tests, coverage ≥ 90 % lines / 80 % branches, pack-check
 npm run demo        # still prints the hijack story
 ```
-Version `packages/core` → `0.1.0`. `CHANGELOG.md` entry. `docs/progress/PHASE-1.md`. **STOP.**
+Version `packages/core` → `0.1.0`. `CHANGELOG.md` entry. Append the Phase 1 section to `docs/progress/PHASES.md`. **STOP.**
 
 ---
 

@@ -48,7 +48,8 @@ packages/adapter-*/                 parsers, empty dependencies
 packages/export-*/                  formatters, empty dependencies
 docs/SPEC.md                        source of truth for behavior
 docs/DEVELOPERS.md                  how a host feeds the engine
-docs/progress/PHASE-0.md … PHASE-4.md
+docs/progress/PHASES.md           phases 0–4
+docs/progress/WORK-PACKAGES.md      work packages 0–10
 ```
 
 Root `package.json` is private (`iotwarden-workspace`). Workspaces are `packages/*`. DevDependencies live only at the repo root. `packages/core` `dependencies` must stay `{}`. Adapters and exporters also have empty `dependencies`.
