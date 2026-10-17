@@ -363,6 +363,12 @@ Date: 2026-10-17.
 
 `npm run gate` exited 0. Check 155/155. Coverage lines 97.86%, branches 86.25%. Pack-check: core 152 files, 351746 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 5.46 µs, estimate 5.70 KB/device, heap 12.27 KB/device. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
 
+## WP-9.7 — D-13 scope
+
+Date: 2026-10-17.
+
+The /24 rule is the destination list in `eval/evasion/scenarios.js` only. `packages/core/src/engine/net.js` `domainFamily()` still returns null for an IP. No detector changed for it. `git diff d4a742f -- test/diff/golden.json` is empty. The same sentence is in `eval/README.md`, `docs/DECISIONS.md`, and this file.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.
