@@ -18,7 +18,7 @@ const STEPS = [
   ['pack:check', 'npm', ['run', 'pack:check']],
   ['spec-coverage', process.execPath, ['scripts/spec-coverage.mjs']],
   ['fuzz', 'npm', ['run', 'fuzz']],
-  ['bench', process.execPath, ['bench/run.js']],
+  ['bench', process.execPath, ['--expose-gc', 'bench/run.js']],
 ];
 
 /**

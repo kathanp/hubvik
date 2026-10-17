@@ -25,8 +25,8 @@ Fast check after each WP. Full gate + demo at the end only.
 - [x] Fixture test with hand-written lines only.
 
 ## WP-9.4 — Real memory in the bench
-- [ ] bench reports both memoryEstimate per device AND measured heap delta per device (node --expose-gc, process.memoryUsage().heapUsed before/after, 1,000 watching devices). Budget check uses the heap number. If over 100 KB, HARD STOP with the number; do not tune.
-- [ ] docs/BENCHMARKS.md table gets a "measured heap" column and a "Raspberry Pi 4: not measured" row.
+- [x] bench reports both memoryEstimate per device AND measured heap delta per device (node --expose-gc, process.memoryUsage().heapUsed before/after, 1,000 watching devices). Budget check uses the heap number. If over 100 KB, HARD STOP with the number; do not tune.
+- [x] docs/BENCHMARKS.md table gets a "measured heap" column and a "Raspberry Pi 4: not measured" row.
 
 ## WP-9.5 — Docs
 - [ ] README and packages/core/README.md: Evaluation section says "Not yet evaluated on real traffic. Harness: eval/README.md." No numbers.

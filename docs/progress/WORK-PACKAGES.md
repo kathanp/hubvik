@@ -326,3 +326,9 @@ Zeek logs require `#separator`, `#fields`, and `#types`. `-` and `(empty)` are u
 Date: 2026-10-17.
 
 `eval/ciciot2023.js` reads Zeek `conn.log`, `dns.log`, and `ssl.log` from a directory named with the source PCAP's attack category. `Benign` is benign. The joiner header and `eval/README.md` say UNVERIFIED: written from documentation, not run on real data. The README command is `zeek -C -r capture.pcap`, then `node eval/run.mjs --dataset ciciot2023 --zeek-logs <dir>`. The fixture test uses hand-written lines only. No PCAP was downloaded.
+
+## WP-9.4 — measured heap
+
+Date: 2026-10-17.
+
+`bench/run.js` prints `memoryEstimate` and the heap delta per watching device. The 100 KB check uses the heap number. `node --expose-gc bench/run.js` printed median 5.54 µs, estimate 1.19 KB/device, heap 12.27 KB/device, 1,000 devices. That is under 100 KB. Detectors were not tuned. `docs/BENCHMARKS.md` has the measured-heap column and a Raspberry Pi 4 row: not measured.

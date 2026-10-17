@@ -54,3 +54,12 @@ All tiers on. 1,000 warmup feeds, then 10,000 timed feeds across 100 devices. Th
 | memory per device | < 100 KB | 2.46 KB  |
 
 Checkpoint B gate, same script, 2026-10-17: median 25.75 µs, 2.46 KB/device.
+
+## WP-9.4 — measured heap, 2026-10-17
+
+`node --expose-gc bench/run.js`. All tiers, 1,000 devices, `lock()`, then `process.memoryUsage().heapUsed` after `global.gc()`, minus the heap before those devices were created. The 100 KB budget checks this heap delta. `memoryEstimate` is still printed. It does not decide the budget. Detectors were not tuned.
+
+| Host           | median `feed()` | memoryEstimate | measured heap |
+| -------------- | --------------- | -------------- | ------------- |
+| x86            | 5.54 µs         | 1.19 KB        | 12.27 KB      |
+| Raspberry Pi 4 | not measured    | not measured   | not measured  |
