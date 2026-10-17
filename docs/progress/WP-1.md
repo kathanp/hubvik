@@ -17,12 +17,12 @@ Date: 2026-10-17. Package: `iotwarden@0.4.0`. Spec 3.0.
 
 No detector threshold, default, or severity changed. No detector was disabled.
 
-| Item | Before | After | Reason |
-| --- | --- | --- | --- |
-| `answer-drift` learned keys | latest lookup replaces the set | union of keys seen while learning, cap 8 | WP-1 requires CDN rotation inside one name to stay quiet. This is the learned-set rule, not a threshold. |
-| `smart-tv` `maxFamilies` | class did not exist | 120 | B20. |
-| `smart-tv` `maxUploadBytesPerHour` | class did not exist | 50000000 | Same number as `tv-box`. B20 does not give an upload cap. Open as Q-5. |
-| `smart-tv` `allowsInboundLan` | class did not exist | false | B20. |
+| Item                               | Before                         | After                                    | Reason                                                                                                   |
+| ---------------------------------- | ------------------------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `answer-drift` learned keys        | latest lookup replaces the set | union of keys seen while learning, cap 8 | WP-1 requires CDN rotation inside one name to stay quiet. This is the learned-set rule, not a threshold. |
+| `smart-tv` `maxFamilies`           | class did not exist            | 120                                      | B20.                                                                                                     |
+| `smart-tv` `maxUploadBytesPerHour` | class did not exist            | 50000000                                 | Same number as `tv-box`. B20 does not give an upload cap. Open as Q-5.                                   |
+| `smart-tv` `allowsInboundLan`      | class did not exist            | false                                    | B20.                                                                                                     |
 
 ## Gate
 
