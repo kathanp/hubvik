@@ -375,6 +375,12 @@ Date: 2026-10-17.
 
 `stream-to-new-destination` no longer uses `bytesIn / bytesOut`. It stays quiet only when `egress-flood` has fired for the same device and `dstIp` in that window. A 900-packet UDP flow at 1,200 bytes per packet with 1% reverse bytes still alerts. A 60,000-packet flood alerts `egress-flood` only. SPEC Defaults shipped in 0.5 and the changelog say so.
 
+## WP-9.7 — strict detection
+
+Date: 2026-10-17.
+
+`eval/label-map.json` maps scan to recon or scan, C&C and beacon to c2, DDoS to impact or volume, and FileDownload to update. Strict detection counts a hit only when the anomaly stage or category is one of those tokens. Unmapped labels print `unmapped`. The synthetic corpus C6.2 rate stays 20/25. Strict is 13/19 = 68.4% (95% Wilson 46.0%–84.6%). The slow vertical hit is `beacon-change`, category timing, so it does not count. UdpFlood is unmapped.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

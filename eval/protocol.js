@@ -1,6 +1,7 @@
 'use strict';
 
 const { createEngine, detectors, SEVERITY } = require('iotwarden');
+const LABEL_MAP = require('./label-map.json');
 
 const DAY = 24 * 60 * 60 * 1000;
 const GRACE_MS = 5 * 60 * 1000;
@@ -38,10 +39,51 @@ function wilson(k, n) {
 function formatRate(k, n, noun) {
   if (n === 0) return 'no rate';
   if (n < 20) return `n too small (${k} detected, ${n} ${noun})`;
+  return formatWilson(k, n);
+}
+
+/**
+ * Count and Wilson interval, including samples under 20.
+ * @param {number} k
+ * @param {number} n
+ * @returns {string}
+ */
+function formatWilson(k, n) {
+  if (n <= 0) return 'no rate';
   const interval = wilson(k, n);
   if (!interval) return 'no rate';
   const pct = (value) => (100 * value).toFixed(1);
   return `${k}/${n} = ${pct(k / n)}% (95% Wilson ${pct(interval.low)}%–${pct(interval.high)}%)`;
+}
+
+/**
+ * Stage or category tokens for a detailed label. Null when the label is unmapped.
+ * @param {string} label
+ * @returns {Set<string> | null}
+ */
+function labelTokens(label) {
+  const text = String(label || '').toLowerCase();
+  if (!text) return null;
+  /** @type {Set<string>} */
+  const tokens = new Set();
+  for (const rule of LABEL_MAP) {
+    const hit = rule.match.some((part) => text.includes(String(part).toLowerCase()));
+    if (!hit) continue;
+    for (const token of rule.tokens) tokens.add(token);
+  }
+  return tokens.size > 0 ? tokens : null;
+}
+
+/**
+ * @param {string | null} stage
+ * @param {string | null} category
+ * @param {Set<string> | null} tokens
+ * @returns {boolean}
+ */
+function mappedHit(stage, category, tokens) {
+  if (!tokens) return false;
+  if (stage && tokens.has(stage)) return true;
+  return Boolean(category && tokens.has(category));
 }
 
 /**
@@ -173,11 +215,14 @@ function replay(plans, tiers, disabled) {
       detectors: disabled ? { [disabled]: { enabled: false } } : undefined,
     });
     engine.on('anomaly', (item) => {
+      const det = detectors[item.detector];
       anomalies.push({
         detector: item.detector,
         device: item.device,
         ts: item.ts,
         severity: item.severity,
+        stage: det && det.meta && det.meta.stage ? det.meta.stage : null,
+        category: det && det.category ? det.category : null,
       });
     });
     for (const row of plan.learn) engine.feed(row.event);
@@ -326,9 +371,13 @@ function evaluate(rows, opts) {
   const instances = intervals.map((interval) => {
     const hits = hitsFor(interval, scored);
     hits.sort((a, b) => a.ts - b.ts);
+    const tokens = labelTokens(interval.detailedLabel);
+    const strictHits = hits.filter((item) => mappedHit(item.stage, item.category, tokens));
     return {
       ...interval,
       detected: hits.length > 0,
+      mapped: tokens != null,
+      strictDetected: strictHits.length > 0,
       detectors: [...new Set(hits.map((item) => item.detector))],
       timeToDetectMs: hits.length > 0 ? hits[0].ts - interval.start : null,
     };
@@ -346,6 +395,8 @@ function evaluate(rows, opts) {
     ),
   ).length;
   const detected = instances.filter((interval) => interval.detected).length;
+  const mappedInstances = instances.filter((interval) => interval.mapped);
+  const strictDetected = mappedInstances.filter((interval) => interval.strictDetected).length;
   let learnEvents = 0;
   let maliciousLearnEvents = 0;
   for (const plan of plans.values()) {
@@ -404,6 +455,12 @@ function evaluate(rows, opts) {
     attackInstances: instances.length,
     detected,
     detection: formatRate(detected, instances.length, 'attack instances'),
+    strictDetected,
+    strictInstances: mappedInstances.length,
+    strictDetection:
+      instances.length > 0 && mappedInstances.length === 0
+        ? 'unmapped'
+        : formatWilson(strictDetected, mappedInstances.length),
     byLabel,
     misses: instances.filter((interval) => !interval.detected),
     hits: instances.filter((interval) => interval.detected),
@@ -431,11 +488,14 @@ function typeRates(instances) {
   }
   return [...groups.entries()].map(([detailedLabel, list]) => {
     const hits = list.filter((interval) => interval.detected).length;
+    const mapped = list.filter((interval) => interval.mapped);
+    const strictHits = mapped.filter((interval) => interval.strictDetected).length;
     return {
       detailedLabel,
       detected: hits,
       instances: list.length,
       detection: formatRate(hits, list.length, 'attack instances'),
+      strict: mapped.length === 0 ? 'unmapped' : formatWilson(strictHits, mapped.length),
     };
   });
 }
@@ -539,6 +599,8 @@ function renderMarkdown(result) {
     '',
     `Detection: ${result.detection}`,
     '',
+    `Strict detection: ${result.strictDetection == null ? 'no rate' : result.strictDetection}`,
+    '',
     `False positives: ${result.falsePositives} anomalies at medium or above, ${result.benignDeviceDays} benign device-days, ${result.falsePositivesPerDeviceDay == null ? 'no rate (0 device-days)' : `${result.falsePositivesPerDeviceDay} per benign device-day`}.`,
     '',
     `Benign intervals with a false positive: ${result.benignIntervalsWithFalsePositive}`,
@@ -548,7 +610,8 @@ function renderMarkdown(result) {
   ];
   if (!result.byLabel || result.byLabel.length === 0) lines.push('None.', '');
   for (const row of result.byLabel || []) {
-    lines.push(`- ${row.detailedLabel}: ${row.detection}`);
+    const strict = row.strict == null ? '' : `; strict ${row.strict}`;
+    lines.push(`- ${row.detailedLabel}: ${row.detection}${strict}`);
   }
   if (result.byLabel && result.byLabel.length > 0) lines.push('');
   lines.push('## Hits', '');

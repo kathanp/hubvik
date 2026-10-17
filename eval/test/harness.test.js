@@ -186,6 +186,13 @@ test('the synthetic corpus matches the committed golden report', () => {
     fs.readFileSync(path.join(__dirname, '..', 'results', 'evasion.md'), 'utf8'),
   );
   assert.match(result.detection, /% \(95% Wilson/);
+  assert.match(result.strictDetection, /% \(95% Wilson/);
+  const udp = result.byLabel.find((row) => row.detailedLabel === 'UdpFlood');
+  assert.strictEqual(udp.strict, 'unmapped');
+  const scanType = result.byLabel.find((row) => row.detailedLabel === 'HorizontalScan');
+  assert.match(scanType.strict, /95% Wilson/);
+  assert.match(goldenMd, /Strict detection:/);
+  assert.match(goldenMd, /strict unmapped/);
   assert.match(goldenMd, /n too small/);
   assert.match(goldenMd, /time to detect/);
   assert.match(goldenMd, /per benign device-day/);

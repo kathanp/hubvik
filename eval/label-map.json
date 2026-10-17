@@ -1,0 +1,6 @@
+[
+  { "match": ["scan"], "tokens": ["recon", "scan"] },
+  { "match": ["c&c", "beacon"], "tokens": ["c2"] },
+  { "match": ["ddos"], "tokens": ["impact", "volume"] },
+  { "match": ["filedownload"], "tokens": ["update"] }
+]
