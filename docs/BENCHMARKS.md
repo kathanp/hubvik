@@ -42,6 +42,8 @@ Same script as WP-8.1: all tiers, 1,000 devices, past `learnMs`, `lock()`, then 
 
 Before is the WP-8.1 measurement. After is `node bench/run.js` once `feed()` dispatches by `meta.consumes`. The script exited 0. The gate re-ran it: median 6.13 µs, 1.19 KB/device.
 
+`bench/run.js` did not change between those runs. The serialized baseline did not change either: `test/diff/dispatch.test.js` replays every replay test, both attack generators, and the all-tier benign matrix (seeds 1–3) and matches the anomaly stream and `exportBaseline()` captured at `0a1755b`, the commit before dispatch. The KB drop is which detector states `feed()` allocates. `stats().memoryBytes` sums `memoryEstimate` only for states a feed has created. A summary event no longer creates state for a detector whose `consumes` list omits `summary`. `exportBaseline()` still writes a fresh state for those detectors, and that fresh state matches what their learn/check produced on a summary they ignore.
+
 ## WP-8 — 100 devices, 2026-10-17
 
 All tiers on. 1,000 warmup feeds, then 10,000 timed feeds across 100 devices. That script recorded the miss and did not fail the gate.
