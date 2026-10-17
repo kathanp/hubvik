@@ -1101,16 +1101,23 @@ class Engine extends EventEmitter {
   _tierSilent(now) {
     const seen = this.tierSeen || {};
     const enabled = this.opts.tiers;
-    const limit = this.opts.tierSilentMs;
-    const live = enabled.some(
-      (/** @type {string} */ tier) => typeof seen[tier] === 'number' && now - seen[tier] < limit,
-    );
+    const limitOf = (/** @type {string} */ tier) => {
+      const table = this.opts.tierSilentByTier;
+      if (table && typeof table[tier] === 'number') return table[tier];
+      return this.opts.tierSilentMs;
+    };
+    const fresh = (/** @type {string} */ tier) => {
+      const last = seen[tier];
+      return typeof last === 'number' && now - last < this.opts.tierSilentMs;
+    };
+    const live = enabled.some(fresh);
     if (!live) return;
     if (!this.tierSilentFired) this.tierSilentFired = Object.create(null);
     for (const tier of enabled) {
       const last = seen[tier];
-      if (typeof last === 'number' && now - last < limit) continue;
-      const key = typeof last === 'number' ? String(last) : 'none';
+      if (typeof last !== 'number') continue;
+      if (now - last < limitOf(tier)) continue;
+      const key = String(last);
       if (this.tierSilentFired[tier] === key) continue;
       this.tierSilentFired[tier] = key;
       const detectors = this.registry

@@ -144,3 +144,18 @@ Date: 2026-10-17. After WP-10, before the version bump.
 Gate passed. Coverage run: 118/118 tests, lines 97.50%, branches 86.67%. Pack-check: core 152 files, 337414 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.4.0. Bench median 25.75 µs, 2.46 KB/device. Fuzz rejected 33,401 of 100,000 feed inputs and all 100,000 baseline and checkpoint inputs. Demo printed `went-silent`, `volume-spike`, `volume-spike-hourly`, and incident stages c2, recon, impact.
 
 Core was then bumped to `0.5.0` locally and not published.
+
+## WP-8.1 — tier-silent
+
+Date: 2026-10-17.
+
+A tier is armed by its first event. A tier that has never been seen does not alert. Each tier has its own silence limit. The default stays 6 h. T4 defaults to 26 h, because DHCP and ARP in the benign simulator are once a day. An armed tier alerts only when that limit has passed and some other armed tier has produced an event within the 6 h default. The simulator padding from WP-3 is gone: no 1-byte T0 summaries, DHCP and ARP once per day again, and no filler MQTT.
+
+`tier-silent.test.js` covers a quiet DNS tier, a never-seen tier, and T4 quiet at 7 h then alerting at 26 h. The all-tier benign matrix passes without the padding.
+
+| Threshold          | Before                          | After                 |
+| ------------------ | ------------------------------- | --------------------- |
+| `tierSilentMs`     | 6 h, including never-seen tiers | 6 h, armed tiers only |
+| `tierSilentByTier` | none                            | T4 26 h               |
+
+Fast check: 120/120 tests, duration 38274.549375 ms.

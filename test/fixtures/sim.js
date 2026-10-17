@@ -65,28 +65,25 @@ function enrich(spec, summaries, origin, days) {
   const resolver = '192.0.2.1';
   let lease = '192.0.2.10';
   for (let day = 0; day < days; day++) {
-    if (day === 2) lease = '192.0.2.11';
-    for (const hour of spec.hours) {
-      const at = origin + day * DAY + hour * H;
-      events.push({
-        type: 'dhcp',
-        device: spec.device,
-        ts: at,
-        mac,
-        msg: 'ack',
-        serverIp: resolver,
-        requestedIp: lease,
-      });
-      events.push({
-        type: 'arp',
-        device: spec.device,
-        ts: at + 1,
-        ip: lease,
-        mac,
-        op: 'reply',
-      });
-    }
     const dayStart = origin + day * DAY + spec.hours[0] * H;
+    if (day === 2) lease = '192.0.2.11';
+    events.push({
+      type: 'dhcp',
+      device: spec.device,
+      ts: dayStart,
+      mac,
+      msg: 'ack',
+      serverIp: resolver,
+      requestedIp: lease,
+    });
+    events.push({
+      type: 'arp',
+      device: spec.device,
+      ts: dayStart + 1,
+      ip: lease,
+      mac,
+      op: 'reply',
+    });
     events.push(ntp(spec.device, dayStart + 2_000, '1.1.1.1', lease));
     events.push(ntp(spec.device, dayStart + 3_000, '9.9.9.9', lease));
   }
@@ -145,25 +142,6 @@ function enrich(spec, summaries, origin, days) {
       tcpOutcome: 'established',
       dstName: host,
     });
-    events.push({
-      device: spec.device,
-      dst: host,
-      bytes: 1,
-      ts: summary.ts,
-    });
-    if (spec.device !== 'thermostat-1' && spec.device !== 'hvac-1') {
-      events.push({
-        type: 'app',
-        device: spec.device,
-        ts: summary.ts,
-        proto: 'mqtt',
-        role: 'client',
-        peerIp: dstIp,
-        op: 'PUBLISH',
-        target: 'home/status',
-        result: 'ok',
-      });
-    }
     events.push({
       type: 'tls',
       device: spec.device,

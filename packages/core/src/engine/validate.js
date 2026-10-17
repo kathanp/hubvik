@@ -543,6 +543,7 @@ function validateOptions(raw) {
       input.tierSilentMs == null
         ? 6 * 3600e3
         : num(input.tierSilentMs, 'tierSilentMs', { min: 1, integer: true }),
+    tierSilentByTier: tierLimits(input.tierSilentByTier),
     evidence: input.evidence == null ? true : bool(input.evidence, 'evidence'),
     windowMs:
       input.windowMs == null
@@ -729,6 +730,26 @@ function validateIndicator(raw) {
     throw new TypeError('indicator cidr is invalid');
   }
   return { value: raw.value, type: raw.type, source: raw.source, confidence, expiresTs };
+}
+
+/**
+ * Per-tier silence limits. T4 defaults to 26 h because DHCP and ARP are often daily.
+ * @param {unknown} input
+ * @returns {Record<string, number>}
+ */
+function tierLimits(input) {
+  /** @type {Record<string, number>} */
+  const out = { T4: 26 * 3600e3 };
+  if (input == null) return out;
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new TypeError('tierSilentByTier must be an object');
+  }
+  assertSafeKeys(input, 'tierSilentByTier');
+  for (const [tier, value] of Object.entries(input)) {
+    if (!TIER_SET.has(tier)) throw new TypeError(`tierSilentByTier.${tier} is invalid`);
+    out[tier] = num(value, `tierSilentByTier.${tier}`, { min: 1, integer: true });
+  }
+  return out;
 }
 
 module.exports = {

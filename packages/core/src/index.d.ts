@@ -243,6 +243,7 @@ export interface EngineOptions {
   reorderMs?: number;
   minLearnWindows?: number;
   tierSilentMs?: number;
+  tierSilentByTier?: Partial<Record<'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5', number>>;
   evidence?: boolean;
 }
 

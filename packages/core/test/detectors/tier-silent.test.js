@@ -55,3 +55,42 @@ test('a quiet DNS tier names the DNS detectors', () => {
   assert.ok(hit.data.detectors.includes('nxdomain-burst'));
   assert.ok(hit.data.detectors.includes('dns-rebinding'));
 });
+
+test('a tier that has never been seen stays quiet', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  /** @type {any[]} */
+  const anomalies = [];
+  engine.on('anomaly', (item) => anomalies.push(item));
+  engine.feed({ device: 'd', dst: 'video.vendor.com', bytes: 10, ts: 0 });
+  engine.tick(7 * HOUR);
+  assert.deepStrictEqual(
+    anomalies.filter((item) => item.detector === 'tier-silent'),
+    [],
+  );
+});
+
+test('T4 stays quiet for a day and alerts after 26 hours', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1', 'T4'] });
+  /** @type {any[]} */
+  const anomalies = [];
+  engine.on('anomaly', (item) => anomalies.push(item));
+  engine.feed({
+    type: 'dhcp',
+    device: 'd',
+    ts: 0,
+    mac: 'aa:bb:cc:dd:ee:ff',
+    msg: 'ack',
+    serverIp: '10.0.0.1',
+  });
+  engine.feed(flow({ ts: 7 * HOUR }));
+  engine.tick(7 * HOUR);
+  assert.deepStrictEqual(
+    anomalies.filter((item) => item.detector === 'tier-silent'),
+    [],
+  );
+  engine.feed(flow({ ts: 26 * HOUR }));
+  engine.tick(26 * HOUR);
+  const hit = anomalies.find((item) => item.detector === 'tier-silent');
+  assert.ok(hit);
+  assert.strictEqual(hit.data.tier, 'T4');
+});
