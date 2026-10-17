@@ -399,6 +399,12 @@ Date: 2026-10-17.
 
 `eval/label-map.json` maps `UdpFlood` to impact or volume, the same tokens as DDoS. The synthetic corpus was regenerated. C6.2 stays 20/25 = 80.0% (95% Wilson 60.9%–91.1%). Strict detection is 19/25 = 76.0% (95% Wilson 56.6%–88.5%). UdpFlood strict is 6/6 = 100.0% (95% Wilson 61.0%–100.0%). SlowVerticalScan strict stays 0/6. No detector default changed.
 
+## WP-9.8 — 7-day heap profile
+
+Date: 2026-10-17.
+
+`bench/heap-one.js` fed 16 devices, two of each class, 7 days of rich traffic, then `lock()`. Sequential disable-one-detector heap deltas are in `docs/BENCHMARKS.md`. The top three are `volume-spike-hourly` 107.84 KB, `volume-spike` 98.70 KB, and `fan-out` 97.86 KB. The 200-device run on this tree measured median 6.75 µs and heap 374.99 KB/device. No threshold or cap changed.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

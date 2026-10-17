@@ -114,3 +114,29 @@ The same process printed the 1,000-device line first: median 5.33 µs, estimate 
 | events fed        |          | 6,947,350 |
 
 The heap is over 100 KB per device. The script exits non-zero. No threshold was changed.
+
+## WP-9.8 — 7-day heap profile
+
+`node --expose-gc bench/heap-one.js`. 16 devices, two of each class, the same 7-day rich traffic and `lock()` as the 200-device bench. Heap is `heapUsed` after two `global.gc()` calls, minus the heap before those devices were created. Each row is that baseline minus the same run with one detector disabled. Runs were sequential. A parallel sweep moved the smaller rows by several KB, so those numbers are not used. Baseline runs: 463.31 KB/device and 463.99 KB/device. Deltas use their mean, 463.65 KB/device.
+
+Closed windows are not kept. Window history is the per-window sample rings. Hourly history is the 24 rings in `volume-spike-hourly`. With every detector disabled the same 16 devices retain 34.29 KB/device, which is the device record and the open window, plus process overhead spread across 16 devices. LAN scratch is outside this table: `dhcp-starvation` 1.44 KB, `arp-spoof` 1.19 KB, `lan-lateral` 0.99 KB, `identity-change` 0.20 KB.
+
+| Rank | Structure                                      | KB/device |
+| ---- | ---------------------------------------------- | --------: |
+| 1    | `volume-spike-hourly` hourly rings             |    107.84 |
+| 2    | `volume-spike` window byte history             |     98.70 |
+| 3    | `fan-out` window destination-count history     |     97.86 |
+| 4    | `upload-ratio-shift` window ratio history      |     19.89 |
+| 5    | `update-over-cleartext`                        |     12.99 |
+| 6    | `failed-connection-ratio` window ratio history |     10.63 |
+| 7    | `beacon-change`                                |      4.83 |
+| 8    | `egress-flood`                                 |      3.64 |
+| 9    | `answer-drift`                                 |      3.63 |
+| 10   | `horizontal-scan`                              |      3.00 |
+| 11   | `class-violation`                              |      2.66 |
+| 12   | `long-connection`                              |      2.37 |
+| 13   | `threat-intel-match`                           |      2.36 |
+| 14   | `dns-tunnel`                                   |      2.29 |
+| 15   | `slow-exfil`                                   |      2.28 |
+
+The same tree's 200-device run, this session: median 6.75 µs, heap 374.99 KB/device, 6,947,350 events. These per-structure bytes are the part that scales with devices. The three history rows are 304.40 KB of that total.
