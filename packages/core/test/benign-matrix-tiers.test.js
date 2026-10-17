@@ -19,9 +19,15 @@ test('14 benign days on every tier stay under medium', () => {
       engine.setDeviceClass(events[0].device, profile);
       /** @type {any[]} */
       const anomalies = [];
+      /** @type {any[]} */
+      const learning = [];
       engine.on('anomaly', (item) => anomalies.push(item));
+      engine.on('warning', (warning) => {
+        if (warning.code === 'SUSPICIOUS_LEARNING') learning.push(warning);
+      });
       for (const event of events) engine.feed(event);
       engine.flush(T0 + 14 * DAY);
+      assert.deepStrictEqual(learning, [], `${profile} seed ${seed}`);
       for (const item of anomalies) {
         if (SEVERITY[item.severity] < SEVERITY.medium) {
           lows.push(`${profile} seed ${seed} ${item.detector} ${item.severity}`);

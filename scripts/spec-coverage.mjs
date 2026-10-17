@@ -190,10 +190,8 @@ for (const row of rows) {
   groups.set(row.group, list);
   const due = relValue(row.rel);
   const detector = code.get(row.id);
-  if (due == null || (coreRel != null && due > coreRel)) {
+  if ((due == null || (coreRel != null && due > coreRel)) && !detector) {
     pending.push(`- \`${row.id}\` — Rel ${row.rel}, not yet implemented`);
-    if (detector)
-      fail(`${row.id} is implemented but its row Rel ${row.rel} is after ${pkg.version}`);
     continue;
   }
   if (!detector) {

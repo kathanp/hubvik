@@ -193,13 +193,34 @@ class Engine extends EventEmitter {
     device.lastTs = event.ts;
     this._advanceTo(device, start);
     this._note(device, event);
-    if (device.mode === 'learning') noteLearning(this, device, event);
+    if (event.tier) {
+      if (!this.tierSeen) this.tierSeen = Object.create(null);
+      this.tierSeen[event.tier] = event.ts;
+    }
+    if (device.mode === 'learning') {
+      if (device.qualityWindow !== start) {
+        device.qualityWindow = start;
+        device.windowsActive = (device.windowsActive || 0) + 1;
+      }
+      noteLearning(this, device, event);
+    }
     if (
       device.mode === 'learning' &&
       device.learnStart != null &&
       event.ts >= device.learnStart + this.opts.learnMs
     ) {
-      this._enterWatch(device, event.ts);
+      const need = this.opts.minLearnWindows;
+      if (need > 0 && (device.windowsActive || 0) < need) {
+        if (!device.learningExtended) {
+          device.learningExtended = true;
+          this._warn(
+            'LEARNING_EXTENDED',
+            'still learning until enough active windows are seen',
+            device.id,
+            { ts: event.ts },
+          );
+        }
+      } else this._enterWatch(device, event.ts);
     }
     this._run(device, event);
   }
@@ -304,6 +325,7 @@ class Engine extends EventEmitter {
       }
     }
     this._inputGap(at);
+    this._tierSilent(at);
   }
 
   /**
@@ -314,8 +336,12 @@ class Engine extends EventEmitter {
   lock(deviceId) {
     const list = deviceId == null ? [...this.devices.values()] : [this._requireDevice(deviceId)];
     for (const device of list) {
-      if (device.mode === 'learning' && device.seen)
+      if (device.mode === 'learning' && device.seen) {
+        if (!this._quality(device).ready) {
+          this._warn('LOCKED_UNREVIEWED', 'locked before learning looked clean', device.id);
+        }
         this._enterWatch(device, device.learnStart ?? 0);
+      }
     }
   }
 
@@ -590,6 +616,7 @@ class Engine extends EventEmitter {
       detectors: this.detectorStatus,
       memoryBytes,
       watermark: this.watermark,
+      learningQuality: this._learningQuality(),
       allows: this.allowCount,
       suppresses: this.suppressCount,
       acks: this.acks.size,
@@ -966,6 +993,71 @@ class Engine extends EventEmitter {
   }
 
   /**
+   * @param {any} device
+   */
+  _quality(device) {
+    const suspicious = device.suspicious ? device.suspicious.slice() : [];
+    const windowsActive = device.windowsActive || 0;
+    const families = device.learnFamilies ? device.learnFamilies.size : 0;
+    return {
+      windowsActive,
+      families,
+      suspicious,
+      ready: suspicious.length === 0 && windowsActive >= this.opts.minLearnWindows,
+    };
+  }
+
+  /**
+   * @returns {Record<string, { windowsActive: number, families: number, suspicious: string[], ready: boolean }>}
+   */
+  _learningQuality() {
+    /** @type {Record<string, any>} */
+    const out = Object.create(null);
+    for (const device of this.devices.values()) {
+      if (!device.seen) continue;
+      out[device.id] = this._quality(device);
+    }
+    return out;
+  }
+
+  /**
+   * @param {number} now
+   */
+  _tierSilent(now) {
+    const seen = this.tierSeen || {};
+    const enabled = this.opts.tiers;
+    const limit = this.opts.tierSilentMs;
+    const live = enabled.some(
+      (/** @type {string} */ tier) => typeof seen[tier] === 'number' && now - seen[tier] < limit,
+    );
+    if (!live) return;
+    if (!this.tierSilentFired) this.tierSilentFired = Object.create(null);
+    for (const tier of enabled) {
+      const last = seen[tier];
+      if (typeof last === 'number' && now - last < limit) continue;
+      const key = typeof last === 'number' ? String(last) : 'none';
+      if (this.tierSilentFired[tier] === key) continue;
+      this.tierSilentFired[tier] = key;
+      const detectors = this.registry
+        .filter(
+          (det) =>
+            det.requires.includes(tier) &&
+            this.detectorStatus[det.id] &&
+            this.detectorStatus[det.id].active,
+        )
+        .map((det) => det.id);
+      const device = { id: 'engine', suppress: new Map(), states: new Map() };
+      this._special(
+        'tier-silent',
+        device,
+        { ts: now, device: 'engine' },
+        { kind: 'tier-silent', tier, detectors },
+        false,
+      );
+    }
+  }
+
+  /**
    * @param {number} now
    */
   _inputGap(now) {
@@ -1033,15 +1125,18 @@ class Engine extends EventEmitter {
    * @param {string} code
    * @param {string} message
    * @param {string} [device]
+   * @param {{ reason?: string, ts?: number }} [extra]
    */
-  _warn(code, message, device) {
+  _warn(code, message, device, extra) {
     this.warningCount += 1;
     if (this._emittingWarning) return;
     this._emittingWarning = true;
     try {
-      /** @type {{ code: string, message: string, device?: string }} */
+      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number }} */
       const warning = { code, message };
       if (device) warning.device = device;
+      if (extra && extra.reason) warning.reason = extra.reason;
+      if (extra && typeof extra.ts === 'number') warning.ts = extra.ts;
       this.emit('warning', warning);
     } finally {
       this._emittingWarning = false;

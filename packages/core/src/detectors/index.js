@@ -19,6 +19,7 @@ const ALL = [
   require('./coap-amplification'),
   require('./wrong-time'),
   require('./went-silent'),
+  require('./tier-silent'),
   require('./nxdomain-burst'),
   require('./resolver-bypass'),
   require('./dns-rebinding'),

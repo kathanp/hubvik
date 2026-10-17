@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @param {{ events: number, anomalies: number, warnings: number, devices: number, indicators: number, detectors: object, memoryBytes: number, watermark: number | null, allows: number, suppresses: number, acks: number }} snap
+ * @param {{ events: number, anomalies: number, warnings: number, devices: number, indicators: number, detectors: object, memoryBytes: number, watermark: number | null, learningQuality: object, allows: number, suppresses: number, acks: number }} snap
  */
 function buildStats(snap) {
   return {
@@ -16,6 +16,7 @@ function buildStats(snap) {
     detectors: snap.detectors,
     memoryBytes: snap.memoryBytes,
     watermark: snap.watermark,
+    learningQuality: snap.learningQuality,
   };
 }
 

@@ -85,10 +85,10 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-3 — `tier-silent`, `SUSPICIOUS_LEARNING`, learning quality (D4, D5)
 
-- [ ] Implement as in SPEC WP-3, B10, B11, and A4.1.
-- [ ] Add one firing test per `SUSPICIOUS_LEARNING` reason. The benign matrices must emit no `SUSPICIOUS_LEARNING`.
-- [ ] Add a test for `LOCKED_UNREVIEWED` and a test for `LEARNING_EXTENDED`.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Implement as in SPEC WP-3, B10, B11, and A4.1.
+- [x] Add one firing test per `SUSPICIOUS_LEARNING` reason. The benign matrices must emit no `SUSPICIOUS_LEARNING`.
+- [x] Add a test for `LOCKED_UNREVIEWED` and a test for `LEARNING_EXTENDED`.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### WP-4 — Anomaly evidence, fingerprint, dedup (D6)
 

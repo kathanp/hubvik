@@ -12,7 +12,11 @@ test('14 benign days produce no anomalies for every device class', () => {
     const events = simulate({ profile, days: 14, seed: 7, startTs: T0 });
     const engine = createEngine({ learnMs: 7 * DAY });
     const anomalies = [];
+    const warnings = [];
     engine.on('anomaly', (item) => anomalies.push(item));
+    engine.on('warning', (warning) => {
+      if (warning.code === 'SUSPICIOUS_LEARNING') warnings.push(warning);
+    });
     for (const event of events) engine.feed(event);
     engine.flush(T0 + 14 * DAY);
     assert.deepStrictEqual(
@@ -20,5 +24,6 @@ test('14 benign days produce no anomalies for every device class', () => {
       [],
       `${profile} raised ${anomalies.map((item) => item.detector).join(',')}`,
     );
+    assert.deepStrictEqual(warnings, [], `${profile} learning warning`);
   }
 });

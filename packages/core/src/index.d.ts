@@ -220,6 +220,8 @@ export interface EngineOptions {
   incidentWindowMs?: number;
   browserJa4?: string[];
   reorderMs?: number;
+  minLearnWindows?: number;
+  tierSilentMs?: number;
 }
 
 export interface Baseline {
@@ -253,6 +255,10 @@ export interface EngineStats {
   acks: number;
   memoryBytes: number;
   watermark: number | null;
+  learningQuality: Record<
+    string,
+    { windowsActive: number; families: number; suspicious: string[]; ready: boolean }
+  >;
   detectors: Record<string, { active: boolean; reason: string | null }>;
 }
 
@@ -288,7 +294,13 @@ export class Engine extends EventEmitter {
   ): this;
   on(
     event: 'warning',
-    listener: (payload: { code: string; message: string; device?: string }) => void,
+    listener: (payload: {
+      code: string;
+      message: string;
+      device?: string;
+      reason?: string;
+      ts?: number;
+    }) => void,
   ): this;
   on(event: string | symbol, listener: (...args: unknown[]) => void): this;
 }
