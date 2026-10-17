@@ -252,3 +252,9 @@ Each detector declares `meta.consumes`. `feed()` runs only the detectors that li
 Date: 2026-10-17.
 
 Watching-state median before dispatch: 22.38 µs (gate rerun 21.04 µs). After: 6.04 µs, 1.19 KB/device. The 10 µs budget is unchanged. `node bench/run.js` exited 0.
+
+## WP-8.2 — gate
+
+Date: 2026-10-17.
+
+`npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then the bench. A failed step does not skip the rest. The process exits non-zero and lists every failure.

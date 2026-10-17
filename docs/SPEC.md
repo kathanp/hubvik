@@ -942,7 +942,7 @@ npm run gate && npm run demo
 ### WP-8 — Phase 5 hardening (from `CURSOR_BUILD.md`)
 
 - Fuzz (`fuzz/feed.fuzz.js`, `fuzz/baseline.fuzz.js`, add `fuzz/checkpoint.fuzz.js`), 100,000 seeded inputs each.
-- Bench with **all tiers on**. Feed 1,000 devices past `learnMs`, call `lock()`, then time `feed()` in the watching state. Proxy budgets on x86 CI: median `feed()` < 10 µs, < 100 KB per watching device. The bench exits non-zero when a budget is missed. Raspberry Pi 4 numbers are run by the human and pasted into `docs/BENCHMARKS.md`.
+- Bench with **all tiers on**. Feed 1,000 devices past `learnMs`, call `lock()`, then time `feed()` in the watching state. Proxy budgets on x86 CI: median `feed()` < 10 µs, < 100 KB per watching device. The bench exits non-zero when a budget is missed. `npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then this bench. It finishes every step and, when any step failed, exits non-zero and lists those steps. Raspberry Pi 4 numbers are run by the human and pasted into `docs/BENCHMARKS.md`.
 - Bump core to `0.5.0` only after WP-0 to WP-8 pass. Stop.
 
 ### WP-9 — Evaluation harness (0.6). Requires the human's explicit "go".
