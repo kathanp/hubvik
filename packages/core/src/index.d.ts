@@ -59,6 +59,17 @@ export interface DnsEvent {
   answers?: DnsAnswer[];
 }
 
+export interface DhcpEvent {
+  type: 'dhcp';
+  device: string;
+  ts?: number;
+  mac: string;
+  msg: string;
+  serverIp?: string;
+  requestedIp?: string;
+  fingerprint?: string;
+}
+
 export interface DiscoveryEvent {
   type: 'discovery';
   device: string;
@@ -142,7 +153,8 @@ export type FeedEvent =
   | TlsEvent
   | HttpEvent
   | AppEvent
-  | DiscoveryEvent;
+  | DiscoveryEvent
+  | DhcpEvent;
 
 export interface PolicyRule {
   id: string;

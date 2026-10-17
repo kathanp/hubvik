@@ -387,6 +387,15 @@ function linkEvent(raw, type, ts, warnings) {
     event.msg = String(raw.msg);
     if (typeof raw.serverIp === 'string') event.serverIp = raw.serverIp.slice(0, 64);
     if (typeof raw.requestedIp === 'string') event.requestedIp = raw.requestedIp.slice(0, 64);
+    if (
+      typeof raw.fingerprint === 'string' &&
+      raw.fingerprint.length > 0 &&
+      raw.fingerprint.length <= 255
+    ) {
+      event.fingerprint = raw.fingerprint;
+    } else if (raw.fingerprint != null) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.fingerprint' });
+    }
   } else if (type === 'ra') {
     requireFields(raw, ['srcMac', 'srcIp'], 'ra');
     event.srcMac = String(raw.srcMac).toLowerCase();

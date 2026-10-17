@@ -61,6 +61,7 @@ const ALL = [
   require('./arp-spoof'),
   require('./gratuitous-arp-flood'),
   require('./rogue-dhcp'),
+  require('./identity-change'),
   require('./dhcp-starvation'),
   require('./rogue-ra'),
   require('./src-spoof'),

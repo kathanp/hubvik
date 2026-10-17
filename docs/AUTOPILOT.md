@@ -102,10 +102,10 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-5 — `identity-change`
 
-- [ ] Add the `dhcp.fingerprint` field and the detector. Cap 5,000 MACs.
-- [ ] Add the four standard tests.
-- [ ] `spec-coverage` must no longer list `identity-change` as missing.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Add the `dhcp.fingerprint` field and the detector. Cap 5,000 MACs.
+- [x] Add the four standard tests.
+- [x] `spec-coverage` must no longer list `identity-change` as missing.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### WP-6 — B20: `egress-flood`, `proxy-sdk-traffic`, `smart-tv`
 
