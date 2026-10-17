@@ -239,6 +239,7 @@ class Engine extends EventEmitter {
       } else this._enterWatch(device, event.ts);
     }
     this._run(device, event);
+    this._tierNeverSeen(event.ts);
   }
 
   /**
@@ -342,6 +343,7 @@ class Engine extends EventEmitter {
     }
     this._inputGap(at);
     this._tierSilent(at);
+    this._tierNeverSeen(at);
   }
 
   /**
@@ -1107,6 +1109,24 @@ class Engine extends EventEmitter {
       out[device.id] = this._quality(device);
     }
     return out;
+  }
+
+  /**
+   * One warning per enabled tier that still has no events once learning has ended.
+   * @param {number} now
+   */
+  _tierNeverSeen(now) {
+    if (typeof now !== 'number' || this.startedAt == null) return;
+    if (now < this.startedAt + this.opts.learnMs) return;
+    if (!this.tierNeverWarned) this.tierNeverWarned = Object.create(null);
+    const seen = this.tierSeen || {};
+    for (const tier of this.opts.tiers) {
+      if (typeof seen[tier] === 'number' || this.tierNeverWarned[tier]) continue;
+      this.tierNeverWarned[tier] = true;
+      this._warn('TIER_NEVER_SEEN', `${tier} had no events by the end of learning`, undefined, {
+        ts: now,
+      });
+    }
   }
 
   /**

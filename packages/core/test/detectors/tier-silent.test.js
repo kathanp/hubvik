@@ -94,3 +94,41 @@ test('T4 stays quiet for a day and alerts after 26 hours', () => {
   assert.ok(hit);
   assert.strictEqual(hit.data.tier, 'T4');
 });
+
+test('a tier with no events warns once after learning and does not alert', () => {
+  const engine = createEngine({ learnMs: 60_000, tiers: ['T0', 'T1'] });
+  /** @type {any[]} */
+  const warnings = [];
+  /** @type {any[]} */
+  const anomalies = [];
+  engine.on('warning', (warning) => warnings.push(warning));
+  engine.on('anomaly', (item) => anomalies.push(item));
+  engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 0 });
+  engine.tick(59_000);
+  assert.deepStrictEqual(
+    warnings.filter((warning) => warning.code === 'TIER_NEVER_SEEN'),
+    [],
+  );
+  engine.tick(60_000);
+  engine.tick(120_000);
+  const never = warnings.filter((warning) => warning.code === 'TIER_NEVER_SEEN');
+  assert.strictEqual(never.length, 1);
+  assert.strictEqual(never[0].message, 'T1 had no events by the end of learning');
+  assert.strictEqual(never[0].ts, 60_000);
+  assert.deepStrictEqual(
+    anomalies.filter((item) => item.detector === 'tier-silent'),
+    [],
+  );
+
+  const seen = createEngine({ learnMs: 60_000, tiers: ['T0', 'T1'] });
+  /** @type {any[]} */
+  const seenWarnings = [];
+  seen.on('warning', (warning) => seenWarnings.push(warning));
+  seen.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 0 });
+  seen.feed(flow({ ts: 1_000 }));
+  seen.tick(60_000);
+  assert.deepStrictEqual(
+    seenWarnings.filter((warning) => warning.code === 'TIER_NEVER_SEEN'),
+    [],
+  );
+});

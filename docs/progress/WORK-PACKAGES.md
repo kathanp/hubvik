@@ -266,3 +266,9 @@ Date: 2026-10-17.
 Every accepted mutation kept collection caps, left `Object.prototype` clean, and matched `export` → `import` → `export` with `createdAt` fixed at 1.
 
 Baseline: 100,000 inputs, 58,132 accepted, 41,868 rejected. Checkpoint: 100,000 inputs, 57,967 accepted, 42,033 rejected.
+
+## WP-8.2 — tier never seen
+
+Date: 2026-10-17.
+
+A tier in `tiers` with no events once time reaches the first event plus `learnMs` emits warning `TIER_NEVER_SEEN` once. It is not an anomaly. `tier-silent` still stays quiet for a tier that was never armed.
