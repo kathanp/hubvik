@@ -405,6 +405,12 @@ Date: 2026-10-17.
 
 `bench/heap-one.js` fed 16 devices, two of each class, 7 days of rich traffic, then `lock()`. Sequential disable-one-detector heap deltas are in `docs/BENCHMARKS.md`. The top three are `volume-spike-hourly` 107.84 KB, `volume-spike` 98.70 KB, and `fan-out` 97.86 KB. The 200-device run on this tree measured median 6.75 µs and heap 374.99 KB/device. No threshold or cap changed.
 
+## WP-9.8 — representation
+
+Date: 2026-10-17.
+
+Sample rings use a `Float64Array`. Destination strings are interned up to the existing destination cap. Each device reuses its open window, one idle window, and one close summary. `exportBaseline()` and the differential golden are unchanged. Fast check 155/155. After typed arrays the 16-device retained total was 398.23 KB/device; the hourly ring fell from 107.84 KB to 86.72 KB, the byte ring from 98.70 to 80.17, and the fan-out ring from 97.86 to 80.10. String interning measured 396.83 and 397.77. Window reuse measured 398.37. The 200-device run after all three: median 8.13 µs, retained 307.64 KB/device. Still over 100 KB. The budget and the device cap were not changed. Not merged to main.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

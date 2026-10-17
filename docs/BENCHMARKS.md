@@ -139,4 +139,30 @@ Closed windows are not kept. Window history is the per-window sample rings. Hour
 | 14   | `dns-tunnel`                                   |      2.29 |
 | 15   | `slow-exfil`                                   |      2.28 |
 
-The same tree's 200-device run, this session: median 6.75 µs, heap 374.99 KB/device, 6,947,350 events. These per-structure bytes are the part that scales with devices. The three history rows are 304.40 KB of that total.
+The same tree's 200-device run, before the representation changes: median 6.75 µs, heap 374.99 KB/device, 6,947,350 events. These per-structure bytes are the part that scales with devices. The three history rows are 304.40 KB of that total.
+
+## WP-9.8 — representation, remeasured
+
+Sample rings now store samples in a `Float64Array`. `toArray()` is still a plain array, and `exportBaseline()` is unchanged. `git diff d4a742f -- test/diff/golden.json` is empty. Repeated destination strings are interned up to the existing destination cap. A device reuses its open window, one idle window, and one close summary. No threshold, cap, or default changed.
+
+`bench/run.js` adds `arrayBuffers` to the byte count. A Float64Array's storage is not in `heapUsed`. The 100 KB check uses the sum.
+
+16 devices, retained = heap + ArrayBuffers:
+
+| After         |  retained KB/device |
+| ------------- | ------------------: |
+| typed arrays  |              398.23 |
+| string intern | 396.83, then 397.77 |
+| window reuse  |              398.37 |
+
+Ring rows after the typed arrays, same 16-device disable measurement. The buffer column is the Float64Array storage.
+
+| Structure                 | retained KB |    was |
+| ------------------------- | ----------: | -----: |
+| `volume-spike-hourly`     |       86.72 | 107.84 |
+| `volume-spike`            |       80.17 |  98.70 |
+| `fan-out`                 |       80.10 |  97.86 |
+| `upload-ratio-shift`      |       14.80 |  19.89 |
+| `failed-connection-ratio` |        9.12 |  10.63 |
+
+200 devices after all three fixes: median 8.13 µs, retained 307.64 KB/device, 6,947,350 events. The 1,000-device line in the same process: median 6.25 µs, retained 16.96 KB/device. The 7-day figure is over 100 KB. Caps and the 100 KB budget were not changed.

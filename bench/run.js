@@ -8,13 +8,15 @@ const LEARN_MS = 60_000;
 const SAMPLES = 10_000;
 
 /**
- * Heap after a forced collection.
+ * Bytes the engine is actually holding: the V8 heap plus ArrayBuffer storage.
+ * Float64Array rings live in `arrayBuffers`, which `heapUsed` does not include.
  * @returns {number}
  */
 function heapUsed() {
   if (typeof global.gc !== 'function') throw new Error('bench needs node --expose-gc');
   global.gc();
-  return process.memoryUsage().heapUsed;
+  const usage = process.memoryUsage();
+  return usage.heapUsed + usage.arrayBuffers;
 }
 
 const engine = createEngine({ learnMs: LEARN_MS, tiers: TIERS });
@@ -45,7 +47,7 @@ const stats = engine.stats();
 const estimateKb = stats.devices > 0 ? stats.memoryBytes / stats.devices / 1024 : 0;
 const heapKb = stats.devices > 0 ? heapBytes / stats.devices / 1024 : 0;
 console.log(
-  `bench median ${median.toFixed(2)} µs, estimate ${estimateKb.toFixed(2)} KB/device, heap ${heapKb.toFixed(2)} KB/device, devices ${stats.devices}`,
+  `bench median ${median.toFixed(2)} µs, estimate ${estimateKb.toFixed(2)} KB/device, retained ${heapKb.toFixed(2)} KB/device, devices ${stats.devices}`,
 );
 if (median >= 10 || heapKb >= 100) {
   console.error('bench: over the x86 budget');
@@ -100,10 +102,10 @@ function richBench() {
   const richStats = rich.stats();
   const richHeapKb = richStats.devices > 0 ? richHeap / richStats.devices / 1024 : 0;
   console.log(
-    `rich bench median ${richMedian.toFixed(2)} µs, heap ${richHeapKb.toFixed(2)} KB/device, devices ${richStats.devices}, events ${events}`,
+    `rich bench median ${richMedian.toFixed(2)} µs, retained ${richHeapKb.toFixed(2)} KB/device, devices ${richStats.devices}, events ${events}`,
   );
   if (richHeapKb >= 100) {
-    console.error(`rich bench: heap ${richHeapKb.toFixed(2)} KB/device is over 100 KB`);
+    console.error(`rich bench: retained ${richHeapKb.toFixed(2)} KB/device is over 100 KB`);
     process.exit(1);
   }
 }

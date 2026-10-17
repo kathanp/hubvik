@@ -7,14 +7,16 @@ const { CLASS_NAMES } = require('../test/fixtures/profiles');
 const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 
 /**
- * Heap after two forced collections.
- * @returns {number}
+ * Heap and ArrayBuffer bytes after two forced collections.
+ * Float64Array storage is in `arrayBuffers`, which is already part of `external`.
+ * @returns {{ heapUsed: number, arrayBuffers: number }}
  */
 function heapUsed() {
   if (typeof global.gc !== 'function') throw new Error('heap profile needs node --expose-gc');
   global.gc();
   global.gc();
-  return process.memoryUsage().heapUsed;
+  const usage = process.memoryUsage();
+  return { heapUsed: usage.heapUsed, arrayBuffers: usage.arrayBuffers };
 }
 
 /**
@@ -48,15 +50,21 @@ function main() {
     }
   }
   engine.lock();
-  const heap = heapUsed() - before;
+  const after = heapUsed();
+  const heap = after.heapUsed - before.heapUsed;
+  const buffers = after.arrayBuffers - before.arrayBuffers;
   const devices = engine.stats().devices;
+  const per = (bytes) => (devices > 0 ? bytes / devices / 1024 : 0);
   process.stdout.write(
     `${JSON.stringify({
       disable: disableAll ? '*' : disable || null,
       devices,
       events,
       heapBytes: heap,
-      kb: devices > 0 ? heap / devices / 1024 : 0,
+      bufferBytes: buffers,
+      kb: per(heap),
+      bufferKb: per(buffers),
+      retainedKb: per(heap + buffers),
     })}\n`,
   );
 }
