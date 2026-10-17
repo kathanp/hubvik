@@ -75,7 +75,13 @@ const detector = {
 function remember(dev, ev, ctx) {
   if (ev.type !== 'dns' || !ev.qname) return;
   const list = keys(ev, ctx);
-  if (list.length) dev.answers.set(ev.qname, list);
+  if (!list.length) return;
+  const previous = dev.answers.get(ev.qname) || [];
+  const merged = previous.slice();
+  for (const key of list) {
+    if (!merged.includes(key) && merged.length < 8) merged.push(key);
+  }
+  dev.answers.set(ev.qname, merged);
 }
 
 /**

@@ -2,7 +2,7 @@
 
 ## 0.4.0
 
-Network-layer detection: TLS metadata, proxy backconnect, peer-to-peer shape, DNS answer drift and fast-flux, building-protocol writes, MQTT topics, ONVIF changes, and fleet comparison. Zeek and Suricata parsers, plus OCSF, syslog, and webhook exporters. A `discovery` event is accepted; an unknown discovery proto is dropped with `FIELD_DROPPED`. The library still only reports. Not validated on real traffic.
+Network-layer detection: TLS metadata, proxy backconnect, peer-to-peer shape, DNS answer drift and fast-flux, building-protocol writes, MQTT topics, ONVIF changes, and fleet comparison. Zeek and Suricata parsers, plus OCSF, syslog, and webhook exporters. A `discovery` event is accepted; an unknown discovery proto is dropped with `FIELD_DROPPED`. `answer-drift` keeps every answer key seen while learning, up to 8, instead of only the latest lookup. `smart-tv` is a loadable class: 120 families, 50 MB uploaded per hour, no inbound LAN. The library still only reports. Not validated on real traffic.
 
 ## 0.3.0
 

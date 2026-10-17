@@ -12,6 +12,8 @@
 
 ## Open
 
-1. **Security contact.** `packages/core/SECURITY.md` points at GitHub private vulnerability reporting and does not list an email. What address should it use?
+1. **Q-5. `smart-tv` upload cap and browser JA4.** B20 does not give `maxUploadBytesPerHour`. The class file uses 50000000, the same number as `tv-box`. B20 also says a smart TV may use a browser JA4, while the shipped `browser-mimic` allowlist is still only `tv-box`, `nas`, and `hub`. Should the upload cap stay, and should `browser-mimic` allow `smart-tv` in WP-6 rather than now?
 
-2. **Repository URLs.** `packages/core/package.json` has no `repository`, `bugs`, or `homepage`. Phase 0 does not create a remote. Add them when the GitHub repository exists.
+2. **Security contact.** `packages/core/SECURITY.md` points at GitHub private vulnerability reporting and does not list an email. What address should it use?
+
+3. **Repository URLs.** `packages/core/package.json` has no `repository`, `bugs`, or `homepage`. Phase 0 does not create a remote. Add them when the GitHub repository exists.

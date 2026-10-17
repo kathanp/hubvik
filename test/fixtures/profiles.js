@@ -68,6 +68,15 @@ const PROFILES = {
     ],
     hostPick: 'mod',
   },
+  'smart-tv': {
+    device: 'smart-tv-1',
+    hours: [18, 19, 20, 21, 22],
+    everyMs: 60_000,
+    bytes: 2_000_000,
+    jitter: 0.03,
+    hosts: ['smart.vendor.com', 'time.vendor.com'],
+    hostPick: 'tenth',
+  },
   printer: {
     device: 'printer-1',
     hours: [9, 15],

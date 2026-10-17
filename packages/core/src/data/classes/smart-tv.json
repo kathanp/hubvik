@@ -1,0 +1,6 @@
+{
+  "id": "smart-tv",
+  "maxFamilies": 120,
+  "maxUploadBytesPerHour": 50000000,
+  "allowsInboundLan": false
+}
