@@ -387,6 +387,18 @@ Date: 2026-10-17.
 
 `bench/run.js` still checks the 1,000-device watching bench, then feeds 200 devices 7 days of rich class traffic, calls `lock()`, and prints heap per device and the watching-state median. This run: median 6.38 µs, heap 374.99 KB/device, 200 devices, 6,947,350 events. The same process printed the 1,000-device line as median 5.33 µs, estimate 5.70 KB/device, heap 12.27 KB/device. The 7-day heap is over 100 KB. Detectors were not tuned. HARD STOP. Item 5 was not started. The full gate and the demo were not run.
 
+## WP-9.8 — gate on main
+
+Date: 2026-10-17. Commit `61e6f4d`.
+
+`npm run gate` exited 0. Check 155/155. Coverage lines 97.90%, branches 86.22%, functions 98.13%. Pack-check: core 152 files, 352217 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 6.00 µs, estimate 5.70 KB/device, heap 12.27 KB/device, 1,000 devices. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
+## WP-9.8 — UdpFlood label map
+
+Date: 2026-10-17.
+
+`eval/label-map.json` maps `UdpFlood` to impact or volume, the same tokens as DDoS. The synthetic corpus was regenerated. C6.2 stays 20/25 = 80.0% (95% Wilson 60.9%–91.1%). Strict detection is 19/25 = 76.0% (95% Wilson 56.6%–88.5%). UdpFlood strict is 6/6 = 100.0% (95% Wilson 61.0%–100.0%). SlowVerticalScan strict stays 0/6. No detector default changed.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

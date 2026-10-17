@@ -37,9 +37,9 @@
   "attackInstances": 25,
   "detected": 20,
   "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
-  "strictDetected": 13,
-  "strictInstances": 19,
-  "strictDetection": "13/19 = 68.4% (95% Wilson 46.0%–84.6%)",
+  "strictDetected": 19,
+  "strictInstances": 25,
+  "strictDetection": "19/25 = 76.0% (95% Wilson 56.6%–88.5%)",
   "byLabel": [
     {
       "detailedLabel": "HorizontalScan",
@@ -67,7 +67,7 @@
       "detected": 6,
       "instances": 6,
       "detection": "n too small (6 detected, 6 attack instances)",
-      "strict": "unmapped"
+      "strict": "6/6 = 100.0% (95% Wilson 61.0%–100.0%)"
     }
   ],
   "misses": [
@@ -341,8 +341,8 @@
       "end": 172800000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "new-protocol",
         "packet-flood",
@@ -358,8 +358,8 @@
       "end": 173400000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "packet-flood",
         "protocol-mix-shift"
@@ -374,8 +374,8 @@
       "end": 174000000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "packet-flood",
         "protocol-mix-shift"
@@ -390,8 +390,8 @@
       "end": 174600000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "packet-flood",
         "protocol-mix-shift"
@@ -406,8 +406,8 @@
       "end": 175200000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "packet-flood",
         "protocol-mix-shift"
@@ -422,8 +422,8 @@
       "end": 175800000,
       "flows": 1,
       "detected": true,
-      "mapped": false,
-      "strictDetected": false,
+      "mapped": true,
+      "strictDetected": true,
       "detectors": [
         "packet-flood",
         "protocol-mix-shift"
