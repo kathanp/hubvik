@@ -78,6 +78,26 @@ test('parses dns, ssl, http, and bacnet lines', () => {
   assert.strictEqual(write.device, 'ahu-1');
 });
 
+test('parses ICS and MQTT logs', () => {
+  const id = { orig_h: '10.0.0.2', resp_h: '10.0.0.50' };
+  const cases = [
+    ['modbus', { func: 'read', address: '' }, 'modbus', 'read', undefined],
+    ['dnp3', { fc_request: 'read' }, 'dnp3', 'read', undefined],
+    ['s7comm', { rosctr: 'job' }, 's7', 'job', undefined],
+    ['enip', {}, 'enip', 'read', undefined],
+    ['mqtt_connect', {}, 'mqtt', 'CONNECT', undefined],
+    ['mqtt_subscribe', { topics: ['floor/+/set'] }, 'mqtt', 'SUBSCRIBE', 'floor/+/set'],
+    ['mqtt_publish', { topic: 'floor/1' }, 'mqtt', 'PUBLISH', 'floor/1'],
+  ];
+  for (const [log, extra, proto, op, target] of cases) {
+    const parser = createParser({ log, now: () => 9 });
+    const [event] = parser.write(JSON.stringify({ ts: 1, id, ...extra }));
+    assert.strictEqual(event.proto, proto, log);
+    assert.strictEqual(event.op, op, log);
+    assert.strictEqual(event.target, target, log);
+  }
+});
+
 test('rejects an unknown log name and a broken line', () => {
   assert.throws(() => createParser({ log: 'weird' }), /zeek log is invalid/);
   const parser = createParser({ log: 'conn' });

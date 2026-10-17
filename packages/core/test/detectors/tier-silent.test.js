@@ -95,6 +95,15 @@ test('T4 stays quiet for a day and alerts after 26 hours', () => {
   assert.strictEqual(hit.data.tier, 'T4');
 });
 
+test('a tick before any event does not warn about unseen tiers', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  /** @type {string[]} */
+  const codes = [];
+  engine.on('warning', (warning) => codes.push(warning.code));
+  engine.tick(1_000);
+  assert.deepStrictEqual(codes, []);
+});
+
 test('a tier with no events warns once after learning and does not alert', () => {
   const engine = createEngine({ learnMs: 60_000, tiers: ['T0', 'T1'] });
   /** @type {any[]} */

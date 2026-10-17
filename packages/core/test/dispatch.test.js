@@ -69,3 +69,45 @@ test('a detector consumes list rejects an unknown event type', () => {
     /unknown event type/,
   );
 });
+
+test('a detector consumes list must be an array', () => {
+  const engine = createEngine({ learnMs: 60_000, tiers: ['T0'] });
+  assert.throws(
+    () =>
+      engine.use({
+        id: 'bad-consumes-shape',
+        version: 1,
+        meta: { consumes: 'flow' },
+        requires: ['T0'],
+        defaults: {},
+      }),
+    /consumes must be an array/,
+  );
+});
+
+test('a repeated consumes entry is dispatched once', () => {
+  /** @type {string[]} */
+  const calls = [];
+  const engine = createEngine({ learnMs: 60_000, tiers: ['T0'] });
+  engine.use(plugin('twice-dns', ['dns', 'dns'], calls));
+  engine.feed({
+    type: 'dns',
+    device: 'd',
+    ts: 0,
+    qname: 'a.example',
+    qtype: 'A',
+    rcode: 'NOERROR',
+    resolver: '10.0.0.1',
+  });
+  assert.deepEqual(calls, ['twice-dns:dns']);
+});
+
+test('feed skips dispatch when the event type has no index entry', () => {
+  /** @type {string[]} */
+  const calls = [];
+  const engine = createEngine({ learnMs: 60_000, tiers: ['T0'] });
+  engine.use(plugin('every-type', undefined, calls));
+  delete engine.byType.summary;
+  engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+  assert.deepEqual(calls, []);
+});

@@ -69,4 +69,5 @@ test('parses flow, dns, tls, http, and alert lines', () => {
   assert.strictEqual(alert.type, 'alert');
   assert.strictEqual(alert.signature, 'ET SCAN');
   assert.deepStrictEqual(parser.write('{'), []);
+  assert.deepStrictEqual(parser.write(JSON.stringify({ event_type: 'stats' })), []);
 });

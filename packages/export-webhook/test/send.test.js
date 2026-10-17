@@ -28,6 +28,19 @@ test('retries, then sends the HMAC header', async () => {
   assert.strictEqual(calls[2].headers['x-iotwarden-signature'], mac);
 });
 
+test('rejects a sender without a url and a thrown fetch', async () => {
+  assert.throws(() => createSender({ url: 'https://example.test/hook' }), /url and fetch/);
+  const sender = createSender({
+    url: 'https://example.test/hook',
+    fetch: async () => {
+      throw new Error('down');
+    },
+    maxAttempts: 1,
+    sleep: async () => {},
+  });
+  await assert.rejects(() => sender.send({ id: '1' }), /webhook failed/);
+});
+
 test('throws after the last failed attempt', async () => {
   const sender = createSender({
     url: 'https://example.test/hook',

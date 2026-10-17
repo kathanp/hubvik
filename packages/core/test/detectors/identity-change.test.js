@@ -110,6 +110,59 @@ test('identity-change keeps at most 5000 MACs', () => {
   assert.throws(() => next.importBaseline(blown), /exceeds cap/);
 });
 
+test('an allowed fingerprint is stored and a bad allow list is rejected', () => {
+  const engine = createEngine({ learnMs: 10_000, tiers: ['T4'] });
+  engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 0));
+  engine.feed({ ...dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 1), device: 'e' });
+  engine.allow('d', 'fingerprint', '9,9,9');
+  engine.allow('d', 'fingerprint', '1,3,6,12');
+  const saved = engine.exportBaseline({ createdAt: 1 });
+  assert.deepStrictEqual(saved.devices.d.detectors['identity-change'].state.allowed, [
+    '1,3,6,12',
+    '9,9,9',
+  ]);
+  const bad = JSON.parse(JSON.stringify(saved));
+  bad.devices.d.detectors['identity-change'].state.allowed = '1,3,6';
+  assert.throws(
+    () => createEngine({ learnMs: 10_000, tiers: ['T4'] }).importBaseline(bad),
+    /allowed/,
+  );
+  const huge = JSON.parse(JSON.stringify(saved));
+  huge.devices.d.detectors['identity-change'].state.allowed = Array.from(
+    { length: 5001 },
+    (_, i) => `fp-${i}`,
+  );
+  assert.throws(
+    () => createEngine({ learnMs: 10_000, tiers: ['T4'] }).importBaseline(huge),
+    /exceeds cap/,
+  );
+  const odd = JSON.parse(JSON.stringify(saved));
+  odd.devices.d.detectors['identity-change'].state.allowed = [1];
+  assert.throws(
+    () => createEngine({ learnMs: 10_000, tiers: ['T4'] }).importBaseline(odd),
+    /must be strings/,
+  );
+});
+
+test('a second device merges a new MAC into the shared fingerprint table', () => {
+  const engine = createEngine({ learnMs: 10_000, tiers: ['T4'] });
+  engine.feed(dhcp('aa:bb:cc:dd:ee:01', '1,3,6', 0));
+  engine.feed({ ...dhcp('aa:bb:cc:dd:ee:01', '1,3,6', 1), device: 'e' });
+  const saved = engine.exportBaseline({ createdAt: 1 });
+  saved.devices.e.detectors['identity-change'].state.macs.push(['aa:bb:cc:dd:ee:02', '9,9,9']);
+  saved.devices.d.detectors['identity-change'].state.macs.push(['not-a-pair']);
+  const broken = createEngine({ learnMs: 10_000, tiers: ['T4'] });
+  assert.throws(() => broken.importBaseline(JSON.parse(JSON.stringify(saved))), /pairs/);
+  saved.devices.d.detectors['identity-change'].state.macs = [['aa:bb:cc:dd:ee:01', '1,3,6']];
+  const next = createEngine({ learnMs: 10_000, tiers: ['T4'] });
+  next.importBaseline(saved);
+  next.feed(dhcp('aa:bb:cc:dd:ee:01', '1,3,6', 2));
+  next.feed({ ...dhcp('aa:bb:cc:dd:ee:02', '9,9,9', 3), device: 'e' });
+  const merged = next.exportBaseline({ createdAt: 1 });
+  const macs = merged.devices.d.detectors['identity-change'].state.macs;
+  assert.ok(macs.some((pair) => pair[0] === 'aa:bb:cc:dd:ee:02'));
+});
+
 test('identity-change survives export and import', () => {
   const engine = createEngine({ learnMs: 10_000, tiers: ['T4'] });
   engine.feed(dhcp('aa:bb:cc:dd:ee:ff', '1,3,6', 0));
