@@ -179,3 +179,11 @@ During learning the first DHCP fingerprint for a MAC is kept. A later fingerprin
 `identity-change.test.js` expects the warning during learning and an alert after lock whose previous value is `1,3,6`. The benign matrices emit no `SUSPICIOUS_LEARNING`.
 
 Fast check: 121/121 tests, duration 38381.363792 ms.
+
+## WP-8.1 — went-silent on the demo
+
+Date: 2026-10-17.
+
+The demo prints `went-silent: silent for 2h` at `tick(awake + 2h)`. That tick is two hours after the last event, and the learned limit is 15 minutes, so the camera is not sending when the alert fires. The hijack events are fed after that tick. A device that keeps the learned 5-minute cadence, ticked at each event, stays quiet. The detector was not changed.
+
+Fast check: 122/122 tests, duration 38723.986041 ms.

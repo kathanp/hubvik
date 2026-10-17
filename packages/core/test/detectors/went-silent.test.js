@@ -38,6 +38,24 @@ test('an unplugged camera alerts once inside its active hour', () => {
   assert.match(silent[0].actual, /silent for/);
 });
 
+test('a device that keeps its cadence does not alert', () => {
+  const engine = createEngine({ learnMs: 7 * 24 * 3600e3 });
+  learn(engine);
+  /** @type {any[]} */
+  const anomalies = [];
+  engine.on('anomaly', (item) => anomalies.push(item));
+  const last = START + 8 * 5 * MIN;
+  for (let i = 1; i <= 12; i++) {
+    const ts = last + i * 5 * MIN;
+    engine.feed({ device: 'cam', dst: 'video.vendor.com', bytes: 100, ts });
+    engine.tick(ts);
+  }
+  assert.deepStrictEqual(
+    anomalies.filter((item) => item.detector === 'went-silent'),
+    [],
+  );
+});
+
 test('forget and a restart at the watermark stay quiet', () => {
   const engine = createEngine({ learnMs: 7 * 24 * 3600e3 });
   learn(engine);
