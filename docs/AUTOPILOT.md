@@ -98,7 +98,7 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### ▶ CHECKPOINT A — full gate
 
-- [ ] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-A.md`. If it fails, fix before continuing; up to 3 attempts, then HARD STOP.
+- [x] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-A.md`. If it fails, fix before continuing; up to 3 attempts, then HARD STOP.
 
 ### WP-5 — `identity-change`
 
