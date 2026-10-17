@@ -20,9 +20,9 @@ Fast check after each WP. Full gate + demo at the end only.
 - [x] Every results file states: "T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised."
 
 ## WP-9.3 — CICIoT2023 joiner (unverified against real data)
-- [ ] Joiner that takes Zeek conn.log + dns.log + ssl.log produced from CICIoT2023 PCAPs and labels by the attack category of the source PCAP file. Mark "UNVERIFIED: written from documentation, not run on real data" in the joiner header and eval/README.md.
-- [ ] eval/README.md: exact zeek command to turn one PCAP into logs, then the run.mjs command.
-- [ ] Fixture test with hand-written lines only.
+- [x] Joiner that takes Zeek conn.log + dns.log + ssl.log produced from CICIoT2023 PCAPs and labels by the attack category of the source PCAP file. Mark "UNVERIFIED: written from documentation, not run on real data" in the joiner header and eval/README.md.
+- [x] eval/README.md: exact zeek command to turn one PCAP into logs, then the run.mjs command.
+- [x] Fixture test with hand-written lines only.
 
 ## WP-9.4 — Real memory in the bench
 - [ ] bench reports both memoryEstimate per device AND measured heap delta per device (node --expose-gc, process.memoryUsage().heapUsed before/after, 1,000 watching devices). Budget check uses the heap number. If over 100 KB, HARD STOP with the number; do not tune.

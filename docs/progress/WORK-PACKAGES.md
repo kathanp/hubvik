@@ -320,3 +320,9 @@ The WP-9 fixture `eval/test/fixtures/conn.log.labeled` labels one `PartOfAHorizo
 Date: 2026-10-17.
 
 Zeek logs require `#separator`, `#fields`, and `#types`. `-` and `(empty)` are unset. Rows whose `tunnel_parents`, `label`, and `detailed-label` are space-separated are accepted. Outbound rows use `id.orig_h`. Inbound rows (`local_orig` F and `local_resp` T) use `id.resp_h`. Attack intervals merge when the gap is under 5 minutes. A 2 minute gap is one instance. A 10 minute gap is two. IoT-23 results files state: T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised. D-12 records the per-row device choice.
+
+## WP-9.3 — CICIoT2023 joiner
+
+Date: 2026-10-17.
+
+`eval/ciciot2023.js` reads Zeek `conn.log`, `dns.log`, and `ssl.log` from a directory named with the source PCAP's attack category. `Benign` is benign. The joiner header and `eval/README.md` say UNVERIFIED: written from documentation, not run on real data. The README command is `zeek -C -r capture.pcap`, then `node eval/run.mjs --dataset ciciot2023 --zeek-logs <dir>`. The fixture test uses hand-written lines only. No PCAP was downloaded.

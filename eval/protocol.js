@@ -452,6 +452,9 @@ function renderMarkdown(result) {
     '',
     'Attack intervals: contiguous Malicious runs per (device, detailed-label), merged when the gap is under 5 minutes.',
     '',
+    ...(result.dataset === 'ciciot2023'
+      ? ['UNVERIFIED: written from documentation, not run on real data.', '']
+      : []),
     ...(result.tiers.length === 1 && result.tiers[0] === 'T1'
       ? ['T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised.', '']
       : []),

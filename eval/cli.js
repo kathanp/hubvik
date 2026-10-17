@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadIot23 } = require('./iot23.js');
+const { loadCiciot2023 } = require('./ciciot2023.js');
 const { evaluate, renderMarkdown, renderProposals, summaryLines } = require('./protocol.js');
 const { runEvasion, renderEvasion } = require('./evasion/scenarios.js');
 
@@ -15,8 +16,8 @@ const { runEvasion, renderEvasion } = require('./evasion/scenarios.js');
  */
 function main(argv, opts = {}) {
   const args = parseArgs(argv);
-  if (args.dataset !== 'iot23') throw new TypeError(`no joiner for dataset ${args.dataset}`);
-  const result = evaluate(loadIot23(args.zeekLogs), { tiers: ['T1'], dataset: args.dataset });
+  const loaded = loadDataset(args.dataset, args.zeekLogs);
+  const result = evaluate(loaded.rows, { tiers: loaded.tiers, dataset: args.dataset });
   result.evasion = runEvasion();
   const dir = opts.outDir || path.join(__dirname, 'results');
   fs.mkdirSync(dir, { recursive: true });
@@ -30,6 +31,18 @@ function main(argv, opts = {}) {
     for (const line of summaryLines(result)) console.log(line);
   }
   return result;
+}
+
+/**
+ * @param {string} dataset
+ * @param {string} zeekLogs
+ * @returns {{ rows: any[], tiers: string[] }}
+ */
+function loadDataset(dataset, zeekLogs) {
+  if (dataset === 'iot23') return { rows: loadIot23(zeekLogs), tiers: ['T1'] };
+  if (dataset === 'ciciot2023')
+    return { rows: loadCiciot2023(zeekLogs), tiers: ['T1', 'T2', 'T3'] };
+  throw new TypeError(`no joiner for dataset ${dataset}`);
 }
 
 /**

@@ -137,7 +137,7 @@ test('the cli writes json and markdown and rejects an unknown dataset', () => {
   assert.match(md, /n too small/);
   assert.match(md, /Thresholds were not tuned/);
   assert.strictEqual(json.evasion.length, 4);
-  assert.throws(() => main(['--dataset', 'ciciot2023', '--zeek-logs', FIXTURE]), /no joiner/);
+  assert.throws(() => main(['--dataset', 'not-a-dataset', '--zeek-logs', FIXTURE]), /no joiner/);
   const bad = path.join(dir, 'conn.log.labeled');
   fs.writeFileSync(bad, '#separator \\x09\n#fields\tts\tuid\n1\tC\n');
   assert.throws(() => loadIot23(bad), /missing label/);

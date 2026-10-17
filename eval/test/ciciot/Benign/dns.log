@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	query	qtype_name	rcode_name
+#types	time	string	addr	port	addr	port	enum	string	string	string
+1001.000	C2	10.0.0.8	40001	10.0.0.1	53	udp	video.vendor.com	A	NOERROR

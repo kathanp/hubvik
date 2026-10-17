@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	server_name	version
+#types	time	string	addr	port	addr	port	string	string
+2001.000	C4	10.0.0.8	40002	1.2.3.5	443	scan.example	TLSv13
