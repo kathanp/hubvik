@@ -258,3 +258,11 @@ Watching-state median before dispatch: 22.38 µs (gate rerun 21.04 µs). After: 
 Date: 2026-10-17.
 
 `npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then the bench. A failed step does not skip the rest. The process exits non-zero and lists every failure.
+
+## WP-8.2 — mutation fuzz
+
+Date: 2026-10-17.
+
+Every accepted mutation kept collection caps, left `Object.prototype` clean, and matched `export` → `import` → `export` with `createdAt` fixed at 1.
+
+Baseline: 100,000 inputs, 58,132 accepted, 41,868 rejected. Checkpoint: 100,000 inputs, 57,967 accepted, 42,033 rejected.

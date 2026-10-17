@@ -64,6 +64,89 @@ function mutate(root, rng) {
 }
 
 /**
+ * @param {any} value
+ * @param {number} max
+ * @param {Set<any>} seen
+ * @param {string} label
+ */
+function bound(value, max, seen, label) {
+  if (!value || typeof value !== 'object') return;
+  if (seen.has(value)) return;
+  seen.add(value);
+  if (value instanceof Map || value instanceof Set) {
+    if (value.size > max) throw new Error(`${label} collection exceeds cap`);
+    for (const item of value.values()) bound(item, max, seen, label);
+    return;
+  }
+  if (Array.isArray(value)) {
+    if (value.length > max) throw new Error(`${label} array exceeds cap`);
+    for (const item of value) bound(item, max, seen, label);
+    return;
+  }
+  for (const item of Object.values(value)) bound(item, max, seen, label);
+}
+
+/**
+ * Device, allow, suppress, and scratch collections stay inside their caps.
+ * @param {any} engine
+ * @param {string} label
+ */
+function assertCaps(engine, label) {
+  const opts = engine.opts;
+  if (engine.devices.size > opts.maxDevices) throw new Error(`${label} device cap`);
+  const collection = Math.max(opts.maxWindows, opts.maxDestinations, opts.maxAlertKeys);
+  for (const device of engine.devices.values()) {
+    if (device.suppress) {
+      for (const list of device.suppress.values()) {
+        if (list.length > opts.maxSuppress) throw new Error(`${label} suppress cap`);
+      }
+    }
+    if (device.allows) {
+      for (const set of device.allows.values()) {
+        if (set.size > opts.maxDestinations) throw new Error(`${label} allow cap`);
+      }
+    }
+    if (device.states) {
+      for (const state of device.states.values()) bound(state, collection, new Set(), label);
+    }
+  }
+  const scratch = engine.scratch;
+  const identity = scratch.get('identity-change');
+  if (identity) {
+    if (identity.macs && identity.macs.size > 5000) throw new Error(`${label} identity-change cap`);
+    if (identity.fired && identity.fired.size > 5000)
+      throw new Error(`${label} identity-change cap`);
+  }
+  const dhcp = scratch.get('dhcp-starvation');
+  if (dhcp && dhcp.macs && dhcp.macs.size > 5000) throw new Error(`${label} dhcp-starvation cap`);
+  const wave = scratch.get('fleet-wave');
+  if (wave) bound(wave, 5000, new Set(), label);
+  const arp = scratch.get('arp-spoof');
+  if (arp) bound(arp, 5000, new Set(), label);
+  if (engine.indicators && engine.indicators.length > opts.maxIndicators) {
+    throw new Error(`${label} indicator cap`);
+  }
+}
+
+/**
+ * @param {any} engine
+ * @param {'baseline' | 'checkpoint'} label
+ */
+function assertRoundTrip(engine, label) {
+  const createdAt = 1;
+  const first =
+    label === 'baseline' ? engine.exportBaseline({ createdAt }) : engine.checkpoint({ createdAt });
+  const next = createEngine({ learnMs: 0, tiers: ['T0'] });
+  if (label === 'baseline') next.importBaseline(first);
+  else next.restore(first);
+  const second =
+    label === 'baseline' ? next.exportBaseline({ createdAt }) : next.checkpoint({ createdAt });
+  if (JSON.stringify(first) !== JSON.stringify(second)) {
+    throw new Error(`${label} export/import/export mismatch`);
+  }
+}
+
+/**
  * @param {string} label
  * @param {(engine: import('../packages/core/src/index.js').Engine, value: any) => void} apply
  * @param {any} valid
@@ -99,9 +182,13 @@ function run(label, apply, valid, seed) {
     } catch (err) {
       throw new Error(`${label} accepted a value that broke feed`, { cause: err });
     }
+    assertCaps(engine, label);
+    assertRoundTrip(engine, /** @type {'baseline' | 'checkpoint'} */ (label));
     accepted += 1;
   }
-  console.log(`${label} mutation fuzz: ${N} inputs, ${accepted} accepted, ${rejected} rejected`);
+  console.log(
+    `${label} mutation fuzz: ${N} inputs, ${accepted} accepted, ${rejected} rejected, caps held, round-trip matched`,
+  );
 }
 
 const source = createEngine({ learnMs: 0, tiers: ['T0'] });
