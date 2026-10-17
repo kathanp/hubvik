@@ -332,3 +332,9 @@ Date: 2026-10-17.
 Date: 2026-10-17.
 
 `bench/run.js` prints `memoryEstimate` and the heap delta per watching device. The 100 KB check uses the heap number. `node --expose-gc bench/run.js` printed median 5.54 µs, estimate 1.19 KB/device, heap 12.27 KB/device, 1,000 devices. That is under 100 KB. Detectors were not tuned. `docs/BENCHMARKS.md` has the measured-heap column and a Raspberry Pi 4 row: not measured.
+
+## WP-9.5 — docs
+
+Date: 2026-10-17.
+
+`README.md` and `packages/core/README.md` say: Not yet evaluated on real traffic. Harness: `eval/README.md`. No detection numbers. `docs/QUESTIONS.md` asks whether IoT-23 labels other than Benign and Malicious, such as Background, should be benign.

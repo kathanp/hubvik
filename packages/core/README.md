@@ -72,6 +72,10 @@ Default enabled tier is `T0`. Pass `tiers: ['T0', 'T1', 'T2']` to turn on flow a
 - If the device is already compromised during learning, that behavior becomes "normal". Use `lock()` after reviewing the baseline.
 - A compromised gateway defeats everything.
 
+## Evaluation
+
+Not yet evaluated on real traffic. Harness: [eval/README.md](../../eval/README.md).
+
 ## License
 
 Apache-2.0

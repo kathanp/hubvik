@@ -21,3 +21,5 @@
 1. **Security contact.** `packages/core/SECURITY.md` points at GitHub private vulnerability reporting and does not list an email. What address should it use?
 
 2. **Repository URLs.** `packages/core/package.json` has no `repository`, `bugs`, or `homepage`. Phase 0 does not create a remote. Add them when the GitHub repository exists.
+
+3. **IoT-23 labels other than Benign and Malicious.** The joiner treats every `label` other than `benign` as an attack, including a future `Background` or empty detailed-label on a non-benign row. Should `Background` and `No Label` be benign instead?

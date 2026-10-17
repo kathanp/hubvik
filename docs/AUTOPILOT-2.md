@@ -29,8 +29,8 @@ Fast check after each WP. Full gate + demo at the end only.
 - [x] docs/BENCHMARKS.md table gets a "measured heap" column and a "Raspberry Pi 4: not measured" row.
 
 ## WP-9.5 — Docs
-- [ ] README and packages/core/README.md: Evaluation section says "Not yet evaluated on real traffic. Harness: eval/README.md." No numbers.
-- [ ] docs/QUESTIONS.md: add any open question about label semantics you could not resolve.
+- [x] README and packages/core/README.md: Evaluation section says "Not yet evaluated on real traffic. Harness: eval/README.md." No numbers.
+- [x] docs/QUESTIONS.md: add any open question about label semantics you could not resolve.
 
 ## Final
 - [ ] Full gate + demo. AUTOPILOT REPORT with every field filled from THIS run only (no copied values from earlier reports), plus: corpus summary line, ablation zero-unique list, evasion blind spots, beacon finding, heap per device.

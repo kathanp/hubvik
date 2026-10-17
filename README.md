@@ -10,3 +10,7 @@ The behavior spec is [`docs/SPEC.md`](docs/SPEC.md). How to feed events, indicat
 npm test
 npm run demo
 ```
+
+## Evaluation
+
+Not yet evaluated on real traffic. Harness: [eval/README.md](eval/README.md).
