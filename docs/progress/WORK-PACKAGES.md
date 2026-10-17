@@ -314,3 +314,9 @@ Date: 2026-10-17.
 Wilson uses z = 1.96. `0/0` prints `no rate`. The synthetic corpus is `eval/fixtures/conn.log.labeled`, written by `eval/fixtures/gen.mjs` with seed 20261017. Five devices each learn for 2 days, then lock. The post-lock benign remainder is 3 device-days. There are 25 labeled attack instances: horizontal scan, slow vertical scan, C2 beacon, and UDP flood. The committed report is `eval/fixtures/golden.md`. It prints a detection percentage with a Wilson interval, `n too small` on each attack type, false positives per device-day, time to detect, and the per-detector table. `eval/run.mjs` prints five summary lines. Ablation marks zero-unique detectors in `golden.proposals.md`. No detector default changed. `eval/results/evasion.md` records the four synthetic cases. The exfil case is a blind spot. The other three fired. Thresholds were not tuned.
 
 The WP-9 fixture `eval/test/fixtures/conn.log.labeled` labels one `PartOfAHorizontalPortScan` and no beacon. The beacon was not labeled, so it was not scored. That is not a missed detection.
+
+## WP-9.2 — IoT-23 parser and attack intervals
+
+Date: 2026-10-17.
+
+Zeek logs require `#separator`, `#fields`, and `#types`. `-` and `(empty)` are unset. Rows whose `tunnel_parents`, `label`, and `detailed-label` are space-separated are accepted. Outbound rows use `id.orig_h`. Inbound rows (`local_orig` F and `local_resp` T) use `id.resp_h`. Attack intervals merge when the gap is under 5 minutes. A 2 minute gap is one instance. A 10 minute gap is two. IoT-23 results files state: T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised. D-12 records the per-row device choice.

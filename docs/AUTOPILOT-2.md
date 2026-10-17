@@ -14,10 +14,10 @@ Fast check after each WP. Full gate + demo at the end only.
 - [x] eval/run.mjs prints a 5-line summary to stdout (dataset, devices, attack instances, detection, FP/device-day).
 
 ## WP-9.2 — IoT-23 parser and attack intervals
-- [ ] Parse Zeek TSV exactly: #separator, #fields, #types headers; "-" and "(empty)" as unset. Handle the labeled files where the last three columns (tunnel_parents, label, detailed-label) may be space-separated rather than tab-separated. Test both layouts with hand-written fixture lines.
-- [ ] Device = id.orig_h for outbound, id.resp_h for inbound, per capture. Document it.
-- [ ] Attack interval definition: contiguous runs of Malicious-labeled flows per (device, detailed-label), merged when gaps < 5 min. Write it in eval/README.md and in every results file header. Test with a fixture that has two runs separated by 10 min (= 2 instances) and by 2 min (= 1 instance).
-- [ ] Every results file states: "T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised."
+- [x] Parse Zeek TSV exactly: #separator, #fields, #types headers; "-" and "(empty)" as unset. Handle the labeled files where the last three columns (tunnel_parents, label, detailed-label) may be space-separated rather than tab-separated. Test both layouts with hand-written fixture lines.
+- [x] Device = id.orig_h for outbound, id.resp_h for inbound, per capture. Document it.
+- [x] Attack interval definition: contiguous runs of Malicious-labeled flows per (device, detailed-label), merged when gaps < 5 min. Write it in eval/README.md and in every results file header. Test with a fixture that has two runs separated by 10 min (= 2 instances) and by 2 min (= 1 instance).
+- [x] Every results file states: "T1 only (conn.log). DNS, TLS, link-layer and app detectors not exercised."
 
 ## WP-9.3 — CICIoT2023 joiner (unverified against real data)
 - [ ] Joiner that takes Zeek conn.log + dns.log + ssl.log produced from CICIoT2023 PCAPs and labels by the attack category of the source PCAP file. Mark "UNVERIFIED: written from documentation, not run on real data" in the joiner header and eval/README.md.

@@ -65,17 +65,23 @@ test('a benign prefix under 24 h is recorded, and 24 h is used when the capture 
   assert.strictEqual(long.rest.length, 1);
 });
 
-test('attack instances merge within 5 minutes and the detection window adds 5 minutes', () => {
-  const rows = [
+test('attack instances merge when the gap is under 5 minutes', () => {
+  const twoMin = attackIntervals('cam', [
+    { ts: 0, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+    { ts: 2 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+  ]);
+  assert.strictEqual(twoMin.length, 1);
+  assert.strictEqual(twoMin[0].flows, 2);
+  const tenMin = attackIntervals('cam', [
+    { ts: 0, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+    { ts: 10 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
+  ]);
+  assert.strictEqual(tenMin.length, 2);
+  const exact = attackIntervals('cam', [
     { ts: 0, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
     { ts: 5 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
-    { ts: 10 * 60 * 1000 + 1, malicious: true, label: 'Malicious', detailedLabel: 'C&C' },
-    { ts: 20 * 60 * 1000, malicious: true, label: 'Malicious', detailedLabel: 'DDoS' },
-  ];
-  const intervals = attackIntervals('cam', rows);
-  assert.strictEqual(intervals.length, 3);
-  assert.strictEqual(intervals[0].flows, 2);
-  assert.strictEqual(intervals[0].end, 5 * 60 * 1000);
+  ]);
+  assert.strictEqual(exact.length, 2);
 
   const interval = { device: 'cam', start: 0, end: 1000 };
   const edge = { device: 'cam', ts: 1000 + GRACE_MS, severity: 'high', detector: 'x' };

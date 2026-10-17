@@ -95,7 +95,7 @@ function attackIntervals(device, rest) {
   for (const row of rest) {
     if (!row.malicious) continue;
     const prev = out[out.length - 1];
-    if (prev && prev.detailedLabel === row.detailedLabel && row.ts - prev.end <= MERGE_MS) {
+    if (prev && prev.detailedLabel === row.detailedLabel && row.ts - prev.end < MERGE_MS) {
       prev.end = row.ts;
       prev.flows += 1;
       continue;
