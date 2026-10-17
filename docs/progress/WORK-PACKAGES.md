@@ -234,3 +234,9 @@ Date: 2026-10-17.
 `npm run gate` passed check, coverage, pack-check, and spec-coverage, then the bench exited 1. Fuzz did not run in this gate because the bench failed first.
 
 Coverage: 123/123 tests, lines 97.30%, branches 86.54%. Pack-check: core 152 files, 341715 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Bench median 21.04 µs, 2.34 KB/device, 1,000 devices.
+
+## WP-8.2 — profile
+
+Date: 2026-10-17.
+
+`node --cpu-prof` on watching-state summary `feed()` with every tier on. The top self-time functions are in `docs/BENCHMARKS.md`. `_run` is 24.3% and `_optionsFor` is 23.2%.
