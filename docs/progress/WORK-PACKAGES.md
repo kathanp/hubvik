@@ -381,6 +381,12 @@ Date: 2026-10-17.
 
 `eval/label-map.json` maps scan to recon or scan, C&C and beacon to c2, DDoS to impact or volume, and FileDownload to update. Strict detection counts a hit only when the anomaly stage or category is one of those tokens. Unmapped labels print `unmapped`. The synthetic corpus C6.2 rate stays 20/25. Strict is 13/19 = 68.4% (95% Wilson 46.0%–84.6%). The slow vertical hit is `beacon-change`, category timing, so it does not count. UdpFlood is unmapped.
 
+## WP-9.7 — 7-day bench
+
+Date: 2026-10-17.
+
+`bench/run.js` still checks the 1,000-device watching bench, then feeds 200 devices 7 days of rich class traffic, calls `lock()`, and prints heap per device and the watching-state median. This run: median 6.38 µs, heap 374.99 KB/device, 200 devices, 6,947,350 events. The same process printed the 1,000-device line as median 5.33 µs, estimate 5.70 KB/device, heap 12.27 KB/device. The 7-day heap is over 100 KB. Detectors were not tuned. HARD STOP. Item 5 was not started. The full gate and the demo were not run.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

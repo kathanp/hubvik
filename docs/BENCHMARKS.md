@@ -99,3 +99,18 @@ Fresh-state heap is `createState` measured with `node --expose-gc`. `memoryEstim
 | connection-churn        |                       57 |                     16 |            3.59 |
 | new-device              |                       41 |                     16 |            2.59 |
 | clock-jump              |                       41 |                     16 |            2.59 |
+
+## WP-9.7 — 200 devices, 7 days rich, 2026-10-17
+
+`node --expose-gc bench/run.js`, after the 1,000-device check. 200 devices, classes rotated through the simulator profiles. Each device is fed 7 days of rich traffic, then `lock()`. Heap is `heapUsed` after `global.gc()`, minus the heap before those devices were created. The watching median is 2,000 summary `feed()` calls after lock. Detectors were not tuned.
+
+The same process printed the 1,000-device line first: median 5.33 µs, estimate 5.70 KB/device, heap 12.27 KB/device.
+
+| Metric            | Budget   | Measured  |
+| ----------------- | -------- | --------- |
+| median `feed()`   | reported | 6.38 µs   |
+| memory per device | < 100 KB | 374.99 KB |
+| devices           | 200      | 200       |
+| events fed        |          | 6,947,350 |
+
+The heap is over 100 KB per device. The script exits non-zero. No threshold was changed.

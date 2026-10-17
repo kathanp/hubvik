@@ -51,3 +51,59 @@ if (median >= 10 || heapKb >= 100) {
   console.error('bench: over the x86 budget');
   process.exit(1);
 }
+
+richBench();
+
+/**
+ * 200 devices, 7 days of rich class traffic, then lock.
+ * Heap budget is 100 KB per device. The median is reported and is not a budget.
+ * @returns {void}
+ */
+function richBench() {
+  const { simulate } = require('../test/fixtures/sim');
+  const { CLASS_NAMES } = require('../test/fixtures/profiles');
+  const richDevices = 200;
+  const rich = createEngine({ learnMs: 1e14, tiers: TIERS });
+  const richBefore = heapUsed();
+  let lastTs = 0;
+  let events = 0;
+  for (let i = 0; i < richDevices; i++) {
+    const profile = CLASS_NAMES[i % CLASS_NAMES.length];
+    const id = `rich-${i}`;
+    rich.setDeviceClass(id, profile);
+    const batch = simulate({ profile, days: 7, seed: i + 1, startTs: 0, rich: true });
+    for (const event of batch) {
+      const ts = event.ts;
+      if (ts > lastTs) lastTs = ts;
+      rich.feed({ ...event, device: id });
+      events += 1;
+    }
+  }
+  rich.lock();
+  const richHeap = heapUsed() - richBefore;
+  /** @type {number[]} */
+  const richSamples = [];
+  const richCount = 2_000;
+  for (let i = 0; i < richCount; i++) {
+    const ts = lastTs + 1_000 + i;
+    const start = process.hrtime.bigint();
+    rich.feed({
+      device: `rich-${i % richDevices}`,
+      dst: 'bench.example',
+      bytes: 100,
+      ts,
+    });
+    richSamples.push(Number(process.hrtime.bigint() - start) / 1_000);
+  }
+  richSamples.sort((a, b) => a - b);
+  const richMedian = richSamples[Math.floor(richSamples.length / 2)];
+  const richStats = rich.stats();
+  const richHeapKb = richStats.devices > 0 ? richHeap / richStats.devices / 1024 : 0;
+  console.log(
+    `rich bench median ${richMedian.toFixed(2)} µs, heap ${richHeapKb.toFixed(2)} KB/device, devices ${richStats.devices}, events ${events}`,
+  );
+  if (richHeapKb >= 100) {
+    console.error(`rich bench: heap ${richHeapKb.toFixed(2)} KB/device is over 100 KB`);
+    process.exit(1);
+  }
+}

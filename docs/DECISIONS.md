@@ -13,3 +13,5 @@ D-10 | WP-8.1 | core stays 0.5.0 and C10 row 0.5 Met? records the bench miss | t
 D-11 | WP-8.2 | C10 row 0.5 Met? records the bench after dispatch | the 10 µs budget was not changed; the gate median was 6.13 µs and 1.19 KB/device
 D-12 | WP-9.2 | each conn row picks its own device | ASSUMED: "per capture" means each row in that capture, outbound `id.orig_h` and inbound `id.resp_h`, not one device for the whole file
 D-13 | WP-9.6 | evasion destinations stay in the learned /24 | ASSUMED: the /24 is only the address list in `eval/evasion/scenarios.js`. `domainFamily()` is unchanged: an IP has no family. No detector file implements a /24. Also mentioned in `eval/README.md` and `docs/progress/WORK-PACKAGES.md`. Revised in WP-9.7.
+D-14 | WP-9.7 | the 7-day rich bench is recorded over budget and the detectors are not tuned | measured heap 374.99 KB/device after lock, 200 devices, 6,947,350 events, watching median 6.38 µs. The 100 KB budget was not raised
+D-15 | WP-9.7 | each simulated bench device gets its own id | ASSUMED: every class profile names one device id, and feeding that id 200 times would collapse the heap into one device
