@@ -1,0 +1,127 @@
+'use strict';
+
+const SUFFIXES = new Set(require('../data/suffixes.json'));
+
+/**
+ * @param {string} ip
+ * @returns {number | null}
+ */
+function ipv4(ip) {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return null;
+  let value = 0;
+  for (const part of parts) {
+    if (!/^\d{1,3}$/.test(part)) return null;
+    const octet = Number(part);
+    if (octet > 255) return null;
+    value = (value * 256 + octet) >>> 0;
+  }
+  return value;
+}
+
+/**
+ * @param {number} ip
+ * @param {number} base
+ * @param {number} bits
+ * @returns {boolean}
+ */
+function inBlock(ip, base, bits) {
+  const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0;
+  return (ip & mask) === (base & mask);
+}
+
+const V4_BOGONS = [
+  ['0.0.0.0', 8],
+  ['10.0.0.0', 8],
+  ['100.64.0.0', 10],
+  ['127.0.0.0', 8],
+  ['169.254.0.0', 16],
+  ['172.16.0.0', 12],
+  ['192.0.0.0', 24],
+  ['192.0.2.0', 24],
+  ['192.168.0.0', 16],
+  ['198.18.0.0', 15],
+  ['198.51.100.0', 24],
+  ['203.0.113.0', 24],
+  ['224.0.0.0', 4],
+  ['240.0.0.0', 4],
+].map(([cidr, bits]) => ({ base: ipv4(String(cidr)), bits: Number(bits) }));
+
+/**
+ * Reserved, private, documentation, multicast, or otherwise not a global address.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isBogon(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  const v4 = ipv4(ip);
+  if (v4 != null) return V4_BOGONS.some((block) => inBlock(v4, block.base ?? 0, block.bits));
+  const lower = ip.toLowerCase();
+  if (!lower.includes(':')) return false;
+  if (lower === '::' || lower === '::1') return true;
+  if (lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd')) return true;
+  if (lower.startsWith('ff') || lower.startsWith('2001:db8:')) return true;
+  return false;
+}
+
+/**
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isPublic(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  if (ipv4(ip) == null && !ip.includes(':')) return false;
+  return !isBogon(ip);
+}
+
+/**
+ * @param {string} name
+ * @returns {boolean}
+ */
+function isIpName(name) {
+  return ipv4(name) != null || name.includes(':');
+}
+
+/**
+ * Registered domain (eTLD+1). IP addresses have no family.
+ * Single-label TLDs use the last two labels. Multi-label suffixes come from the bundled snapshot.
+ * @param {string | undefined} name
+ * @returns {string | null}
+ */
+function domainFamily(name) {
+  if (!name || isIpName(name)) return null;
+  // Scan targets such as 203.0.113.4-12 are not registrable names.
+  if (/^\d{1,3}(\.\d{1,3}){3}/.test(name)) return null;
+  const labels = name.toLowerCase().split('.').filter(Boolean);
+  if (labels.length < 2) return null;
+  const limit = Math.min(3, labels.length - 1);
+  for (let size = limit; size >= 2; size--) {
+    const suffix = labels.slice(-size).join('.');
+    if (!SUFFIXES.has(suffix)) continue;
+    const start = labels.length - size - 1;
+    if (start < 0) return labels.join('.');
+    return labels.slice(start).join('.');
+  }
+  return labels.slice(-2).join('.');
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isPrivateAnswer(value) {
+  if (typeof value !== 'string') return false;
+  const ip = value.toLowerCase();
+  if (ip === '0.0.0.0' || ip === '::' || ip === '::1') return true;
+  return isBogon(ip);
+}
+
+module.exports = {
+  ipv4,
+  inBlock,
+  isBogon,
+  isPublic,
+  isIpName,
+  domainFamily,
+  isPrivateAnswer,
+};

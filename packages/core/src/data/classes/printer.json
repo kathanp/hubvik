@@ -1,0 +1,6 @@
+{
+  "id": "printer",
+  "maxFamilies": 8,
+  "maxUploadBytesPerHour": 5000000,
+  "allowsInboundLan": false
+}

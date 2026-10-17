@@ -20,6 +20,150 @@ export interface SummaryEvent {
   ts?: number;
 }
 
+export interface FlowEvent {
+  type: 'flow';
+  device: string;
+  ts?: number;
+  srcIp?: string;
+  srcPort?: number;
+  dstIp?: string;
+  dstPort?: number;
+  proto?: string;
+  direction?: 'out' | 'in' | 'lan';
+  bytesOut?: number;
+  bytesIn?: number;
+  pktsOut?: number;
+  pktsIn?: number;
+  durationMs?: number;
+  tcpOutcome?: 'established' | 'rejected' | 'no-response' | 'reset';
+  icmpType?: number;
+  dstName?: string;
+  dst?: string;
+  bytes?: number;
+}
+
+export interface DnsAnswer {
+  type: string;
+  value: string;
+  ttl?: number;
+}
+
+export interface DnsEvent {
+  type: 'dns';
+  device: string;
+  ts?: number;
+  qname: string;
+  qtype?: string;
+  rcode?: string;
+  resolver?: string;
+  answers?: DnsAnswer[];
+}
+
+export interface DiscoveryEvent {
+  type: 'discovery';
+  device: string;
+  ts?: number;
+  proto?: 'mdns' | 'ssdp' | 'ws-discovery' | 'coap';
+  srcIp: string;
+  direction: 'out' | 'in' | 'lan';
+}
+
+export interface MappingEvent {
+  type: 'mapping';
+  device: string;
+  ts?: number;
+  proto: 'upnp' | 'nat-pmp' | 'pcp';
+  port: number;
+  externalPort?: number;
+}
+
+export interface TlsCert {
+  issuer?: string;
+  subject?: string;
+  sha256?: string;
+  selfSigned?: boolean;
+  notAfter?: number;
+}
+
+export interface TlsEvent {
+  type: 'tls';
+  device: string;
+  ts?: number;
+  dstIp: string;
+  dstPort: number;
+  sni?: string;
+  ja4?: string;
+  version?: string;
+  alpn?: string[];
+  cert?: TlsCert;
+}
+
+export interface HttpEvent {
+  type: 'http';
+  device: string;
+  ts?: number;
+  dstIp: string;
+  dstPort: number;
+  method: string;
+  host?: string;
+  path?: string;
+}
+
+export interface AppEvent {
+  type: 'app';
+  device: string;
+  ts?: number;
+  proto:
+    | 'bacnet'
+    | 'modbus'
+    | 'dnp3'
+    | 'knx'
+    | 's7'
+    | 'enip'
+    | 'mqtt'
+    | 'coap'
+    | 'rtsp'
+    | 'onvif'
+    | 'stratum'
+    | 'smtp';
+  role: 'client' | 'server';
+  peerIp: string;
+  op: string;
+  target?: string;
+  value?: number | string;
+  result?: 'ok' | 'error' | 'reject';
+}
+
+export type FeedEvent =
+  | SummaryEvent
+  | FlowEvent
+  | DnsEvent
+  | MappingEvent
+  | TlsEvent
+  | HttpEvent
+  | AppEvent
+  | DiscoveryEvent;
+
+export interface PolicyRule {
+  id: string;
+  severity?: Severity;
+  match: {
+    direction?: 'out' | 'in' | 'lan';
+    proto?: string;
+    port?: number | number[];
+    hour?: number | number[];
+    dst?: string | string[];
+  };
+}
+
+export interface Indicator {
+  value: string;
+  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad';
+  source: string;
+  confidence?: number;
+  expiresTs?: number | null;
+}
+
 export interface Anomaly {
   id: string;
   device: string;
@@ -33,6 +177,19 @@ export interface Anomaly {
   data: Record<string, unknown>;
   attack?: string[];
   hardRule: boolean;
+  incidentId?: string;
+}
+
+export interface Incident {
+  id: string;
+  device: string;
+  stages: string[];
+  score: number;
+  severity: Severity;
+  anomalyIds: string[];
+  firstTs: number;
+  lastTs: number;
+  summary: string;
 }
 
 export interface EngineOptions {
@@ -54,6 +211,14 @@ export interface EngineOptions {
   hourOf?: (ts: number) => number;
   dayOf?: (ts: number) => number;
   detectors?: Record<string, { enabled?: boolean; severity?: Severity; [key: string]: unknown }>;
+  policy?: PolicyRule[];
+  lookup?: (ip: string) => { asn?: string | null; country?: string | null } | null;
+  gatewayIp?: string;
+  dhcpServers?: string[];
+  routers?: string[];
+  zones?: { id: string; cidr: string }[];
+  incidentWindowMs?: number;
+  browserJa4?: string[];
 }
 
 export interface Baseline {
@@ -91,8 +256,8 @@ export interface EngineStats {
 
 export class Engine extends EventEmitter {
   constructor(opts?: EngineOptions);
-  feed(event: SummaryEvent): void;
-  feedBatch(events: SummaryEvent[]): void;
+  feed(event: FeedEvent): void;
+  feedBatch(events: FeedEvent[]): void;
   flush(now?: number): void;
   lock(device?: string): void;
   relearn(device: string, opts?: { detectors?: string[] }): void;
@@ -101,8 +266,9 @@ export class Engine extends EventEmitter {
   ack(anomalyId: string): void;
   forget(device: string): void;
   setPeerGroup(device: string, groupId: string | null): void;
+  setDeviceClass(device: string, classId: string): void;
   use(detector: Detector): void;
-  loadIndicators(indicators: object[]): void;
+  loadIndicators(indicators: Indicator[]): void;
   exportBaseline(opts?: {
     devices?: string[];
     createdAt?: number;
@@ -111,6 +277,7 @@ export class Engine extends EventEmitter {
   importBaseline(baseline: object, opts?: { merge?: boolean; verify?: string | Buffer }): void;
   stats(): EngineStats;
   on(event: 'anomaly', listener: (anomaly: Anomaly) => void): this;
+  on(event: 'incident', listener: (incident: Incident) => void): this;
   on(event: 'learned', listener: (payload: { device: string; ts: number }) => void): this;
   on(
     event: 'device-new',

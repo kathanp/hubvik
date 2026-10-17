@@ -8,6 +8,11 @@ const { windowStart, planClose } = require('./window');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
 const { ALLOW_KINDS, FORBIDDEN_KEYS } = require('./constants');
+const { noteLearning } = require('./learning');
+const { buildIndex } = require('./indicators');
+const { noteIncident, ackIncident } = require('./incidents');
+const { CLASSES } = require('./classes');
+const ATTACK = require('../data/attack-map.json');
 const pkg = require('../../package.json');
 
 const PKG = `${pkg.name}@${pkg.version}`;
@@ -41,6 +46,14 @@ class Engine extends EventEmitter {
     this.allowCount = 0;
     this.suppressCount = 0;
     this._emittingWarning = false;
+    this.startedAt = null;
+    this.lastEventTs = null;
+    this.inputGapAt = null;
+    /** @type {Set<string>} */
+    this.capAlerts = new Set();
+    this.indicatorIndex = buildIndex([]);
+    this.scratch = new Map();
+    this.incidentSeq = 0;
     this._checkDetectorOptions(opts);
     this._rebuildActive();
   }
@@ -113,6 +126,7 @@ class Engine extends EventEmitter {
       seen: false,
       learnStart: null,
       peerGroup: null,
+      deviceClass: null,
       open: null,
       cursor: null,
       states: new Map(),
@@ -157,16 +171,24 @@ class Engine extends EventEmitter {
    */
   feed(raw) {
     const { event, warnings } = validateEvent(raw);
+    if (event.type === 'flow') {
+      if (!event.dst) event.dst = event.dstName || event.dstIp;
+      if (event.bytes == null) event.bytes = (event.bytesOut || 0) + (event.bytesIn || 0);
+    }
     this.eventsIn += 1;
     for (const warning of warnings) this._warn(warning.code, warning.message, event.device);
+    if (this.startedAt == null) this.startedAt = event.ts;
     const device = this._touch(event.device, event.ts);
     if (!device) return;
     if (device.open && windowStart(event.ts, this.opts.windowMs) < device.open.start) {
       this._warn('CLOCK_JUMP', 'timestamp moved backward', device.id);
+      this._clockJump(device, event);
       return;
     }
+    this.lastEventTs = event.ts;
     this._advanceTo(device, windowStart(event.ts, this.opts.windowMs));
     this._note(device, event);
+    if (device.mode === 'learning') noteLearning(this, device, event);
     if (
       device.mode === 'learning' &&
       device.learnStart != null &&
@@ -207,6 +229,7 @@ class Engine extends EventEmitter {
       );
       this._applyPlan(device, plan);
     }
+    this._inputGap(now);
   }
 
   /**
@@ -313,6 +336,30 @@ class Engine extends EventEmitter {
     if (typeof anomalyId !== 'string' || anomalyId.length === 0)
       throw new TypeError('anomaly id is invalid');
     this.acks.add(anomalyId);
+    ackIncident(this, anomalyId);
+  }
+
+  /**
+   * Tag a device with a shipped class prior. The tag applies before the first event.
+   * @param {string} deviceId
+   * @param {string} classId
+   * @returns {void}
+   */
+  setDeviceClass(deviceId, classId) {
+    if (typeof deviceId !== 'string' || deviceId.length === 0 || FORBIDDEN_KEYS.has(deviceId)) {
+      throw new TypeError('device id is invalid');
+    }
+    if (!CLASSES[classId]) throw new TypeError('unknown device class');
+    let device = this.devices.get(deviceId);
+    if (!device) {
+      if (this.devices.size >= this.opts.maxDevices) {
+        this._warn('STATE_CAP', 'device cap reached', deviceId);
+        return;
+      }
+      device = this._blank(deviceId);
+      this.devices.set(deviceId, device);
+    }
+    device.deviceClass = classId;
   }
 
   /**
@@ -372,6 +419,7 @@ class Engine extends EventEmitter {
     if (list.length > this.opts.maxIndicators) throw new Error('array indicators exceeds cap');
     const next = list.map((item) => validateIndicator(item));
     this.indicators = next;
+    this.indicatorIndex = buildIndex(next);
   }
 
   /**
@@ -392,7 +440,10 @@ class Engine extends EventEmitter {
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
         detectors[det.id] = { v: det.version, state: exported };
       }
-      devices[id] = { peerGroup: device.peerGroup, detectors };
+      /** @type {Record<string, unknown>} */
+      const row = { peerGroup: device.peerGroup, detectors };
+      if (device.deviceClass) row.deviceClass = device.deviceClass;
+      devices[id] = row;
     }
     const body = {
       version: 2,
@@ -426,12 +477,14 @@ class Engine extends EventEmitter {
       if (!device) {
         if (this.devices.size >= this.opts.maxDevices) {
           this._warn('STATE_CAP', 'device cap reached', item.id);
+          this._stateCap(item.id, 0);
           continue;
         }
         device = this._blank(item.id);
       }
       device.states = item.states;
       device.peerGroup = item.peerGroup;
+      device.deviceClass = item.deviceClass;
       device.mode = 'watching';
       device.frozen = true;
       device.seen = true;
@@ -495,6 +548,7 @@ class Engine extends EventEmitter {
     if (!device) {
       if (this.devices.size >= this.opts.maxDevices) {
         this._warn('STATE_CAP', 'device cap reached', id);
+        this._stateCap(id, ts);
         return null;
       }
       device = this._blank(id);
@@ -654,6 +708,48 @@ class Engine extends EventEmitter {
       },
       options: null,
       window: null,
+      extra: null,
+      learnMs: engine.opts.learnMs,
+      engineStarted: engine.startedAt,
+      indicatorIndex: engine.indicatorIndex,
+      policy: engine.opts.policy,
+      deviceClass: CLASSES[device.deviceClass] || null,
+      gatewayIp: engine.opts.gatewayIp,
+      dhcpServers: engine.opts.dhcpServers,
+      routers: engine.opts.routers,
+      zones: engine.opts.zones,
+      browserJa4: engine.opts.browserJa4,
+      peerGroup: device.peerGroup,
+      scratch: engine.scratch,
+      peers() {
+        const group = device.peerGroup;
+        if (!group) return [];
+        /** @type {any[]} */
+        const list = [];
+        for (const other of engine.devices.values()) {
+          if (other !== device && other.peerGroup === group && other.seen) list.push(other);
+        }
+        return list;
+      },
+      /**
+       * @param {any} other
+       * @param {string} id
+       */
+      peerState(other, id) {
+        return other && other.states ? other.states.get(id) : null;
+      },
+      /**
+       * @param {string} ip
+       */
+      lookup(ip) {
+        if (typeof engine.opts.lookup !== 'function') return null;
+        const found = engine.opts.lookup(ip);
+        if (!found || typeof found !== 'object') return null;
+        return {
+          asn: typeof found.asn === 'string' ? found.asn : null,
+          country: typeof found.country === 'string' ? found.country : null,
+        };
+      },
       /** @param {any} det */
       detectorOptions(det) {
         return engine._optionsFor(det);
@@ -683,6 +779,7 @@ class Engine extends EventEmitter {
     const list = Array.isArray(draft) ? draft : [draft];
     for (const item of list) {
       if (!item) continue;
+      if (det.id !== 'alert-storm' && this._overStorm(device, item.ts)) continue;
       if (this._muted(device, det.id, item)) {
         this.suppressCount += 1;
         continue;
@@ -704,7 +801,24 @@ class Engine extends EventEmitter {
         hardRule: Boolean(learning),
       };
       if (item.attack) anomaly.attack = item.attack.slice();
+      else if (/** @type {Record<string, string[]>} */ (ATTACK)[det.id]) {
+        anomaly.attack = /** @type {Record<string, string[]>} */ (ATTACK)[det.id].slice();
+      }
+      noteIncident(this, device, anomaly);
       this.emit('anomaly', anomaly);
+      if (
+        learning &&
+        (det.id === 'proxy-relay' || det.id === 'blockchain-c2' || det.id === 'class-violation')
+      ) {
+        this._special(
+          'supply-chain-suspect',
+          device,
+          { ts: item.ts, device: device.id },
+          { kind: 'supply', because: det.id },
+          true,
+        );
+      }
+      this._maybeDrift(device);
     }
   }
 
@@ -722,6 +836,121 @@ class Engine extends EventEmitter {
       return true;
     }
     return false;
+  }
+
+  /**
+   * After a large download, several new behaviors are one incident with two explanations.
+   * @param {any} device
+   */
+  _maybeDrift(device) {
+    if (device.postDrift || !device.incident) return;
+    const names = device.incident.detectors || [];
+    if (!names.some((/** @type {string} */ name) => name.startsWith('update-'))) return;
+    const others = names.filter(
+      (/** @type {string} */ name) => !name.startsWith('update-') && name !== 'post-update-drift',
+    );
+    if (others.length < 3) return;
+    device.postDrift = true;
+    this._special(
+      'post-update-drift',
+      device,
+      { ts: device.incident.lastTs, device: device.id },
+      {
+        kind: 'post-update-drift',
+        others: others.length,
+        updateId: names.find((/** @type {string} */ name) => name.startsWith('update-')),
+      },
+      false,
+    );
+  }
+
+  /**
+   * @param {any} device
+   * @param {any} event
+   */
+  _clockJump(device, event) {
+    this._special('clock-jump', device, event, { jump: 'backward' }, device.mode === 'learning');
+  }
+
+  /**
+   * @param {string} id
+   * @param {number} ts
+   */
+  _stateCap(id, ts) {
+    if (this.capAlerts.has(id)) return;
+    this.capAlerts.add(id);
+    const device = this.devices.get(id) || { id, suppress: new Map(), states: new Map() };
+    this._special(
+      'state-cap',
+      device,
+      { ts, device: id },
+      { kind: 'state-cap', cap: 'devices' },
+      false,
+    );
+  }
+
+  /**
+   * @param {number} now
+   */
+  _inputGap(now) {
+    if (this.lastEventTs == null) return;
+    const gap = now - this.lastEventTs;
+    const span = this.opts.maxWindows * this.opts.windowMs;
+    if (gap < 24 * 3600e3 || gap > span) return;
+    if (this.inputGapAt === this.lastEventTs) return;
+    this.inputGapAt = this.lastEventTs;
+    const device = { id: 'engine', suppress: new Map(), states: new Map() };
+    this._special('input-gap', device, { ts: now, gapMs: gap }, { kind: 'input-gap' }, false);
+  }
+
+  /**
+   * @param {any} device
+   * @param {number} ts
+   * @returns {boolean}
+   */
+  _overStorm(device, ts) {
+    const det = this.byId.get('alert-storm');
+    if (!det || !this.detectorStatus['alert-storm'] || !this.detectorStatus['alert-storm'].active) {
+      return false;
+    }
+    const minute = Math.floor((ts || 0) / 60_000);
+    if (device.stormMinute !== minute) {
+      device.stormMinute = minute;
+      device.stormCount = 0;
+      device.stormSent = false;
+    }
+    device.stormCount += 1;
+    const limit = this._optionsFor(det).maxPerMinute;
+    if (device.stormCount <= limit) return false;
+    if (!device.stormSent) {
+      device.stormSent = true;
+      this._special(
+        'alert-storm',
+        device,
+        { ts, count: device.stormCount },
+        { kind: 'alert-storm' },
+        false,
+      );
+    }
+    return true;
+  }
+
+  /**
+   * @param {string} id
+   * @param {any} device
+   * @param {any} event
+   * @param {any} extra
+   * @param {boolean} learning
+   */
+  _special(id, device, event, extra, learning) {
+    const det = this.byId.get(id);
+    const status = this.detectorStatus[id];
+    if (!det || !status || !status.active) return;
+    const ctx = this._ctx(device, learning, event.ts || 0);
+    ctx.extra = extra;
+    ctx.options = this._optionsFor(det);
+    const state = device.states ? this._state(device, det) : {};
+    this._take(device, det, det.check(state, event, ctx), learning);
   }
 
   /**

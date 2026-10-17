@@ -14,7 +14,7 @@
     "types": "tsc -p tsconfig.json --noEmit",
     "pack:check": "node scripts/pack-check.mjs",
     "check": "npm run lint && npm run types && npm run test",
-    "gate": "npm run check && npm run coverage && npm run pack:check && npm run bench && npm run fuzz",
+    "gate": "npm run check && npm run coverage && npm run pack:check && node scripts/spec-coverage.mjs && npm run bench && npm run fuzz",
     "bench": "node scripts/noop.mjs bench",
     "fuzz": "node scripts/noop.mjs fuzz",
     "demo": "node packages/core/examples/camera-botnet.js"

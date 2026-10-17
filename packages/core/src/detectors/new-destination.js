@@ -6,6 +6,12 @@ const { assertSafeKeys } = require('../engine/validate');
 const detector = {
   id: 'new-destination',
   version: 1,
+  meta: {
+    rel: '0.1',
+    fpRisk: 'Medium: CDNs rotate hostnames',
+    attack: ['T1071'],
+    stage: 'c2',
+  },
   requires: ['T0'],
   category: 'destination',
   defaults: { maxNewDstPerWindow: 3, severity: 'medium' },

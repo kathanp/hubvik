@@ -7,6 +7,12 @@ const { readSamples } = require('./samples');
 const detector = {
   id: 'fan-out',
   version: 1,
+  meta: {
+    rel: '0.1',
+    fpRisk: 'Low',
+    attack: ['T1046'],
+    stage: 'recon',
+  },
   requires: ['T0'],
   category: 'scan',
   defaults: { minFanout: 10, fanoutFactor: 3, severity: 'high' },

@@ -1,0 +1,24 @@
+{
+  "name": "@iotwarden/adapter-suricata-eve",
+  "version": "0.1.0",
+  "description": "Parse Suricata EVE JSON into iotwarden events.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "suricata",
+    "eve"
+  ]
+}

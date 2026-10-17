@@ -1,0 +1,24 @@
+{
+  "name": "@iotwarden/adapter-dnsmasq",
+  "version": "0.2.0",
+  "description": "Parse dnsmasq log-queries=extra lines into iotwarden DNS events.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "dnsmasq",
+    "dns"
+  ]
+}

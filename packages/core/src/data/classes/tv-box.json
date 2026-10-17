@@ -1,0 +1,6 @@
+{
+  "id": "tv-box",
+  "maxFamilies": 40,
+  "maxUploadBytesPerHour": 50000000,
+  "allowsInboundLan": false
+}

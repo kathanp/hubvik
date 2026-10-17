@@ -10,6 +10,33 @@ test('unknown event type throws and does not create a device', () => {
   assert.strictEqual(engine.stats().devices, 0);
 });
 
+test('a discovery event is accepted and a bad proto is dropped', () => {
+  const engine = createEngine({ learnMs: 0 });
+  /** @type {{ code: string, message: string }[]} */
+  const warnings = [];
+  engine.on('warning', (warning) => warnings.push(warning));
+  engine.feed({
+    type: 'discovery',
+    device: 'd',
+    ts: 1000,
+    proto: 'ssdp',
+    srcIp: '10.0.0.9',
+    direction: 'lan',
+  });
+  engine.feed({
+    type: 'discovery',
+    device: 'd',
+    ts: 2000,
+    proto: 'bgp',
+    srcIp: '10.0.0.9',
+    direction: 'lan',
+  });
+  assert.strictEqual(engine.stats().events, 2);
+  assert.ok(
+    warnings.some((warning) => warning.code === 'FIELD_DROPPED' && /proto/.test(warning.message)),
+  );
+});
+
 test('malformed optional fields are dropped and counted', () => {
   const engine = createEngine({ learnMs: 0, windowMs: 60_000 });
   const warnings = [];
@@ -174,7 +201,11 @@ test('anomaly ids are monotonic strings', () => {
   engine.feed({ device: 'd', dst: 'b.example', bytes: 1, ts: 120_000 });
   engine.feed({ device: 'd', dst: 'c.example', bytes: 1, ts: 180_000 });
   const ids = anomalies.map((item) => Number(item.id));
-  assert.deepStrictEqual(ids, [1, 2]);
+  assert.deepStrictEqual(
+    anomalies.map((item) => item.detector),
+    ['new-destination', 'new-domain-family', 'new-destination', 'new-domain-family'],
+  );
+  assert.deepStrictEqual(ids, [1, 2, 3, 4]);
 });
 
 function DAY_MS() {

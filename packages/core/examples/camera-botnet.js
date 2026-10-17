@@ -12,6 +12,11 @@ engine.on('anomaly', (a) =>
     `[${a.severity.toUpperCase()}] ${a.device} ${a.detector}: ${a.actual} (expected ${a.expected})`,
   ),
 );
+/** @type {any} */
+let incident = null;
+engine.on('incident', (item) => {
+  incident = item;
+});
 
 // Learn: active 08:00-20:00, two vendor hosts
 for (let day = 0; day < 7; day++)
@@ -32,3 +37,8 @@ for (let i = 0; i < 400; i++)
   engine.feed({ device: 'cam-1', dst: `203.0.113.${i % 250}-${i}`, bytes: 60, ts: t + 1000 + i });
 engine.feed({ device: 'cam-1', dst: 'c2.botnet.example', bytes: 80e6, ts: t + 2000 }); // floods
 engine.flush();
+if (incident) {
+  console.log(
+    `\nINCIDENT ${incident.severity} score ${incident.score} stages ${incident.stages.join(', ')}: ${incident.summary}`,
+  );
+}

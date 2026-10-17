@@ -2,6 +2,7 @@
 
 const { createHmac, timingSafeEqual } = require('node:crypto');
 const { assertSafeKeys } = require('./validate');
+const { CLASSES } = require('./classes');
 const { FORBIDDEN_KEYS } = require('./constants');
 
 /**
@@ -64,7 +65,7 @@ function attachMeta(body, meta) {
  * Validate a whole baseline before any engine state changes.
  * @param {any} raw
  * @param {{ windowMs: number, registry: any[], caps: any, verify?: string | Buffer }} ctx
- * @returns {{ id: string, peerGroup: string | null, states: Map<string, object> }[]}
+ * @returns {{ id: string, peerGroup: string | null, deviceClass: string | null, states: Map<string, object> }[]}
  */
 function prepareImport(raw, ctx) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
@@ -80,7 +81,7 @@ function prepareImport(raw, ctx) {
   }
   assertSafeKeys(raw.devices, 'devices');
   const byId = new Map(ctx.registry.map((det) => [det.id, det]));
-  /** @type {{ id: string, peerGroup: string | null, states: Map<string, object> }[]} */
+  /** @type {{ id: string, peerGroup: string | null, deviceClass: string | null, states: Map<string, object> }[]} */
   const prepared = [];
   for (const id of Object.keys(raw.devices)) {
     if (FORBIDDEN_KEYS.has(id) || id.length === 0 || id.length > ctx.caps.maxString) {
@@ -117,7 +118,14 @@ function prepareImport(raw, ctx) {
       }
       peerGroup = record.peerGroup;
     }
-    prepared.push({ id, peerGroup, states });
+    let deviceClass = null;
+    if (raw.version === 2 && record.deviceClass != null) {
+      if (typeof record.deviceClass !== 'string' || !CLASSES[record.deviceClass]) {
+        throw new Error('device class is invalid');
+      }
+      deviceClass = record.deviceClass;
+    }
+    prepared.push({ id, peerGroup, deviceClass, states });
   }
   return prepared;
 }

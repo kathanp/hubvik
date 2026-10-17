@@ -1,0 +1,24 @@
+{
+  "name": "@iotwarden/adapter-conntrack",
+  "version": "0.2.0",
+  "description": "Parse conntrack list and event lines into iotwarden flow events.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "conntrack",
+    "netfilter"
+  ]
+}

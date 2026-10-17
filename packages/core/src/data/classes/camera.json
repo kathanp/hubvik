@@ -1,0 +1,6 @@
+{
+  "id": "camera",
+  "maxFamilies": 12,
+  "maxUploadBytesPerHour": 200000000,
+  "allowsInboundLan": false
+}

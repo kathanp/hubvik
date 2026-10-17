@@ -1,0 +1,23 @@
+{
+  "name": "@iotwarden/export-ocsf",
+  "version": "0.1.0",
+  "description": "Map an iotwarden anomaly to an OCSF Detection Finding.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "ocsf"
+  ]
+}

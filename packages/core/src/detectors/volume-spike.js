@@ -7,6 +7,12 @@ const { readSamples } = require('./samples');
 const detector = {
   id: 'volume-spike',
   version: 1,
+  meta: {
+    rel: '0.1',
+    fpRisk: 'Medium for cameras',
+    attack: ['T1498'],
+    stage: 'impact',
+  },
   requires: ['T0'],
   category: 'volume',
   defaults: { sigma: 4, minBytes: 1_000_000, peakFactor: 2, severity: 'high' },

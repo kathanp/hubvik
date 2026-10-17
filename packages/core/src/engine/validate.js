@@ -2,6 +2,7 @@
 
 const { domainToASCII } = require('node:url');
 const { TIER_SET, FORBIDDEN_KEYS, SEVERITY_NAMES, DEFAULTS } = require('./constants');
+const { ipv4 } = require('./net');
 
 /**
  * @param {string} key
@@ -123,8 +124,9 @@ function validateEvent(raw) {
   if (type === 'tls') return { event: tlsEvent(raw, ts, warnings), warnings };
   if (type === 'http') return { event: httpEvent(raw, ts, warnings), warnings };
   if (type === 'arp' || type === 'dhcp' || type === 'ra' || type === 'discovery') {
-    return { event: linkEvent(raw, type, ts), warnings };
+    return { event: linkEvent(raw, type, ts, warnings), warnings };
   }
+  if (type === 'mapping') return { event: mappingEvent(raw, ts), warnings };
   if (type === 'app') return { event: appEvent(raw, ts, warnings), warnings };
   throw new TypeError(`unknown event type ${type}`);
 }
@@ -194,6 +196,7 @@ function flowEvent(raw, ts, warnings) {
     proto === 'udp' ||
     proto === 'icmp' ||
     proto === 'gre' ||
+    proto === 'esp' ||
     (typeof proto === 'number' && proto >= 0);
   if (!protoOk) throw new TypeError('flow proto is invalid');
   /** @type {Record<string, any>} */
@@ -218,6 +221,11 @@ function flowEvent(raw, ts, warnings) {
     const ok = ['established', 'rejected', 'no-response', 'reset'];
     if (ok.includes(raw.tcpOutcome)) event.tcpOutcome = raw.tcpOutcome;
     else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.tcpOutcome' });
+  }
+  if (raw.icmpType != null) {
+    if (Number.isInteger(raw.icmpType) && raw.icmpType >= 0 && raw.icmpType <= 255) {
+      event.icmpType = raw.icmpType;
+    } else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.icmpType' });
   }
   if (raw.dstName != null) {
     const name = normalizeName(raw.dstName, 255);
@@ -291,6 +299,31 @@ function tlsEvent(raw, ts, warnings) {
     if (typeof raw.ja4 === 'string' && raw.ja4.length <= 255) event.ja4 = raw.ja4;
     else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped tls.ja4' });
   }
+  if (typeof raw.version === 'string' && raw.version.length > 0 && raw.version.length <= 32) {
+    event.version = raw.version;
+  } else if (raw.version != null) {
+    warnings.push({ code: 'FIELD_DROPPED', message: 'dropped tls.version' });
+  }
+  if (Array.isArray(raw.alpn)) {
+    event.alpn = raw.alpn
+      .filter(
+        (/** @type {unknown} */ item) =>
+          typeof item === 'string' && item.length > 0 && item.length <= 32,
+      )
+      .slice(0, 8);
+  }
+  if (raw.cert && typeof raw.cert === 'object' && !Array.isArray(raw.cert)) {
+    /** @type {Record<string, any>} */
+    const cert = {};
+    if (typeof raw.cert.issuer === 'string') cert.issuer = raw.cert.issuer.slice(0, 255);
+    if (typeof raw.cert.subject === 'string') cert.subject = raw.cert.subject.slice(0, 255);
+    if (typeof raw.cert.sha256 === 'string') cert.sha256 = raw.cert.sha256.slice(0, 64);
+    if (typeof raw.cert.selfSigned === 'boolean') cert.selfSigned = raw.cert.selfSigned;
+    if (typeof raw.cert.notAfter === 'number' && Number.isFinite(raw.cert.notAfter)) {
+      cert.notAfter = raw.cert.notAfter;
+    }
+    event.cert = cert;
+  }
   return event;
 }
 
@@ -320,12 +353,15 @@ function httpEvent(raw, ts, warnings) {
   return event;
 }
 
+const DISCOVERY_PROTOS = new Set(['mdns', 'ssdp', 'ws-discovery', 'coap']);
+
 /**
  * @param {any} raw
  * @param {string} type
  * @param {number} ts
+ * @param {{ code: string, message: string }[]} warnings
  */
-function linkEvent(raw, type, ts) {
+function linkEvent(raw, type, ts, warnings) {
   /** @type {Record<string, any>} */
   const event = { type, tier: 'T4', ts };
   if (type !== 'arp' && type !== 'dhcp' && type !== 'ra') event.device = raw.device;
@@ -339,6 +375,8 @@ function linkEvent(raw, type, ts) {
     requireFields(raw, ['mac', 'msg'], 'dhcp');
     event.mac = String(raw.mac).toLowerCase();
     event.msg = String(raw.msg);
+    if (typeof raw.serverIp === 'string') event.serverIp = raw.serverIp.slice(0, 64);
+    if (typeof raw.requestedIp === 'string') event.requestedIp = raw.requestedIp.slice(0, 64);
   } else if (type === 'ra') {
     requireFields(raw, ['srcMac', 'srcIp'], 'ra');
     event.srcMac = String(raw.srcMac).toLowerCase();
@@ -347,9 +385,10 @@ function linkEvent(raw, type, ts) {
     event.routerLifetime = typeof raw.routerLifetime === 'number' ? raw.routerLifetime : 0;
   } else {
     requireFields(raw, ['proto', 'srcIp', 'direction'], 'discovery');
-    event.proto = raw.proto;
     event.srcIp = String(raw.srcIp);
     event.direction = raw.direction;
+    if (typeof raw.proto === 'string' && DISCOVERY_PROTOS.has(raw.proto)) event.proto = raw.proto;
+    else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped discovery.proto' });
   }
   return event;
 }
@@ -368,6 +407,31 @@ const APP_PROTOS = new Set([
   'stratum',
   'smtp',
 ]);
+
+/**
+ * Host-reported UPnP, NAT-PMP, or PCP mapping.
+ * @param {any} raw
+ * @param {number} ts
+ */
+function mappingEvent(raw, ts) {
+  requireFields(raw, ['proto', 'port'], 'mapping');
+  if (raw.proto !== 'upnp' && raw.proto !== 'nat-pmp' && raw.proto !== 'pcp') {
+    throw new TypeError('mapping proto is invalid');
+  }
+  /** @type {Record<string, any>} */
+  const event = {
+    type: 'mapping',
+    tier: 'T1',
+    device: raw.device,
+    ts,
+    proto: raw.proto,
+    port: num(raw.port, 'port', { integer: true, max: 65535 }),
+  };
+  if (raw.externalPort != null) {
+    event.externalPort = num(raw.externalPort, 'externalPort', { integer: true, max: 65535 });
+  }
+  return event;
+}
 
 /**
  * @param {any} raw
@@ -500,9 +564,114 @@ function validateOptions(raw) {
     hourOf: input.hourOf ?? defaultHour,
     dayOf: input.dayOf ?? defaultDay,
     detectors,
+    policy: parsePolicy(input),
+    lookup: parseLookup(input),
+    gatewayIp: parseOptionalString(input.gatewayIp, 'gatewayIp'),
+    dhcpServers: parseStringList(input.dhcpServers, 'dhcpServers'),
+    routers: parseStringList(input.routers, 'routers'),
+    browserJa4: parseStringList(input.browserJa4, 'browserJa4'),
+    zones: parseZones(input),
+    incidentWindowMs:
+      input.incidentWindowMs == null
+        ? 30 * 60 * 1000
+        : num(input.incidentWindowMs, 'incidentWindowMs', { min: 1, integer: true }),
     explicit: new Set(Object.keys(input)),
     raw: input,
   };
+}
+
+/**
+ * @param {any} input
+ * @returns {any[]}
+ */
+/**
+ * @param {any} input
+ */
+function parseLookup(input) {
+  if (input.lookup == null) return null;
+  if (typeof input.lookup !== 'function') throw new TypeError('lookup must be a function');
+  return input.lookup;
+}
+
+/**
+ * @param {unknown} value
+ * @param {string} label
+ * @returns {string | null}
+ */
+function parseOptionalString(value, label) {
+  if (value == null) return null;
+  if (typeof value !== 'string' || value.length === 0 || value.length > 255) {
+    throw new TypeError(`${label} is invalid`);
+  }
+  return value;
+}
+
+/**
+ * @param {unknown} value
+ * @param {string} label
+ * @returns {string[]}
+ */
+function parseStringList(value, label) {
+  if (value == null) return [];
+  if (!Array.isArray(value) || value.length > 32) throw new TypeError(`${label} is invalid`);
+  return value.map((item) => {
+    if (typeof item !== 'string' || item.length === 0 || item.length > 255) {
+      throw new TypeError(`${label} is invalid`);
+    }
+    return item;
+  });
+}
+
+/**
+ * @param {any} input
+ * @returns {{ id: string, base: number, bits: number }[]}
+ */
+function parseZones(input) {
+  if (input.zones == null) return [];
+  if (!Array.isArray(input.zones) || input.zones.length > 64) {
+    throw new TypeError('zones are invalid');
+  }
+  return input.zones.map((/** @type {any} */ zone, /** @type {number} */ index) => {
+    if (!zone || typeof zone !== 'object' || Array.isArray(zone)) {
+      throw new TypeError('zone is invalid');
+    }
+    assertSafeKeys(zone, `zones[${index}]`);
+    if (typeof zone.id !== 'string' || !/^[a-z0-9-]+$/.test(zone.id)) {
+      throw new TypeError('zone id is invalid');
+    }
+    const match = /^(\d{1,3}(?:\.\d{1,3}){3})\/(\d{1,2})$/.exec(String(zone.cidr || ''));
+    const base = match ? ipv4(match[1]) : null;
+    const bits = match ? Number(match[2]) : -1;
+    if (base == null || bits < 0 || bits > 32) throw new TypeError('zone cidr is invalid');
+    return { id: zone.id, base, bits };
+  });
+}
+
+/**
+ * @param {any} input
+ * @returns {any[]}
+ */
+function parsePolicy(input) {
+  if (input.policy == null) return [];
+  if (!Array.isArray(input.policy)) throw new TypeError('policy must be an array');
+  if (input.policy.length > 256) throw new TypeError('policy exceeds cap');
+  return input.policy.map((/** @type {any} */ rule, /** @type {number} */ index) => {
+    if (!rule || typeof rule !== 'object' || Array.isArray(rule)) {
+      throw new TypeError('policy rule is invalid');
+    }
+    assertSafeKeys(rule, `policy[${index}]`);
+    if (typeof rule.id !== 'string' || !/^[a-z0-9-]+$/.test(rule.id)) {
+      throw new TypeError('policy id is invalid');
+    }
+    if (!rule.match || typeof rule.match !== 'object' || Array.isArray(rule.match)) {
+      throw new TypeError('policy match is invalid');
+    }
+    assertSafeKeys(rule.match, `policy[${index}].match`);
+    if (rule.severity != null && !SEVERITY_NAMES.has(rule.severity)) {
+      throw new TypeError('policy severity is invalid');
+    }
+    return { id: rule.id, severity: rule.severity, match: rule.match };
+  });
 }
 
 /**
@@ -513,7 +682,7 @@ function validateIndicator(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new TypeError('indicator must be an object');
   assertSafeKeys(raw, 'indicator');
-  const types = new Set(['ip', 'cidr', 'domain', 'ja4']);
+  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad']);
   if (typeof raw.value !== 'string' || raw.value.length === 0 || raw.value.length > 255) {
     throw new TypeError('indicator.value is invalid');
   }

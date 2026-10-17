@@ -1,0 +1,14 @@
+{
+  "amazon.com": "shopping",
+  "ebay.com": "shopping",
+  "walmart.com": "shopping",
+  "etsy.com": "shopping",
+  "facebook.com": "social",
+  "instagram.com": "social",
+  "tiktok.com": "social",
+  "reddit.com": "social",
+  "x.com": "social",
+  "ticketmaster.com": "ticketing",
+  "stubhub.com": "ticketing",
+  "eventbrite.com": "ticketing"
+}

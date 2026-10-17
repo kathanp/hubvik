@@ -1,0 +1,6 @@
+{
+  "id": "nas",
+  "maxFamilies": 40,
+  "maxUploadBytesPerHour": 100000000,
+  "allowsInboundLan": true
+}

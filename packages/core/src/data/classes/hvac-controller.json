@@ -1,0 +1,6 @@
+{
+  "id": "hvac-controller",
+  "maxFamilies": 8,
+  "maxUploadBytesPerHour": 2000000,
+  "allowsInboundLan": false
+}

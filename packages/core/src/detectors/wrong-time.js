@@ -6,6 +6,10 @@ const { assertSafeKeys } = require('../engine/validate');
 const detector = {
   id: 'wrong-time',
   version: 1,
+  meta: {
+    rel: '0.1',
+    fpRisk: 'Medium',
+  },
   requires: ['T0'],
   category: 'timing',
   defaults: { severity: 'low' },

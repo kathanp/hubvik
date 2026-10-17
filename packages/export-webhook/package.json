@@ -1,0 +1,23 @@
+{
+  "name": "@iotwarden/export-webhook",
+  "version": "0.1.0",
+  "description": "POST an iotwarden anomaly with retry and an HMAC header.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "webhook"
+  ]
+}

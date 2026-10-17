@@ -1,0 +1,6 @@
+{
+  "id": "plug",
+  "maxFamilies": 6,
+  "maxUploadBytesPerHour": 2000000,
+  "allowsInboundLan": false
+}

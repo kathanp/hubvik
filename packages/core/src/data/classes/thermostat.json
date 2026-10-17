@@ -1,0 +1,6 @@
+{
+  "id": "thermostat",
+  "maxFamilies": 8,
+  "maxUploadBytesPerHour": 1000000,
+  "allowsInboundLan": false
+}
