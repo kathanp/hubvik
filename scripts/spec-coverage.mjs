@@ -201,7 +201,12 @@ for (const row of rows) {
   const meta = detector.meta || {};
   if (meta.rel !== row.rel)
     fail(`${row.id} meta.rel is ${meta.rel || 'missing'}, row says ${row.rel}`);
-  if (row.severity && SEVERITIES.has(row.severity) && detector.defaults && detector.defaults.severity !== row.severity) {
+  if (
+    row.severity &&
+    SEVERITIES.has(row.severity) &&
+    detector.defaults &&
+    detector.defaults.severity !== row.severity
+  ) {
     fail(`${row.id} severity is ${detector.defaults.severity}, row says ${row.severity}`);
   }
 }
