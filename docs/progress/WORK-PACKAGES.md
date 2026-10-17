@@ -278,3 +278,9 @@ A tier in `tiers` with no events once time reaches the first event plus `learnMs
 Date: 2026-10-17.
 
 `allow(device, 'fingerprint', value)` is an allow kind. `identity-change` does not alert after lock when the presented fingerprint was allowed. A fingerprint that was not allowed still alerts.
+
+## WP-8.2 — gate
+
+Date: 2026-10-17.
+
+`npm run gate` exited 0. Check 127/127. Coverage lines 97.23%, branches 85.14%. Pack-check: core 152 files, 350905 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted / 41,868 rejected; checkpoint mutation 57,967 accepted / 42,033 rejected. Bench median 6.13 µs, 1.19 KB/device. The 10 µs budget is unchanged. C10 row 0.5 Met? records this pass. Core stays 0.5.0.

@@ -40,7 +40,7 @@ Same script as WP-8.1: all tiers, 1,000 devices, past `learnMs`, `lock()`, then 
 | Gate rerun | 21.04 µs        | 2.34 KB           |
 | After      | 6.04 µs         | 1.19 KB           |
 
-Before is the WP-8.1 measurement. After is `node bench/run.js` once `feed()` dispatches by `meta.consumes`. The script exited 0.
+Before is the WP-8.1 measurement. After is `node bench/run.js` once `feed()` dispatches by `meta.consumes`. The script exited 0. The gate re-ran it: median 6.13 µs, 1.19 KB/device.
 
 ## WP-8 — 100 devices, 2026-10-17
 

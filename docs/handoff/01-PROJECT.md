@@ -31,7 +31,7 @@ Git: `main` includes the local `0.5.0` release. Nothing is pushed and nothing is
 
 Coverage thresholds are 90% lines and 80% branches. The unpacked core cap is 500 KB. `npm run demo` prints the camera hijack and one critical incident with stages c2, recon, and impact. `went-silent` in that demo is a two-hour tick after the last heartbeat.
 
-`npm run fuzz` feeds 100,000 seeded inputs through `feed`, `importBaseline`, and `restore`, then mutates one valid baseline and one valid checkpoint. `npm run bench` feeds 1,000 devices past `learnMs`, calls `lock()`, and times watching-state `feed()`. It exits non-zero when the median is at least 10 µs or memory is at least 100 KB per device. The 2026-10-17 watching-state run was 22.38 µs and 2.34 KB/device, so the bench fails the gate. SPEC C10 row 0.5 records that miss. Core stays 0.5.0.
+`npm run fuzz` feeds 100,000 seeded inputs through `feed`, `importBaseline`, and `restore`, then mutates one valid baseline and one valid checkpoint. `npm run bench` feeds 1,000 devices past `learnMs`, calls `lock()`, and times watching-state `feed()`. It exits non-zero when the median is at least 10 µs or memory is at least 100 KB per device. The 2026-10-17 gate, after `feed()` dispatched by `meta.consumes`, measured 6.13 µs and 1.19 KB/device. The 10 µs budget is unchanged. SPEC C10 row 0.5 records that pass. Core stays 0.5.0.
 
 Local Node on the default PATH may be 18. This repo needs Node ≥ 22. The known-good binary is `~/.nvm/versions/node/v24.21.0/bin`. Put that directory first on `PATH` before `npm` or `node`.
 
@@ -92,4 +92,4 @@ Default options that matter: `learnMs` 7 days, `windowMs` 60 seconds, `tiers` `[
 
 WP-9, the evaluation harness, is not started. It needs the human's datasets. GitHub, the npm org, and trusted publishing are not started. Before any future publish the human still has to do a trademark search, create the npm org, and choose a disclosure email. `SECURITY.md` has no disclosure address yet. `repository`, `bugs`, and `homepage` are omitted until a GitHub remote exists.
 
-Spec rows still unimplemented are listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench misses the 10 µs budget; that is recorded, not tuned away.
+Spec rows still unimplemented are listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; that number is recorded, not tuned.
