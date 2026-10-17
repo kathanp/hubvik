@@ -284,3 +284,25 @@ Date: 2026-10-17.
 Date: 2026-10-17.
 
 `npm run gate` exited 0. Check 127/127. Coverage lines 97.23%, branches 85.14%. Pack-check: core 152 files, 350905 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted / 41,868 rejected; checkpoint mutation 57,967 accepted / 42,033 rejected. Bench median 6.13 µs, 1.19 KB/device. The 10 µs budget is unchanged. C10 row 0.5 Met? records this pass. Core stays 0.5.0.
+
+## WP-8.3 — dispatch differential
+
+Date: 2026-10-17.
+
+`test/diff/dispatch.test.js` replays every replay test, both attack generators, and the all-tier benign matrix for seeds 1–3. The anomaly stream and `exportBaseline()` match `test/diff/golden.json`, captured at `0a1755b` (the commit before `da835a0`). No detector stream or exported state changed, so no `consumes` list was edited. The golden file was not regenerated from HEAD.
+
+The 2.34 KB to 1.19 KB drop is recorded in `docs/BENCHMARKS.md`. `bench/run.js` did not change. The drop is `stats().memoryBytes` skipping detector states a summary feed no longer allocates. Exported state is unchanged, which is why the differential test did not flag a detector.
+
+C10 row 0.5 Met?: x86 proxy met (6.13 µs); Raspberry Pi 4 not measured; no real-traffic evaluation.
+
+## WP-8.3 — gate
+
+Date: 2026-10-17.
+
+`npm run gate` exited 0. Check 140/140. Coverage lines 97.79%, branches 86.64%. Pack-check: core 152 files, 350905 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 5.38 µs, 1.19 KB/device. The 10 µs budget is unchanged. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
+## WP-9 — eval harness
+
+Date: 2026-10-17.
+
+`eval/run.mjs --dataset iot23 --zeek-logs <dir>` follows C6.2: benign learning prefix (24 h when the capture has it, otherwise the actual span), `lock()`, detection at medium or above inside the attack interval plus 5 minutes, false positives per benign device-day, 95% Wilson intervals, `n too small` under 20 instances, per-detector ablation, and a written proposal the human decides. The IoT-23 joiner reads Zeek TSV `conn.log` with `label` and `detailed-label` and parses each row with `adapter-zeek`. The engine runs at T1 only. `eval/evasion/` runs the four synthetic cases and records what fired. Thresholds were not changed. No dataset was downloaded and no detection rate was written into a README. CICIoT2023, the IEEE DataPort ARP set, and CICIoMT2024 have no joiner yet.
