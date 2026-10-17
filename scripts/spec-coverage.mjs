@@ -190,7 +190,8 @@ for (const row of rows) {
   groups.set(row.group, list);
   const due = relValue(row.rel);
   const detector = code.get(row.id);
-  if ((due == null || (coreRel != null && due > coreRel)) && !detector) {
+  const releaseDue = Math.max(coreRel || 0, relValue('0.5') || 0);
+  if ((due == null || due > releaseDue) && !detector) {
     pending.push(`- \`${row.id}\` — Rel ${row.rel}, not yet implemented`);
     continue;
   }

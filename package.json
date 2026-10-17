@@ -15,8 +15,8 @@
     "pack:check": "node scripts/pack-check.mjs",
     "check": "npm run lint && npm run types && npm run test",
     "gate": "npm run check && npm run coverage && npm run pack:check && node scripts/spec-coverage.mjs && npm run bench && npm run fuzz",
-    "bench": "node scripts/noop.mjs bench",
-    "fuzz": "node scripts/noop.mjs fuzz",
+    "bench": "node bench/run.js",
+    "fuzz": "node fuzz/feed.fuzz.js && node fuzz/baseline.fuzz.js && node fuzz/checkpoint.fuzz.js",
     "demo": "node packages/core/examples/camera-botnet.js"
   },
   "devDependencies": {

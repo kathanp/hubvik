@@ -123,10 +123,10 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### WP-8 — Hardening and release prep
 
-- [ ] Add fuzz for feed, baseline, and checkpoint: 100,000 seeded inputs each.
-- [ ] Run the bench with all tiers on. The x86 budget is median `feed()` < 10 µs and < 100 KB per device. If the bench misses the budget, **record the real number** in `docs/BENCHMARKS.md` and log a decision. Do not tune the bench to pass.
-- [ ] `spec-coverage` passes with no 0.5 rows missing.
-- [ ] Fast check passes. Write the progress file and commit.
+- [x] Add fuzz for feed, baseline, and checkpoint: 100,000 seeded inputs each.
+- [x] Run the bench with all tiers on. The x86 budget is median `feed()` < 10 µs and < 100 KB per device. If the bench misses the budget, **record the real number** in `docs/BENCHMARKS.md` and log a decision. Do not tune the bench to pass.
+- [x] `spec-coverage` passes with no 0.5 rows missing.
+- [x] Fast check passes. Write the progress file and commit.
 
 ### WP-10 — `export-ocsf` version option
 

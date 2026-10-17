@@ -1,3 +1,3 @@
 # Benchmarks
 
-`npm run bench` is a no-op until Phase 5. That phase measures `feed()` time and per-device memory.
+`npm run bench` feeds 10,000 events with every tier enabled and prints the median `feed()` time and the estimated bytes per device.

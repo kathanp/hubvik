@@ -1,3 +1,3 @@
 # Fuzz
 
-`npm run fuzz` is a no-op until Phase 5. That phase fuzzes `feed()` and `importBaseline()`.
+`npm run fuzz` runs 100,000 seeded inputs through `feed()`, `importBaseline()`, and `restore()`.
