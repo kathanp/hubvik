@@ -53,7 +53,7 @@ function simulate(opts) {
 /**
  * Same schedule as the summaries, expressed as flow, DNS, TLS, link, and app events.
  * Summaries are omitted so window bytes are not counted twice.
- * @param {{ device: string, hosts: string[], bytes: number }} spec
+ * @param {{ device: string, hosts: string[], bytes: number, hours: number[] }} spec
  * @param {{ device: string, dst: string, bytes: number, ts: number }[]} summaries
  * @param {number} origin
  * @param {number} days
@@ -65,7 +65,7 @@ function enrich(spec, summaries, origin, days) {
   const resolver = '192.0.2.1';
   let lease = '192.0.2.10';
   for (let day = 0; day < days; day++) {
-    const dayStart = origin + day * DAY;
+    const dayStart = origin + day * DAY + spec.hours[0] * H;
     if (day === 2) lease = '192.0.2.11';
     events.push({
       type: 'dhcp',

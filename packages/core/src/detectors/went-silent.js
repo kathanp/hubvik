@@ -31,7 +31,7 @@ const detector = {
   defaults: { factor: 3, sessionMs: 6 * HOUR, severity: 'medium' },
 
   createState() {
-    return { hours: new Set(), maxGap: 0, lastTs: null };
+    return { hours: new Set(), maxGap: 0, lastTs: null, fired: false };
   },
 
   /** @param {any} dev @param {any} ev @param {any} ctx */
@@ -41,12 +41,39 @@ const detector = {
 
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
-    return note(dev, ev, ctx, true);
+    note(dev, ev, ctx, true);
+  },
+
+  /**
+   * Alert once while watching when now is inside a learned active hour.
+   * @param {any} dev
+   * @param {any} ctx
+   */
+  tick(dev, ctx) {
+    if (dev.fired || dev.lastTs == null || !(dev.maxGap > 0)) return;
+    const now = ctx.ts;
+    if (!dev.hours.has(ctx.hour(now))) return;
+    const gap = now - dev.lastTs;
+    if (gap <= dev.maxGap * ctx.options.factor) return;
+    dev.fired = true;
+    return {
+      severity: ctx.options.severity,
+      confidence: 0.7,
+      ts: now,
+      actual: `silent for ${spanLabel(gap)}`,
+      expected: `gaps <= ${spanLabel(dev.maxGap * ctx.options.factor)} during active hours`,
+      data: { gapMs: gap, maxGap: dev.maxGap },
+    };
   },
 
   /** @param {any} dev */
   exportState(dev) {
-    return { hours: [...dev.hours].sort((a, b) => a - b), maxGap: dev.maxGap, lastTs: dev.lastTs };
+    return {
+      hours: [...dev.hours].sort((a, b) => a - b),
+      maxGap: dev.maxGap,
+      lastTs: dev.lastTs,
+      fired: dev.fired,
+    };
   },
 
   /** @param {any} dev @param {any} state */
@@ -61,6 +88,7 @@ const detector = {
     if (typeof state.maxGap !== 'number' || state.maxGap < 0) throw new Error('maxGap is invalid');
     dev.maxGap = state.maxGap;
     dev.lastTs = typeof state.lastTs === 'number' ? state.lastTs : null;
+    dev.fired = Boolean(state.fired);
   },
 
   /** @param {any} dev */
@@ -69,12 +97,6 @@ const detector = {
   },
 };
 
-/**
- * @param {any} dev
- * @param {any} ev
- * @param {any} ctx
- * @param {boolean} alert
- */
 /**
  * @param {number} ms
  * @returns {string}
@@ -88,30 +110,20 @@ function spanLabel(ms) {
  * @param {any} dev
  * @param {any} ev
  * @param {any} ctx
- * @param {boolean} alert
+ * @param {boolean} watching
  */
-function note(dev, ev, ctx, alert) {
+function note(dev, ev, ctx, watching) {
   const hour = ctx.hour(ev.ts);
-  let draft;
-  if (dev.lastTs != null) {
+  if (!watching && dev.lastTs != null) {
     const gap = ev.ts - dev.lastTs;
     const skipped = skippedActive(dev.hours, dev.lastTs, ev.ts);
-    if (alert && skipped && dev.maxGap > 0 && gap > dev.maxGap * ctx.options.factor) {
-      draft = {
-        severity: ctx.options.severity,
-        confidence: 0.7,
-        ts: ev.ts,
-        actual: `silent for ${spanLabel(gap)}`,
-        expected: `gaps <= ${spanLabel(dev.maxGap * ctx.options.factor)} during active hours`,
-        data: { gapMs: gap, maxGap: dev.maxGap },
-      };
-    } else if (!alert && !skipped && gap > 0 && gap <= ctx.options.sessionMs) {
+    if (!skipped && gap > 0 && gap <= ctx.options.sessionMs) {
       dev.maxGap = Math.max(dev.maxGap, gap);
     }
   }
   if (dev.hours.size < 64) dev.hours.add(hour);
   dev.lastTs = ev.ts;
-  return draft;
+  dev.fired = false;
 }
 
 module.exports = detector;

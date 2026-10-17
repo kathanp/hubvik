@@ -27,7 +27,7 @@ engine.on('anomaly', (a) => {
   // The host product decides the action.
 });
 
-setInterval(() => engine.flush(), 60e3); // close traffic windows
+setInterval(() => engine.flush(Date.now()), 60e3); // live hosts pass now; bare flush() is end-of-input only
 
 // Learn on one gateway, ship to the fleet
 const baseline = engine.exportBaseline();

@@ -219,6 +219,7 @@ export interface EngineOptions {
   zones?: { id: string; cidr: string }[];
   incidentWindowMs?: number;
   browserJa4?: string[];
+  reorderMs?: number;
 }
 
 export interface Baseline {
@@ -251,6 +252,7 @@ export interface EngineStats {
   suppresses: number;
   acks: number;
   memoryBytes: number;
+  watermark: number | null;
   detectors: Record<string, { active: boolean; reason: string | null }>;
 }
 
@@ -259,6 +261,7 @@ export class Engine extends EventEmitter {
   feed(event: FeedEvent): void;
   feedBatch(events: FeedEvent[]): void;
   flush(now?: number): void;
+  tick(now?: number): void;
   lock(device?: string): void;
   relearn(device: string, opts?: { detectors?: string[] }): void;
   allow(device: string, kind: AllowKind, value: string): void;

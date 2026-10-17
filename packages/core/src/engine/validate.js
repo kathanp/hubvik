@@ -514,6 +514,8 @@ function validateOptions(raw) {
   }
   return {
     learnMs: input.learnMs == null ? DEFAULTS.learnMs : num(input.learnMs, 'learnMs', { min: 0 }),
+    reorderMs:
+      input.reorderMs == null ? 0 : num(input.reorderMs, 'reorderMs', { min: 0, integer: true }),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

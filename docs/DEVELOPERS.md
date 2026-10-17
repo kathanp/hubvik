@@ -80,7 +80,7 @@ engine.feed({
 
 Names are lowercased, a trailing dot is removed, and IDN is punycoded. IPv4-mapped IPv6 (`::ffff:192.0.2.1`) becomes `192.0.2.1`. A bad optional field is dropped and counted as `warning` `FIELD_DROPPED`. An unknown `type` throws.
 
-Call `flush(now)` on a timer to close finished windows. It does not close the window that `now` is still inside.
+Call `flush(now)` or `tick(now)` from a timer. Do not call a bare `flush()` while the gateway is still receiving traffic. A bare `flush()` is an end-of-input drain: it closes every open window whose start is ≤ the watermark, including the window that contains the watermark, then calls `tick(watermark)`. `flush(now)` closes only windows whose end is ≤ `now`. A backward step inside the current window is accepted even when `reorderMs` is 0. `reorderMs` extends that tolerance before the window and stays 0 through 0.5. Hosts that merge two adapters set `reorderMs: 5000`. `minLearnWindows` stays 0. 500 suits devices with a steady heartbeat; leave at 0 for devices that can be idle for days, such as printers.
 
 ## Learning
 
@@ -155,7 +155,7 @@ Defaults: 10 000 devices, 5 000 destinations per device, 5 000 alert keys, 10 08
 
 Timestamps must not go backward. A backward step is `warning` `CLOCK_JUMP` and a `clock-jump` anomaly, and the event is not applied. A forward step longer than 36 hours is also `clock-jump`. Overnight silence is not a clock jump.
 
-`input-gap` reports when `flush(now)` sees 24 hours with no accepted event, and that gap is still inside the history window (7 days by default). A flush months later does not page, because the engine cannot tell a dead pipeline from a process that just started.
+`input-gap` reports when `tick(now)` sees 24 hours with no accepted event, and that gap is still inside the history window (7 days by default). A tick at the watermark, including after a restart that has not seen a new event, does not page.
 
 ## Device class
 

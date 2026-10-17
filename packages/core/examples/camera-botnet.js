@@ -30,6 +30,9 @@ for (let day = 0; day < 7; day++)
       });
 
 console.log('Learned. Camera is now hijacked at 03:00 the next night...\n');
+const awake = T0 + 7 * DAY + 10 * H;
+engine.feed({ device: 'cam-1', dst: 'video.vendor.com', bytes: 2000, ts: awake });
+engine.tick(awake + 2 * H);
 const t = T0 + 8 * DAY + 3 * H;
 engine.feed({ device: 'cam-1', dst: 'c2.botnet.example', bytes: 300, ts: t }); // calls control server
 for (let i = 0; i < 400; i++)

@@ -48,6 +48,7 @@ class Engine extends EventEmitter {
     this._emittingWarning = false;
     this.startedAt = null;
     this.lastEventTs = null;
+    this.watermark = null;
     this.inputGapAt = null;
     /** @type {Set<string>} */
     this.capAlerts = new Set();
@@ -125,10 +126,12 @@ class Engine extends EventEmitter {
       frozen: false,
       seen: false,
       learnStart: null,
+      lastTs: null,
       peerGroup: null,
       deviceClass: null,
       open: null,
       cursor: null,
+      sealedUntil: null,
       states: new Map(),
       suppress: new Map(),
       allows: new Map(),
@@ -180,13 +183,15 @@ class Engine extends EventEmitter {
     if (this.startedAt == null) this.startedAt = event.ts;
     const device = this._touch(event.device, event.ts);
     if (!device) return;
-    if (device.open && windowStart(event.ts, this.opts.windowMs) < device.open.start) {
-      this._warn('CLOCK_JUMP', 'timestamp moved backward', device.id);
-      this._clockJump(device, event);
-      return;
-    }
-    this.lastEventTs = event.ts;
-    this._advanceTo(device, windowStart(event.ts, this.opts.windowMs));
+    const reorder = this.opts.reorderMs;
+    const start = windowStart(event.ts, this.opts.windowMs);
+    const inOpen =
+      device.open != null && event.ts >= device.open.start && event.ts < device.open.end;
+    if (!inOpen && this._rejectedTime(device, event, reorder)) return;
+    if (this.watermark == null || event.ts > this.watermark) this.watermark = event.ts;
+    this.lastEventTs = this.watermark;
+    device.lastTs = event.ts;
+    this._advanceTo(device, start);
     this._note(device, event);
     if (device.mode === 'learning') noteLearning(this, device, event);
     if (
@@ -211,13 +216,21 @@ class Engine extends EventEmitter {
   }
 
   /**
-   * Close windows whose end is <= now. An open window stays open.
+   * No argument drains every open window whose start is <= the watermark.
+   * An explicit now closes only windows whose end is <= now.
    * @param {number} [now]
    * @returns {void}
    */
-  flush(now = Date.now()) {
-    if (typeof now !== 'number' || !Number.isFinite(now))
+  flush(now) {
+    const explicit = arguments.length > 0 && now !== undefined;
+    if (explicit && (typeof now !== 'number' || !Number.isFinite(now))) {
       throw new TypeError('flush time is invalid');
+    }
+    if (!explicit) {
+      this._drain();
+      this.tick();
+      return;
+    }
     for (const device of this.devices.values()) {
       if (!device.seen) continue;
       const plan = planClose(
@@ -229,7 +242,68 @@ class Engine extends EventEmitter {
       );
       this._applyPlan(device, plan);
     }
-    this._inputGap(now);
+    this.tick(now);
+  }
+
+  /**
+   * End-of-input: close the window that contains the watermark.
+   * @returns {void}
+   */
+  _drain() {
+    const at = this.watermark;
+    if (typeof at !== 'number') return;
+    for (const device of this.devices.values()) {
+      if (!device.seen || !device.open || device.open.start > at) continue;
+      const end = device.open.end;
+      this._finalize(device, device.open);
+      device.open = null;
+      device.cursor = end;
+      device.sealedUntil = end;
+    }
+  }
+
+  /**
+   * Drop a timestamp that would reopen a closed window.
+   * A step inside the current open window is handled by the caller.
+   * @param {any} device
+   * @param {any} event
+   * @param {number} reorder
+   * @returns {boolean}
+   */
+  _rejectedTime(device, event, reorder) {
+    const tooOld =
+      (device.sealedUntil != null && event.ts < device.sealedUntil) ||
+      (device.open != null && event.ts < device.open.start - reorder);
+    if (!tooOld) return false;
+    const behind = device.lastTs != null && event.ts < device.lastTs - reorder;
+    if (behind) {
+      this._warn('CLOCK_JUMP', 'timestamp moved backward', device.id);
+      this._clockJump(device, event);
+    }
+    this._warn('LATE_EVENT', 'event is older than an open window', device.id);
+    return true;
+  }
+
+  /**
+   * Run time-based checks at now, or at the watermark when now is omitted.
+   * @param {number} [now]
+   * @returns {void}
+   */
+  tick(now) {
+    const at = now === undefined ? this.watermark : now;
+    if (at == null) return;
+    if (typeof at !== 'number' || !Number.isFinite(at)) throw new TypeError('tick time is invalid');
+    const det = this.byId.get('went-silent');
+    const status = this.detectorStatus['went-silent'];
+    if (det && status && status.active && typeof det.tick === 'function') {
+      for (const device of this.devices.values()) {
+        if (!device.seen || device.mode !== 'watching') continue;
+        const ctx = this._ctx(device, false, at);
+        ctx.options = this._optionsFor(det);
+        this._take(device, det, det.tick(this._state(device, det), ctx), false);
+      }
+    }
+    this._inputGap(at);
   }
 
   /**
@@ -265,6 +339,7 @@ class Engine extends EventEmitter {
     device.learnStart = null;
     device.open = null;
     device.cursor = null;
+    device.sealedUntil = null;
   }
 
   /**
@@ -514,6 +589,7 @@ class Engine extends EventEmitter {
       indicators: this.indicators.length,
       detectors: this.detectorStatus,
       memoryBytes,
+      watermark: this.watermark,
       allows: this.allowCount,
       suppresses: this.suppressCount,
       acks: this.acks.size,
