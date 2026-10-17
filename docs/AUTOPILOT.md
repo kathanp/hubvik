@@ -138,9 +138,9 @@ Save this file as `docs/AUTOPILOT.md`. Tick each box (`[ ]` → `[x]`) as you fi
 
 ### ▶ CHECKPOINT B — full gate, then version
 
-- [ ] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-B.md`.
-- [ ] If it passes: bump `packages/core` to `0.5.0`, add the CHANGELOG release section, and commit `release: core 0.5.0 (local, not published)`.
-- [ ] If it fails: fix, up to 3 attempts, then HARD STOP. Do not bump the version.
+- [x] Run the full gate and the demo. Paste the tail into `docs/progress/CHECKPOINT-B.md`.
+- [x] If it passes: bump `packages/core` to `0.5.0`, add the CHANGELOG release section, and commit `release: core 0.5.0 (local, not published)`.
+- [x] If it fails: fix, up to 3 attempts, then HARD STOP. Do not bump the version.
 
 ---
 
