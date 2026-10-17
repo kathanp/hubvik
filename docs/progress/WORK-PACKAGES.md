@@ -369,6 +369,12 @@ Date: 2026-10-17.
 
 The /24 rule is the destination list in `eval/evasion/scenarios.js` only. `packages/core/src/engine/net.js` `domainFamily()` still returns null for an IP. No detector changed for it. `git diff d4a742f -- test/diff/golden.json` is empty. The same sentence is in `eval/README.md`, `docs/DECISIONS.md`, and this file.
 
+## WP-9.7 — stream suppression
+
+Date: 2026-10-17.
+
+`stream-to-new-destination` no longer uses `bytesIn / bytesOut`. It stays quiet only when `egress-flood` has fired for the same device and `dstIp` in that window. A 900-packet UDP flow at 1,200 bytes per packet with 1% reverse bytes still alerts. A 60,000-packet flood alerts `egress-flood` only. SPEC Defaults shipped in 0.5 and the changelog say so.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

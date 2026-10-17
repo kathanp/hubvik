@@ -53,13 +53,18 @@ const detector = {
     row.pkts += ev.pktsOut || 0;
     row.out += ev.bytesOut || 0;
     row.inn += ev.bytesIn || 0;
-    if (row.fired || row.out <= 0 || row.inn / row.out >= ctx.options.maxRatio) return;
+    if (row.fired) {
+      noteFlood(ctx, ev.dstIp);
+      return;
+    }
+    if (row.out <= 0 || row.inn / row.out >= ctx.options.maxRatio) return;
     const absolute = row.pkts >= ctx.options.minPkts || row.out >= ctx.options.minBytesOut;
     const learnedMax = dev.learned.get(ev.dstIp) || 0;
     const floor = Math.max(ctx.options.watchFloor, ctx.options.watchFactor * learnedMax);
     const relative = !ctx.learning && row.pkts >= floor;
     if (!absolute && !relative) return;
     row.fired = true;
+    noteFlood(ctx, ev.dstIp);
     return {
       severity: ctx.options.severity,
       confidence: 0.9,
@@ -108,6 +113,18 @@ const detector = {
     return dev.learned.size * 32 + dev.rows.size * 32;
   },
 };
+
+/**
+ * Same device window, so stream-to-new-destination can stay quiet for this address.
+ * @param {any} ctx
+ * @param {string} dstIp
+ */
+function noteFlood(ctx, dstIp) {
+  const win = ctx.window;
+  if (!win || typeof dstIp !== 'string') return;
+  if (!win.egressDsts) win.egressDsts = new Set();
+  win.egressDsts.add(dstIp);
+}
 
 /**
  * @param {any} dev
