@@ -411,6 +411,12 @@ Date: 2026-10-17.
 
 Sample rings use a `Float64Array`. Destination strings are interned up to the existing destination cap. Each device reuses its open window, one idle window, and one close summary. `exportBaseline()` and the differential golden are unchanged. Fast check 155/155. After typed arrays the 16-device retained total was 398.23 KB/device; the hourly ring fell from 107.84 KB to 86.72 KB, the byte ring from 98.70 to 80.17, and the fan-out ring from 97.86 to 80.10. String interning measured 396.83 and 397.77. Window reuse measured 398.37. The 200-device run after all three: median 8.13 µs, retained 307.64 KB/device. Still over 100 KB. The budget and the device cap were not changed. Not merged to main.
 
+## WP-9.9 — when the three rings append
+
+Date: 2026-10-18.
+
+`volume-spike`, `fan-out`, and `volume-spike-hourly` append a sample only while `ctx.learning` is true. `onWindowClose` returns before any push once learning is over. `lock()` sets `frozen`, and a window is learning only when the device is not frozen and the window starts before `learnStart + learnMs`. Watching closes do not append. `relearn()` replaces the detector state with a fresh `createState()`. Default `learnMs` is 7 days and `maxWindows` is 10,080, one window per minute, so a default learning span fills each ring once and does not drop an older sample. Item 2 can proceed for all three.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.
