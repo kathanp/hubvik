@@ -17,4 +17,8 @@ D-14 | WP-9.7 | the 7-day rich bench is recorded over budget and the detectors a
 D-15 | WP-9.7 | each simulated bench device gets its own id | ASSUMED: every class profile names one device id, and feeding that id 200 times would collapse the heap into one device
 D-16 | WP-9.9 | baseline files are version 3 | APPROVED: version 2 imports are upgraded by computing streaming stats from the stored samples. Version 1 still imports
 D-17 | WP-9.9 | the differential golden comparison tolerates float noise | APPROVED: detector, device, timestamp, severity, and category match exactly. Numeric fields match within a relative difference of 1e-9. Strings that embed numbers are compared after parsing those numbers with the same tolerance. The golden file itself is not edited
+D-18 | WP-10.1 | prompt wins over SPEC on Q-13; SPEC updated to match | owner decision
+D-19 | WP-10.1 | exploit-probe-http, young-domain, ttl-anomaly ship enabled:false until WP-12, then mode:'shadow' | SPEC §0.5
+D-20 | WP-10.1 | threat-intel-match joins dedupGroup 'indicator' | SPEC Defaults shipped in 0.8
 D-21 | WP-11 | Q-8 approved: acceptance test asserts behavior instead of state.samples | owner decision
+D-22 | WP-10.1 | discovery flows behind sim option `discovery`; golden kept as the WP-11 regression oracle | owner decision

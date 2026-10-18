@@ -16,6 +16,18 @@
 
 7. **Q-7. Does `reorderMs: 0` reject a backward step inside the current window?** Resolved 2026-10-17. No. A backward step inside the current open window is always accepted. `reorderMs` only extends tolerance before that window.
 
+8. **Q-8. May the idle-window acceptance test stop reading `state.samples`?** Resolved 2026-10-18. Yes. The assertion checks the behavior: the same scenario stays quiet at 2,100,000 bytes, fires at 5,000,000, and the detector's learned count includes the idle windows. Nothing else in that test file changes. This is for WP-11.
+
+9. **Q-9. Do shadow anomalies reach exporters when a host subscribes to `anomaly` only?** Resolved 2026-10-18. No. They reach exporters only when the host subscribes to `shadow-anomaly`.
+
+10. **Q-10. When do sharded workers ship?** Resolved 2026-10-18. Sharding is built in inline mode only until a Raspberry Pi 4 bench exists.
+
+11. **Q-11. Is a text-only nftables renderer acceptable?** Resolved 2026-10-18. Response hints are text only and default off.
+
+12. **Q-12. Does `matter-new-controller` stay in 0.8?** Resolved 2026-10-18. Yes. It stays at 0.8 in shadow mode.
+
+13. **Q-13. Which text governs WP-10.1?** Resolved 2026-10-18. The newer prompt wins. `docs/SPEC.md` was updated to match it. Rel 0.8, `enabled: false` until WP-12, then `mode: 'shadow'`.
+
 ## Open
 
 1. **Security contact.** `packages/core/SECURITY.md` points at GitHub private vulnerability reporting and does not list an email. What address should it use?

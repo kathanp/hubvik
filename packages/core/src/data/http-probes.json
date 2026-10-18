@@ -1,0 +1,21 @@
+{
+  "paths": [
+    "/GponForm/diag_Form",
+    "/boaform/admin/formPing",
+    "/setup.cgi?next_file=netgear.cfg&todo=syscmd",
+    "/shell?"
+  ],
+  "markers": [
+    "$(",
+    "`",
+    ";wget ",
+    ";curl ",
+    "|sh",
+    ";sh ",
+    "&&wget",
+    "/bin/busybox",
+    "/bin/sh",
+    "chmod 777",
+    "tftp -g"
+  ]
+}

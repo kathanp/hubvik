@@ -25,6 +25,7 @@ const detector = {
     fpRisk: 'Depends on feed quality',
     attack: ['T1071'],
     stage: 'c2',
+    dedupGroup: 'indicator',
   },
   requires: ['T0'],
   category: 'destination',

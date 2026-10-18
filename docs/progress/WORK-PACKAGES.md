@@ -442,3 +442,66 @@ Check 158/158, duration 78969 ms. Coverage lines 98.01%, branches 86.20%, functi
 Date: 2026-10-17.
 
 `npm run gate` exited 0. Check 151/151. Coverage lines 97.82%, branches 86.38%. Pack-check: core 152 files, 351005 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 5.83 µs, estimate 1.19 KB/device, heap 12.33 KB/device. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
+## WP-10.1 — before
+
+Date: 2026-10-18. Measured on `wip/wp-9.7` before the early-shadow code, from `main`'s simulator and matrix.
+
+```
+profiles camera,thermostat,plug,tv-box,hvac-controller,hub,smart-tv,printer
+rich events one day 39706
+flow.ttl count 0
+http with path 0
+--- young-domain / enabled in benign matrix ---
+--- detector commits on wip ---
+```
+
+`packages/core/test/benign-matrix-tiers.test.js` did not load `young-domain` indicators and did not enable `exploit-probe-http`, `young-domain`, or `ttl-anomaly`. `git log main..HEAD` for those three detector files was empty. Benign coverage for `exploit-probe-http` was vacuous before WP-10.1. Benign coverage for `young-domain` was vacuous before WP-10.1. Benign coverage for `ttl-anomaly` was vacuous before WP-10.1.
+
+There were no detector commits to cherry-pick. The uncommitted live versions stayed in stash `hold wip/wp-9.7 uncommitted before wp-10.1`. `wip/wp-9.7` was not reverted. This work is on `wp-10.1/early-shadow`, cut from `main`.
+
+There is no `nas` profile. HTTP benign traffic is on `camera`, `printer`, and `hub` only. No `nas` profile is added in this WP.
+
+The owner kept `test/diff/golden.json` (D-22). Rich mode still sets unicast `ttl` and the HTTP paths. The two daily discovery flows emit only when `simulate({ discovery: true })`. `test/diff` leaves `discovery` false, so the golden stays the WP-11 regression oracle. The all-tier benign matrix passes `discovery: true`.
+
+## WP-10.1 — stopped on the differential golden
+
+Date: 2026-10-18.
+
+`exploit-probe-http`, `young-domain`, and `ttl-anomaly` are Rel 0.8, `enabled: false`, `mode: 'shadow'`, `hardRule: false`. `threat-intel-match` shares `dedupGroup` `indicator`. Rich `simulate()` adds `ttl` on existing flows, one daily flow to `224.0.0.251:5353` with ttl 255, one daily flow to `239.255.255.250:1900` with ttl 2, and three HTTP paths a day on `camera`, `printer`, and `hub`. There is no `nas` profile, so `nas` emits no HTTP. The benign matrix enables the three detectors and loads `fresh-example-1.test` through `fresh-example-5.test` as `young-domain`. That matrix passed: no anomaly at medium or above. `class-violation` treats a multicast, broadcast, or link-local destination as discovery, not an inbound LAN session. SPEC and the changelog record that.
+
+Default `simulate()` (no `rich`) matches `main` byte for byte: SHA-256 `981c3a2e9e19177d2b8709c67ebb85961c9b8d490ca616b1e0be6b5bb9aa5b5b` over every class, 2 days, seed 2.
+
+`test/diff/corpus.js` snapshots `simulate({ rich: true })`. Adding only `ttl`, and adding the HTTP events, leaves `benign:camera:seed1` identical to `test/diff/golden.json` (0 anomalies, every baseline key equal). The two daily discovery flows do not. On that one profile they add one `posture-listening-risky` low anomaly (listen port 1900, direction `lan`) and change the exported state of `new-destination`, `new-port`, `fan-out`, `horizontal-scan`, `lan-lateral`, `volume-spike`, `volume-spike-hourly`, `upload-ratio-shift`, `posture-listening-risky`, `protocol-mix-shift`, `connection-churn`, `new-beacon`, `long-connection`, `beacon-change`, and `fleet-wave`. The full diff reported the same detector list on every `benign:<profile>:seedN` key. Replay keys were not in that failure list. `test/diff/golden.json` was not edited. `dispatch.test.js` was not changed.
+
+## WP-10.2 — measurement, before the skip
+
+Date: 2026-10-18. Every rich profile, seed 1. Learn 7 days with `discovery: false`, `lock()`, then 2 days with `discovery: true` plus one flow to `ff02::fb:5353` inside that profile's first active hour, source `192.0.2.10`. Tiers T0–T5. The three early-shadow detectors were enabled. Counts are the extra anomalies versus the same 2 days without discovery.
+
+```
+camera new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+thermostat new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+plug new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+tv-box new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+hvac-controller new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+hub new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+smart-tv new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+printer new-destination +3 medium, new-port +2 medium, lan-lateral +3 high, posture-listening-risky +1 low
+--- totals ---
+24	medium	new-destination
+24	high	lan-lateral
+16	medium	new-port
+8	low	posture-listening-risky
+```
+
+`fan-out`, `horizontal-scan`, `vertical-scan`, and `lan-sweep` emitted nothing on these flows. They still skip group sends. `reflection-participation`, `coap-amplification`, and `ttl-anomaly` keep their own behavior and emitted nothing here. `ttl-anomaly` was enabled for the measurement.
+
+After the skip, `multicast-hygiene.test.js` shows no extra anomaly on any profile. The all-tier matrix with `discovery: true` printed `low/info anomalies: none`. `test/diff/` stayed byte-identical. The eval harness omits a detector whose `defaults.enabled` is false, so `eval/fixtures/golden.md` was not edited.
+
+## WP-10.1 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 168/168, duration 72855 ms. Coverage lines 97.85%, branches 86.30%. Pack-check: core 156 files, 369593 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 6.42 µs, estimate 5.70 KB/device, heap 12.54 KB/device, 1,000 devices.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.

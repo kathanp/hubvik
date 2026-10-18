@@ -3,6 +3,7 @@
 const { createHash } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
+const { isGroupDst } = require('../detectors/lib');
 const { LruSet } = require('./caps');
 const { validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
@@ -94,8 +95,10 @@ class Engine extends EventEmitter {
       const consumes = consumesOf(det);
       const over = this.opts.detectors[det.id];
       let status;
-      if (over && over.enabled === false)
-        status = { active: false, reason: 'disabled by configuration' };
+      const turnedOff =
+        (over && over.enabled === false) ||
+        ((!over || over.enabled == null) && det.defaults && det.defaults.enabled === false);
+      if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
       else {
         const missing = det.requires.filter((/** @type {string} */ tier) => !enabled.has(tier));
         status = missing.length
@@ -582,7 +585,9 @@ class Engine extends EventEmitter {
       /** @type {Record<string, { v: number, state: object }>} */
       const detectors = Object.create(null);
       for (const det of this.registry) {
-        const state = device.states.get(det.id) ?? this._freshState(det);
+        const stored = device.states.get(det.id);
+        if (!stored && det.defaults && det.defaults.enabled === false) continue;
+        const state = stored ?? this._freshState(det);
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
         detectors[det.id] = { v: det.version, state: exported };
       }
@@ -874,7 +879,7 @@ class Engine extends EventEmitter {
     if (!device.open) return;
     device.open.events = (device.open.events || 0) + 1;
     device.open.bytes += event.bytes || 0;
-    if (!event.dst) return;
+    if (!event.dst || isGroupDst(event.dst)) return;
     const win = device.open;
     if (win.dstSet.has(event.dst)) return;
     if (win.fanoutAlerted || win.dstSet.size >= this.opts.maxWindowDestinations) {

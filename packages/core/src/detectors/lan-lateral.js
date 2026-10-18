@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { isGroupDst } = require('./lib');
 
 const detector = {
   id: 'lan-lateral',
@@ -30,12 +31,14 @@ const detector = {
 
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
-    if (ev.type === 'flow' && ev.direction === 'lan' && ev.dstIp) dev.peers.add(ev.dstIp);
+    if (ev.type === 'flow' && ev.direction === 'lan' && ev.dstIp && !isGroupDst(ev.dstIp)) {
+      dev.peers.add(ev.dstIp);
+    }
   },
 
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
-    if (ev.type !== 'flow' || ev.direction !== 'lan' || !ev.dstIp) return;
+    if (ev.type !== 'flow' || ev.direction !== 'lan' || !ev.dstIp || isGroupDst(ev.dstIp)) return;
     if (dev.peers.has(ev.dstIp) || dev.alerted.has(ev.dstIp)) return;
     dev.alerted.add(ev.dstIp);
     return {

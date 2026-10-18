@@ -14,16 +14,16 @@ The tree is local `0.5.0`. It is not published. `1.0.0` requires the spec's eval
 
 ## Versions in the tree
 
-| Package                           | Version | Role                                                    |
-| --------------------------------- | ------- | ------------------------------------------------------- |
-| `packages/core` (`iotwarden`)     | 0.5.0   | Engine and all detectors                                |
-| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                    |
-| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                 |
-| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                          |
-| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                       |
-| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                  |
-| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                             |
-| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch` |
+| Package                           | Version | Role                                                                    |
+| --------------------------------- | ------- | ----------------------------------------------------------------------- |
+| `packages/core` (`iotwarden`)     | 0.5.0   | Engine, 109 live detectors, and 3 early shadow detectors off by default |
+| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                    |
+| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                 |
+| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                          |
+| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                                       |
+| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                                  |
+| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                             |
+| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                 |
 
 Git: `main` includes the local `0.5.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
 
@@ -92,4 +92,4 @@ Default options that matter: `learnMs` 7 days, `windowMs` 60 seconds, `tiers` `[
 
 WP-9, the evaluation harness, is not started. It needs the human's datasets. GitHub, the npm org, and trusted publishing are not started. Before any future publish the human still has to do a trademark search, create the npm org, and choose a disclosure email. `SECURITY.md` has no disclosure address yet. `repository`, `bugs`, and `homepage` are omitted until a GitHub remote exists.
 
-Spec rows still unimplemented are listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; that number is recorded, not tuned.
+Spec rows still unimplemented are the 1.x rows. The tree has 109 live detectors plus 3 early shadow detectors, off by default, listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; that number is recorded, not tuned.

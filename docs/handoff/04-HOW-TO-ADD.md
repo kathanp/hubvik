@@ -158,7 +158,7 @@ Coverage flags are `--test-coverage-lines=90 --test-coverage-branches=80`. A bra
 In order, and only the one they name:
 
 1. `identity-change` (the missing 0.4 row), using a host-supplied DHCP fingerprint string.
-2. The 1.x rows in `03-DETECTORS.md`, one at a time, each with a SPEC default and a benign run.
+2. A 1.x row needs a numeric default written into SPEC by the human first. A row with no number is not started. New detectors ship off by default until WP-12, then in shadow mode.
 3. Phase 5 from `CURSOR_BUILD.md`: fuzz, bench, eval harness. Still no invented metrics.
 4. One test file per detector id, without deleting the grouped suites, until `scripts/spec-coverage.mjs` exists and can check the SPEC tables.
 

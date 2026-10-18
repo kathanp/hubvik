@@ -57,6 +57,7 @@ test('parses flow, dns, tls, http, and alert lines', () => {
     }),
   );
   assert.strictEqual(http.method, 'GET');
+  assert.strictEqual(http.direction, 'out');
 
   const [alert] = parser.write(
     JSON.stringify({
@@ -70,4 +71,19 @@ test('parses flow, dns, tls, http, and alert lines', () => {
   assert.strictEqual(alert.signature, 'ET SCAN');
   assert.deepStrictEqual(parser.write('{'), []);
   assert.deepStrictEqual(parser.write(JSON.stringify({ event_type: 'stats' })), []);
+});
+
+test('http.direction is in when the device is dest_ip', () => {
+  const parser = createParser({ now: () => 1000 });
+  const [page] = parser.write(
+    JSON.stringify({
+      event_type: 'http',
+      src_ip: '1.2.3.4',
+      dest_ip: '10.0.0.8',
+      dest_port: 80,
+      http: { http_method: 'GET', url: '/GponForm/diag_Form' },
+    }),
+  );
+  assert.strictEqual(page.direction, 'in');
+  assert.strictEqual(page.device, '10.0.0.8');
 });
