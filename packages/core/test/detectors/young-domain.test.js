@@ -49,7 +49,7 @@ test('young-domain matches a name and a subdomain, and ignores expiry and an emp
   const hit = engine([listed]);
   /** @type {any[]} */
   const alerts = [];
-  hit.on('anomaly', (row) => {
+  hit.on('shadow-anomaly', (row) => {
     if (row.detector === 'young-domain') alerts.push(row);
   });
   hit.feed(dns('fresh.example'));
@@ -61,7 +61,7 @@ test('young-domain matches a name and a subdomain, and ignores expiry and an emp
   const child = engine([listed]);
   /** @type {any[]} */
   const childAlerts = [];
-  child.on('anomaly', (row) => {
+  child.on('shadow-anomaly', (row) => {
     if (row.detector === 'young-domain') childAlerts.push(row);
   });
   child.feed(dns('a.fresh.example'));
@@ -71,14 +71,14 @@ test('young-domain matches a name and a subdomain, and ignores expiry and an emp
   const expired = engine([{ ...listed, expiresTs: 1_000 }]);
   /** @type {any[]} */
   const none = [];
-  expired.on('anomaly', (row) => {
+  expired.on('shadow-anomaly', (row) => {
     if (row.detector === 'young-domain') none.push(row);
   });
   expired.feed(dns('fresh.example', 1_000));
   assert.deepStrictEqual(none, []);
 
   const empty = engine();
-  empty.on('anomaly', (row) => none.push(row));
+  empty.on('shadow-anomaly', (row) => none.push(row));
   empty.feed(dns('fresh.example', 2_000));
   assert.deepStrictEqual(none, []);
 });
@@ -92,15 +92,23 @@ test('young-domain and threat-intel-match score once in an incident', () => {
   const alerts = [];
   /** @type {any[]} */
   const incidents = [];
+  /** @type {any[]} */
+  const shadows = [];
   box.on('anomaly', (row) => alerts.push(row));
+  box.on('shadow-anomaly', (row) => shadows.push(row));
   box.on('incident', (row) => incidents.push(row));
   box.feed(dns('fresh.example', 5_000));
-  assert.deepStrictEqual(alerts.map((row) => row.detector).sort(), [
-    'threat-intel-match',
-    'young-domain',
-  ]);
-  assert.strictEqual(incidents.at(-1).anomalyIds.length, 2);
+  assert.deepStrictEqual(
+    alerts.map((row) => row.detector),
+    ['threat-intel-match'],
+  );
+  assert.strictEqual(shadows.length, 1);
+  assert.strictEqual(shadows[0].detector, 'young-domain');
+  assert.strictEqual(shadows[0].shadow, true);
+  assert.strictEqual(shadows[0].incidentId, undefined);
+  assert.strictEqual(incidents.at(-1).anomalyIds.length, 1);
   assert.strictEqual(incidents.at(-1).score, 80);
+  assert.strictEqual(box.stats().shadow['young-domain'].wouldJoinIncident, 1);
 });
 
 test('young-domain caps families at 1,000 and restores them', () => {
@@ -113,7 +121,7 @@ test('young-domain caps families at 1,000 and restores them', () => {
   const box = engine(names);
   /** @type {any[]} */
   const alerts = [];
-  box.on('anomaly', (row) => {
+  box.on('shadow-anomaly', (row) => {
     if (row.detector === 'young-domain') alerts.push(row);
   });
   for (let i = 0; i < 1001; i++) box.feed(dns(`n${i}.example`, 1_000 + i));
@@ -125,7 +133,7 @@ test('young-domain caps families at 1,000 and restores them', () => {
   next.importBaseline(saved);
   /** @type {any[]} */
   const again = [];
-  next.on('anomaly', (row) => {
+  next.on('shadow-anomaly', (row) => {
     if (row.detector === 'young-domain') again.push(row);
   });
   next.feed(dns('n1000.example', 2_000));

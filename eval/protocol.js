@@ -412,6 +412,7 @@ function evaluate(rows, opts) {
   }
   const ablation = Object.values(detectors)
     .filter((det) => !det.defaults || det.defaults.enabled !== false)
+    .filter((det) => !det.meta || det.meta.mode !== 'shadow')
     .map((det) => {
       const id = det.id;
       const severity = (det.defaults && det.defaults.severity) || 'medium';

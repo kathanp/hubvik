@@ -23,3 +23,4 @@ D-20 | WP-10.1 | threat-intel-match joins dedupGroup 'indicator' | SPEC Defaults
 D-21 | WP-11 | Q-8 approved: acceptance test asserts behavior instead of state.samples | owner decision
 D-22 | WP-10.1 | discovery flows behind sim option `discovery`; golden kept as the WP-11 regression oracle | owner decision
 D-23 | integration | wp-11 + wp-10.1 merged to main | owner decision
+D-24 | WP-12 | a shadow detector's own baseline key is ignored when the other side lacks it | The prompt says shadow detectors export and import, and also that `exportBaseline()` of the live detectors stays byte-identical. The differential test compares every shared id and skips a `meta.mode: 'shadow'` id that is absent from the golden. Canary state is never exported. The golden file is not edited

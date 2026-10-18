@@ -4,11 +4,16 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
-const { createEngine } = require('../../packages/core/src/index.js');
+const { createEngine, detectors } = require('../../packages/core/src/index.js');
 const { statsFromValues } = require('../../packages/core/src/engine/math');
 const { capture } = require('./corpus');
 
 const GOLDEN = path.join(__dirname, 'golden.json');
+const SHADOW = new Set(
+  Object.values(detectors)
+    .filter((det) => det.meta && det.meta.mode === 'shadow')
+    .map((det) => det.id),
+);
 
 const REL = 1e-9;
 const NUMBER = /[+-]?(?:\d+\.\d+|\d+|\.\d+)(?:[eE][+-]?\d+)?/g;
@@ -170,6 +175,7 @@ function changedDetectors(before, after) {
     for (const id of new Set([...Object.keys(a || {}), ...Object.keys(b || {})])) {
       const leftBlock = a[id];
       const rightBlock = b[id];
+      if (SHADOW.has(id) && (!leftBlock || !rightBlock)) continue;
       if (!leftBlock || !rightBlock || leftBlock.v !== rightBlock.v) {
         ids.add(id);
         continue;

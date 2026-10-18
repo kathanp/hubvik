@@ -193,6 +193,7 @@ export interface Anomaly {
   attack?: string[];
   hardRule: boolean;
   incidentId?: string;
+  shadow?: boolean;
   schema: 1;
   fingerprint: string;
   dedupGroup?: string;
@@ -234,7 +235,16 @@ export interface EngineOptions {
   maxIndicators?: number;
   hourOf?: (ts: number) => number;
   dayOf?: (ts: number) => number;
-  detectors?: Record<string, { enabled?: boolean; severity?: Severity; [key: string]: unknown }>;
+  detectors?: Record<
+    string,
+    {
+      enabled?: boolean;
+      severity?: Severity;
+      mode?: 'live' | 'shadow';
+      canary?: Record<string, unknown>;
+      [key: string]: unknown;
+    }
+  >;
   policy?: PolicyRule[];
   lookup?: (ip: string) => { asn?: string | null; country?: string | null } | null;
   gatewayIp?: string;
@@ -270,6 +280,7 @@ export interface Detector {
   category?: string;
   meta?: {
     rel?: string;
+    mode?: 'live' | 'shadow';
     fpRisk?: string;
     consumes?: Array<
       | 'summary'
@@ -303,6 +314,16 @@ export interface EngineStats {
     { windowsActive: number; families: number; suspicious: string[]; ready: boolean }
   >;
   detectors: Record<string, { active: boolean; reason: string | null }>;
+  shadow: Record<
+    string,
+    {
+      fired: number;
+      devices: number;
+      bySeverity: Record<string, number>;
+      wouldJoinIncident: number;
+    }
+  >;
+  canary: Record<string, { liveOnly: number; canaryOnly: number; both: number }>;
 }
 
 export class Engine extends EventEmitter {
@@ -331,6 +352,7 @@ export class Engine extends EventEmitter {
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
   on(event: 'anomaly', listener: (anomaly: Anomaly) => void): this;
+  on(event: 'shadow-anomaly', listener: (anomaly: Anomaly) => void): this;
   on(event: 'incident', listener: (incident: Incident) => void): this;
   on(event: 'learned', listener: (payload: { device: string; ts: number }) => void): this;
   on(

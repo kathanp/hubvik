@@ -69,6 +69,17 @@ class Engine extends EventEmitter {
     this.names = new Map();
     this.incidentSeq = 0;
     this._checkDetectorOptions(opts);
+    let canaries = 0;
+    for (const value of Object.values(opts.detectors)) {
+      if (value && value.canary != null) canaries += 1;
+    }
+    if (canaries > 4) throw new Error('at most 4 canaries');
+    /** @type {Record<string, { fired: number, devices: Set<string>, bySeverity: Record<string, number>, wouldJoinIncident: number }>} */
+    this._shadow = Object.create(null);
+    /** @type {Record<string, { liveOnly: number, canaryOnly: number, both: number }>} */
+    this._canary = Object.create(null);
+    this._promotionsNoted = false;
+    this.shadowSeq = 0;
     this._rebuildActive();
   }
 
@@ -129,7 +140,7 @@ class Engine extends EventEmitter {
     const over = this.opts.detectors[det.id];
     if (over) {
       for (const [key, value] of Object.entries(over)) {
-        if (key === 'enabled') continue;
+        if (key === 'enabled' || key === 'mode' || key === 'canary') continue;
         options[key] = value;
       }
     }
@@ -218,6 +229,7 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   feed(raw) {
+    this._notePromotions();
     const { event, warnings } = validateEvent(raw);
     if (event.type === 'flow') {
       if (!event.dst) event.dst = event.dstName || event.dstIp;
@@ -358,6 +370,7 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   tick(now) {
+    this._notePromotions();
     const at = now === undefined ? this.watermark : now;
     if (at == null) return;
     if (typeof at !== 'number' || !Number.isFinite(at)) throw new TypeError('tick time is invalid');
@@ -711,8 +724,24 @@ class Engine extends EventEmitter {
         const state = device.states.get(det.id);
         if (state && typeof det.memoryEstimate === 'function')
           memoryBytes += det.memoryEstimate(state);
+        const copy = device.canary && device.canary.get(det.id);
+        if (copy && typeof det.memoryEstimate === 'function')
+          memoryBytes += det.memoryEstimate(copy);
       }
     }
+    /** @type {Record<string, { fired: number, devices: number, bySeverity: Record<string, number>, wouldJoinIncident: number }>} */
+    const shadow = Object.create(null);
+    for (const [id, row] of Object.entries(this._shadow)) {
+      shadow[id] = {
+        fired: row.fired,
+        devices: row.devices.size,
+        bySeverity: { ...row.bySeverity },
+        wouldJoinIncident: row.wouldJoinIncident,
+      };
+    }
+    /** @type {Record<string, { liveOnly: number, canaryOnly: number, both: number }>} */
+    const canary = Object.create(null);
+    for (const [id, row] of Object.entries(this._canary)) canary[id] = { ...row };
     return buildStats({
       events: this.eventsIn,
       anomalies: this.anomalyCount,
@@ -726,6 +755,8 @@ class Engine extends EventEmitter {
       allows: this.allowCount,
       suppresses: this.suppressCount,
       acks: this.acks.size,
+      shadow,
+      canary,
     });
   }
 
@@ -917,10 +948,19 @@ class Engine extends EventEmitter {
         ctx.options = this._optionsFor(det);
         const draft = det.onWindowClose(this._state(device, det), summary, ctx);
         this._take(device, det, draft, learning, null);
+        const canary = this._canaryOverrides(det);
+        if (canary) {
+          const saved = ctx.options;
+          ctx.options = { ...saved, ...canary };
+          const copy = det.onWindowClose(this._canaryState(device, det), summary, ctx);
+          this._take(device, det, copy, learning, null, 'canary');
+          ctx.options = saved;
+        }
       }
     } finally {
       device.closing -= 1;
     }
+    this._tallyCanaries(device);
     if (win.dstSet) win.dstSet.clear();
     if (win.egressDsts) win.egressDsts.clear();
   }
@@ -946,6 +986,18 @@ class Engine extends EventEmitter {
         }
       } else if (typeof det.check === 'function') {
         this._take(device, det, det.check(state, event, ctx), learning, event);
+      }
+      const canary = this._canaryOverrides(det);
+      if (canary) {
+        const saved = ctx.options;
+        ctx.options = { ...saved, ...canary };
+        const copy = this._canaryState(device, det);
+        if (learning && !det.hardRule) {
+          if (typeof det.learn === 'function') det.learn(copy, event, ctx);
+        } else if (typeof det.check === 'function') {
+          this._take(device, det, det.check(copy, event, ctx), learning, event, 'canary');
+        }
+        ctx.options = saved;
       }
     }
   }
@@ -1033,27 +1085,151 @@ class Engine extends EventEmitter {
   }
 
   /**
+   * @param {any} det
+   * @returns {boolean}
+   */
+  _isShadow(det) {
+    const over = this.opts.detectors[det.id];
+    if (over && over.mode === 'live') return false;
+    if (over && over.mode === 'shadow') return true;
+    return Boolean(det.meta && det.meta.mode === 'shadow');
+  }
+
+  /**
+   * Option overrides for the shadow copy of a live detector.
+   * @param {any} det
+   * @returns {Record<string, unknown> | null}
+   */
+  _canaryOverrides(det) {
+    if (this._isShadow(det)) return null;
+    const over = this.opts.detectors[det.id];
+    if (!over || over.canary == null) return null;
+    return over.canary;
+  }
+
+  /** @returns {void} */
+  _notePromotions() {
+    if (this._promotionsNoted) return;
+    this._promotionsNoted = true;
+    for (const det of this.registry) {
+      const over = this.opts.detectors[det.id];
+      if (det.meta && det.meta.mode === 'shadow' && over && over.mode === 'live') {
+        this._warn('SHADOW_PROMOTED_BY_HOST', `${det.id} is live because the host set mode`);
+      }
+    }
+  }
+
+  /**
+   * @param {any} device
+   * @param {any} det
+   * @returns {any}
+   */
+  _canaryState(device, det) {
+    if (!device.canary) device.canary = new Map();
+    let state = device.canary.get(det.id);
+    if (!state) {
+      state = this._freshState(det);
+      device.canary.set(det.id, state);
+    }
+    return state;
+  }
+
+  /**
+   * @param {any} device
+   * @param {any} det
+   * @param {any} anomaly
+   */
+  _noteShadow(device, det, anomaly) {
+    let row = this._shadow[det.id];
+    if (!row) {
+      row = {
+        fired: 0,
+        devices: new Set(),
+        bySeverity: Object.create(null),
+        wouldJoinIncident: 0,
+      };
+      this._shadow[det.id] = row;
+    }
+    row.fired += 1;
+    row.devices.add(device.id);
+    const severity = String(anomaly.severity);
+    row.bySeverity[severity] = (row.bySeverity[severity] || 0) + 1;
+    const incident = device.incident;
+    if (
+      incident &&
+      typeof anomaly.ts === 'number' &&
+      anomaly.ts - incident.lastTs <= this.opts.incidentWindowMs
+    ) {
+      row.wouldJoinIncident += 1;
+    }
+  }
+
+  /**
+   * @param {any} device
+   * @param {string} id
+   * @param {string} fp
+   * @param {'live' | 'canary'} which
+   */
+  _rememberFp(device, id, fp, which) {
+    if (!device.fp) device.fp = { live: new Map(), canary: new Map() };
+    const bag = device.fp[which];
+    let set = bag.get(id);
+    if (!set) {
+      set = new Set();
+      bag.set(id, set);
+    }
+    set.add(String(fp));
+  }
+
+  /**
+   * Count canary fingerprints once per closed window.
+   * @param {any} device
+   */
+  _tallyCanaries(device) {
+    const bag = device.fp;
+    if (!bag) return;
+    for (const id of Object.keys(this.opts.detectors)) {
+      const over = this.opts.detectors[id];
+      if (!over || over.canary == null) continue;
+      const live = bag.live.get(id) || new Set();
+      const canary = bag.canary.get(id) || new Set();
+      if (!this._canary[id]) this._canary[id] = { liveOnly: 0, canaryOnly: 0, both: 0 };
+      const row = this._canary[id];
+      for (const fp of live) {
+        if (canary.has(fp)) row.both += 1;
+        else row.liveOnly += 1;
+      }
+      for (const fp of canary) {
+        if (!live.has(fp)) row.canaryOnly += 1;
+      }
+    }
+    bag.live.clear();
+    bag.canary.clear();
+  }
+
+  /**
    * @param {any} device
    * @param {any} det
    * @param {any} draft
    * @param {boolean} learning
    * @param {any} event
+   * @param {'canary' | undefined} [route]
    */
-  _take(device, det, draft, learning, event) {
+  _take(device, det, draft, learning, event, route) {
     if (!draft) return;
+    const shadow = route === 'canary' || this._isShadow(det);
     const list = Array.isArray(draft) ? draft : [draft];
     for (const item of list) {
       if (!item) continue;
-      if (det.id !== 'alert-storm' && this._overStorm(device, item.ts)) continue;
+      if (!shadow && det.id !== 'alert-storm' && this._overStorm(device, item.ts)) continue;
       if (this._muted(device, det.id, item)) {
         this.suppressCount += 1;
         continue;
       }
-      this.seq += 1;
-      this.anomalyCount += 1;
+      const fingerprint = fingerprintOf(det.id, device.id, dedupKeyOf(item));
       /** @type {Record<string, unknown>} */
       const anomaly = {
-        id: String(this.seq),
+        id: '',
         device: device.id,
         detector: det.id,
         category: item.category || det.category,
@@ -1065,7 +1241,7 @@ class Engine extends EventEmitter {
         data: item.data ? { ...item.data } : {},
         hardRule: Boolean(learning),
         schema: 1,
-        fingerprint: fingerprintOf(det.id, device.id, dedupKeyOf(item)),
+        fingerprint,
       };
       if (det.meta && typeof det.meta.dedupGroup === 'string') {
         anomaly.dedupGroup = det.meta.dedupGroup;
@@ -1077,6 +1253,19 @@ class Engine extends EventEmitter {
       else if (/** @type {Record<string, string[]>} */ (ATTACK)[det.id]) {
         anomaly.attack = /** @type {Record<string, string[]>} */ (ATTACK)[det.id].slice();
       }
+      if (shadow) {
+        this.shadowSeq += 1;
+        anomaly.id = `s${this.shadowSeq}`;
+        anomaly.shadow = true;
+        if (route === 'canary') this._rememberFp(device, det.id, fingerprint, 'canary');
+        else this._noteShadow(device, det, anomaly);
+        this.emit('shadow-anomaly', anomaly);
+        continue;
+      }
+      this.seq += 1;
+      this.anomalyCount += 1;
+      anomaly.id = String(this.seq);
+      if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
       noteIncident(this, device, anomaly);
       this.emit('anomaly', anomaly);
       if (

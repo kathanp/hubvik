@@ -54,7 +54,7 @@ test('ttl-anomaly alerts on a new bucket after 20 samples and ignores the same b
   const changed = engine();
   /** @type {any[]} */
   const alerts = [];
-  changed.on('anomaly', (row) => alerts.push(row));
+  changed.on('shadow-anomaly', (row) => alerts.push(row));
   learn(changed, 64, 20);
   changed.feed(flow(128, 200_000));
   assert.strictEqual(alerts.length, 1);
@@ -66,7 +66,7 @@ test('ttl-anomaly alerts on a new bucket after 20 samples and ignores the same b
   const same = engine();
   /** @type {any[]} */
   const quiet = [];
-  same.on('anomaly', (row) => quiet.push(row));
+  same.on('shadow-anomaly', (row) => quiet.push(row));
   learn(same, 64, 20);
   same.feed(flow(63, 200_000));
   assert.deepStrictEqual(quiet, []);
@@ -76,7 +76,7 @@ test('ttl-anomaly ignores multicast TTLs and an unarmed device', () => {
   const box = engine();
   /** @type {any[]} */
   const alerts = [];
-  box.on('anomaly', (row) => {
+  box.on('shadow-anomaly', (row) => {
     if (row.detector === 'ttl-anomaly') alerts.push(row);
   });
   learn(box, 64, 20);
@@ -85,7 +85,7 @@ test('ttl-anomaly ignores multicast TTLs and an unarmed device', () => {
   assert.deepStrictEqual(alerts, []);
 
   const short = engine();
-  short.on('anomaly', (row) => {
+  short.on('shadow-anomaly', (row) => {
     if (row.detector === 'ttl-anomaly') alerts.push(row);
   });
   learn(short, 64, 19);
@@ -107,7 +107,7 @@ test('ttl-anomaly drops an out-of-range TTL and restores learned buckets', () =>
   const next = engine();
   /** @type {any[]} */
   const alerts = [];
-  next.on('anomaly', (row) => alerts.push(row));
+  next.on('shadow-anomaly', (row) => alerts.push(row));
   next.importBaseline(saved);
   next.feed(flow(64, 200_000));
   next.feed(flow(128, 201_000));

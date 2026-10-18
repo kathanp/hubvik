@@ -179,3 +179,14 @@ Ring rows after the typed arrays, same 16-device disable measurement. The buffer
 Events in the 7-day run: 6,947,350. Retained is heap plus ArrayBuffers. The 100 KB budget holds. Caps were not changed.
 
 `update-over-cleartext` stores `{ fired: boolean }`. The 12.99 KB row above is the WP-9.8 disable-one heap delta, not a sample ring. `beacon-change` stores a `learned` map of gaps and a `tracks` map of open gaps. Neither detector was rewritten. `upload-ratio-shift` still keeps a ring capped at 2,048 and `failed-connection-ratio` a ring capped at 1,024. A 7-day learn is longer than those caps, so replacing the ring with a Welford of every learning window would not match the stored samples in `test/diff/golden.json`. Those two rings stay.
+
+## WP-12 — shadow detectors running, 2026-10-18
+
+`exploit-probe-http`, `young-domain`, and `ttl-anomaly` are enabled in shadow mode. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.79 µs | 11.68 KB/device |
+| 200 devices, 7 days, then `lock()` |        13.54 µs | 68.07 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.

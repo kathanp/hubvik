@@ -81,7 +81,7 @@ function parseCatalog(markdown) {
   const end = markdown.indexOf('\n# PART C');
   if (start < 0 || end < 0) throw new Error('SPEC.md is missing PART B or PART C');
   const lines = markdown.slice(start, end).split('\n');
-  /** @type {{ group: string, id: string, severity: string | null, fpRisk: string, rel: string }[]} */
+  /** @type {{ group: string, id: string, severity: string | null, fpRisk: string, rel: string, text: string }[]} */
   const rows = [];
   let group = 'Part B';
   for (let i = 0; i < lines.length; i += 1) {
@@ -107,7 +107,7 @@ function parseCatalog(markdown) {
       const fpRisk = fpAt >= 0 ? (row[fpAt] || '').replace(/\s+/g, ' ').trim() : '';
       const rel = (row[relAt] || '').trim();
       ids.forEach((id, index) => {
-        rows.push({ group, id, severity: sev[index], fpRisk, rel });
+        rows.push({ group, id, severity: sev[index], fpRisk, rel, text: row.join(' ') });
       });
       i += 1;
     }
@@ -203,6 +203,9 @@ for (const row of rows) {
   const meta = detector.meta || {};
   if (meta.rel !== row.rel)
     fail(`${row.id} meta.rel is ${meta.rel || 'missing'}, row says ${row.rel}`);
+  if (/\bshadow\b/i.test(row.text) && meta.mode !== 'shadow') {
+    fail(`${row.id} spec row says shadow but meta.mode is ${meta.mode || 'missing'}`);
+  }
   if (
     row.severity &&
     SEVERITIES.has(row.severity) &&
