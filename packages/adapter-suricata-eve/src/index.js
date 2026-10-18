@@ -140,18 +140,55 @@ function tls(row, ts, src, dst, deviceFor) {
 function http(row, ts, src, dst, deviceFor) {
   const record = row.http && typeof row.http === 'object' ? row.http : {};
   if (!dst || !record.http_method) return null;
+  const side = localSide(src, dst);
   /** @type {Record<string, any>} */
   const event = {
     type: 'http',
-    device: deviceFor(src || dst),
+    device: deviceFor(side.deviceIp),
     ts,
     dstIp: dst,
     dstPort: Number(row.dest_port) || 80,
     method: String(record.http_method),
   };
+  if (side.direction) event.direction = side.direction;
   if (record.hostname) event.host = String(record.hostname);
   if (record.url) event.path = String(record.url);
   return event;
+}
+
+/**
+ * `out` when the local address is the source, `in` when it is the destination.
+ * @param {string} src
+ * @param {string} dst
+ * @returns {{ deviceIp: string, direction?: 'out' | 'in' }}
+ */
+function localSide(src, dst) {
+  if (src && isLocalAddress(src)) return { deviceIp: src, direction: 'out' };
+  if (dst && isLocalAddress(dst)) return { deviceIp: dst, direction: 'in' };
+  return { deviceIp: src || dst };
+}
+
+/**
+ * Private, loopback, link-local, and IPv6 ULA addresses.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isLocalAddress(ip) {
+  if (
+    ip.startsWith('10.') ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('127.') ||
+    ip.startsWith('169.254.')
+  ) {
+    return true;
+  }
+  const part = /^172\.(\d+)\./.exec(ip);
+  if (part) {
+    const octet = Number(part[1]);
+    if (octet >= 16 && octet <= 31) return true;
+  }
+  const lower = ip.toLowerCase();
+  return lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd');
 }
 
 /**

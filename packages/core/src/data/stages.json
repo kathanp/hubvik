@@ -8,6 +8,8 @@
   "new-beacon": "c2",
   "dga": "c2",
   "threat-intel-match": "c2",
+  "exploit-probe-http": "recon",
+  "young-domain": "c2",
   "tor-or-proxy": "c2",
   "blockchain-c2": "c2",
   "tunnel-service": "c2",

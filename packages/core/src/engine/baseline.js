@@ -71,9 +71,10 @@ function prepareImport(raw, ctx) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new Error('unsupported baseline');
   assertSafeKeys(raw, 'baseline');
-  if (raw.version !== 1 && raw.version !== 2) throw new Error('unsupported baseline');
+  const modern = raw.version === 2 || raw.version === 3;
+  if (raw.version !== 1 && !modern) throw new Error('unsupported baseline');
   assertSignature(raw, ctx.verify);
-  if (raw.version === 2) {
+  if (modern) {
     if (!raw.engine || raw.engine.windowMs !== ctx.windowMs) throw new Error('windowMs mismatch');
   }
   if (!raw.devices || typeof raw.devices !== 'object' || Array.isArray(raw.devices)) {
@@ -112,14 +113,14 @@ function prepareImport(raw, ctx) {
       states.set(detId, dev);
     }
     let peerGroup = null;
-    if (raw.version === 2 && record.peerGroup != null) {
+    if (modern && record.peerGroup != null) {
       if (typeof record.peerGroup !== 'string' || record.peerGroup.length > ctx.caps.maxString) {
         throw new Error('string too long');
       }
       peerGroup = record.peerGroup;
     }
     let deviceClass = null;
-    if (raw.version === 2 && record.deviceClass != null) {
+    if (modern && record.deviceClass != null) {
       if (typeof record.deviceClass !== 'string' || !CLASSES[record.deviceClass]) {
         throw new Error('device class is invalid');
       }

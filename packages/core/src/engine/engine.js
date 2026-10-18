@@ -3,6 +3,7 @@
 const { createHash } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
+const { isGroupDst } = require('../detectors/lib');
 const { LruSet } = require('./caps');
 const { validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
@@ -64,6 +65,8 @@ class Engine extends EventEmitter {
     this.capAlerts = new Set();
     this.indicatorIndex = buildIndex([]);
     this.scratch = new Map();
+    /** @type {Map<string, string>} Canonical copy of a repeated destination name. */
+    this.names = new Map();
     this.incidentSeq = 0;
     this._checkDetectorOptions(opts);
     this._rebuildActive();
@@ -92,8 +95,10 @@ class Engine extends EventEmitter {
       const consumes = consumesOf(det);
       const over = this.opts.detectors[det.id];
       let status;
-      if (over && over.enabled === false)
-        status = { active: false, reason: 'disabled by configuration' };
+      const turnedOff =
+        (over && over.enabled === false) ||
+        ((!over || over.enabled == null) && det.defaults && det.defaults.enabled === false);
+      if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
       else {
         const missing = det.requires.filter((/** @type {string} */ tier) => !enabled.has(tier));
         status = missing.length
@@ -129,6 +134,30 @@ class Engine extends EventEmitter {
       }
     }
     return options;
+  }
+
+  /**
+   * One string object per destination text, up to the existing destination cap.
+   * @param {string} value
+   * @returns {string}
+   */
+  _intern(value) {
+    const hit = this.names.get(value);
+    if (hit !== undefined) return hit;
+    if (this.names.size >= this.opts.maxDestinations) return value;
+    this.names.set(value, value);
+    return value;
+  }
+
+  /**
+   * @param {any} event
+   * @returns {void}
+   */
+  _internEvent(event) {
+    for (const key of ['dst', 'dstIp', 'dstName', 'qname', 'sni']) {
+      const value = event[key];
+      if (typeof value === 'string' && value.length > 0) event[key] = this._intern(value);
+    }
   }
 
   /**
@@ -194,6 +223,7 @@ class Engine extends EventEmitter {
       if (!event.dst) event.dst = event.dstName || event.dstIp;
       if (event.bytes == null) event.bytes = (event.bytesOut || 0) + (event.bytesIn || 0);
     }
+    this._internEvent(event);
     this.eventsIn += 1;
     for (const warning of warnings) this._warn(warning.code, warning.message, event.device);
     if (this.startedAt == null) this.startedAt = event.ts;
@@ -555,7 +585,9 @@ class Engine extends EventEmitter {
       /** @type {Record<string, { v: number, state: object }>} */
       const detectors = Object.create(null);
       for (const det of this.registry) {
-        const state = device.states.get(det.id) ?? this._freshState(det);
+        const stored = device.states.get(det.id);
+        if (!stored && det.defaults && det.defaults.enabled === false) continue;
+        const state = stored ?? this._freshState(det);
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
         detectors[det.id] = { v: det.version, state: exported };
       }
@@ -565,7 +597,7 @@ class Engine extends EventEmitter {
       devices[id] = row;
     }
     const body = {
-      version: 2,
+      version: 3,
       createdAt: opts.createdAt ?? Date.now(),
       engine: { windowMs: this.opts.windowMs, pkg: PKG },
       devices,
@@ -750,7 +782,7 @@ class Engine extends EventEmitter {
   _advanceTo(device, start) {
     if (device.open && start < device.open.end) return;
     if (!device.open && device.cursor == null) {
-      device.open = this._window(start);
+      device.open = this._borrow(device, 'open', start);
       device.cursor = start;
       return;
     }
@@ -762,7 +794,7 @@ class Engine extends EventEmitter {
       this.opts.maxWindows,
     );
     this._applyPlan(device, plan);
-    device.open = this._window(start);
+    device.open = this._borrow(device, 'open', start);
     device.cursor = start;
   }
 
@@ -772,11 +804,53 @@ class Engine extends EventEmitter {
    */
   _applyPlan(device, plan) {
     if (plan.closeOpen && device.open) this._finalize(device, device.open);
-    for (const start of plan.idles) this._finalize(device, this._window(start));
+    for (const start of plan.idles) this._finalize(device, this._borrow(device, 'idle', start));
     if (plan.closeOpen || plan.idles.length > 0) {
+      if (device.open) device.pool = device.open;
       device.open = null;
       device.cursor = plan.cursor;
     }
+  }
+
+  /**
+   * Reuse one open window and one idle window per device. A feed that arrives
+   * while a window is closing gets a fresh object so the close stays stable.
+   * @param {any} device
+   * @param {'open' | 'idle'} kind
+   * @param {number} start
+   * @returns {any}
+   */
+  _borrow(device, kind, start) {
+    if (device.closing) return this._window(start);
+    const slot = kind === 'open' ? device.pool : device.idlePool;
+    if (!slot || !slot.dstSet) {
+      const fresh = this._window(start);
+      if (kind === 'open') device.pool = fresh;
+      else device.idlePool = fresh;
+      return fresh;
+    }
+    return this._resetWindow(slot, start);
+  }
+
+  /**
+   * @param {any} win
+   * @param {number} start
+   * @returns {any}
+   */
+  _resetWindow(win, start) {
+    win.start = start;
+    win.end = start + this.opts.windowMs;
+    win.bytes = 0;
+    win.dstCount = 0;
+    win.dstSet.clear();
+    win.saturated = false;
+    win.fanoutAlerted = false;
+    win.events = 0;
+    win.newDst = 0;
+    win.newFamilies = 0;
+    win.idle = false;
+    if (win.egressDsts) win.egressDsts.clear();
+    return win;
   }
 
   /**
@@ -805,7 +879,7 @@ class Engine extends EventEmitter {
     if (!device.open) return;
     device.open.events = (device.open.events || 0) + 1;
     device.open.bytes += event.bytes || 0;
-    if (!event.dst) return;
+    if (!event.dst || isGroupDst(event.dst)) return;
     const win = device.open;
     if (win.dstSet.has(event.dst)) return;
     if (win.fanoutAlerted || win.dstSet.size >= this.opts.maxWindowDestinations) {
@@ -826,24 +900,29 @@ class Engine extends EventEmitter {
       !device.frozen &&
       device.learnStart != null &&
       win.start < device.learnStart + this.opts.learnMs;
-    const summary = {
-      start: win.start,
-      end: win.end,
-      bytes: win.bytes,
-      dstCount: win.dstCount,
-      fanoutAlerted: win.fanoutAlerted,
-      newDst: win.newDst,
-      idle: win.bytes === 0 && win.dstCount === 0,
-    };
+    const summary = device.summary || (device.summary = {});
+    summary.start = win.start;
+    summary.end = win.end;
+    summary.bytes = win.bytes;
+    summary.dstCount = win.dstCount;
+    summary.fanoutAlerted = win.fanoutAlerted;
+    summary.newDst = win.newDst;
+    summary.idle = win.bytes === 0 && win.dstCount === 0;
     const ctx = this._ctx(device, learning, summary.start);
     ctx.window = summary;
-    for (const det of this.active) {
-      if (typeof det.onWindowClose !== 'function') continue;
-      ctx.options = this._optionsFor(det);
-      const draft = det.onWindowClose(this._state(device, det), summary, ctx);
-      this._take(device, det, draft, learning, null);
+    device.closing = (device.closing || 0) + 1;
+    try {
+      for (const det of this.active) {
+        if (typeof det.onWindowClose !== 'function') continue;
+        ctx.options = this._optionsFor(det);
+        const draft = det.onWindowClose(this._state(device, det), summary, ctx);
+        this._take(device, det, draft, learning, null);
+      }
+    } finally {
+      device.closing -= 1;
     }
-    win.dstSet = null;
+    if (win.dstSet) win.dstSet.clear();
+    if (win.egressDsts) win.egressDsts.clear();
   }
 
   /**

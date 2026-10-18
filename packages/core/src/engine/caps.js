@@ -53,6 +53,8 @@ class LruSet {
 
 /**
  * Fixed-capacity numeric history. Push is O(1). Index 0 is the oldest sample.
+ * Values live in a Float64Array that grows to `max` and then rings. `toArray()`
+ * still returns a plain array, so exported baselines stay JSON arrays.
  */
 class SampleRing {
   /**
@@ -61,15 +63,28 @@ class SampleRing {
   constructor(max) {
     if (!Number.isInteger(max) || max < 1) throw new TypeError('cap must be a positive integer');
     this.max = max;
-    /** @type {number[]} */
-    this.data = [];
+    /** @type {Float64Array} */
+    this.data = new Float64Array(0);
+    this.count = 0;
     this.head = 0;
     this.full = false;
   }
 
   /** @returns {number} */
   get length() {
-    return this.data.length;
+    return this.count;
+  }
+
+  /**
+   * Grow the buffer. A full ring's buffer length is exactly `max`.
+   * @returns {void}
+   */
+  _grow() {
+    const next =
+      this.data.length === 0 ? Math.min(this.max, 8) : Math.min(this.max, this.data.length * 2);
+    const grown = new Float64Array(next);
+    if (this.data.length > 0) grown.set(this.data);
+    this.data = grown;
   }
 
   /**
@@ -78,8 +93,10 @@ class SampleRing {
    */
   push(value) {
     if (!this.full) {
-      this.data.push(value);
-      if (this.data.length === this.max) this.full = true;
+      if (this.count === this.data.length) this._grow();
+      this.data[this.count] = value;
+      this.count += 1;
+      if (this.count === this.max) this.full = true;
       return;
     }
     this.data[this.head] = value;
@@ -98,8 +115,8 @@ class SampleRing {
 
   /** @returns {number[]} Oldest first. */
   toArray() {
-    const out = new Array(this.length);
-    for (let i = 0; i < out.length; i++) out[i] = this.at(i);
+    const out = new Array(this.count);
+    for (let i = 0; i < this.count; i++) out[i] = this.at(i);
     return out;
   }
 }

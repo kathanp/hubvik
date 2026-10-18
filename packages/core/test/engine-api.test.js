@@ -126,10 +126,10 @@ test('sample history cap stays bounded', () => {
   const engine = createEngine({ learnMs: 10_000_000, windowMs: 1000, maxWindows: 4 });
   engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 0 });
   engine.flush(20_000);
-  const samples = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['volume-spike'].state
-    .samples;
-  assert.ok(samples.length <= 4);
-  assert.ok(samples.length >= 1);
+  const state = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['volume-spike'].state;
+  assert.strictEqual(state.samples, undefined);
+  assert.ok(state.count >= 1);
+  assert.deepStrictEqual(Object.keys(state).sort(), ['count', 'm2', 'max', 'mean']);
 });
 
 test('IPv4-mapped IPv6 is the same destination as the IPv4 host', () => {

@@ -14,7 +14,7 @@ Learning: Every device learned at least 24 h.
 
 Detection: 20/25 = 80.0% (95% Wilson 60.9%–91.1%)
 
-Strict detection: 13/19 = 68.4% (95% Wilson 46.0%–84.6%)
+Strict detection: 19/25 = 76.0% (95% Wilson 56.6%–88.5%)
 
 False positives: 0 anomalies at medium or above, 3 benign device-days, 0 per benign device-day.
 
@@ -25,7 +25,7 @@ Benign intervals with a false positive: n too small (0 detected, 5 benign interv
 - HorizontalScan: n too small (7 detected, 7 attack instances); strict 7/7 = 100.0% (95% Wilson 64.6%–100.0%)
 - SlowVerticalScan: n too small (1 detected, 6 attack instances); strict 0/6 = 0.0% (95% Wilson 0.0%–39.0%)
 - C2Beacon: n too small (6 detected, 6 attack instances); strict 6/6 = 100.0% (95% Wilson 61.0%–100.0%)
-- UdpFlood: n too small (6 detected, 6 attack instances); strict unmapped
+- UdpFlood: n too small (6 detected, 6 attack instances); strict 6/6 = 100.0% (95% Wilson 61.0%–100.0%)
 
 ## Hits
 

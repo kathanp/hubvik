@@ -1,4 +1,4 @@
-# Detector catalog (109 shipped)
+# Detector catalog (109 shipped live plus 3 early shadow, off by default)
 
 Each detector is `packages/core/src/detectors/<id>.js` and is registered in `packages/core/src/detectors/index.js`. `requires` is the tier list. `hard` means `hardRule: true` (fires during learning). Severity is the default. Tunables are the other `defaults`. The full prose is `docs/SPEC.md`. The numeric defaults that were chosen so the benign gate still passes are under "Defaults shipped in 0.2", "0.3", and "0.4".
 
@@ -151,13 +151,25 @@ JA4 is the host's string. Nothing here computes a fingerprint.
 | `mqtt-publish-rate`       |      | medium   | `minPublishes=30` per window                                                                                |
 | `onvif-config-change`     | hard | critical | `SetUser`, `SetNetworkInterfaces`, `SetSystemFactoryDefault`, `UpgradeSystemFirmware`                       |
 
+## Early shadow — off by default until WP-12
+
+These three are Rel 0.8. `defaults.enabled` is false. `meta.mode` is `shadow`, which the engine does not read until WP-12. Turn one on with `detectors: { id: { enabled: true } }`.
+
+| Detector             | Tier | Severity                                                                 | Behavior                                                                                                                                                        |
+| -------------------- | ---- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `exploit-probe-http` | T3   | critical outbound, low inbound, high inbound with 2xx, medium if unknown | Substring match of `src/data/http-probes.json` after one percent-decode. Once per device, direction, path without query, and matched entry per 24 h. Cap 1,000. |
+| `young-domain`       | T2   | medium                                                                   | Host indicator type `young-domain`. Once per registrable family per device per 24 h. Cap 1,000. `dedupGroup` `indicator`, shared with `threat-intel-match`.     |
+| `ttl-anomaly`        | T1   | medium                                                                   | Outbound TTL bucket 64, 128, or 255 after 20 samples. Skips multicast, broadcast, and link-local. A TTL under 16 is ignored.                                    |
+
+## Multicast and broadcast destinations
+
+A flow to `224.0.0.0/4`, `255.255.255.255`, or `ff00::/8` is a group send. `isGroupDst` in `packages/core/src/detectors/lib.js` is the only check. `new-destination`, `new-port`, `lan-lateral`, `horizontal-scan`, `vertical-scan`, and `lan-sweep` skip those destinations. `fan-out` does not count them in the window's host set. `posture-listening-risky` reports a listen port only when the device is the responder (`direction` `in`, or `lan` with `dstIp` equal to the device id). `reflection-participation`, `coap-amplification`, and `ttl-anomaly` still treat discovery traffic the way they did before this rule.
+
 ## Not implemented
 
-Marked 1.x or 1.0. Leave them until the human asks and until real-traffic evaluation exists:
+Marked 1.x or 1.0. Leave them until the human asks and until real-traffic evaluation exists. A 1.x row needs a numeric default in SPEC before code.
 
-- `exploit-probe-http`
 - `day-of-week-drift`
-- `young-domain`
 - `sni-ip-mismatch`
 - `mac-randomization-churn`
 - `discovery-spoof`
@@ -165,7 +177,6 @@ Marked 1.x or 1.0. Leave them until the human asks and until real-traffic evalua
 - `fleet-baseline-poisoning`
 - `ot-schedule-drift`
 - `reverse-shell-shape`
-- `ttl-anomaly`
 - `llmnr-nbns-poison`
 - `dns-answer-mismatch`
 
@@ -175,20 +186,20 @@ Also not built: host-declared physical limits on `ot-value-out-of-range`, and pa
 
 There is not yet one test file per detector. The gate runs grouped suites. Do not delete them.
 
-| File                                                | Covers                                                                                     |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `packages/core/test/engine.test.js`                 | the original six prototype cases                                                           |
-| `packages/core/test/engine-api.test.js`             | API, validation, caps, HMAC, v1 upgrade                                                    |
-| `packages/core/test/benign.test.js`                 | 14 days, zero anomalies of any severity                                                    |
-| `packages/core/test/benign-matrix.test.js`          | 14 days × 7 classes × 3 seeds, nothing ≥ medium                                            |
-| `packages/core/test/phase2.test.js`                 | 0.2 detectors                                                                              |
-| `packages/core/test/phase3.test.js`                 | 0.3 detectors                                                                              |
-| `packages/core/test/phase4.test.js`                 | 0.4 detectors                                                                              |
-| `packages/core/test/detectors/*.test.js`            | one file per newer detector, including `tier-silent`, `identity-change`, and `went-silent` |
-| `packages/core/test/fingerprint.test.js`            | same scan, different host counts, one fingerprint                                          |
-| `packages/core/test/checkpoint.test.js`             | restore, corrupt checkpoints, broken scratch                                               |
-| `packages/core/test/replay/*.test.js`               | badbox-like, kimwolf-like, mirai-like, bms-hijack, mitm                                    |
-| `packages/adapter-*/test`, `packages/export-*/test` | parsers and formatters                                                                     |
+| File                                                | Covers                                                                                                                                          |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/core/test/engine.test.js`                 | the original six prototype cases                                                                                                                |
+| `packages/core/test/engine-api.test.js`             | API, validation, caps, HMAC, v1 upgrade                                                                                                         |
+| `packages/core/test/benign.test.js`                 | 14 days, zero anomalies of any severity                                                                                                         |
+| `packages/core/test/benign-matrix.test.js`          | 14 days × 7 classes × 3 seeds, nothing ≥ medium                                                                                                 |
+| `packages/core/test/phase2.test.js`                 | 0.2 detectors                                                                                                                                   |
+| `packages/core/test/phase3.test.js`                 | 0.3 detectors                                                                                                                                   |
+| `packages/core/test/phase4.test.js`                 | 0.4 detectors                                                                                                                                   |
+| `packages/core/test/detectors/*.test.js`            | one file per newer detector, including `tier-silent`, `identity-change`, `went-silent`, `exploit-probe-http`, `young-domain`, and `ttl-anomaly` |
+| `packages/core/test/fingerprint.test.js`            | same scan, different host counts, one fingerprint                                                                                               |
+| `packages/core/test/checkpoint.test.js`             | restore, corrupt checkpoints, broken scratch                                                                                                    |
+| `packages/core/test/replay/*.test.js`               | badbox-like, kimwolf-like, mirai-like, bms-hijack, mitm                                                                                         |
+| `packages/adapter-*/test`, `packages/export-*/test` | parsers and formatters                                                                                                                          |
 
 `dns-rebinding` and `private-answer-for-public-name` both match `0.0.0.0`. The phase 2 test expects length 2 and 2. Do not special-case that without a spec change.
 

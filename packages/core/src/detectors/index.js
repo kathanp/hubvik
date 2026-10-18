@@ -111,6 +111,9 @@ const ALL = [
   require('./onvif-config-change'),
   require('./peer-divergence'),
   require('./fleet-wave'),
+  require('./exploit-probe-http'),
+  require('./young-domain'),
+  require('./ttl-anomaly'),
 ];
 
 /** @type {Record<string, any>} */

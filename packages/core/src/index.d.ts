@@ -37,6 +37,7 @@ export interface FlowEvent {
   durationMs?: number;
   tcpOutcome?: 'established' | 'rejected' | 'no-response' | 'reset';
   icmpType?: number;
+  ttl?: number;
   dstName?: string;
   dst?: string;
   bytes?: number;
@@ -118,6 +119,8 @@ export interface HttpEvent {
   method: string;
   host?: string;
   path?: string;
+  status?: number;
+  direction?: 'out' | 'in';
 }
 
 export interface AppEvent {
@@ -170,7 +173,7 @@ export interface PolicyRule {
 
 export interface Indicator {
   value: string;
-  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad' | 'proxy-sdk';
+  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad' | 'proxy-sdk' | 'young-domain';
   source: string;
   confidence?: number;
   expiresTs?: number | null;

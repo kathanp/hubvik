@@ -2,6 +2,7 @@
 
 const PORTS = require('../data/ports.json');
 const { assertState } = require('./state');
+const { isGroupDst } = require('./lib');
 
 const HARD = new Set(PORTS.hard);
 
@@ -54,7 +55,7 @@ const detector = {
 
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
-    if (ev.type !== 'flow' || ev.dstPort == null || !ev.dstIp) return;
+    if (ev.type !== 'flow' || ev.dstPort == null || !ev.dstIp || isGroupDst(ev.dstIp)) return;
     slot(dev, ev, ctx);
     const id = `${ev.dstPort}|${ev.dstIp}`;
     if (dev.seen.has(id)) return;

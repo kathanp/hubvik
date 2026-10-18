@@ -2,10 +2,12 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { isGroupDst } = require('./lib');
 
 /** @param {any} ev */
 function key(ev) {
   if (ev.type !== 'flow' || ev.dstPort == null || ev.direction == null) return null;
+  if (isGroupDst(ev.dstIp)) return null;
   return `${ev.direction}:${ev.dstPort}`;
 }
 

@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
+const { isGroupDst } = require('./lib');
 
 const detector = {
   id: 'new-destination',
@@ -56,7 +57,7 @@ const detector = {
    * @param {{ dst?: string }} ev
    */
   learn(dev, ev) {
-    if (ev.dst) dev.dsts.add(ev.dst);
+    if (ev.dst && !isGroupDst(ev.dst)) dev.dsts.add(ev.dst);
   },
 
   /**
@@ -65,7 +66,7 @@ const detector = {
    * @param {{ options: { maxNewDstPerWindow: number, severity: string }, window: { newDst: number } }} ctx
    */
   check(dev, ev, ctx) {
-    if (!ev.dst || dev.dsts.has(ev.dst) || dev.alerted.has(ev.dst)) return;
+    if (!ev.dst || isGroupDst(ev.dst) || dev.dsts.has(ev.dst) || dev.alerted.has(ev.dst)) return;
     dev.alerted.add(ev.dst);
     ctx.window.newDst += 1;
     if (ctx.window.newDst > ctx.options.maxNewDstPerWindow) return;

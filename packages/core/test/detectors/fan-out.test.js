@@ -22,14 +22,13 @@ test('fan-out fires once when a window exceeds the learned limit', () => {
   assert.match(alerts[0].actual, /hosts\/window$/);
 });
 
-test('fan-out history stays inside maxWindows', () => {
+test('fan-out keeps a running summary instead of the window list', () => {
   const engine = createEngine({ learnMs: 10_000_000, windowMs: 1000, maxWindows: 4 });
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
   engine.flush(20_000);
-  const samples = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['fan-out'].state
-    .samples;
-  assert.ok(samples.length <= 4);
-  assert.ok(samples.length >= 1);
+  const state = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['fan-out'].state;
+  assert.strictEqual(state.samples, undefined);
+  assert.ok(state.count > 4);
 });
 
 test('fan-out limit follows an imported baseline', () => {
