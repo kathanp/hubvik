@@ -47,6 +47,23 @@ test('tab-separated and space-separated label columns both parse', () => {
   assert.strictEqual(spacedRows[0].device, '10.0.0.7');
   assert.strictEqual(spacedRows[0].label, 'Malicious');
   assert.strictEqual(spacedRows[0].detailedLabel, 'PartOfAHorizontalPortScan');
+  const glued = path.join(dir, 'glued.log.labeled');
+  fs.writeFileSync(
+    glued,
+    `#separator \\x09
+#empty_field (empty)
+#unset_field -
+#fields\tts\tuid\tid.orig_h\tid.orig_p\tid.resp_h\tid.resp_p\tproto\tlocal_orig\tlocal_resp\ttunnel_parents   label   detailed-label
+#types\ttime\tstring\taddr\tport\taddr\tport\tenum\tbool\tbool\tset[string]   string   string
+5.000\tC5\t10.0.0.6\t40000\t1.2.3.4\t23\ttcp\tT\tF\t-   benign   -
+6.000\tC6\t10.0.0.6\t40000\t1.2.3.4\t23\ttcp\tT\tF\t(empty)   Malicious   PartOfAHorizontalPortScan
+`,
+  );
+  const gluedRows = loadIot23(glued);
+  assert.strictEqual(gluedRows.length, 2);
+  assert.strictEqual(gluedRows[0].malicious, false);
+  assert.strictEqual(gluedRows[1].device, '10.0.0.6');
+  assert.strictEqual(gluedRows[1].detailedLabel, 'PartOfAHorizontalPortScan');
 });
 
 test('two malicious runs are one instance at 2 minutes and two at 10 minutes', () => {
