@@ -35,3 +35,5 @@
 2. **Repository URLs.** `packages/core/package.json` has no `repository`, `bugs`, or `homepage`. Phase 0 does not create a remote. Add them when the GitHub repository exists.
 
 3. **IoT-23 labels other than Benign and Malicious.** The joiner treats every `label` other than `benign` as an attack, including a future `Background` or empty detailed-label on a non-benign row. Should `Background` and `No Label` be benign instead?
+
+4. **Capped rings on `upload-ratio-shift` and `failed-connection-ratio`.** Those two keep capped rings because a 7-day learn exceeds the cap and streaming stats would change the golden. Revisit if memory headroom drops under 20 KB.

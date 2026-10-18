@@ -22,3 +22,4 @@ D-19 | WP-10.1 | exploit-probe-http, young-domain, ttl-anomaly ship enabled:fals
 D-20 | WP-10.1 | threat-intel-match joins dedupGroup 'indicator' | SPEC Defaults shipped in 0.8
 D-21 | WP-11 | Q-8 approved: acceptance test asserts behavior instead of state.samples | owner decision
 D-22 | WP-10.1 | discovery flows behind sim option `discovery`; golden kept as the WP-11 regression oracle | owner decision
+D-23 | integration | wp-11 + wp-10.1 merged to main | owner decision

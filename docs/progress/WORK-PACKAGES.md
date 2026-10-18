@@ -505,3 +505,7 @@ Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
 Check 168/168, duration 72855 ms. Coverage lines 97.85%, branches 86.30%. Pack-check: core 156 files, 369593 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 6.42 µs, estimate 5.70 KB/device, heap 12.54 KB/device, 1,000 devices.
 
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
+## Integration 0.7
+
+Date: 2026-10-18. `integrate/0.7` merged `wp-11/memory` then `wp-10.1/early-shadow`, keeping both. `npm run gate` exited 0. Check 171/171. Coverage lines 97.96%, branches 86.46%, functions 97.64%. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,731 accepted, 45,269 rejected; checkpoint mutation 54,763 accepted, 45,237 rejected. Bench median 6.04 µs, estimate 4.29 KB/device, retained 11.69 KB/device, 1,000 devices. Rich bench median 5.92 µs, retained 67.19 KB/device, 200 devices, 6,948,925 events. `npm run demo` printed the same incident stages c2, recon, impact. Merged to local main. D-23.
