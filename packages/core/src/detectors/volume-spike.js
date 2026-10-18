@@ -1,8 +1,7 @@
 'use strict';
 
-const { SampleRing } = require('../engine/caps');
-const { summarize } = require('../engine/math');
-const { readSamples } = require('./samples');
+const { emptyStats, pushSample, statsOf } = require('../engine/math');
+const { readStreamState } = require('./samples');
 
 const detector = {
   id: 'volume-spike',
@@ -18,21 +17,20 @@ const detector = {
   category: 'volume',
   defaults: { sigma: 4, minBytes: 1_000_000, peakFactor: 2, severity: 'high' },
 
-  /** @param {any} caps */
-  createState(caps) {
-    return { samples: new SampleRing(caps.maxWindows), cachedLimit: null };
+  createState() {
+    return { stats: emptyStats(), cachedLimit: null };
   },
 
   learn() {},
 
   /**
-   * @param {{ samples: any, cachedLimit: number | null }} dev
+   * @param {{ stats: { count: number, mean: number, m2: number, max: number }, cachedLimit: number | null }} dev
    * @param {{ bytes: number, start: number }} win
    * @param {{ learning: boolean, options: { sigma: number, minBytes: number, peakFactor: number, severity: string } }} ctx
    */
   onWindowClose(dev, win, ctx) {
     if (ctx.learning) {
-      dev.samples.push(win.bytes);
+      pushSample(dev.stats, win.bytes);
       dev.cachedLimit = null;
       return;
     }
@@ -51,34 +49,38 @@ const detector = {
     }
   },
 
-  /** @param {{ samples: { toArray: () => number[], length: number } }} dev */
+  /** @param {{ stats: { count: number, mean: number, m2: number, max: number } }} dev */
   exportState(dev) {
-    return { samples: dev.samples.toArray() };
+    return {
+      count: dev.stats.count,
+      mean: dev.stats.mean,
+      m2: dev.stats.m2,
+      max: dev.stats.max,
+    };
   },
 
   /**
-   * @param {{ samples: any, cachedLimit: number | null }} dev
+   * @param {{ stats: any, cachedLimit: number | null }} dev
    * @param {any} state
    * @param {any} caps
    */
   importState(dev, state, caps) {
-    dev.samples = readSamples(state, caps, 'volume-spike');
+    dev.stats = readStreamState(state, caps.maxWindows, 'volume-spike');
     dev.cachedLimit = null;
   },
 
-  /** @param {{ samples: { length: number } }} dev */
-  memoryEstimate(dev) {
-    return dev.samples.length * 8 + 32;
+  memoryEstimate() {
+    return 64;
   },
 };
 
 /**
- * @param {{ samples: any, cachedLimit: number | null }} dev
+ * @param {{ stats: { count: number, mean: number, m2: number, max: number }, cachedLimit: number | null }} dev
  * @param {{ sigma: number, minBytes: number, peakFactor: number }} options
  */
 function cachedLimit(dev, options) {
   if (dev.cachedLimit == null) {
-    const stats = summarize(dev.samples);
+    const stats = statsOf(dev.stats);
     dev.cachedLimit = Math.max(
       options.minBytes,
       stats.mean + options.sigma * stats.std,

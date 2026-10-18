@@ -99,3 +99,83 @@ Fresh-state heap is `createState` measured with `node --expose-gc`. `memoryEstim
 | connection-churn        |                       57 |                     16 |            3.59 |
 | new-device              |                       41 |                     16 |            2.59 |
 | clock-jump              |                       41 |                     16 |            2.59 |
+
+## WP-9.7 — 200 devices, 7 days rich, 2026-10-17
+
+`node --expose-gc bench/run.js`, after the 1,000-device check. 200 devices, classes rotated through the simulator profiles. Each device is fed 7 days of rich traffic, then `lock()`. Heap is `heapUsed` after `global.gc()`, minus the heap before those devices were created. The watching median is 2,000 summary `feed()` calls after lock. Detectors were not tuned.
+
+The same process printed the 1,000-device line first: median 5.33 µs, estimate 5.70 KB/device, heap 12.27 KB/device.
+
+| Metric            | Budget   | Measured  |
+| ----------------- | -------- | --------- |
+| median `feed()`   | reported | 6.38 µs   |
+| memory per device | < 100 KB | 374.99 KB |
+| devices           | 200      | 200       |
+| events fed        |          | 6,947,350 |
+
+The heap is over 100 KB per device. The script exits non-zero. No threshold was changed.
+
+## WP-9.8 — 7-day heap profile
+
+`node --expose-gc bench/heap-one.js`. 16 devices, two of each class, the same 7-day rich traffic and `lock()` as the 200-device bench. Heap is `heapUsed` after two `global.gc()` calls, minus the heap before those devices were created. Each row is that baseline minus the same run with one detector disabled. Runs were sequential. A parallel sweep moved the smaller rows by several KB, so those numbers are not used. Baseline runs: 463.31 KB/device and 463.99 KB/device. Deltas use their mean, 463.65 KB/device.
+
+Closed windows are not kept. Window history is the per-window sample rings. Hourly history is the 24 rings in `volume-spike-hourly`. With every detector disabled the same 16 devices retain 34.29 KB/device, which is the device record and the open window, plus process overhead spread across 16 devices. LAN scratch is outside this table: `dhcp-starvation` 1.44 KB, `arp-spoof` 1.19 KB, `lan-lateral` 0.99 KB, `identity-change` 0.20 KB.
+
+| Rank | Structure                                      | KB/device |
+| ---- | ---------------------------------------------- | --------: |
+| 1    | `volume-spike-hourly` hourly rings             |    107.84 |
+| 2    | `volume-spike` window byte history             |     98.70 |
+| 3    | `fan-out` window destination-count history     |     97.86 |
+| 4    | `upload-ratio-shift` window ratio history      |     19.89 |
+| 5    | `update-over-cleartext`                        |     12.99 |
+| 6    | `failed-connection-ratio` window ratio history |     10.63 |
+| 7    | `beacon-change`                                |      4.83 |
+| 8    | `egress-flood`                                 |      3.64 |
+| 9    | `answer-drift`                                 |      3.63 |
+| 10   | `horizontal-scan`                              |      3.00 |
+| 11   | `class-violation`                              |      2.66 |
+| 12   | `long-connection`                              |      2.37 |
+| 13   | `threat-intel-match`                           |      2.36 |
+| 14   | `dns-tunnel`                                   |      2.29 |
+| 15   | `slow-exfil`                                   |      2.28 |
+
+The same tree's 200-device run, before the representation changes: median 6.75 µs, heap 374.99 KB/device, 6,947,350 events. These per-structure bytes are the part that scales with devices. The three history rows are 304.40 KB of that total.
+
+## WP-9.8 — representation, remeasured
+
+Sample rings now store samples in a `Float64Array`. `toArray()` is still a plain array, and `exportBaseline()` is unchanged. `git diff d4a742f -- test/diff/golden.json` is empty. Repeated destination strings are interned up to the existing destination cap. A device reuses its open window, one idle window, and one close summary. No threshold, cap, or default changed.
+
+`bench/run.js` adds `arrayBuffers` to the byte count. A Float64Array's storage is not in `heapUsed`. The 100 KB check uses the sum.
+
+16 devices, retained = heap + ArrayBuffers:
+
+| After         |  retained KB/device |
+| ------------- | ------------------: |
+| typed arrays  |              398.23 |
+| string intern | 396.83, then 397.77 |
+| window reuse  |              398.37 |
+
+Ring rows after the typed arrays, same 16-device disable measurement. The buffer column is the Float64Array storage.
+
+| Structure                 | retained KB |    was |
+| ------------------------- | ----------: | -----: |
+| `volume-spike-hourly`     |       86.72 | 107.84 |
+| `volume-spike`            |       80.17 |  98.70 |
+| `fan-out`                 |       80.10 |  97.86 |
+| `upload-ratio-shift`      |       14.80 |  19.89 |
+| `failed-connection-ratio` |        9.12 |  10.63 |
+
+200 devices after all three fixes: median 8.13 µs, retained 307.64 KB/device, 6,947,350 events. The 1,000-device line in the same process: median 6.25 µs, retained 16.96 KB/device. The 7-day figure is over 100 KB. Caps and the 100 KB budget were not changed.
+
+## WP-11 — after streaming stats, 2026-10-18
+
+`volume-spike`, `fan-out`, and `volume-spike-hourly` keep a Welford summary (count, mean, M2, max) instead of the sample rings. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.58 µs | 11.64 KB/device |
+| 200 devices, 7 days, then `lock()` |         9.38 µs | 66.96 KB/device |
+
+Events in the 7-day run: 6,947,350. Retained is heap plus ArrayBuffers. The 100 KB budget holds. Caps were not changed.
+
+`update-over-cleartext` stores `{ fired: boolean }`. The 12.99 KB row above is the WP-9.8 disable-one heap delta, not a sample ring. `beacon-change` stores a `learned` map of gaps and a `tracks` map of open gaps. Neither detector was rewritten. `upload-ratio-shift` still keeps a ring capped at 2,048 and `failed-connection-ratio` a ring capped at 1,024. A 7-day learn is longer than those caps, so replacing the ring with a Welford of every learning window would not match the stored samples in `test/diff/golden.json`. Those two rings stay.

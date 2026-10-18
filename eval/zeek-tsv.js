@@ -5,8 +5,8 @@ const fs = require('node:fs');
 /**
  * Read one Zeek ASCII log. `#separator`, `#fields`, and `#types` are required.
  * `-` and `(empty)` are unset, including the values from `#unset_field` and `#empty_field`.
- * When `tunnel_parents`, `label`, and `detailed-label` were appended with spaces, the short
- * row is split back into those columns.
+ * When `tunnel_parents`, `label`, and `detailed-label` were appended with spaces, the
+ * header and the short row are split back into those columns.
  * @param {string} file
  * @param {{ requireLabels?: boolean }} [opts]
  * @returns {{ fields: string[], types: string[], rows: Record<string, string>[] }}
@@ -31,7 +31,7 @@ function readZeekTsv(file, opts = {}) {
       else if (line.startsWith('#empty_field ')) empty = line.slice('#empty_field '.length).trim();
       else if (line.startsWith('#unset_field ')) unset = line.slice('#unset_field '.length).trim();
       else if (line.startsWith('#fields')) {
-        fields = line.split(separator).slice(1);
+        fields = expandSpacedTail(line.split(separator).slice(1));
         if (
           opts.requireLabels &&
           (!fields.includes('label') || !fields.includes('detailed-label'))
@@ -39,7 +39,7 @@ function readZeekTsv(file, opts = {}) {
           throw new Error(`${file} is missing label or detailed-label`);
         }
       } else if (line.startsWith('#types')) {
-        types = line.split(separator).slice(1);
+        types = expandToLength(line.split(separator).slice(1), fields.length);
         sawTypes = true;
       }
       continue;
@@ -82,6 +82,33 @@ function splitColumns(line, separator, fieldCount, file) {
     if (bits.length === missing + 1) return parts.slice(0, -1).concat(bits);
   }
   throw new Error(`${file} has a row with ${parts.length} fields, expected ${fieldCount}`);
+}
+
+/**
+ * Official IoT-23 headers glue `tunnel_parents`, `label`, and `detailed-label` into the last
+ * tab column with spaces. A header that already lists those names stays as it is.
+ * @param {string[]} parts
+ * @returns {string[]}
+ */
+function expandSpacedTail(parts) {
+  if (parts.length === 0) return parts;
+  const bits = parts[parts.length - 1].trim().split(/ +/);
+  if (bits.length > 1 && bits.includes('label') && bits.includes('detailed-label')) {
+    return parts.slice(0, -1).concat(bits);
+  }
+  return parts;
+}
+
+/**
+ * @param {string[]} parts
+ * @param {number} length
+ * @returns {string[]}
+ */
+function expandToLength(parts, length) {
+  if (parts.length === 0 || parts.length >= length) return parts;
+  const bits = parts[parts.length - 1].trim().split(/ +/);
+  if (bits.length === length - parts.length + 1) return parts.slice(0, -1).concat(bits);
+  return parts;
 }
 
 /**

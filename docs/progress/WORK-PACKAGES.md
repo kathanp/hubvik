@@ -381,6 +381,62 @@ Date: 2026-10-17.
 
 `eval/label-map.json` maps scan to recon or scan, C&C and beacon to c2, DDoS to impact or volume, and FileDownload to update. Strict detection counts a hit only when the anomaly stage or category is one of those tokens. Unmapped labels print `unmapped`. The synthetic corpus C6.2 rate stays 20/25. Strict is 13/19 = 68.4% (95% Wilson 46.0%–84.6%). The slow vertical hit is `beacon-change`, category timing, so it does not count. UdpFlood is unmapped.
 
+## WP-9.7 — 7-day bench
+
+Date: 2026-10-17.
+
+`bench/run.js` still checks the 1,000-device watching bench, then feeds 200 devices 7 days of rich class traffic, calls `lock()`, and prints heap per device and the watching-state median. This run: median 6.38 µs, heap 374.99 KB/device, 200 devices, 6,947,350 events. The same process printed the 1,000-device line as median 5.33 µs, estimate 5.70 KB/device, heap 12.27 KB/device. The 7-day heap is over 100 KB. Detectors were not tuned. HARD STOP. Item 5 was not started. The full gate and the demo were not run.
+
+## WP-9.8 — gate on main
+
+Date: 2026-10-17. Commit `61e6f4d`.
+
+`npm run gate` exited 0. Check 155/155. Coverage lines 97.90%, branches 86.22%, functions 98.13%. Pack-check: core 152 files, 352217 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 58,132 accepted, 41,868 rejected, 0 invariant failures; checkpoint mutation 57,967 accepted, 42,033 rejected, 0 invariant failures. Bench median 6.00 µs, estimate 5.70 KB/device, heap 12.27 KB/device, 1,000 devices. `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact.
+
+## WP-9.8 — UdpFlood label map
+
+Date: 2026-10-17.
+
+`eval/label-map.json` maps `UdpFlood` to impact or volume, the same tokens as DDoS. The synthetic corpus was regenerated. C6.2 stays 20/25 = 80.0% (95% Wilson 60.9%–91.1%). Strict detection is 19/25 = 76.0% (95% Wilson 56.6%–88.5%). UdpFlood strict is 6/6 = 100.0% (95% Wilson 61.0%–100.0%). SlowVerticalScan strict stays 0/6. No detector default changed.
+
+## WP-9.8 — 7-day heap profile
+
+Date: 2026-10-17.
+
+`bench/heap-one.js` fed 16 devices, two of each class, 7 days of rich traffic, then `lock()`. Sequential disable-one-detector heap deltas are in `docs/BENCHMARKS.md`. The top three are `volume-spike-hourly` 107.84 KB, `volume-spike` 98.70 KB, and `fan-out` 97.86 KB. The 200-device run on this tree measured median 6.75 µs and heap 374.99 KB/device. No threshold or cap changed.
+
+## WP-9.8 — representation
+
+Date: 2026-10-17.
+
+Sample rings use a `Float64Array`. Destination strings are interned up to the existing destination cap. Each device reuses its open window, one idle window, and one close summary. `exportBaseline()` and the differential golden are unchanged. Fast check 155/155. After typed arrays the 16-device retained total was 398.23 KB/device; the hourly ring fell from 107.84 KB to 86.72 KB, the byte ring from 98.70 to 80.17, and the fan-out ring from 97.86 to 80.10. String interning measured 396.83 and 397.77. Window reuse measured 398.37. The 200-device run after all three: median 8.13 µs, retained 307.64 KB/device. Still over 100 KB. The budget and the device cap were not changed. Not merged to main.
+
+## WP-9.9 — when the three rings append
+
+Date: 2026-10-18.
+
+`volume-spike`, `fan-out`, and `volume-spike-hourly` append a sample only while `ctx.learning` is true. `onWindowClose` returns before any push once learning is over. `lock()` sets `frozen`, and a window is learning only when the device is not frozen and the window starts before `learnStart + learnMs`. Watching closes do not append. `relearn()` replaces the detector state with a fresh `createState()`. Default `learnMs` is 7 days and `maxWindows` is 10,080, one window per minute, so a default learning span fills each ring once and does not drop an older sample. Item 2 can proceed for all three.
+
+## WP-9.9 — streaming stats, stopped
+
+Date: 2026-10-18.
+
+The three detectors now keep count, Welford mean, M2, and max. `volume-spike-hourly` keeps 24 of those. Idle learning windows still enter as zero. `relearn()` replaces the state. Export is baseline version 3. A version 2 file from `test/diff/golden.json`, which matches commit `d4a742f`, imports by folding the stored samples. Version 1 still imports. The idle-window acceptance test still asks for `state.samples` to include `0` and `1000000`. That array is gone. The same scenario stays quiet at 2,100,000 bytes and fires at 5,000,000. Editing `packages/core/test/acceptance.test.js` was not approved, so the fast check cannot go green. Items 3 through 6 were not started. Not merged.
+
+## WP-11 — Q-8 and the 7-day budget
+
+Date: 2026-10-18. Branch `wp-11/memory`, fast-forwarded from `main` through `wip/wp-9.7` (`c6e4a8c`). D-21. The idle-window acceptance test no longer reads `state.samples`. It asserts `volume-spike` learned `count` 2 (the 1,000,000-byte window and the idle window), stays quiet at 2,100,000 bytes, and fires at 5,000,000. Nothing else in that file changed.
+
+`node --expose-gc bench/run.js`: 1,000-device retained 11.46 KB/device, median 6.50 µs. 200 devices × 7 days: retained 67.00 KB/device, median 9.58 µs, 6,947,350 events. Under 100 KB. The gate's bench printed 66.96 KB/device. A fan-out import whose `samples` value is not an array is rejected with `samples must be an array`. The engine-api history test now checks that `volume-spike` exports the four summary numbers and no sample array. `update-over-cleartext` state is `{ fired }`.
+
+## WP-11 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 158/158, duration 78969 ms. Coverage lines 98.01%, branches 86.20%, functions 98.15%. Pack-check: core 152 files, 358352 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,731 accepted, 45,269 rejected, 0 invariant failures; checkpoint mutation 54,763 accepted, 45,237 rejected, 0 invariant failures. Bench median 6.58 µs, estimate 4.29 KB/device, retained 11.64 KB/device, 1,000 devices. Rich bench median 9.38 µs, retained 66.96 KB/device, 200 devices, 6,947,350 events.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact. `beacon-change` state is the `learned` map and the `tracks` map. `upload-ratio-shift` (cap 2,048) and `failed-connection-ratio` (cap 1,024) still use sample rings. A full 7-day learn is longer than those caps, so a Welford of every window would not match the golden samples. They were not converted. Caps and the budget were not changed.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

@@ -40,10 +40,8 @@ test('idle learning windows are stored and raise the volume threshold', () => {
   const engine = createEngine({ learnMs: 180_000, windowMs, minBytes: 0, sigma: 4, peakFactor: 2 });
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1_000_000, ts: 0 });
   engine.flush(120_000);
-  const samples = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['volume-spike'].state
-    .samples;
-  assert.ok(samples.includes(0));
-  assert.ok(samples.includes(1_000_000));
+  const learned = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['volume-spike'].state;
+  assert.strictEqual(learned.count, 2);
   const bag = take(engine);
   engine.feed({ device: 'd', dst: 'a.example', bytes: 2_100_000, ts: 180_000 });
   engine.flush(240_000);
