@@ -18,7 +18,9 @@ function loadIot23(dir) {
   if (files.length === 0) throw new Error(`no conn.log files in ${dir}`);
   /** @type {any[]} */
   const rows = [];
-  for (const file of files) rows.push(...readConn(file));
+  for (const file of files) {
+    for (const row of readConn(file)) rows.push(row);
+  }
   if (rows.length === 0) throw new Error(`no conn rows in ${dir}`);
   return rows;
 }
