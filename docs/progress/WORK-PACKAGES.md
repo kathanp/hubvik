@@ -423,6 +423,20 @@ Date: 2026-10-18.
 
 The three detectors now keep count, Welford mean, M2, and max. `volume-spike-hourly` keeps 24 of those. Idle learning windows still enter as zero. `relearn()` replaces the state. Export is baseline version 3. A version 2 file from `test/diff/golden.json`, which matches commit `d4a742f`, imports by folding the stored samples. Version 1 still imports. The idle-window acceptance test still asks for `state.samples` to include `0` and `1000000`. That array is gone. The same scenario stays quiet at 2,100,000 bytes and fires at 5,000,000. Editing `packages/core/test/acceptance.test.js` was not approved, so the fast check cannot go green. Items 3 through 6 were not started. Not merged.
 
+## WP-11 — Q-8 and the 7-day budget
+
+Date: 2026-10-18. Branch `wp-11/memory`, fast-forwarded from `main` through `wip/wp-9.7` (`c6e4a8c`). D-21. The idle-window acceptance test no longer reads `state.samples`. It asserts `volume-spike` learned `count` 2 (the 1,000,000-byte window and the idle window), stays quiet at 2,100,000 bytes, and fires at 5,000,000. Nothing else in that file changed.
+
+`node --expose-gc bench/run.js`: 1,000-device retained 11.46 KB/device, median 6.50 µs. 200 devices × 7 days: retained 67.00 KB/device, median 9.58 µs, 6,947,350 events. Under 100 KB. The gate's bench printed 66.96 KB/device. A fan-out import whose `samples` value is not an array is rejected with `samples must be an array`. The engine-api history test now checks that `volume-spike` exports the four summary numbers and no sample array. `update-over-cleartext` state is `{ fired }`.
+
+## WP-11 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 158/158, duration 78969 ms. Coverage lines 98.01%, branches 86.20%, functions 98.15%. Pack-check: core 152 files, 358352 bytes unpacked. `spec-coverage`: 122 rows, 109 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,731 accepted, 45,269 rejected, 0 invariant failures; checkpoint mutation 54,763 accepted, 45,237 rejected, 0 invariant failures. Bench median 6.58 µs, estimate 4.29 KB/device, retained 11.64 KB/device, 1,000 devices. Rich bench median 9.38 µs, retained 66.96 KB/device, 200 devices, 6,947,350 events.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact. `beacon-change` state is the `learned` map and the `tracks` map. `upload-ratio-shift` (cap 2,048) and `failed-connection-ratio` (cap 1,024) still use sample rings. A full 7-day learn is longer than those caps, so a Welford of every window would not match the golden samples. They were not converted. Caps and the budget were not changed.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.

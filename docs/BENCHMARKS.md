@@ -166,3 +166,16 @@ Ring rows after the typed arrays, same 16-device disable measurement. The buffer
 | `failed-connection-ratio` |        9.12 |  10.63 |
 
 200 devices after all three fixes: median 8.13 µs, retained 307.64 KB/device, 6,947,350 events. The 1,000-device line in the same process: median 6.25 µs, retained 16.96 KB/device. The 7-day figure is over 100 KB. Caps and the 100 KB budget were not changed.
+
+## WP-11 — after streaming stats, 2026-10-18
+
+`volume-spike`, `fan-out`, and `volume-spike-hourly` keep a Welford summary (count, mean, M2, max) instead of the sample rings. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.58 µs | 11.64 KB/device |
+| 200 devices, 7 days, then `lock()` |         9.38 µs | 66.96 KB/device |
+
+Events in the 7-day run: 6,947,350. Retained is heap plus ArrayBuffers. The 100 KB budget holds. Caps were not changed.
+
+`update-over-cleartext` stores `{ fired: boolean }`. The 12.99 KB row above is the WP-9.8 disable-one heap delta, not a sample ring. `beacon-change` stores a `learned` map of gaps and a `tracks` map of open gaps. Neither detector was rewritten. `upload-ratio-shift` still keeps a ring capped at 2,048 and `failed-connection-ratio` a ring capped at 1,024. A 7-day learn is longer than those caps, so replacing the ring with a Welford of every learning window would not match the stored samples in `test/diff/golden.json`. Those two rings stay.

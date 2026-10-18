@@ -37,7 +37,8 @@ function readStreamState(state, cap, id) {
     throw new Error(`${id} state is invalid`);
   }
   assertSafeKeys(state, id);
-  if (Array.isArray(state.samples)) {
+  if (state.samples != null) {
+    if (!Array.isArray(state.samples)) throw new Error('samples must be an array');
     if (state.samples.length > cap) throw new Error('array samples exceeds cap');
     const stats = emptyStats();
     for (const value of state.samples) {
