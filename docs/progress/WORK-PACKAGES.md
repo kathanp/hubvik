@@ -518,10 +518,10 @@ Check 175/175, duration 93812 ms. Coverage lines 98.11%, branches 86.64%, functi
 
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact. The all-tier matrix with `discovery: true` emitted no `shadow-anomaly` at medium or above. `test/diff/` passed within D-17. D-24.
 
-## WP-12 gate
+## WP-13 gate
 
 Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
 
-Check 175/175, duration 93812 ms. Coverage lines 98.11%, branches 86.64%, functions 97.95%. Pack-check: core 156 files, 383415 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 54,848 accepted, 45,152 rejected. Bench median 6.79 µs, estimate 4.29 KB/device, retained 11.68 KB/device, 1,000 devices. Rich bench median 13.54 µs, retained 68.07 KB/device, 200 devices, 6,948,925 events.
+Check 182/182, duration 91575 ms. Coverage lines 97.88%, branches 86.02%, functions 98.04%. Pack-check: core 164 files, 407759 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 54,848 accepted, 45,152 rejected; stats `fromJSON` 100,000 rejected. Bench median 6.96 µs, estimate 4.29 KB/device, retained 11.68 KB/device, 1,000 devices. Rich bench median 10.29 µs, retained 68.06 KB/device, 200 devices, 6,948,925 events.
 
-`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact. The all-tier matrix with `discovery: true` emitted no `shadow-anomaly` at medium or above. `test/diff/` passed within D-17. D-24.
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact. No detector migrated.

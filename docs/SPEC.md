@@ -1106,7 +1106,7 @@ The measurement layer. Required before any B21 row (0.5 shadow rule) and before 
 
 - Every primitive has `toJSON()` and `fromJSON()` with validation, so detectors can export it in baselines (base64 for typed arrays, length-checked on import).
 - `cms.js` is LAN-wide (scratch), never per device: 4 KB per device would break the budget.
-- **Migration rule.** Existing detectors keep their current state format. A detector moves to a primitive only in its own WP, with the differential golden test passing within D-17 tolerance, or with a SPEC "Defaults shipped" change and a CHANGELOG line. WP-11 does this for the five sample rings named in BENCHMARKS WP-9.8.
+- **Migration rule.** Existing detectors keep their current state format. A detector moves to a primitive only in its own WP, with the differential golden test passing within D-17 tolerance, or with a SPEC "Defaults shipped" change and a CHANGELOG line. WP-11 does this for the five sample rings named in BENCHMARKS WP-9.8. WP-13 adds the library and does not migrate a detector. Each `fromJSON` has a fuzz target. Page CUSUM (`k = 0.5`, `h = 5`) detects a seeded 1σ shift within 40 samples. Page–Hinkley (`delta = 0.5`, `lambda = 8`) detects the same shift within 60 samples.
 
 ## F3. Long-horizon aggregates
 

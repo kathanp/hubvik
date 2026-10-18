@@ -213,6 +213,10 @@ engine.feed({
 
 The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`. A newly registered name uses `type: 'young-domain'`.
 
+## Streaming statistics
+
+`packages/core/src/engine/stats/` is the Welford, EWMA, P², HyperLogLog, Count-Min, CUSUM, Page–Hinkley, and hash library. Detectors still use their own state. Count-Min is for one LAN-wide table, not one table per device.
+
 ## Early shadow detectors
 
 `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
