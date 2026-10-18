@@ -51,6 +51,10 @@ While learning, a non-hard detector's `learn()` is called and `check()` is not. 
 
 `_advanceTo` must keep the open window when the new event falls inside it. Replacing the window on every event makes fan-out count one host. That bug already shipped once and was fixed. Do not reintroduce it.
 
+## Streaming statistics
+
+`src/engine/stats/` is unused by detectors. `math.js` still owns the Welford summary that `volume-spike`, `fan-out`, and `volume-spike-hourly` export. The new `welford.js` adds min and Chan merge and must not be swapped in until a later WP, because a 7-day learn of the shorter rings would move the golden.
+
 ## Shadow mode
 
 A detector with `meta.mode: 'shadow'` still learns, checks, and round-trips its own state. Each draft is a `shadow-anomaly` with `shadow: true` and no `incidentId`. It does not count toward `alert-storm` and is not passed to `post-update-drift` or `supply-chain-suspect`. Exporters that listen only to `anomaly` do not see it. `stats().shadow[id]` counts fires, devices, severity, and how many drafts would have joined an open incident. The host sets `detectors[id].mode` to `live` to promote one. The engine warns `SHADOW_PROMOTED_BY_HOST` once. `detectors[id].canary` runs a second copy of a live detector in shadow. `stats().canary[id]` is `{ liveOnly, canaryOnly, both }` by fingerprint per closed window. A fifth canary throws in `createEngine`. Canary state is not exported.

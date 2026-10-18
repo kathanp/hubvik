@@ -190,3 +190,14 @@ Events in the 7-day run: 6,947,350. Retained is heap plus ArrayBuffers. The 100 
 | 200 devices, 7 days, then `lock()` |        13.54 µs | 68.07 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-13 — streaming statistics library, 2026-10-18
+
+No detector moved onto the new primitives. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.96 µs | 11.68 KB/device |
+| 200 devices, 7 days, then `lock()` |        10.29 µs | 68.06 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
