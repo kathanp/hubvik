@@ -592,7 +592,7 @@ class Engine extends EventEmitter {
       devices[id] = row;
     }
     const body = {
-      version: 2,
+      version: 3,
       createdAt: opts.createdAt ?? Date.now(),
       engine: { windowMs: this.opts.windowMs, pkg: PKG },
       devices,

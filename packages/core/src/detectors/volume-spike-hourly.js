@@ -1,7 +1,7 @@
 'use strict';
 
-const { SampleRing } = require('../engine/caps');
-const { summarize } = require('../engine/math');
+const { emptyStats, pushSample, statsOf } = require('../engine/math');
+const { readStreamState } = require('./samples');
 
 /**
  * @param {number} ts
@@ -12,15 +12,15 @@ function hourOf(ts) {
 }
 
 /**
- * @param {any} ring
+ * @param {any} stats
  * @param {any} options
  */
-function limitOf(ring, options) {
-  const stats = summarize(ring);
+function limitOf(stats, options) {
+  const summary = statsOf(stats);
   return Math.max(
     options.minBytes,
-    stats.mean + options.sigma * stats.std,
-    stats.max * options.peakFactor,
+    summary.mean + options.sigma * summary.std,
+    summary.max * options.peakFactor,
   );
 }
 
@@ -42,7 +42,7 @@ const detector = {
   createState(caps) {
     const size = Math.max(8, Math.floor(caps.maxWindows / 24));
     return {
-      hours: Array.from({ length: 24 }, () => new SampleRing(size)),
+      hours: Array.from({ length: 24 }, () => emptyStats()),
       size,
     };
   },
@@ -50,13 +50,13 @@ const detector = {
   /** @param {any} dev @param {any} win @param {any} ctx */
   onWindowClose(dev, win, ctx) {
     const hour = hourOf(win.start);
-    const ring = dev.hours[hour];
+    const stats = dev.hours[hour];
     if (ctx.learning) {
-      ring.push(win.bytes);
+      pushSample(stats, win.bytes);
       return;
     }
     if (win.bytes === 0) return;
-    const limit = limitOf(ring, ctx.options);
+    const limit = limitOf(stats, ctx.options);
     if (win.bytes <= limit) return;
     return {
       severity: ctx.options.severity,
@@ -70,7 +70,14 @@ const detector = {
 
   /** @param {any} dev */
   exportState(dev) {
-    return { hours: dev.hours.map((/** @type {any} */ ring) => ring.toArray()) };
+    return {
+      hours: dev.hours.map((/** @type {any} */ stats) => ({
+        count: stats.count,
+        mean: stats.mean,
+        m2: stats.m2,
+        max: stats.max,
+      })),
+    };
   },
 
   /** @param {any} dev @param {any} state @param {any} caps */
@@ -80,29 +87,19 @@ const detector = {
     }
     const size = Math.max(8, Math.floor(caps.maxWindows / 24));
     dev.size = size;
-    dev.hours = state.hours.map((/** @type {any} */ values) => {
-      if (!Array.isArray(values) || values.length > size)
-        throw new Error('array hours exceeds cap');
-      const ring = new SampleRing(size);
-      for (const value of values) {
-        if (typeof value !== 'number' || value < 0)
-          throw new Error('hours must be non-negative numbers');
-        ring.push(value);
+    dev.hours = state.hours.map((/** @type {any} */ hour) => {
+      if (Array.isArray(hour)) {
+        if (hour.length > size) throw new Error('array hours exceeds cap');
+        return readStreamState({ samples: hour }, size, detector.id);
       }
-      return ring;
+      return readStreamState(hour, size, detector.id);
     });
   },
 
   /** @param {any} dev */
   memoryEstimate(dev) {
     if (!Array.isArray(dev.hours)) return 64;
-    let bytes = 64;
-    for (const ring of dev.hours) {
-      if (!ring || typeof ring.length !== 'number') continue;
-      bytes += 104;
-      if (ring.length > 0) bytes += 144 + ring.length * 8;
-    }
-    return bytes;
+    return 64 + dev.hours.length * 48;
   },
 };
 

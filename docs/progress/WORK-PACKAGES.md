@@ -417,6 +417,12 @@ Date: 2026-10-18.
 
 `volume-spike`, `fan-out`, and `volume-spike-hourly` append a sample only while `ctx.learning` is true. `onWindowClose` returns before any push once learning is over. `lock()` sets `frozen`, and a window is learning only when the device is not frozen and the window starts before `learnStart + learnMs`. Watching closes do not append. `relearn()` replaces the detector state with a fresh `createState()`. Default `learnMs` is 7 days and `maxWindows` is 10,080, one window per minute, so a default learning span fills each ring once and does not drop an older sample. Item 2 can proceed for all three.
 
+## WP-9.9 — streaming stats, stopped
+
+Date: 2026-10-18.
+
+The three detectors now keep count, Welford mean, M2, and max. `volume-spike-hourly` keeps 24 of those. Idle learning windows still enter as zero. `relearn()` replaces the state. Export is baseline version 3. A version 2 file from `test/diff/golden.json`, which matches commit `d4a742f`, imports by folding the stored samples. Version 1 still imports. The idle-window acceptance test still asks for `state.samples` to include `0` and `1000000`. That array is gone. The same scenario stays quiet at 2,100,000 bytes and fires at 5,000,000. Editing `packages/core/test/acceptance.test.js` was not approved, so the fast check cannot go green. Items 3 through 6 were not started. Not merged.
+
 ## Autopilot-2 gate
 
 Date: 2026-10-17.
