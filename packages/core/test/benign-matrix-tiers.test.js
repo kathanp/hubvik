@@ -12,6 +12,8 @@ const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 test('14 benign days on every tier stay under medium', () => {
   /** @type {string[]} */
   const lows = [];
+  /** @type {string[]} */
+  const shadowMedium = [];
   for (const seed of [1, 2, 3]) {
     for (const profile of CLASS_NAMES) {
       const events = simulate({
@@ -46,6 +48,11 @@ test('14 benign days on every tier stay under medium', () => {
       /** @type {any[]} */
       const learning = [];
       engine.on('anomaly', (item) => anomalies.push(item));
+      engine.on('shadow-anomaly', (item) => {
+        if (SEVERITY[item.severity] >= SEVERITY.medium) {
+          shadowMedium.push(`${profile} seed ${seed} ${item.detector} ${item.severity}`);
+        }
+      });
       engine.on('warning', (warning) => {
         if (warning.code === 'SUSPICIOUS_LEARNING') learning.push(warning);
       });
@@ -66,4 +73,5 @@ test('14 benign days on every tier stay under medium', () => {
     }
   }
   console.log(lows.length ? lows.join('\n') : 'low/info anomalies: none');
+  assert.deepStrictEqual(shadowMedium, []);
 });

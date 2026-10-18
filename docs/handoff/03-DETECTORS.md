@@ -151,9 +151,9 @@ JA4 is the host's string. Nothing here computes a fingerprint.
 | `mqtt-publish-rate`       |      | medium   | `minPublishes=30` per window                                                                                |
 | `onvif-config-change`     | hard | critical | `SetUser`, `SetNetworkInterfaces`, `SetSystemFactoryDefault`, `UpgradeSystemFirmware`                       |
 
-## Early shadow — off by default until WP-12
+## Early shadow
 
-These three are Rel 0.8. `defaults.enabled` is false. `meta.mode` is `shadow`, which the engine does not read until WP-12. Turn one on with `detectors: { id: { enabled: true } }`.
+These three are Rel 0.8. `defaults.enabled` is true and `meta.mode` is `shadow`. Drafts are `shadow-anomaly` events. Promote one with `detectors: { id: { mode: 'live' } }`.
 
 | Detector             | Tier | Severity                                                                 | Behavior                                                                                                                                                        |
 | -------------------- | ---- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |

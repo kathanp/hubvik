@@ -23,7 +23,7 @@ const detector = {
   requires: ['T2'],
   category: 'dns',
   hardRule: false,
-  defaults: { enabled: false, severity: 'medium' },
+  defaults: { enabled: true, severity: 'medium' },
 
   createState() {
     return { families: new Map() };

@@ -18,7 +18,7 @@ const detector = {
   requires: ['T1'],
   category: 'spoof',
   hardRule: false,
-  defaults: { enabled: false, severity: 'medium', minSamples: 20 },
+  defaults: { enabled: true, severity: 'medium', minSamples: 20 },
 
   createState() {
     return { buckets: new Set(), samples: 0, alerted: new Set() };

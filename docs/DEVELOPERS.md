@@ -215,7 +215,7 @@ The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relay
 
 ## Early shadow detectors
 
-`exploit-probe-http`, `young-domain`, and `ttl-anomaly` ship with `enabled: false`. They stay off until WP-12, which will turn them on in shadow mode. Enable one now with `createEngine({ detectors: { 'ttl-anomaly': { enabled: true } }, tiers: ['T0', 'T1'] })`.
+`exploit-probe-http`, `young-domain`, and `ttl-anomaly` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
 
 `ttl-anomaly` reads `flow.ttl`. No shipped adapter fills that field, so the detector stays quiet until the host supplies it. `young-domain` does nothing until the host loads a `young-domain` list. Set `expiresTs` about 30 days after registration. Expired rows are ignored.
 

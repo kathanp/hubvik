@@ -535,6 +535,15 @@ function validateOptions(raw) {
       if (value.severity != null && !SEVERITY_NAMES.has(value.severity)) {
         throw new TypeError(`detectors.${id}.severity is invalid`);
       }
+      if (value.mode != null && value.mode !== 'live' && value.mode !== 'shadow') {
+        throw new TypeError(`detectors.${id}.mode must be live or shadow`);
+      }
+      if (value.canary != null) {
+        if (!value.canary || typeof value.canary !== 'object' || Array.isArray(value.canary)) {
+          throw new TypeError(`detectors.${id}.canary must be an object`);
+        }
+        assertSafeKeys(value.canary, `detectors.${id}.canary`);
+      }
       detectors[id] = value;
     }
   }
