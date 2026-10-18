@@ -14,8 +14,32 @@ test('14 benign days on every tier stay under medium', () => {
   const lows = [];
   for (const seed of [1, 2, 3]) {
     for (const profile of CLASS_NAMES) {
-      const events = simulate({ profile, days: 14, seed, startTs: T0, rich: true });
-      const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS });
+      const events = simulate({
+        profile,
+        days: 14,
+        seed,
+        startTs: T0,
+        rich: true,
+        discovery: true,
+      });
+      const engine = createEngine({
+        learnMs: 7 * DAY,
+        tiers: TIERS,
+        detectors: {
+          'exploit-probe-http': { enabled: true },
+          'young-domain': { enabled: true },
+          'ttl-anomaly': { enabled: true },
+        },
+      });
+      engine.loadIndicators(
+        [1, 2, 3, 4, 5].map((n) => ({
+          value: `fresh-example-${n}.test`,
+          type: 'young-domain',
+          source: 'lab',
+          confidence: 0.8,
+          expiresTs: T0 + 400 * DAY,
+        })),
+      );
       engine.setDeviceClass(events[0].device, profile);
       /** @type {any[]} */
       const anomalies = [];

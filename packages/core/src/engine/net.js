@@ -106,6 +106,39 @@ function domainFamily(name) {
 }
 
 /**
+ * IPv4 224.0.0.0/4 or IPv6 ff00::/8.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isMulticast(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  const v4 = ipv4(ip);
+  if (v4 != null) return inBlock(v4, ipv4('224.0.0.0') ?? 0, 4);
+  return ip.toLowerCase().startsWith('ff');
+}
+
+/**
+ * IPv4 limited broadcast.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isBroadcast(ip) {
+  return ip === '255.255.255.255';
+}
+
+/**
+ * IPv4 169.254.0.0/16 or IPv6 fe80::/10.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isLinkLocal(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  const v4 = ipv4(ip);
+  if (v4 != null) return inBlock(v4, ipv4('169.254.0.0') ?? 0, 16);
+  return /^fe[89ab][0-9a-f]/i.test(ip);
+}
+
+/**
  * @param {unknown} value
  * @returns {boolean}
  */
@@ -123,5 +156,8 @@ module.exports = {
   isPublic,
   isIpName,
   domainFamily,
+  isMulticast,
+  isBroadcast,
+  isLinkLocal,
   isPrivateAnswer,
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-const { domainFamily, isBogon } = require('../engine/net');
+const { domainFamily, isBogon, isMulticast, isLinkLocal } = require('../engine/net');
 const { assertState } = require('./state');
 
 const detector = {
@@ -82,7 +82,8 @@ const detector = {
       !cls.allowsInboundLan &&
       ev.type === 'flow' &&
       ev.direction === 'lan' &&
-      isBogon(ev.srcIp)
+      isBogon(ev.srcIp) &&
+      !discoveryDestination(ev.dstIp)
     ) {
       dev.firedLan = true;
       drafts.push(
@@ -138,6 +139,15 @@ function draft(ctx, ev, actual, expected, data) {
     expected,
     data,
   };
+}
+
+/**
+ * Multicast, broadcast, and link-local destinations are discovery, not a session to the device.
+ * @param {unknown} ip
+ * @returns {boolean}
+ */
+function discoveryDestination(ip) {
+  return typeof ip === 'string' && (ip === '255.255.255.255' || isMulticast(ip) || isLinkLocal(ip));
 }
 
 module.exports = detector;

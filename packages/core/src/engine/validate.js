@@ -237,6 +237,10 @@ function flowEvent(raw, ts, warnings) {
       event.icmpType = raw.icmpType;
     } else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.icmpType' });
   }
+  if (raw.ttl != null) {
+    if (Number.isInteger(raw.ttl) && raw.ttl >= 0 && raw.ttl <= 255) event.ttl = raw.ttl;
+    else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.ttl' });
+  }
   if (raw.dstName != null) {
     const name = normalizeName(raw.dstName, 255);
     if (name) event.dstName = name;
@@ -360,6 +364,15 @@ function httpEvent(raw, ts, warnings) {
     else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped http.host' });
   }
   if (typeof raw.path === 'string') event.path = raw.path.slice(0, 255);
+  if (raw.status != null) {
+    if (Number.isInteger(raw.status) && raw.status >= 100 && raw.status <= 599) {
+      event.status = raw.status;
+    } else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped http.status' });
+  }
+  if (raw.direction != null) {
+    if (raw.direction === 'out' || raw.direction === 'in') event.direction = raw.direction;
+    else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped http.direction' });
+  }
   return event;
 }
 
@@ -713,7 +726,7 @@ function validateIndicator(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new TypeError('indicator must be an object');
   assertSafeKeys(raw, 'indicator');
-  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad', 'proxy-sdk']);
+  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad', 'proxy-sdk', 'young-domain']);
   if (typeof raw.value !== 'string' || raw.value.length === 0 || raw.value.length > 255) {
     throw new TypeError('indicator.value is invalid');
   }

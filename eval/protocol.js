@@ -410,40 +410,42 @@ function evaluate(rows, opts) {
   for (const row of rows) {
     if (row.event && typeof row.event.type === 'string') types.add(row.event.type);
   }
-  const ablation = Object.values(detectors).map((det) => {
-    const id = det.id;
-    const severity = (det.defaults && det.defaults.severity) || 'medium';
-    if (!exercised(det, tiers, types)) {
+  const ablation = Object.values(detectors)
+    .filter((det) => !det.defaults || det.defaults.enabled !== false)
+    .map((det) => {
+      const id = det.id;
+      const severity = (det.defaults && det.defaults.severity) || 'medium';
+      if (!exercised(det, tiers, types)) {
+        return {
+          detector: id,
+          severity,
+          exercised: false,
+          unique: 0,
+          falsePositives: 0,
+          zeroUnique: false,
+          proposal: null,
+        };
+      }
+      const without = afterLock(replay(plans, tiers, id), plans);
+      let unique = 0;
+      for (const interval of instances) {
+        if (!interval.detectors.includes(id)) continue;
+        if (hitsFor(interval, without).length === 0) unique += 1;
+      }
+      const fp = fpItems.filter((item) => item.detector === id).length;
+      const propose = unique === 0 && aboveGate(severity, fp, days);
       return {
         detector: id,
         severity,
-        exercised: false,
-        unique: 0,
-        falsePositives: 0,
-        zeroUnique: false,
-        proposal: null,
+        exercised: true,
+        unique,
+        falsePositives: fp,
+        zeroUnique: unique === 0,
+        proposal: propose
+          ? `${id}: zero unique detections and ${fp} ${severity} false positives over ${days} benign device-days, above the C6.3 gate. Proposal: set detectors.${id}.enabled to false, or set severity to info. The human decides.`
+          : null,
       };
-    }
-    const without = afterLock(replay(plans, tiers, id), plans);
-    let unique = 0;
-    for (const interval of instances) {
-      if (!interval.detectors.includes(id)) continue;
-      if (hitsFor(interval, without).length === 0) unique += 1;
-    }
-    const fp = fpItems.filter((item) => item.detector === id).length;
-    const propose = unique === 0 && aboveGate(severity, fp, days);
-    return {
-      detector: id,
-      severity,
-      exercised: true,
-      unique,
-      falsePositives: fp,
-      zeroUnique: unique === 0,
-      proposal: propose
-        ? `${id}: zero unique detections and ${fp} ${severity} false positives over ${days} benign device-days, above the C6.3 gate. Proposal: set detectors.${id}.enabled to false, or set severity to info. The human decides.`
-        : null,
-    };
-  });
+    });
   return {
     dataset: opts.dataset || null,
     tiers,

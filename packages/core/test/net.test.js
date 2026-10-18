@@ -2,7 +2,14 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { isBogon, isPublic, isPrivateAnswer } = require('../src/engine/net');
+const {
+  isBogon,
+  isPublic,
+  isPrivateAnswer,
+  isMulticast,
+  isBroadcast,
+  isLinkLocal,
+} = require('../src/engine/net');
 
 test('bogon checks cover IPv4, IPv6, and names that are not addresses', () => {
   assert.strictEqual(isBogon(''), false);
@@ -20,4 +27,15 @@ test('bogon checks cover IPv4, IPv6, and names that are not addresses', () => {
   assert.strictEqual(isPrivateAnswer(1), false);
   assert.strictEqual(isPrivateAnswer('0.0.0.0'), true);
   assert.strictEqual(isPrivateAnswer('1.2.3.4'), false);
+  assert.strictEqual(isMulticast('224.0.0.251'), true);
+  assert.strictEqual(isMulticast('239.255.255.250'), true);
+  assert.strictEqual(isMulticast('1.2.3.4'), false);
+  assert.strictEqual(isMulticast('255.255.255.255'), false);
+  assert.strictEqual(isBroadcast('255.255.255.255'), true);
+  assert.strictEqual(isBroadcast('224.0.0.251'), false);
+  assert.strictEqual(isMulticast('ff02::1'), true);
+  assert.strictEqual(isLinkLocal('169.254.1.1'), true);
+  assert.strictEqual(isLinkLocal('169.255.1.1'), false);
+  assert.strictEqual(isLinkLocal('fe80::1'), true);
+  assert.strictEqual(isLinkLocal('2001:4860:4860::8888'), false);
 });

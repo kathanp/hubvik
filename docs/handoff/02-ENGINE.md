@@ -12,7 +12,7 @@
 | `flow`    | T1       | `device`                                  | Addresses, ports, `proto`, `direction` `out\|in\|lan`, byte and packet counters, `durationMs`, `tcpOutcome`, `dstName`, `icmpType`                                                                              |
 | `dns`     | T2       | `device`, `qname`                         | `qtype`, `rcode`, `resolver`, `answers[]` of `{type, value, ttl}`                                                                                                                                               |
 | `tls`     | T3       | `device`, `dstIp`, `dstPort`              | `sni`, `ja4` (string ≤ 255), `version` (≤ 32), `alpn` (≤ 8 strings), `cert.{issuer, subject, sha256, selfSigned, notAfter}`                                                                                     |
-| `http`    | T3       | `device`, `dstIp`, `dstPort`, `method`    | `host`, `path`                                                                                                                                                                                                  |
+| `http`    | T3       | `device`, `dstIp`, `dstPort`, `method`    | `host`, `path`, `status`, `direction` `out` or `in`. Any other `direction` is dropped with `FIELD_DROPPED`                                                                                                      |
 | `mapping` | T1       | `device`, `proto`, `port`                 | `proto` is `upnp`, `nat-pmp`, or `pcp`                                                                                                                                                                          |
 | `arp`     | T4       | `ip`, `mac`, `op`                         | `device` optional                                                                                                                                                                                               |
 | `dhcp`    | T4       | `mac`, `msg`                              | `serverIp`, `requestedIp`                                                                                                                                                                                       |
@@ -99,7 +99,9 @@ Optional HMAC-SHA256 via `node:crypto`: `exportBaseline({ sign: key })`, `import
 
 ## Indicators
 
-`loadIndicators([{ value, type, source, confidence?, expiresTs? }])`. Types: `ip`, `cidr`, `domain`, `ja4`, `tor`, `ad`. Exact map for ip, domain, ja4, tor, and ad. IPv4 CIDR is matched by prefix length. Domain match walks parent labels. Expired when `expiresTs != null && ts >= expiresTs`. `type: 'tor'` is not treated as `ip`. `type: 'ad'` is only for `ad-fraud`. The set is replaced only after every item validates.
+`loadIndicators([{ value, type, source, confidence?, expiresTs? }])`. Types: `ip`, `cidr`, `domain`, `ja4`, `tor`, `ad`, `proxy-sdk`, `young-domain`. Exact map for ip, domain, ja4, tor, ad, proxy-sdk, and young-domain. IPv4 CIDR is matched by prefix length. Domain and `young-domain` match walks parent labels. Expired when `expiresTs != null && ts >= expiresTs`. `type: 'tor'` is not treated as `ip`. `type: 'ad'` is only for `ad-fraud`. `type: 'young-domain'` is only for `young-domain`. The set is replaced only after every item validates.
+
+`threat-intel-match` and `young-domain` share `dedupGroup` `indicator`. Two anomalies in that group on one device inside one incident window add once, at the higher weight.
 
 ## Classes, policy, and network helpers
 

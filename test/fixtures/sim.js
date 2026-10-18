@@ -17,7 +17,7 @@ function pickHost(spec, n) {
 
 /**
  * T0 connection summaries for one benign device class.
- * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean }} opts
+ * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean, discovery?: boolean }} opts
  * @returns {object[]}
  */
 function simulate(opts) {
@@ -47,7 +47,7 @@ function simulate(opts) {
     }
   }
   if (!opts.rich) return events;
-  return enrich(spec, events, origin, opts.days);
+  return enrich(spec, events, origin, opts.days, opts.profile, opts.discovery === true);
 }
 
 /**
@@ -57,8 +57,10 @@ function simulate(opts) {
  * @param {{ device: string, dst: string, bytes: number, ts: number }[]} summaries
  * @param {number} origin
  * @param {number} days
+ * @param {string} profile
+ * @param {boolean} discovery
  */
-function enrich(spec, summaries, origin, days) {
+function enrich(spec, summaries, origin, days, profile, discovery) {
   /** @type {object[]} */
   const events = [];
   const mac = 'aa:bb:cc:dd:ee:01';
@@ -84,8 +86,17 @@ function enrich(spec, summaries, origin, days) {
       mac,
       op: 'reply',
     });
-    events.push(ntp(spec.device, dayStart + 2_000, '1.1.1.1', lease));
-    events.push(ntp(spec.device, dayStart + 3_000, '9.9.9.9', lease));
+    events.push(ntp(spec.device, dayStart + 2_000, '1.1.1.1', lease, 63));
+    events.push(ntp(spec.device, dayStart + 3_000, '9.9.9.9', lease, 64));
+    if (discovery) {
+      events.push(multicast(spec.device, dayStart + 4_000, '224.0.0.251', 5353, 255, lease));
+      events.push(multicast(spec.device, dayStart + 5_000, '239.255.255.250', 1900, 2, lease));
+    }
+    if (HTTP_PROFILES.has(profile)) {
+      events.push(httpStatus(spec.device, dayStart + 6_000, HTTP_PATHS[0]));
+      events.push(httpStatus(spec.device, dayStart + 7_000, HTTP_PATHS[1]));
+      events.push(httpStatus(spec.device, dayStart + 8_000, HTTP_PATHS[2]));
+    }
   }
   const firmwareAt = origin + DAY + 12 * H;
   events.push({
@@ -105,6 +116,7 @@ function enrich(spec, summaries, origin, days) {
     durationMs: 4000,
     tcpOutcome: 'established',
     dstName: 'update.vendor.com',
+    ttl: 64,
   });
   for (const summary of summaries) {
     const host = summary.dst;
@@ -141,6 +153,7 @@ function enrich(spec, summaries, origin, days) {
       durationMs: 40,
       tcpOutcome: 'established',
       dstName: host,
+      ttl: 64,
     });
     events.push({
       type: 'tls',
@@ -197,13 +210,21 @@ function enrich(spec, summaries, origin, days) {
   return events;
 }
 
+const HTTP_PROFILES = new Set(['camera', 'printer', 'hub', 'nas']);
+const HTTP_PATHS = [
+  '/api/v1/status;jsessionid=AB12',
+  '/cgi-bin/luci/;stok=abc/admin/status',
+  '/search?q=a%7Cb%24c',
+];
+
 /**
  * @param {string} device
  * @param {number} ts
  * @param {string} dstIp
  * @param {string} srcIp
+ * @param {number} ttl
  */
-function ntp(device, ts, dstIp, srcIp) {
+function ntp(device, ts, dstIp, srcIp, ttl) {
   return {
     type: 'flow',
     device,
@@ -220,6 +241,56 @@ function ntp(device, ts, dstIp, srcIp) {
     pktsIn: 1,
     durationMs: 20,
     dstName: dstIp === '1.1.1.1' ? 'time.cloudflare.com' : 'dns.quad9.net',
+    ttl,
+  };
+}
+
+/**
+ * LAN discovery. Direction is lan so a multicast destination is not a WAN bogon.
+ * @param {string} device
+ * @param {number} ts
+ * @param {string} dstIp
+ * @param {number} dstPort
+ * @param {number} ttl
+ * @param {string} srcIp
+ */
+function multicast(device, ts, dstIp, dstPort, ttl, srcIp) {
+  return {
+    type: 'flow',
+    device,
+    ts,
+    srcIp,
+    srcPort: 40002,
+    dstIp,
+    dstPort,
+    proto: 'udp',
+    direction: 'lan',
+    bytesOut: 80,
+    bytesIn: 0,
+    pktsOut: 1,
+    pktsIn: 0,
+    durationMs: 1,
+    ttl,
+  };
+}
+
+/**
+ * @param {string} device
+ * @param {number} ts
+ * @param {string} path
+ */
+function httpStatus(device, ts, path) {
+  return {
+    type: 'http',
+    device,
+    ts,
+    dstIp: '192.0.2.1',
+    dstPort: 80,
+    method: 'GET',
+    host: 'status.lan',
+    path,
+    direction: 'out',
+    status: 200,
   };
 }
 

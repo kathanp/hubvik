@@ -63,6 +63,7 @@ test('parses dns, ssl, http, and bacnet lines', () => {
     }),
   );
   assert.strictEqual(page.host, 'video.vendor.com');
+  assert.strictEqual(page.direction, 'out');
 
   const bacnet = createParser({ log: 'bacnet', device: () => 'ahu-1', now: () => 8 });
   const [write] = bacnet.write(
@@ -76,6 +77,20 @@ test('parses dns, ssl, http, and bacnet lines', () => {
   assert.strictEqual(write.proto, 'bacnet');
   assert.strictEqual(write.op, 'WriteProperty');
   assert.strictEqual(write.device, 'ahu-1');
+});
+
+test('http.direction is in when the device is id.resp_h', () => {
+  const http = createParser({ log: 'http', now: () => 7 });
+  const [page] = http.write(
+    JSON.stringify({
+      ts: 1,
+      id: { orig_h: '1.2.3.4', resp_h: '10.0.0.8', resp_p: 80 },
+      method: 'GET',
+      uri: '/GponForm/diag_Form',
+    }),
+  );
+  assert.strictEqual(page.direction, 'in');
+  assert.strictEqual(page.device, '10.0.0.8');
 });
 
 test('parses ICS and MQTT logs', () => {

@@ -63,6 +63,23 @@ engine.feed({
 });
 ```
 
+T3 HTTP carries who sent the request. `direction` `out` means the device sent it. `in` means the device received it. Any other value is dropped.
+
+```js
+engine.feed({
+  type: 'http',
+  device: 'aa:bb:cc:dd:ee:ff',
+  ts: Date.now(),
+  dstIp: '203.0.113.5',
+  dstPort: 80,
+  method: 'GET',
+  host: 'video.vendor.com',
+  path: '/api/v1/status',
+  status: 200,
+  direction: 'out',
+});
+```
+
 T2 is a DNS message:
 
 ```js
@@ -194,7 +211,13 @@ engine.feed({
 });
 ```
 
-The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`.
+The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`. A newly registered name uses `type: 'young-domain'`.
+
+## Early shadow detectors
+
+`exploit-probe-http`, `young-domain`, and `ttl-anomaly` ship with `enabled: false`. They stay off until WP-12, which will turn them on in shadow mode. Enable one now with `createEngine({ detectors: { 'ttl-anomaly': { enabled: true } }, tiers: ['T0', 'T1'] })`.
+
+`ttl-anomaly` reads `flow.ttl`. No shipped adapter fills that field, so the detector stays quiet until the host supplies it. `young-domain` does nothing until the host loads a `young-domain` list. Set `expiresTs` about 30 days after registration. Expired rows are ignored.
 
 ## TLS, building protocols, and fleets
 

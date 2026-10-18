@@ -92,8 +92,10 @@ class Engine extends EventEmitter {
       const consumes = consumesOf(det);
       const over = this.opts.detectors[det.id];
       let status;
-      if (over && over.enabled === false)
-        status = { active: false, reason: 'disabled by configuration' };
+      const turnedOff =
+        (over && over.enabled === false) ||
+        ((!over || over.enabled == null) && det.defaults && det.defaults.enabled === false);
+      if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
       else {
         const missing = det.requires.filter((/** @type {string} */ tier) => !enabled.has(tier));
         status = missing.length
@@ -555,7 +557,9 @@ class Engine extends EventEmitter {
       /** @type {Record<string, { v: number, state: object }>} */
       const detectors = Object.create(null);
       for (const det of this.registry) {
-        const state = device.states.get(det.id) ?? this._freshState(det);
+        const stored = device.states.get(det.id);
+        if (!stored && det.defaults && det.defaults.enabled === false) continue;
+        const state = stored ?? this._freshState(det);
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
         detectors[det.id] = { v: det.version, state: exported };
       }
