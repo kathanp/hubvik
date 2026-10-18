@@ -201,3 +201,14 @@ No detector moved onto the new primitives. `node --expose-gc bench/run.js` then 
 | 200 devices, 7 days, then `lock()` |        10.29 µs | 68.06 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-14 — metamorphic suite, 2026-10-18
+
+A checkpoint now also stores live detector state. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         7.08 µs | 11.55 KB/device |
+| 200 devices, 7 days, then `lock()` |         8.92 µs | 67.99 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.

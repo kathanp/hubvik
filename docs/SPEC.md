@@ -1322,7 +1322,7 @@ Golden tests use the replay fixtures. The HTML report has a snapshot test with t
 | Benign idempotence      | Duplicate every benign event of set-membership detectors' consumed types in the same window  | No new anomalies from `new-destination`, `new-port`, `new-protocol`, `new-domain-family`, `new-client-fingerprint`, `cert-change` |
 | Shadow non-interference | Enable every B21 row                                                                         | The live anomaly stream and `exportBaseline()` for B1–B20 are unchanged                                                           |
 
-A failure is a detector or engine bug. Fix the code. Never drop a relation or exclude a detector from it. When a relation is wrong for a detector by design (for example, `wrong-time` under a non-week time shift), the exemption goes in the test file with a one-line reason and is listed in `docs/DECISIONS.md`.
+A failure is a detector or engine bug. Fix the code. Never drop a relation or exclude a detector from it. When a relation is wrong for a detector by design (for example, `wrong-time` under a non-week time shift), the exemption goes in the test file with a one-line reason and is listed in `docs/DECISIONS.md`. `reorderMs` accepts a late event and does not delay one that already arrived, so the bounded-reorder multiset exempts `src-spoof`, `packet-flood`, `proxy-relay`, and `supply-chain-suspect` (D-25). Every other anomaly still has to match.
 
 ## F19. Adapters and event types
 

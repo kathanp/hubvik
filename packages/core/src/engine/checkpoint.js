@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertSafeKeys } = require('./validate');
+const { LruSet, SampleRing } = require('./caps');
 
 const MAX_BYTES = 16 * 1024 * 1024;
 const KNOWN = new Set(['arp-spoof', 'identity-change', 'dhcp-starvation', 'fleet-wave']);
@@ -10,6 +11,8 @@ const KNOWN = new Set(['arp-spoof', 'identity-change', 'dhcp-starvation', 'fleet
  * @returns {any}
  */
 function plain(value) {
+  if (value instanceof LruSet) return { lru: value.max, values: value.toArray() };
+  if (value instanceof SampleRing) return { ring: value.max, values: value.toArray() };
   if (value instanceof Map)
     return { map: [...value.entries()].map((pair) => [pair[0], plain(pair[1])]) };
   if (value instanceof Set) return { set: [...value].map(plain) };
@@ -31,12 +34,36 @@ function revive(value) {
   if (Array.isArray(value)) return value.map(revive);
   if (!value || typeof value !== 'object') return value;
   const keys = Object.keys(value);
+  const tagged = keys.some(
+    (key) => key === 'set' || key === 'map' || key === 'lru' || key === 'ring',
+  );
   if (keys.length === 1 && keys[0] === 'map' && Array.isArray(value.map)) {
     return new Map(value.map.map((/** @type {any[]} */ pair) => [pair[0], revive(pair[1])]));
   }
   if (keys.length === 1 && keys[0] === 'set' && Array.isArray(value.set)) {
     return new Set(value.set.map(revive));
   }
+  if (
+    keys.length === 2 &&
+    typeof value.lru === 'number' &&
+    Array.isArray(value.values) &&
+    keys.includes('lru')
+  ) {
+    const set = new LruSet(value.lru);
+    for (const item of value.values) set.add(item);
+    return set;
+  }
+  if (
+    keys.length === 2 &&
+    typeof value.ring === 'number' &&
+    Array.isArray(value.values) &&
+    keys.includes('ring')
+  ) {
+    const ring = new SampleRing(value.ring);
+    for (const item of value.values) ring.push(item);
+    return ring;
+  }
+  if (tagged) throw new Error('checkpoint state is invalid');
   /** @type {Record<string, unknown>} */
   const out = {};
   for (const key of keys) out[key] = revive(value[key]);
@@ -168,6 +195,69 @@ function progressOf(device) {
 }
 
 /**
+ * JSON copy of live detector state. `exportState` drops open-window counters; this keeps them.
+ * @param {Map<string, any>} states
+ * @returns {Record<string, unknown>}
+ */
+function freezeStates(states) {
+  /** @type {Record<string, unknown>} */
+  const out = Object.create(null);
+  for (const [id, state] of states) out[id] = plain(state);
+  return out;
+}
+
+/**
+ * @param {unknown} raw
+ * @returns {Map<string, any>}
+ */
+function thawStates(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('checkpoint live state is invalid');
+  }
+  assertSafeKeys(raw, 'checkpoint live');
+  const states = new Map();
+  for (const [id, value] of Object.entries(raw)) states.set(id, revive(value));
+  return states;
+}
+
+/**
+ * A restored live state must keep the Sets, Maps, rings and nested objects
+ * that `createState` built. A mutated tag otherwise revives as a plain object
+ * and the next feed calls `.has` on it.
+ * @param {any} fresh
+ * @param {any} live
+ * @returns {void}
+ */
+function assertLiveShape(fresh, live) {
+  if (
+    fresh instanceof LruSet ||
+    fresh instanceof SampleRing ||
+    fresh instanceof Map ||
+    fresh instanceof Set
+  ) {
+    if (live == null || live.constructor !== fresh.constructor) {
+      throw new Error('checkpoint live state is invalid');
+    }
+    return;
+  }
+  if (Array.isArray(fresh)) {
+    if (!Array.isArray(live)) throw new Error('checkpoint live state is invalid');
+    return;
+  }
+  if (fresh && typeof fresh === 'object') {
+    if (!live || typeof live !== 'object' || Array.isArray(live)) {
+      throw new Error('checkpoint live state is invalid');
+    }
+    for (const key of Object.keys(fresh)) {
+      if (!Object.prototype.hasOwnProperty.call(live, key)) {
+        throw new Error('checkpoint live state is invalid');
+      }
+      assertLiveShape(fresh[key], live[key]);
+    }
+  }
+}
+
+/**
  * @param {any} device
  * @param {any} progress
  */
@@ -191,4 +281,7 @@ module.exports = {
   progressOf,
   applyProgress,
   revive,
+  freezeStates,
+  thawStates,
+  assertLiveShape,
 };

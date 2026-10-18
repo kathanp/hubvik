@@ -21,6 +21,9 @@ const {
   progressOf,
   applyProgress,
   revive,
+  freezeStates,
+  thawStates,
+  assertLiveShape,
 } = require('./checkpoint');
 const { CLASSES } = require('./classes');
 const ATTACK = require('../data/attack-map.json');
@@ -624,6 +627,23 @@ class Engine extends EventEmitter {
   }
 
   /**
+   * Reject live detector state whose exported form cannot be imported.
+   * @param {unknown} live
+   * @returns {void}
+   */
+  _probeLive(live) {
+    const states = thawStates(live);
+    for (const [id, state] of states) {
+      const det = this.byId.get(id);
+      if (!det || typeof det.exportState !== 'function' || typeof det.importState !== 'function') {
+        throw new Error('checkpoint live state is invalid');
+      }
+      assertLiveShape(this._freshState(det), state);
+      det.importState(this._freshState(det), det.exportState(state), this._caps());
+    }
+  }
+
+  /**
    * JSON-safe snapshot of the baseline, LAN scratch tables, watermark, and learning progress.
    * @param {{ devices?: string[], createdAt?: number, sign?: string | Buffer }} [opts]
    */
@@ -636,7 +656,10 @@ class Engine extends EventEmitter {
     );
     for (const [id, row] of Object.entries(baseline.devices)) {
       const device = this.devices.get(id);
-      if (device) row.progress = progressOf(device);
+      if (device) {
+        row.progress = progressOf(device);
+        row.live = freezeStates(device.states);
+      }
     }
     const body = {
       version: baseline.version,
@@ -664,8 +687,24 @@ class Engine extends EventEmitter {
   restore(raw, opts = {}) {
     const cp = /** @type {any} */ (raw);
     assertCheckpoint(cp);
-    const revived = revive(cp.scratch == null ? {} : cp.scratch);
+    /** @type {Record<string, any>} */
+    /** @type {Record<string, any>} */
+    const revived = {};
+    if (cp.scratch != null) {
+      for (const key of Object.keys(cp.scratch)) {
+        try {
+          revived[key] = revive(cp.scratch[key]);
+        } catch (err) {
+          throw new Error(`checkpoint scratch ${key} is invalid`, { cause: err });
+        }
+      }
+    }
     assertRevived(revived);
+    if (cp.devices && typeof cp.devices === 'object') {
+      for (const row of Object.values(cp.devices)) {
+        if (row && typeof row === 'object' && row.live) this._probeLive(row.live);
+      }
+    }
     this.importBaseline(cp, { merge: false, verify: opts.verify });
     this.watermark = typeof cp.watermark === 'number' ? cp.watermark : null;
     this.lastEventTs = this.watermark;
@@ -674,7 +713,10 @@ class Engine extends EventEmitter {
     if (devices && typeof devices === 'object') {
       for (const [id, row] of Object.entries(devices)) {
         const device = this.devices.get(id);
-        if (device && row && typeof row === 'object') applyProgress(device, row.progress);
+        if (device && row && typeof row === 'object') {
+          applyProgress(device, row.progress);
+          if (row.live) device.states = thawStates(row.live);
+        }
       }
     }
   }

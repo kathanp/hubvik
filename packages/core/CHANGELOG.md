@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+A checkpoint keeps each detector's live state, including open-window counters that `exportBaseline()` does not store, and `restore()` puts that state back.
+
 `packages/core/src/engine/stats/` holds Welford, EWMA, P², HyperLogLog, Count-Min, Page CUSUM, Page–Hinkley, and a seeded FNV-1a/fmix32 hash. No detector reads them yet. Count-Min is LAN-wide scratch only.
 
 `volume-spike`, `fan-out`, and `volume-spike-hourly` keep a Welford summary (count, mean, M2, max) instead of a sample ring. Baseline version 3. A version 2 baseline still imports by folding its samples. Idle learning windows still count as zero. The 200-device 7-day bench retained 66.96 KB/device.
