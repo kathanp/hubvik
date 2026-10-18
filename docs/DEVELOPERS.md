@@ -263,6 +263,6 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 ## What this tree does not do yet
 
-`checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, and learning progress. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text.
+`checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
 Manufacturer Usage Description files, MAC randomization, discovery spoofing, TTL changes, and interactive-session shape are specified and not implemented. DHCP fingerprint identity is `identity-change`: the host supplies `dhcp.fingerprint`, and core does not derive it. `npm run bench` and `npm run fuzz` run. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; see `docs/BENCHMARKS.md`. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.

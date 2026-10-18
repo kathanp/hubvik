@@ -41,7 +41,7 @@ Window start is epoch-aligned: `ts - (ts % windowMs)`. Default 60 seconds.
 
 Learning starts at the device's first accepted event. The device becomes watching when `ts >= learnStart + learnMs`. `learnMs: 0` flips to watching **before** detectors run, so the first event is a `check`, not a `learn`.
 
-`lock(device)` freezes the device into watching. Close the current windows before flipping `frozen`. `relearn` clears the listed detector state and starts learning again. Import marks the device watching, frozen, and seen, with `learnStart` 0, and does not emit `learned`.
+`lock(device)` freezes the device into watching. Close the current windows before flipping `frozen`. `relearn` clears the listed detector state and starts learning again. Import marks the device watching, frozen, and seen, with `learnStart` 0, and does not emit `learned`. A checkpoint also stores each detector's live state, including open-window counters and `LruSet` values that `exportBaseline()` does not keep, and `restore()` puts that state back.
 
 While learning, a non-hard detector's `learn()` is called and `check()` is not. A `hardRule: true` detector skips `learn()` and always runs `check()`.
 
