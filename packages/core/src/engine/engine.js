@@ -3,6 +3,7 @@
 const { createHash } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
+const { isGroupDst } = require('../detectors/lib');
 const { LruSet } = require('./caps');
 const { validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
@@ -809,7 +810,7 @@ class Engine extends EventEmitter {
     if (!device.open) return;
     device.open.events = (device.open.events || 0) + 1;
     device.open.bytes += event.bytes || 0;
-    if (!event.dst) return;
+    if (!event.dst || isGroupDst(event.dst)) return;
     const win = device.open;
     if (win.dstSet.has(event.dst)) return;
     if (win.fanoutAlerted || win.dstSet.size >= this.opts.maxWindowDestinations) {

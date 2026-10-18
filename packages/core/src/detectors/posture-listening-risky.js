@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const PORTS = require('../data/ports.json');
 const { assertState, readStrings, fillSet } = require('./state');
+const { isGroupDst } = require('./lib');
 
 const LISTEN = new Set(PORTS.listen);
 
@@ -25,7 +26,10 @@ const detector = {
 
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
-    if (ev.type !== 'flow' || ev.direction === 'out' || !LISTEN.has(ev.dstPort)) return;
+    if (ev.type !== 'flow' || !LISTEN.has(ev.dstPort) || isGroupDst(ev.dstIp)) return;
+    const responder =
+      ev.direction === 'in' || (ev.direction === 'lan' && ev.dstIp === ctx.deviceId);
+    if (!responder) return;
     const key = String(ev.dstPort);
     if (dev.alerted.has(key)) return;
     dev.alerted.add(key);

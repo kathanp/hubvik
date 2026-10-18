@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { isGroupDst } = require('./lib');
 
 const detector = {
   id: 'vertical-scan',
@@ -75,7 +76,7 @@ const detector = {
  * @returns {number | null}
  */
 function record(dev, ev, ctx) {
-  if (ev.type !== 'flow' || !ev.dstIp || ev.dstPort == null) return null;
+  if (ev.type !== 'flow' || !ev.dstIp || ev.dstPort == null || isGroupDst(ev.dstIp)) return null;
   if (dev.win !== ctx.window.start) {
     if (dev.learning) {
       for (const count of dev.counts.values()) dev.max = Math.max(dev.max, count);

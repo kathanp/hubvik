@@ -1,7 +1,18 @@
 'use strict';
 
 const { LruSet } = require('../engine/caps');
+const { isBroadcast, isMulticast } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+
+/**
+ * A group send: 224.0.0.0/4, 255.255.255.255, or ff00::/8.
+ * Not a peer, host, or listening port.
+ * @param {unknown} ip
+ * @returns {boolean}
+ */
+function isGroupDst(ip) {
+  return typeof ip === 'string' && (isBroadcast(ip) || isMulticast(ip));
+}
 
 /**
  * @param {any} caps
@@ -87,6 +98,7 @@ function listed(name, list) {
 }
 
 module.exports = {
+  isGroupDst,
   seenState,
   exportSeen,
   importSeen,

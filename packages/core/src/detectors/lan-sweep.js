@@ -2,6 +2,7 @@
 
 const { isBogon } = require('../engine/net');
 const { assertState } = require('./state');
+const { isGroupDst } = require('./lib');
 
 const detector = {
   id: 'lan-sweep',
@@ -68,6 +69,7 @@ const detector = {
  */
 function targetOf(ev) {
   if (ev.type === 'arp' && ev.op === 'request') return ev.ip;
+  if (isGroupDst(ev.dstIp)) return null;
   if (ev.type === 'flow' && ev.proto === 'icmp' && isBogon(ev.dstIp)) return ev.dstIp;
   return null;
 }
