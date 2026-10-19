@@ -8,6 +8,15 @@ const { LruSet } = require('./caps');
 const { assertSafeKeys, validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
 const { noteIdentity, rekeyIdentity, resolveIp } = require('./identity');
+const { noteThreat, noteWatch } = require('./promote');
+const {
+  rememberAnomaly,
+  recordFeedback,
+  labelsOf,
+  precisionOf,
+  noteNoisy,
+  readFeedback,
+} = require('./feedback');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
 const { ALLOW_KINDS, EVENT_TYPES, EVENT_TYPE_SET, FORBIDDEN_KEYS } = require('./constants');
@@ -95,6 +104,14 @@ class Engine extends EventEmitter {
     this._reorderOverflowMinute = null;
     /** @type {Map<string, any>} */
     this._explain = new Map();
+    /** @type {any[]} */
+    this._feedback = [];
+    /** @type {Map<string, any>} */
+    this._anomalyById = new Map();
+    /** @type {Map<string, any>} */
+    this._anomalyByFp = new Map();
+    /** @type {Set<string>} */
+    this._noisy = new Set();
     this._rebuildActive();
   }
 
@@ -812,6 +829,9 @@ class Engine extends EventEmitter {
         event: row.event,
       }));
     }
+    if (this._feedback.length > 0) {
+      /** @type {any} */ (body).feedback = this._feedback.map((row) => ({ ...row }));
+    }
     if (fit(body)) this._warn('CHECKPOINT_TRUNCATED', 'checkpoint dropped the oldest LAN rows');
     return attachMeta(body, {
       sign: opts.sign,
@@ -866,6 +886,11 @@ class Engine extends EventEmitter {
       this._reorder = reorder.rows;
       this._reorderSeq = reorder.seq;
     }
+    this._feedback = readFeedback(cp.feedback);
+    this._anomalyById = new Map();
+    this._anomalyByFp = new Map();
+    this._noisy = new Set();
+    noteNoisy(this);
     this._rebuildReorderHigh();
   }
 
@@ -1121,7 +1146,27 @@ class Engine extends EventEmitter {
         rekeyed: this._rekeyed || 0,
         unresolved: this._unresolved || 0,
       },
+      precision: precisionOf(this),
     });
+  }
+
+  /**
+   * Record an operator verdict for an anomaly id or fingerprint.
+   * @param {string} key
+   * @param {'tp' | 'fp' | 'benign-true' | 'unknown'} verdict
+   * @param {{ operator?: string, note?: string }} [opts]
+   * @returns {void}
+   */
+  feedback(key, verdict, opts) {
+    recordFeedback(this, key, verdict, opts);
+  }
+
+  /**
+   * JSONL of the feedback ring. One object per line.
+   * @returns {string}
+   */
+  exportLabels() {
+    return labelsOf(this);
   }
 
   /**
@@ -1364,6 +1409,7 @@ class Engine extends EventEmitter {
         ctx.options = saved;
       }
     }
+    if (this.opts.promote && device.mode === 'watching') noteWatch(this, device, event);
   }
 
   /**
@@ -1636,6 +1682,8 @@ class Engine extends EventEmitter {
       if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
       noteIncident(this, device, anomaly);
       this._rememberExplain(anomaly, det, item);
+      rememberAnomaly(this, anomaly);
+      noteThreat(this, device, det, anomaly);
       this.emit('anomaly', anomaly);
       if (
         learning &&
@@ -1878,18 +1926,20 @@ class Engine extends EventEmitter {
    * @param {string} code
    * @param {string} message
    * @param {string} [device]
-   * @param {{ reason?: string, ts?: number }} [extra]
+   * @param {{ reason?: string, ts?: number, detector?: string, value?: string }} [extra]
    */
   _warn(code, message, device, extra) {
     this.warningCount += 1;
     if (this._emittingWarning) return;
     this._emittingWarning = true;
     try {
-      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number }} */
+      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number, detector?: string, value?: string }} */
       const warning = { code, message };
       if (device) warning.device = device;
       if (extra && extra.reason) warning.reason = extra.reason;
       if (extra && typeof extra.ts === 'number') warning.ts = extra.ts;
+      if (extra && extra.detector) warning.detector = extra.detector;
+      if (extra && extra.value != null) warning.value = extra.value;
       this.emit('warning', warning);
     } finally {
       this._emittingWarning = false;

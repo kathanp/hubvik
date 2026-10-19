@@ -215,6 +215,12 @@ engine.feed({
 
 The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`. A newly registered name uses `type: 'young-domain'`.
 
+## Feedback and promotion
+
+`feedback(anomalyId or fingerprint, verdict, { operator, note })` appends one record. Verdicts are `tp`, `fp`, `benign-true`, and `unknown`. The ring holds 10,000 and is restored from `checkpoint().feedback`. `exportLabels()` is JSONL. `stats().precision[detector]` counts labels whose timestamp is inside the last 7 days of the watermark. `fpRate` is `fp / n`. `NOISY_DETECTOR` warns once when `fpRate > 0.5` and `n >= 10`.
+
+`promote` defaults to `false`. `{ afterDays: 3, minHits: 10 }` counts destination families, ports, JA4 fingerprints, and resolvers while the device is watching. A value seen on enough distinct UTC days and enough times is passed to that detector's `allow()` and warned as `BASELINE_PROMOTED`. Candidates are 500 per device per detector. A high or critical anomaly, any hard-rule anomaly, or a `threat-intel-match`, `proxy-sdk-traffic`, or `tor-or-proxy` hit for that value in the same days drops the candidate.
+
 ## Streaming statistics
 
 `packages/core/src/engine/stats/` is the Welford, EWMA, P², HyperLogLog, Count-Min, CUSUM, Page–Hinkley, and hash library. Detectors still use their own state. Count-Min is for one LAN-wide table, not one table per device.

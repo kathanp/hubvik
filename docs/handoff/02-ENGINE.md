@@ -51,6 +51,10 @@ While learning, a non-hard detector's `learn()` is called and `check()` is not. 
 
 `_advanceTo` must keep the open window when the new event falls inside it. Replacing the window on every event makes fan-out count one host. That bug already shipped once and was fixed. Do not reintroduce it.
 
+`promote` defaults to false. When it is `{ afterDays, minHits }`, `_run` calls `noteWatch` only while the device is watching. `promote.js` tracks `new-domain-family`, `new-port`, `new-client-fingerprint`, and `resolver-bypass`. Promotion calls `allow()` and warns `BASELINE_PROMOTED`. `noteThreat` records a bad UTC day for a high, critical, or hard-rule anomaly, and records `actual` for `threat-intel-match`, `proxy-sdk-traffic`, and `tor-or-proxy`. A candidate whose days overlap that set is dropped. The cap is 500 per device per detector.
+
+`feedback()` looks up `_anomalyById` or `_anomalyByFp` (last 10,000 live anomalies) and appends to `_feedback`. `exportLabels()` is JSONL without the note. `stats().precision` uses labels within 7 days of the watermark. `NOISY_DETECTOR` fires once per detector. The ring is `checkpoint().feedback`. More than 10,000 rows on restore throws `array feedback exceeds cap`.
+
 `identity: 'auto'` re-keys `event.device` in `_apply` when that string is an IP in scratch table `identity`. The table is filled from DHCP ack/offer, ARP reply, and `nd`. `resolve(ip)` reads it. `stats().identity` is `{ rows, rekeyed, unresolved }`. Default `identity` is `'off'`, which still records bindings and does not re-key.
 
 `explain(id)` reads `_explain`, an engine-wide LRU capped by `explainCap` (default 1,000). A detector puts `explain` on its draft. `lib.js` builds that object: `explainThreshold`, `explainNewMember`, `explainChanged`, `explainMatch`. If the draft has none, the engine stores `test: 'match'` and `observed` from `actual`. Hard rules drop any `allow` entry and clamp `untilTs` to `anomaly.ts + 24h`. Shadow anomalies are stored the same way, under their `sN` ids.

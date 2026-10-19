@@ -48,6 +48,28 @@ function identityMode(value) {
 }
 
 /**
+ * Default is off. An object uses 3 days and 10 hits unless the host sets them.
+ * @param {any} input
+ * @returns {false | { afterDays: number, minHits: number }}
+ */
+function parsePromote(input) {
+  if (input.promote == null || input.promote === false) return false;
+  const raw = input.promote;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new TypeError('promote must be false or an object');
+  }
+  assertSafeKeys(raw, 'promote');
+  return {
+    afterDays:
+      raw.afterDays == null
+        ? 3
+        : num(raw.afterDays, 'promote.afterDays', { min: 1, integer: true }),
+    minHits:
+      raw.minHits == null ? 10 : num(raw.minHits, 'promote.minHits', { min: 1, integer: true }),
+  };
+}
+
+/**
  * @param {number} value
  * @param {string} name
  * @param {{ min?: number, max?: number, integer?: boolean }} [rule]
@@ -611,6 +633,7 @@ function validateOptions(raw) {
         ? 1_000
         : num(input.explainCap, 'explainCap', { min: 1, integer: true }),
     identity: input.identity == null ? 'off' : identityMode(input.identity),
+    promote: parsePromote(input),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

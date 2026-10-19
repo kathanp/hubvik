@@ -20,6 +20,13 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} dev @param {string} kind @param {string} value */
+  allow(dev, kind, value) {
+    if (kind !== 'ja4') return false;
+    dev.seen.add(value);
+    return true;
+  },
+
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
     if (ev.type === 'tls' && ev.ja4) dev.seen.add(ev.ja4);
