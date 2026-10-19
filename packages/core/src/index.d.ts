@@ -152,13 +152,26 @@ export interface AppEvent {
     | 'rtsp'
     | 'onvif'
     | 'stratum'
-    | 'smtp';
+    | 'smtp'
+    | 'upnp'
+    | 'matter';
   role: 'client' | 'server';
   peerIp: string;
   op: string;
   target?: string;
   value?: number | string;
   result?: 'ok' | 'error' | 'reject';
+}
+
+export interface WifiEvent {
+  type: 'wifi';
+  device: string;
+  ts?: number;
+  mac: string;
+  bssid?: string;
+  ssid?: string;
+  op: 'assoc' | 'disassoc' | 'deauth' | 'auth-fail';
+  reason?: number;
 }
 
 export type FeedEvent =
@@ -171,7 +184,8 @@ export type FeedEvent =
   | AppEvent
   | DiscoveryEvent
   | DhcpEvent
-  | NdEvent;
+  | NdEvent
+  | WifiEvent;
 
 export interface PolicyRule {
   id: string;
@@ -280,6 +294,7 @@ export interface EngineOptions {
   graph?: boolean;
   campaigns?: boolean;
   linkMs?: number;
+  ownBssids?: string[];
 }
 
 export interface Baseline {

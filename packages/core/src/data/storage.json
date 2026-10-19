@@ -1,0 +1,8 @@
+[
+  "s3.amazonaws.com",
+  "s3.*.amazonaws.com",
+  "blob.core.windows.net",
+  "storage.googleapis.com",
+  "r2.cloudflarestorage.com",
+  "backblazeb2.com"
+]

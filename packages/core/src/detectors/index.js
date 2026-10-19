@@ -119,6 +119,15 @@ const ALL = [
   require('./multi-horizon-exfil'),
   require('./graph-new-bridge'),
   require('./graph-role-change'),
+  require('./exploit-then-download'),
+  require('./ssh-brute-then-session'),
+  require('./cloud-storage-exfil'),
+  require('./nd-spoof'),
+  require('./dhcpv6-rogue'),
+  require('./wifi-deauth-flood'),
+  require('./evil-twin'),
+  require('./upnp-callstranger'),
+  require('./matter-new-controller'),
 ];
 
 /** @type {Record<string, any>} */

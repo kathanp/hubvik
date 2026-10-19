@@ -165,7 +165,14 @@ function validateEvent(raw) {
   if (type === 'dns') return { event: dnsEvent(raw, ts, warnings), warnings };
   if (type === 'tls') return { event: tlsEvent(raw, ts, warnings), warnings };
   if (type === 'http') return { event: httpEvent(raw, ts, warnings), warnings };
-  if (type === 'arp' || type === 'dhcp' || type === 'ra' || type === 'discovery' || type === 'nd') {
+  if (
+    type === 'arp' ||
+    type === 'dhcp' ||
+    type === 'ra' ||
+    type === 'discovery' ||
+    type === 'nd' ||
+    type === 'wifi'
+  ) {
     return { event: linkEvent(raw, type, ts, warnings), warnings };
   }
   if (type === 'mapping') return { event: mappingEvent(raw, ts), warnings };
@@ -466,6 +473,28 @@ function linkEvent(raw, type, ts, warnings) {
     event.mac = mac;
     event.op = raw.op;
     if (raw.router === true) event.router = true;
+  } else if (type === 'wifi') {
+    requireFields(raw, ['mac', 'op'], 'wifi');
+    const mac = String(raw.mac).toLowerCase();
+    if (!isMac(mac)) throw new TypeError('wifi.mac is invalid');
+    if (!WIFI_OPS.has(raw.op)) throw new TypeError('wifi.op is invalid');
+    event.mac = mac;
+    event.op = raw.op;
+    if (typeof raw.bssid === 'string' && isMac(raw.bssid.toLowerCase())) {
+      event.bssid = raw.bssid.toLowerCase();
+    } else if (raw.bssid != null) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped wifi.bssid' });
+    }
+    if (typeof raw.ssid === 'string' && raw.ssid.length > 0 && raw.ssid.length <= 32) {
+      event.ssid = raw.ssid;
+    } else if (raw.ssid != null) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped wifi.ssid' });
+    }
+    if (raw.reason != null) {
+      if (Number.isInteger(raw.reason) && raw.reason >= 0 && raw.reason <= 65535) {
+        event.reason = raw.reason;
+      } else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped wifi.reason' });
+    }
   } else if (type === 'ra') {
     requireFields(raw, ['srcMac', 'srcIp'], 'ra');
     event.srcMac = String(raw.srcMac).toLowerCase();
@@ -482,6 +511,8 @@ function linkEvent(raw, type, ts, warnings) {
   return event;
 }
 
+const WIFI_OPS = new Set(['assoc', 'disassoc', 'deauth', 'auth-fail']);
+
 const APP_PROTOS = new Set([
   'bacnet',
   'modbus',
@@ -495,6 +526,8 @@ const APP_PROTOS = new Set([
   'onvif',
   'stratum',
   'smtp',
+  'upnp',
+  'matter',
 ]);
 
 /**
@@ -693,6 +726,7 @@ function validateOptions(raw) {
     gatewayIp: parseOptionalString(input.gatewayIp, 'gatewayIp'),
     dhcpServers: parseStringList(input.dhcpServers, 'dhcpServers'),
     routers: parseStringList(input.routers, 'routers'),
+    ownBssids: parseStringList(input.ownBssids, 'ownBssids'),
     browserJa4: parseStringList(input.browserJa4, 'browserJa4'),
     zones: parseZones(input),
     incidentWindowMs:

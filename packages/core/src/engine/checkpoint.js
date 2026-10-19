@@ -11,6 +11,8 @@ const KNOWN = new Set([
   'identity',
   'dhcp-starvation',
   'fleet-wave',
+  'nd-spoof',
+  'wifi-deauth-flood',
 ]);
 
 /**
@@ -154,6 +156,19 @@ function assertRevived(scratch) {
       if (row.source !== 'dhcp' && row.source !== 'arp' && row.source !== 'nd') {
         throw new Error('checkpoint scratch identity is invalid');
       }
+    }
+  }
+  const nd = scratch['nd-spoof'];
+  if (nd != null) {
+    if (typeof nd !== 'object' || !(nd.bindings instanceof Map)) {
+      throw new Error('checkpoint scratch nd-spoof is invalid');
+    }
+    if (nd.bindings.size > 5000) throw new Error('array bindings exceeds cap');
+  }
+  const wifi = scratch['wifi-deauth-flood'];
+  if (wifi != null) {
+    if (typeof wifi !== 'object' || !(wifi.byMac instanceof Map)) {
+      throw new Error('checkpoint scratch wifi-deauth-flood is invalid');
     }
   }
   const dhcp = scratch['dhcp-starvation'];

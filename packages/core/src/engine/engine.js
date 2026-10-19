@@ -1419,6 +1419,8 @@ class Engine extends EventEmitter {
           const noted = det.learn(state, event, ctx);
           if (noted && typeof noted.reason === 'string') {
             mark(this, device, event, noted.reason, noted.message || noted.reason);
+          } else if (noted && typeof noted.severity === 'string') {
+            this._take(device, det, noted, learning, event);
           }
         }
       } else if (typeof det.check === 'function') {
@@ -1471,6 +1473,7 @@ class Engine extends EventEmitter {
       gatewayIp: engine.opts.gatewayIp,
       dhcpServers: engine.opts.dhcpServers,
       routers: engine.opts.routers,
+      ownBssids: engine.opts.ownBssids,
       zones: engine.opts.zones,
       browserJa4: engine.opts.browserJa4,
       peerGroup: device.peerGroup,
