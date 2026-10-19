@@ -218,6 +218,97 @@ const ATTACKS = {
       }),
     );
   },
+  'class-violation'(engine) {
+    engine.setDeviceClass('d', 'plug');
+    for (let i = 0; i < 7; i++) {
+      engine.feed({ device: 'd', dst: `shop${i}.example`, bytes: 10, ts: 1000 + i });
+    }
+  },
+  'proxy-relay'(engine) {
+    const names = [
+      'www.amazon.com',
+      'www.ebay.com',
+      'www.facebook.com',
+      'www.instagram.com',
+      'www.ticketmaster.com',
+      'www.stubhub.com',
+    ];
+    names.forEach((name, index) => {
+      engine.feed(flow({ ts: 1000 + index, dstName: name, dstIp: `9.9.9.${index}` }));
+    });
+  },
+  'proxy-sdk-traffic'(engine) {
+    engine.setDeviceClass('cam', 'camera');
+    engine.loadIndicators([
+      { value: 'sdk.proxy.example', type: 'proxy-sdk', source: 'lab', confidence: 0.9 },
+    ]);
+    engine.feed({
+      type: 'tls',
+      device: 'cam',
+      ts: 0,
+      dstIp: '1.2.3.4',
+      dstPort: 443,
+      sni: 'cdn.sdk.proxy.example',
+    });
+  },
+  'ot-wan-exposure'(engine) {
+    engine.feed(flow({ ts: 1200, dstPort: 502, dstIp: '1.2.3.50', proto: 'tcp' }));
+  },
+  'ot-dangerous-op'(engine) {
+    engine.feed({
+      type: 'app',
+      device: 'd',
+      ts: 1000,
+      proto: 'bacnet',
+      role: 'client',
+      peerIp: '10.0.0.2',
+      op: 'STOP',
+    });
+  },
+  'onvif-config-change'(engine) {
+    engine.feed({
+      type: 'app',
+      device: 'cam',
+      ts: 9000,
+      proto: 'onvif',
+      role: 'client',
+      peerIp: '10.0.0.4',
+      op: 'SetUser',
+    });
+  },
+  'post-update-drift'(engine) {
+    engine.feed(flow({ ts: 1000, dstPort: 554, dstIp: '198.51.100.40' }));
+    engine.feed({
+      type: 'app',
+      device: 'd',
+      ts: 1100,
+      proto: 'stratum',
+      role: 'client',
+      peerIp: '198.51.100.41',
+      op: 'mining.subscribe',
+    });
+    engine.feed(flow({ ts: 1200, dstPort: 502, dstIp: '1.2.3.50', proto: 'tcp' }));
+    engine.feed(
+      flow({
+        ts: 1300,
+        direction: 'in',
+        dstPort: 80,
+        srcPort: 80,
+        bytesIn: 6000000,
+        srcIp: '198.51.100.43',
+      }),
+    );
+    engine.feed(flow({ ts: 1400, dstPort: 23, proto: 'tcp' }));
+    engine.feed({ device: 'd', dst: 'one.example', bytes: 10, ts: 1500 });
+    engine.feed({ device: 'd', dst: 'two.example', bytes: 10, ts: 1600 });
+    engine.feed({ device: 'd', dst: 'three.example', bytes: 10, ts: 1700 });
+  },
+  'supply-chain-suspect'(engine) {
+    engine.setDeviceClass('d', 'plug');
+    for (let i = 0; i < 7; i++) {
+      engine.feed({ device: 'd', dst: `shop${i}.example`, bytes: 10, ts: 1000 + i });
+    }
+  },
   'arp-spoof'(engine) {
     engine.feed({
       type: 'arp',
@@ -260,7 +351,14 @@ function optionsFor(id) {
   if (id === 'alert-storm') options.detectors = { 'alert-storm': { maxPerMinute: 1 } };
   if (id === 'new-device' || id === 'spam-relay') options.learnMs = 1000;
   if (id === 'clock-jump') options.learnMs = 86400000;
-  if (id === 'horizontal-scan' || id === 'dns-tunnel') options.learnMs = 86400000;
+  if (
+    id === 'horizontal-scan' ||
+    id === 'dns-tunnel' ||
+    id === 'class-violation' ||
+    id === 'supply-chain-suspect'
+  ) {
+    options.learnMs = 86400000;
+  }
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

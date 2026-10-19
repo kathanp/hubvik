@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { exactHit } = require('../engine/indicators');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const CONSENT = new Set(['smart-tv', 'tv-box']);
 
@@ -25,6 +26,7 @@ const detector = {
     ],
     rel: '0.5',
     fpRisk: "Depends on the host's list",
+    explains: true,
   },
   requires: ['T2'],
   category: 'proxy',
@@ -56,6 +58,11 @@ const detector = {
       actual: hit.value,
       expected: 'no contact with a residential-proxy SDK',
       data: { value: hit.value, source: hit.source, consentPossible },
+      explain: explainMatch({
+        observed: hit.value,
+        matched: hit.value,
+        source: hit.source || 'proxy-sdk',
+      }),
     };
   },
 

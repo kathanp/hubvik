@@ -2,6 +2,7 @@
 
 const { domainFamily } = require('../engine/net');
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 const CONSUMER = require('../data/consumer.json');
 
 const detector = {
@@ -14,6 +15,7 @@ const detector = {
     attack: ['T1090'],
     stage: 'impact',
     dedupGroup: 'proxy-relay',
+    explains: true,
   },
   requires: ['T1'],
   category: 'proxy',
@@ -53,6 +55,12 @@ const detector = {
       actual: `${dev.families.size} consumer sites in ${dev.categories.size} categories`,
       expected: `< ${ctx.options.minDomains} consumer sites`,
       data: { families: [...dev.families], categories: [...dev.categories] },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.families.size,
+        threshold: ctx.options.minDomains,
+        formula: `minDomains=${ctx.options.minDomains}`,
+      }),
     };
   },
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const { isPublic } = require('../engine/net');
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const PORTS = new Set([502, 47808, 20000, 44818, 102, 1911, 4911]);
 
@@ -12,6 +12,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'ot',
@@ -40,6 +41,11 @@ const detector = {
       actual: `${ev.direction} OT port ${ev.dstPort}`,
       expected: 'OT protocols stay on the LAN',
       data: { port: ev.dstPort, direction: ev.direction },
+      explain: explainMatch({
+        observed: `${ev.direction} OT port ${ev.dstPort}`,
+        matched: ev.dstPort,
+        source: 'dstPort',
+      }),
     };
   },
 

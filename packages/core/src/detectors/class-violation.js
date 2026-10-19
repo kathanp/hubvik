@@ -2,6 +2,7 @@
 
 const { domainFamily, isBogon, isMulticast, isLinkLocal } = require('../engine/net');
 const { assertState } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'class-violation',
@@ -22,6 +23,7 @@ const detector = {
     ],
     rel: '0.3',
     fpRisk: 'Low. No class is set until `setDeviceClass`.',
+    explains: true,
   },
   requires: ['T0'],
   category: 'posture',
@@ -138,6 +140,7 @@ function draft(ctx, ev, actual, expected, data) {
     actual,
     expected,
     data,
+    explain: explainMatch({ observed: actual, matched: expected, source: 'class' }),
   };
 }
 

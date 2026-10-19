@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'post-update-drift',
@@ -9,6 +10,7 @@ const detector = {
     consumes: [],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'supply',
@@ -30,6 +32,12 @@ const detector = {
       actual: `${ctx.extra.others} new behaviors after a download`,
       expected: 'a firmware update, or a compromise that arrived with one',
       data: { others: ctx.extra.others, updateId: ctx.extra.updateId },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: ctx.extra.others,
+        threshold: 3,
+        formula: 'others>=3',
+      }),
     };
   },
 

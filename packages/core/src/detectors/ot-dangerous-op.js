@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const DANGER = new Set([
   'ReinitializeDevice',
@@ -20,6 +20,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1565'],
     stage: 'impact',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -44,6 +45,7 @@ const detector = {
       actual: ev.op,
       expected: 'no program, stop, or silence command',
       data: { op: ev.op, peerIp: ev.peerIp, target: ev.target || null },
+      explain: explainMatch({ observed: ev.op, matched: ev.op, source: 'op' }),
     };
   },
 

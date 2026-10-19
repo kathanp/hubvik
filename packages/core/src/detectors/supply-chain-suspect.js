@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'supply-chain-suspect',
@@ -10,6 +11,7 @@ const detector = {
     rel: '0.3',
     fpRisk: '',
     attack: ['T1195'],
+    explains: true,
   },
   requires: ['T0'],
   category: 'proxy',
@@ -32,6 +34,7 @@ const detector = {
       actual: dev.because,
       expected: 'no proxy, chain, or class violation while the device is still learning',
       data: { because: dev.because },
+      explain: explainMatch({ observed: dev.because, matched: dev.because, source: 'learning' }),
     };
   },
 
