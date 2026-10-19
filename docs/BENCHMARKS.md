@@ -247,3 +247,14 @@ The identity table is off unless `identity` is `'auto'`. The 7-day bench leaves 
 | 200 devices, 7 days, then `lock()` |         6.50 µs | 68.37 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-17 — feedback and promotion, 2026-10-18
+
+`promote` is off in this bench, so candidates are not stored. The feedback ring is empty. `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.75 µs | 11.70 KB/device |
+| 200 devices, 7 days, then `lock()` |         9.63 µs | 68.34 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.

@@ -565,3 +565,13 @@ Check 201/201, duration 389845 ms. Coverage lines 98.09%, branches 86.62%, funct
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100.
 
 A 14-day IPv6 temporary address that changes every day produces no `new-device` and no `new-destination` when `identity` is `auto`. The same run with `identity: 'off'` logged 13 of those anomalies. Both benign matrices, with `identity: 'auto'` and `ipv6: true`, stayed under medium.
+
+## WP-17 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 207/207, duration 161657 ms. Coverage lines 97.97%, branches 86.39%, functions 97.90%. Pack-check: core 167 files, 458546 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats `fromJSON` 100,000 rejected. Bench median 6.75 µs, estimate 4.29 KB/device, retained 11.70 KB/device, 1,000 devices. Rich bench median 9.63 µs, retained 68.34 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed inside that check.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100.
+
+A6.1 baseline promotion was not in the code. It is now, default off. A family seen on 3 UTC days and 10 times is promoted and warned `BASELINE_PROMOTED`. A high anomaly in that period blocks it. Twenty labels round-trip through `exportLabels()`, and `eval/run.mjs --labels` on the synthetic corpus prints precision with a Wilson interval. `NOISY_DETECTOR` fires once when the false-positive rate is over 50% on at least 10 labels in 7 days.
