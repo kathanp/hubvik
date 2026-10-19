@@ -142,7 +142,7 @@ An empty `policy` array disables `policy-violation`.
 
 `exportBaseline()` writes version 2 JSON. Pass `{ sign: key }` to add an HMAC-SHA256 signature (`node:crypto`). `importBaseline(data, { verify: key, merge: true })` checks the whole document before it changes any device. Version 1 baselines from 0.1 still import.
 
-Do not treat a baseline as a secret store. Anyone who can edit it chooses what "normal" means.
+Do not treat a baseline as a secret store. Anyone who can edit it chooses what "normal" means. `baseline.engine.pkg` is the package version. The regression comparison ignores it.
 
 ## Adapters
 
@@ -167,6 +167,8 @@ for (const event of parser.write(line)) engine.feed(event);
 Defaults: 10 000 devices, 5 000 destinations per device, 5 000 alert keys, 10 080 windows of history, 5 000 destinations tracked inside one window. Passing a cap emits `warning` `STATE_CAP` and a `state-cap` anomaly once per device. The library keeps running with degraded memory for that device.
 
 `alert-storm` starts at 1000 anomalies from one device in one minute. Later anomalies from that device are dropped until the next minute.
+
+The unpacked core package must stay at or under 750 KB. A packed file over 60 KB fails that check, except `src/engine/engine.js`, which is already larger and is printed rather than split. `src/data/` must total at most 200 KB.
 
 ## Clock
 
