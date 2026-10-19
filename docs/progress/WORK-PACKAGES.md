@@ -631,3 +631,13 @@ Check 228/228, duration 248490 ms. Coverage lines 97.99%, branches 86.76%, funct
 Holdout: `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil` each emitted `shadow-anomaly` on `eval/evasion-holdout/`. The published suite, re-run into `eval/results/evasion.md` and `eval/fixtures/golden.md`, measured `slow-scan` and `jitter-beacon` still blind spots. `multi-horizon-exfil` fired on `exfil-0.9-limit`. Thresholds were not tuned against that suite. D-30.
 
 `npm run demo` printed the same incident, score 100.
+
+## WP-20 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 236/236, duration 248376 ms. Coverage lines 98.01%, branches 86.63%, functions 97.89%. Pack-check: core 175 files, 500827 bytes unpacked. `spec-coverage`: explains 47 of 117 detectors, ok. Fuzz: feed 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 55,335 accepted, 44,665 rejected; checkpoint mutation 52,628 accepted, 47,372 rejected; stats 100,000 rejected; nd 80,018 rejected; feedback 96,145 rejected; reorder restore 60,129 rejected. Bench median 6.42 µs, retained 12.04 KB/device. Rich bench median 6.54 µs, retained 85.51 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+`test/replay/kimwolf-lan-pivot.test.js` produced exactly one campaign, 2 devices, stages c2, spread, and impact. `campaigns` stays off unless the host sets it, so the existing suite does not emit `campaign`. D-31.
+
+`npm run demo` printed the same incident, score 100.
