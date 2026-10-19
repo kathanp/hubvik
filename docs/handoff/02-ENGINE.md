@@ -144,3 +144,7 @@ Policy: `createEngine({ policy: [{ id, severity?, match: { direction?, proto?, p
 ## Horizons
 
 The ring exists only when T1 is enabled and `slow-scan` or `multi-horizon-exfil` is active, unless `horizons: false`. Flows update the open hour. A window close rolls a finished hour. A gap over 24 hours clears the ring and does not warn. `checkpoint().devices[id].progress.horizon` is the serialized ring.
+
+## Graph and campaigns
+
+`graph` is on when `graph-new-bridge` or `graph-role-change` is active. `graph: false` turns it off. LAN edges are 32 per device and WAN families are 64. Multicast is skipped. `engine.graph()` and `checkpoint().graph` expose the snapshot. `campaigns` defaults to false and only links live anomalies at medium or above when `identity` is `auto`. Shadow anomalies do not create campaign edges.

@@ -25,6 +25,7 @@
   "slow-exfil": "impact",
   "dns-tunnel": "impact",
   "proxy-relay": "impact",
+  "lan-via-proxy": "impact",
   "cryptomining": "impact",
   "cert-change": "c2",
   "proxy-backconnect": "c2",

@@ -438,6 +438,52 @@ const ATTACKS = {
       engine.feed(flow({ ts: hour * 3600e3, bytesOut: 1000 }));
     engine.feed(flow({ ts: 6 * 3600e3, bytesOut: 2_000_000 }));
   },
+  'graph-new-bridge'(engine) {
+    engine.feed({
+      type: 'dhcp',
+      device: 'aa:bb:cc:dd:ee:01',
+      ts: 1,
+      mac: 'aa:bb:cc:dd:ee:01',
+      msg: 'ack',
+      requestedIp: '10.1.0.2',
+    });
+    engine.feed({
+      type: 'dhcp',
+      device: 'aa:bb:cc:dd:ee:02',
+      ts: 2,
+      mac: 'aa:bb:cc:dd:ee:02',
+      msg: 'ack',
+      requestedIp: '10.2.0.2',
+    });
+    engine.feed(
+      flow({ ts: 1000, device: 'src', direction: 'lan', dstIp: '10.1.0.2', dstPort: 80 }),
+    );
+    engine.feed(
+      flow({ ts: 2000, device: 'src', direction: 'lan', dstIp: '10.2.0.2', dstPort: 80 }),
+    );
+  },
+  'graph-role-change'(engine) {
+    engine.feed({
+      type: 'dhcp',
+      device: 'aa:bb:cc:dd:ee:10',
+      ts: 1,
+      mac: 'aa:bb:cc:dd:ee:10',
+      msg: 'ack',
+      requestedIp: '10.0.0.10',
+    });
+    for (let i = 0; i < 5; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000 + i,
+          device: `peer-${i}`,
+          direction: 'lan',
+          dstIp: '10.0.0.10',
+          dstPort: 80,
+        }),
+      );
+    }
+    engine.flush(60_000);
+  },
 };
 
 /**
@@ -468,6 +514,14 @@ function optionsFor(id) {
   if (id === 'beacon-change') options.learnMs = 86400000;
   if (id === 'ttl-anomaly') options.learnMs = 100000;
   if (id === 'multi-horizon-exfil') options.learnMs = 6 * 3600e3;
+  if (id === 'graph-new-bridge') {
+    options.identity = 'auto';
+    options.zones = [
+      { id: 'a', cidr: '10.1.0.0/16' },
+      { id: 'b', cidr: '10.2.0.0/16' },
+    ];
+  }
+  if (id === 'graph-role-change') options.identity = 'auto';
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

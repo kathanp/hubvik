@@ -277,6 +277,9 @@ export interface EngineOptions {
   identity?: 'off' | 'auto';
   promote?: false | { afterDays?: number; minHits?: number };
   horizons?: boolean;
+  graph?: boolean;
+  campaigns?: boolean;
+  linkMs?: number;
 }
 
 export interface Baseline {

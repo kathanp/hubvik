@@ -233,7 +233,7 @@ During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, 
 
 ## Early shadow detectors
 
-`exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
+`exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, `graph-new-bridge`, and `graph-role-change` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
 
 `ttl-anomaly` reads `flow.ttl`. No shipped adapter fills that field, so the detector stays quiet until the host supplies it. `young-domain` does nothing until the host loads a `young-domain` list. Set `expiresTs` about 30 days after registration. Expired rows are ignored.
 

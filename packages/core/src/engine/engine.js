@@ -22,6 +22,8 @@ const { buildStats } = require('./stats');
 const { ALLOW_KINDS, EVENT_TYPES, EVENT_TYPE_SET, FORBIDDEN_KEYS } = require('./constants');
 const { noteLearning, mark } = require('./learning');
 const { horizonOn, noteHorizon, rollHorizon, horizonView } = require('./horizon');
+const { graphOn, noteGraph, snapshot, exportGraph, importGraph } = require('./graph');
+const { noteCampaign } = require('./campaigns');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
 const {
@@ -113,6 +115,13 @@ class Engine extends EventEmitter {
     this._anomalyByFp = new Map();
     /** @type {Set<string>} */
     this._noisy = new Set();
+    /** @type {Set<string>} */
+    this._bridges = new Set();
+    /** @type {any[]} */
+    this._pendingLinks = [];
+    /** @type {any[]} */
+    this._campaigns = [];
+    this._campaignSeq = 0;
     this._rebuildActive();
   }
 
@@ -155,6 +164,7 @@ class Engine extends EventEmitter {
       for (const type of consumes) this.byType[type].push(det);
     }
     this._horizonOn = horizonOn(this);
+    this._graphOn = graphOn(this);
   }
 
   /** @returns {any} */
@@ -825,6 +835,8 @@ class Engine extends EventEmitter {
       watermark: this.watermark,
       scratch: plainScratch(this.scratch),
     };
+    const graph = exportGraph(this);
+    if (graph) /** @type {any} */ (body).graph = graph;
     if (this._reorder) {
       /** @type {any} */ (body).reorder = this._reorder.map((row) => ({
         seq: row.seq,
@@ -871,6 +883,7 @@ class Engine extends EventEmitter {
       }
     }
     this.importBaseline(cp, { merge: false, verify: opts.verify });
+    importGraph(this, cp.graph);
     this.watermark = typeof cp.watermark === 'number' ? cp.watermark : null;
     this.lastEventTs = this.watermark;
     this.scratch = new Map(Object.entries(revived));
@@ -1100,6 +1113,14 @@ class Engine extends EventEmitter {
    */
   resolve(ip) {
     return resolveIp(this, ip);
+  }
+
+  /**
+   * LAN edges, and WAN families when `includeWan` is set.
+   * @param {{ device?: string, includeWan?: boolean }} [opts]
+   */
+  graph(opts) {
+    return snapshot(this, opts || {});
   }
 
   stats() {
@@ -1353,6 +1374,7 @@ class Engine extends EventEmitter {
     summary.idle = win.bytes === 0 && win.dstCount === 0;
     const ctx = this._ctx(device, learning, summary.start);
     ctx.window = summary;
+    ctx.lanInDegree = device.lanPeers ? device.lanPeers.size : 0;
     device.closing = (device.closing || 0) + 1;
     try {
       for (const det of this.active) {
@@ -1373,6 +1395,7 @@ class Engine extends EventEmitter {
       device.closing -= 1;
     }
     this._tallyCanaries(device);
+    if (device.lanPeers) device.lanPeers = new Set();
     if (win.dstSet) win.dstSet.clear();
     if (win.egressDsts) win.egressDsts.clear();
   }
@@ -1383,6 +1406,7 @@ class Engine extends EventEmitter {
    */
   _run(device, event) {
     if (this._horizonOn) noteHorizon(device, event);
+    if (this._graphOn) noteGraph(this, device, event);
     const learning = device.mode === 'learning';
     const ctx = this._ctx(device, learning, event.ts);
     ctx.window = device.open;
@@ -1491,6 +1515,8 @@ class Engine extends EventEmitter {
       horizon() {
         return horizonView(device);
       },
+      lanEdges: device.lanEdges || null,
+      bridges: engine._bridges || (engine._bridges = new Set()),
     };
   }
 
@@ -1692,6 +1718,7 @@ class Engine extends EventEmitter {
       anomaly.id = String(this.seq);
       if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
       noteIncident(this, device, anomaly);
+      noteCampaign(this, device, anomaly, event);
       this._rememberExplain(anomaly, det, item);
       rememberAnomaly(this, anomaly);
       noteThreat(this, device, det, anomaly);
