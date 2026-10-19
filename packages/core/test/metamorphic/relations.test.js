@@ -686,3 +686,40 @@ test('shadow detectors do not change the live stream or the live baseline', () =
     assert.deepStrictEqual(left, right, item.name);
   }
 });
+
+test('the first suppress entry removes one replay anomaly and leaves the rest', () => {
+  for (const spec of [mirai(), kimwolf()]) {
+    const first = play(spec.opts, spec.steps, spec.flushAt);
+    const head = play(spec.opts, spec.steps.slice(0, 1), spec.flushAt);
+    const early = new Set(views(head.anomalies));
+    const preferred = ['horizontal-scan', 'adb-exposure', 'packet-flood', 'new-protocol'];
+    const chosen = first.anomalies.find((item) => {
+      if (!preferred.includes(item.detector) || early.has(view(item))) return false;
+      const row = first.engine.explain(item.id);
+      return row && row.suppressWith[0] && row.suppressWith[0].method === 'suppress';
+    });
+    assert.ok(chosen, spec.name);
+    const entry = first.engine.explain(chosen.id).suppressWith[0];
+    const second = createEngine(spec.opts);
+    /** @type {any[]} */
+    const anomalies = [];
+    second.on('anomaly', (item) => anomalies.push(item));
+    let armed = false;
+    for (const step of spec.steps) {
+      if (step && step.op === 'class') second.setDeviceClass(step.device, step.classId);
+      else if (step && step.op === 'lock') second.lock(step.device);
+      else if (step && step.op === 'indicators') second.loadIndicators(step.list);
+      else if (!armed) {
+        second.feed(step);
+        second.suppress(entry.args[0], entry.args[1], entry.args[2] || {});
+        armed = true;
+      } else second.feed(step);
+    }
+    if (spec.flushAt != null) second.flush(spec.flushAt);
+    const expected = views(first.anomalies);
+    const index = expected.indexOf(view(chosen));
+    assert.ok(index >= 0, spec.name);
+    expected.splice(index, 1);
+    assert.deepStrictEqual(views(anomalies), expected, spec.name);
+  }
+});
