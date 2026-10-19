@@ -621,3 +621,13 @@ Check 214/214, duration 170732 ms. Coverage lines 97.99%, branches 86.42%, funct
 `spec-coverage`: 137 rows, 112 detector files, core 0.7.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats 100,000 rejected; nd 80,018 rejected; feedback 96,145 rejected; reorder restore 60,129 rejected. Bench median 6.63 µs, retained 11.98 KB/device. Rich bench median 6.92 µs, retained 68.70 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed without comparing `engine.pkg`. D-28. D-29.
 
 `npm run demo` printed the same incident, score 100.
+
+## WP-19 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 228/228, duration 248490 ms. Coverage lines 97.99%, branches 86.76%, functions 97.91%. Pack-check: core 171 files, 483250 bytes unpacked. `spec-coverage`: 137 rows, 115 detector files, core 0.7.0, `explains: 45 of 115 detectors`, ok. Fuzz: feed 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,928 accepted, 45,072 rejected; checkpoint mutation 52,506 accepted, 47,494 rejected; stats 100,000 rejected; nd 80,018 rejected; feedback 96,145 rejected; reorder restore 60,129 rejected. Bench median 6.17 µs, retained 11.99 KB/device. Rich bench median 6.54 µs, retained 84.43 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+Holdout: `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil` each emitted `shadow-anomaly` on `eval/evasion-holdout/`. The published suite, re-run into `eval/results/evasion.md` and `eval/fixtures/golden.md`, measured `slow-scan` and `jitter-beacon` still blind spots. `multi-horizon-exfil` fired on `exfil-0.9-limit`. Thresholds were not tuned against that suite. D-30.
+
+`npm run demo` printed the same incident, score 100.
