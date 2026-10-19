@@ -144,14 +144,15 @@ const detector = {
   },
 };
 
-/**
- * @param {any} stats
- * @param {number} value
- */
+/** @returns {{ count: number, mean: number, m2: number, min: number, max: number }} */
 function emptyStats() {
   return { count: 0, mean: 0, m2: 0, min: 0, max: 0 };
 }
 
+/**
+ * @param {any} stats
+ * @param {number} value
+ */
 function pushHour(stats, value) {
   if (stats.count === 0) {
     stats.count = 1;
