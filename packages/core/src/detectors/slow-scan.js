@@ -2,7 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { createHll, merge, count } = require('../engine/stats/hll');
-const { createWelford, push } = require('../engine/stats/welford');
+const { push } = require('../engine/stats/welford');
 const { assertState, readStrings } = require('./state');
 const { isGroupDst, explainThreshold } = require('./lib');
 
@@ -30,7 +30,7 @@ const detector = {
       day: null,
       today: 0,
       closed: false,
-      daily: createWelford(),
+      daily: emptyStats(),
       fired: false,
     };
   },
@@ -115,7 +115,7 @@ const detector = {
     dev.today = typeof state.today === 'number' ? state.today : 0;
     dev.closed = Boolean(state.closed);
     dev.fired = Boolean(state.fired);
-    dev.daily = createWelford();
+    dev.daily = emptyStats();
     if (state.daily && typeof state.daily === 'object') {
       dev.daily.count = state.daily.count || 0;
       dev.daily.mean = state.daily.mean || 0;
@@ -130,6 +130,10 @@ const detector = {
  * @param {any} stats
  * @param {number} value
  */
+function emptyStats() {
+  return { count: 0, mean: 0, m2: 0, min: 0, max: 0 };
+}
+
 function pushDay(stats, value) {
   if (stats.count === 0) {
     stats.count = 1;

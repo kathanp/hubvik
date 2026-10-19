@@ -1,6 +1,6 @@
 'use strict';
 
-const { createWelford, push } = require('../engine/stats/welford');
+const { push } = require('../engine/stats/welford');
 const { createP2, push: pushP2, quantile, toJSON, fromJSON } = require('../engine/stats/p2');
 const { createCusum, push: pushCusum } = require('../engine/stats/cusum');
 const { assertState } = require('./state');
@@ -26,7 +26,7 @@ const detector = {
 
   createState() {
     return {
-      hourly: createWelford(),
+      hourly: emptyStats(),
       daily: null,
       hour: null,
       hourBytes: 0,
@@ -122,7 +122,7 @@ const detector = {
    */
   importState(dev, state) {
     assertState(state, detector.id);
-    dev.hourly = createWelford();
+    dev.hourly = emptyStats();
     if (state.hourly && typeof state.hourly === 'object') {
       dev.hourly.count = state.hourly.count || 0;
       dev.hourly.mean = state.hourly.mean || 0;
@@ -148,6 +148,10 @@ const detector = {
  * @param {any} stats
  * @param {number} value
  */
+function emptyStats() {
+  return { count: 0, mean: 0, m2: 0, min: 0, max: 0 };
+}
+
 function pushHour(stats, value) {
   if (stats.count === 0) {
     stats.count = 1;
