@@ -16,6 +16,8 @@ Shadow detectors `exploit-then-download`, `ssh-brute-then-session`, `cloud-stora
 
 `shadow` defaults to false (D-34). A shadow detector does not run, create state, or appear in `exportBaseline()` unless `shadow` is true, its id is listed, or `detectors[id].enabled` is set. `detectors[id].mode: 'live'` still promotes one.
 
+`multi-horizon-exfil` keeps its hourly summary in a `Float64Array`. The exported baseline fields are unchanged. A checkpoint stores that array as base64 so the bytes round-trip.
+
 ## 0.7.0
 
 Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `iotwarden@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.
