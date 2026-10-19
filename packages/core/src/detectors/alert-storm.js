@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainThreshold } = require('./lib');
+
 const detector = {
   id: 'alert-storm',
   version: 1,
@@ -7,6 +9,7 @@ const detector = {
     consumes: [],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'integrity',
@@ -27,6 +30,12 @@ const detector = {
       actual: `${ev.count} anomalies in one minute`,
       expected: `<= ${ctx.options.maxPerMinute} anomalies/minute`,
       data: { count: ev.count },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ev.count,
+        threshold: ctx.options.maxPerMinute,
+        formula: `maxPerMinute=${ctx.options.maxPerMinute}`,
+      }),
     };
   },
 

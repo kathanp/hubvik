@@ -4,6 +4,7 @@ const { LruSet } = require('../engine/caps');
 const { isPublic } = require('../engine/net');
 const PORTS = require('../data/ports.json');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const REFLECT = new Set(PORTS.reflection);
 
@@ -15,6 +16,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Very low',
     attack: ['T1498'],
+    explains: true,
     stage: 'impact',
     dedupGroup: 'reflection',
   },
@@ -46,6 +48,12 @@ const detector = {
       actual: `udp/${ev.srcPort} to ${ev.dstIp}`,
       expected: 'no amplified replies from a reflection port toward the public internet',
       data: { srcPort: ev.srcPort, dstIp: ev.dstIp, bytesOut: out, bytesIn: inn },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: out,
+        threshold: ctx.options.minBytes,
+        formula: `minBytes=${ctx.options.minBytes}`,
+      }),
     };
   },
 

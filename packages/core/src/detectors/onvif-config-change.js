@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const OPS = new Set([
   'SetUser',
@@ -17,6 +17,7 @@ const detector = {
     rel: '0.4',
     fpRisk: '',
     attack: ['T1562'],
+    explains: true,
   },
   requires: ['T5'],
   category: 'app',
@@ -41,6 +42,7 @@ const detector = {
       actual: ev.op,
       expected: 'no user, network, reset, or firmware change',
       data: { op: ev.op, peerIp: ev.peerIp },
+      explain: explainMatch({ observed: ev.op, matched: ev.op, source: 'op' }),
     };
   },
 

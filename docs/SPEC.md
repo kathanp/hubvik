@@ -1138,9 +1138,9 @@ An operator who cannot see why something fired turns the product off.
     suppressWith: Array<{ method: 'allow' | 'suppress' | 'relearn', args: unknown[] }>,
   } | null
   ```
-- Detectors supply this by adding an optional `explain` object to the draft. The engine fills `evidence` and a generic `suppressWith` (`suppress(device, detector, …)`) when the detector gives none.
+- Detectors supply this by adding an optional `explain` object to the draft. Helpers in `packages/core/src/detectors/lib.js`: `explainThreshold` (fills `margin = observed / threshold` when both are numbers), `explainNewMember` (`test: 'new-member'`, `learned: { count, sample }` of the first three values), `explainChanged` (`test: 'changed'`), and `explainMatch` (`test: 'match'`). The engine fills `evidence` and a generic `suppressWith` (`suppress(device, detector, …)`) when the detector gives none.
 - The engine keeps the last `explainCap` explanations (default 1,000, LRU, engine-wide). Older ids return `null`.
-- `meta.explains: true` marks a detector that supplies `explain`. `spec-coverage` prints how many detectors have it. Migration is incremental: WP-15 covers the 20 detectors that fired most in the synthetic eval plus all hard rules.
+- `meta.explains: true` marks a detector that supplies `explain`. `spec-coverage` prints `explains: X of Y detectors` and does not fail on a low count. Migration is incremental: WP-15 covers every hard rule, every detector that fired in `eval/fixtures/golden.md`, and the three shadow detectors.
 - `suppressWith` must be safe. For a hard-rule detector it never offers `allow` on the triggering value; it offers `suppress` with an `untilTs` of at most 24 h.
 
 **Done when:** every hard rule and the 20 named detectors return a non-null `explain` with `test`, `observed` and either `threshold` or `learned`. Applying the first `suppressWith` entry to a replayed stream removes that anomaly and no other.

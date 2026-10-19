@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainMatch } = require('./lib');
+
 const detector = {
   id: 'state-cap',
   version: 1,
@@ -7,6 +9,7 @@ const detector = {
     consumes: [],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'integrity',
@@ -29,6 +32,11 @@ const detector = {
       actual: 'state cap reached',
       expected: 'tracking within configured caps',
       data: { cap: ctx.extra && ctx.extra.cap ? ctx.extra.cap : 'devices' },
+      explain: explainMatch({
+        observed: 'state cap reached',
+        matched: ctx.extra && ctx.extra.cap ? ctx.extra.cap : 'devices',
+        source: 'cap',
+      }),
     };
   },
 

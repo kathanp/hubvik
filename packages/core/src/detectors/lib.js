@@ -97,6 +97,62 @@ function listed(name, list) {
   return list.some((item) => lower === item || lower.endsWith(`.${item}`));
 }
 
+/**
+ * Numeric comparison. `margin` is `observed / threshold` when both are numbers.
+ * @param {{ test: 'gt' | 'gte' | 'lt', observed: number | string, threshold: number, formula?: string, learned?: Record<string, number | string> }} spec
+ */
+function explainThreshold(spec) {
+  /** @type {any} */
+  const row = { test: spec.test, observed: spec.observed, threshold: spec.threshold };
+  if (spec.formula != null) row.formula = spec.formula;
+  if (spec.learned) row.learned = spec.learned;
+  if (
+    typeof spec.observed === 'number' &&
+    typeof spec.threshold === 'number' &&
+    spec.threshold !== 0
+  ) {
+    row.margin = spec.observed / spec.threshold;
+  }
+  return row;
+}
+
+/**
+ * A value that was not in the learned set.
+ * @param {{ observed: number | string, learnedCount: number, sample?: (number | string)[] }} spec
+ */
+function explainNewMember(spec) {
+  const sample = Array.isArray(spec.sample) ? spec.sample.slice(0, 3) : [];
+  return {
+    test: 'new-member',
+    observed: spec.observed,
+    learned: { count: spec.learnedCount, sample: sample.join(',') },
+  };
+}
+
+/**
+ * A value that replaced another.
+ * @param {{ observed: number | string, previous: number | string }} spec
+ */
+function explainChanged(spec) {
+  return {
+    test: 'changed',
+    observed: spec.observed,
+    learned: { previous: spec.previous },
+  };
+}
+
+/**
+ * An indicator, policy, path, or marker hit.
+ * @param {{ observed: number | string, matched: number | string, source: string }} spec
+ */
+function explainMatch(spec) {
+  return {
+    test: 'match',
+    observed: spec.observed,
+    learned: { matched: spec.matched, source: spec.source },
+  };
+}
+
 module.exports = {
   isGroupDst,
   seenState,
@@ -106,4 +162,8 @@ module.exports = {
   entropy,
   median,
   listed,
+  explainThreshold,
+  explainNewMember,
+  explainChanged,
+  explainMatch,
 };

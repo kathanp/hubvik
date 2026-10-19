@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainNewMember } = require('./lib');
 
 /** @param {any} ev */
 function proto(ev) {
@@ -16,6 +17,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Very low; GRE from a camera is Mirai GREIP/GREETH territory',
+    explains: true,
   },
   requires: ['T1'],
   category: 'destination',
@@ -44,6 +46,11 @@ const detector = {
       actual: id,
       expected: [...dev.protos.toArray()].join(',') || 'none',
       data: { proto: id },
+      explain: explainNewMember({
+        observed: id,
+        learnedCount: dev.protos.size,
+        sample: dev.protos.toArray(),
+      }),
     };
   },
 

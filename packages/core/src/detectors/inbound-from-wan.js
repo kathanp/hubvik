@@ -4,6 +4,7 @@ const { LruSet } = require('../engine/caps');
 const { isPublic } = require('../engine/net');
 const PORTS = require('../data/ports.json');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const HARD = new Set(PORTS.hard);
 
@@ -15,6 +16,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Low; means port forward/UPnP exposure',
     attack: ['T1133'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -47,6 +49,11 @@ const detector = {
       actual: `${ev.srcIp} -> :${ev.dstPort}`,
       expected: 'no unsolicited inbound from public addresses',
       data: { srcIp: ev.srcIp, dstPort: ev.dstPort },
+      explain: explainMatch({
+        observed: `${ev.srcIp} -> :${ev.dstPort}`,
+        matched: ev.dstPort,
+        source: 'dstPort',
+      }),
     };
   },
 

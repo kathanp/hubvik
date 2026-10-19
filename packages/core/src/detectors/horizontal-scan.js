@@ -2,7 +2,7 @@
 
 const PORTS = require('../data/ports.json');
 const { assertState } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainThreshold } = require('./lib');
 
 const HARD = new Set(PORTS.hard);
 
@@ -36,6 +36,7 @@ const detector = {
     fpRisk: 'Very low',
     attack: ['T1046'],
     stage: 'spread',
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -80,6 +81,14 @@ const detector = {
       expected: `<= ${limit} hosts/window`,
       dedupKey: String(ev.dstPort),
       data: { dstPort: ev.dstPort, hosts: count, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: count,
+        threshold: limit,
+        formula: hard
+          ? `minHardHosts=${ctx.options.minHardHosts}`
+          : `max(minHosts=${ctx.options.minHosts}, factor=${ctx.options.factor} × learnedMax=${learned}) = ${limit}`,
+      }),
     };
   },
 

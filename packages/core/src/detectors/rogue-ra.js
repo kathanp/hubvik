@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const detector = {
   id: 'rogue-ra',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['ra'],
     rel: '0.3',
     fpRisk: 'Very low',
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -67,6 +69,7 @@ function draft(ctx, ev, expected) {
     actual: ev.srcIp,
     expected: `router advertisements from ${expected}`,
     data: { srcIp: ev.srcIp, srcMac: ev.srcMac },
+    explain: explainChanged({ observed: ev.srcIp, previous: expected }),
   };
 }
 

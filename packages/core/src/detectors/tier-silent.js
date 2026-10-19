@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainMatch } = require('./lib');
+
 const detector = {
   id: 'tier-silent',
   version: 1,
@@ -7,6 +9,7 @@ const detector = {
     consumes: [],
     rel: '0.5',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'integrity',
@@ -33,6 +36,11 @@ const detector = {
       actual: `${ctx.extra.tier} silent: ${names.join(', ')}`,
       expected: 'events for every enabled tier',
       data: { tier: ctx.extra.tier, detectors: names },
+      explain: explainMatch({
+        observed: `${ctx.extra.tier} silent: ${names.join(', ')}`,
+        matched: ctx.extra.tier,
+        source: 'tier',
+      }),
     };
   },
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'protocol-mix-shift',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'volume',
@@ -48,6 +50,12 @@ const detector = {
       actual: `${Math.round(share * 100)}% non-TCP`,
       expected: `near ${Math.round(dev.maxShare * 100)}% non-TCP`,
       data: { share, maxShare: dev.maxShare, total },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: share,
+        threshold: dev.maxShare + ctx.options.band,
+        formula: `maxShare=${dev.maxShare} + band=${ctx.options.band}`,
+      }),
     };
   },
 

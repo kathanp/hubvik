@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainChanged, explainThreshold } = require('./lib');
+
 const HOUR = 3600e3;
 
 const detector = {
@@ -21,6 +23,7 @@ const detector = {
     ],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'integrity',
@@ -41,6 +44,7 @@ const detector = {
         actual: 'timestamp moved backward',
         expected: 'monotonic timestamps',
         data: { ts: ev.ts },
+        explain: explainChanged({ observed: 'backward', previous: 'monotonic' }),
       };
     }
     const previous = dev.lastTs;
@@ -55,6 +59,12 @@ const detector = {
       actual: `jumped forward ${Math.round(gap / HOUR)}h`,
       expected: `steps <= ${Math.round(ctx.options.maxForwardMs / HOUR)}h`,
       data: { gapMs: gap },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: gap,
+        threshold: ctx.options.maxForwardMs,
+        formula: `maxForwardMs=${ctx.options.maxForwardMs}`,
+      }),
     };
   },
 

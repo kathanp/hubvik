@@ -571,6 +571,10 @@ function validateOptions(raw) {
         : num(input.tierSilentMs, 'tierSilentMs', { min: 1, integer: true }),
     tierSilentByTier: tierLimits(input.tierSilentByTier),
     evidence: input.evidence == null ? true : bool(input.evidence, 'evidence'),
+    explainCap:
+      input.explainCap == null
+        ? 1_000
+        : num(input.explainCap, 'explainCap', { min: 1, integer: true }),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

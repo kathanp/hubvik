@@ -1,6 +1,6 @@
 'use strict';
 
-const { median } = require('./lib');
+const { median, explainThreshold } = require('./lib');
 const { assertState, readStrings, fillSet } = require('./state');
 const { LruSet } = require('../engine/caps');
 
@@ -14,6 +14,7 @@ const detector = {
       '**High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline',
     attack: ['T1071'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T1'],
   category: 'timing',
@@ -63,6 +64,12 @@ const detector = {
       actual: dst,
       expected: 'no periodic contact off the baseline',
       data: { score, count: row.count, medianGap: med },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: row.count,
+        threshold: ctx.options.minCount,
+        formula: `minCount=${ctx.options.minCount}`,
+      }),
     };
   },
 

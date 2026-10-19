@@ -1,6 +1,7 @@
 'use strict';
 
 const { domainFamily } = require('../engine/net');
+const { explainMatch } = require('./lib');
 
 /**
  * @param {any} rule
@@ -54,6 +55,7 @@ const detector = {
     ],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'policy',
@@ -84,6 +86,7 @@ const detector = {
         actual: rule.id,
         expected: 'traffic allowed by policy',
         data: { rule: rule.id, dst: ev.dst || ev.dstIp || null, port: ev.dstPort ?? null },
+        explain: explainMatch({ observed: rule.id, matched: rule.id, source: 'policy' }),
       });
     }
     return drafts.length ? drafts : undefined;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const detector = {
   id: 'icmp-redirect',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'integrity',
@@ -33,6 +34,11 @@ const detector = {
       actual: `redirect from ${ev.srcIp}`,
       expected: 'redirects only from the gateway',
       data: { srcIp: ev.srcIp },
+      explain: explainMatch({
+        observed: `redirect from ${ev.srcIp}`,
+        matched: 5,
+        source: 'icmpType',
+      }),
     };
   },
 

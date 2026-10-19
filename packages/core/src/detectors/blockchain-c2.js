@@ -1,6 +1,6 @@
 'use strict';
 
-const { listed, seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { listed, seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 const RPC = require('../data/rpc.json');
 
 const detector = {
@@ -24,6 +24,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1071'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T2'],
   category: 'proxy',
@@ -50,6 +51,7 @@ const detector = {
       actual: name,
       expected: 'no chain RPC or ENS lookup from this device class',
       data: { qname: name },
+      explain: explainMatch({ observed: name, matched: name, source: 'rpc' }),
     };
   },
 

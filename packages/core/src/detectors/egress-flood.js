@@ -2,6 +2,7 @@
 
 const { isPublic } = require('../engine/net');
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'egress-flood',
@@ -10,6 +11,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.5',
     fpRisk: 'Low. Camera upload is ~15 MB/window and two-way TCP',
+    explains: true,
     attack: ['T1498'],
     stage: 'impact',
     dedupGroup: 'flood',
@@ -77,6 +79,12 @@ const detector = {
         bytesOut: row.out,
         bytesPerPacket: row.pkts > 0 ? row.out / row.pkts : 0,
       },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: row.pkts,
+        threshold: ctx.options.minPkts,
+        formula: `minPkts=${ctx.options.minPkts}`,
+      }),
     };
   },
 

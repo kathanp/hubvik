@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const detector = {
   id: 'src-spoof',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['flow', 'dhcp'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'integrity',
@@ -35,6 +37,7 @@ const detector = {
       actual: ev.srcIp,
       expected: `source ${dev.lease}`,
       data: { srcIp: ev.srcIp, lease: dev.lease },
+      explain: explainChanged({ observed: ev.srcIp, previous: dev.lease }),
     };
   },
 

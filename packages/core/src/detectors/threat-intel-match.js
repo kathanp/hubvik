@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { matchEvent } = require('../engine/indicators');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'threat-intel-match',
@@ -26,6 +27,7 @@ const detector = {
     attack: ['T1071'],
     stage: 'c2',
     dedupGroup: 'indicator',
+    explains: true,
   },
   requires: ['T0'],
   category: 'destination',
@@ -52,6 +54,11 @@ const detector = {
       actual: hit.value,
       expected: 'destination not on a supplied indicator list',
       data: { type: hit.type, value: hit.value, source: hit.source },
+      explain: explainMatch({
+        observed: hit.value,
+        matched: hit.value,
+        source: hit.source || 'indicator',
+      }),
     };
   },
 

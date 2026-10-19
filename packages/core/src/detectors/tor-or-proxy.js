@@ -1,7 +1,7 @@
 'use strict';
 
 const { exactHit } = require('../engine/indicators');
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const detector = {
   id: 'tor-or-proxy',
@@ -24,6 +24,7 @@ const detector = {
     fpRisk: 'Very low for IoT',
     attack: ['T1090.003'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T1'],
   category: 'destination',
@@ -49,6 +50,7 @@ const detector = {
       actual: key,
       expected: 'no Tor relay or anonymizer',
       data: { value: key, source: hit.source },
+      explain: explainMatch({ observed: key, matched: key, source: hit.source || 'tor' }),
     };
   },
 

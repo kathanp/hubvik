@@ -1,6 +1,6 @@
 'use strict';
 
-const { listed, seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { listed, seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 const POOLS = require('../data/pools.json');
 
 const detector = {
@@ -24,6 +24,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1496'],
     stage: 'impact',
+    explains: true,
   },
   requires: ['T1'],
   category: 'monetization',
@@ -47,6 +48,7 @@ const detector = {
       actual: hit,
       expected: 'no mining pool or stratum session',
       data: { hit },
+      explain: explainMatch({ observed: hit, matched: hit, source: 'pool' }),
     };
   },
 

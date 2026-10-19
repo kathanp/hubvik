@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'adb-exposure',
@@ -12,6 +13,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1021'],
     stage: 'spread',
+    explains: true,
   },
   requires: ['T1'],
   category: 'app',
@@ -37,6 +39,7 @@ const detector = {
       actual: `${key} -> :5555`,
       expected: 'no connections to ADB',
       data: { srcIp: ev.srcIp || null, direction: ev.direction },
+      explain: explainMatch({ observed: `${key} -> :5555`, matched: 5555, source: 'dstPort' }),
     };
   },
 
