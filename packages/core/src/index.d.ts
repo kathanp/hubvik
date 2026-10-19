@@ -275,6 +275,7 @@ export interface EngineOptions {
   evidence?: boolean;
   explainCap?: number;
   identity?: 'off' | 'auto';
+  promote?: false | { afterDays?: number; minHits?: number };
 }
 
 export interface Baseline {
@@ -343,6 +344,17 @@ export interface EngineStats {
   >;
   canary: Record<string, { liveOnly: number; canaryOnly: number; both: number }>;
   identity: { rows: number; rekeyed: number; unresolved: number };
+  precision: Record<
+    string,
+    {
+      tp: number;
+      fp: number;
+      benign: number;
+      unknown: number;
+      fpRate: number;
+      interval: { low: number; high: number };
+    }
+  >;
 }
 
 export class Engine extends EventEmitter {
@@ -371,6 +383,12 @@ export class Engine extends EventEmitter {
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
   resolve(ip: string): string | null;
+  feedback(
+    key: string,
+    verdict: 'tp' | 'fp' | 'benign-true' | 'unknown',
+    opts?: { operator?: string; note?: string },
+  ): void;
+  exportLabels(): string;
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;
@@ -401,6 +419,8 @@ export class Engine extends EventEmitter {
       device?: string;
       reason?: string;
       ts?: number;
+      detector?: string;
+      value?: string;
     }) => void,
   ): this;
   on(event: string | symbol, listener: (...args: unknown[]) => void): this;

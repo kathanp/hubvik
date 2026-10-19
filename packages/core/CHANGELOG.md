@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+`feedback(id or fingerprint, verdict)` stores the last 10,000 operator labels in `checkpoint()`. `exportLabels()` writes them as JSONL. `stats().precision` is the 7-day count with a Wilson interval, and `NOISY_DETECTOR` fires once when the false-positive rate is over 50% on at least 10 labels. `promote: { afterDays, minHits }` (default off) moves a watched destination family, port, JA4, or resolver into the baseline and warns `BASELINE_PROMOTED`. A high-or-above anomaly, a hard-rule anomaly, or a threat-intel, proxy-SDK, or Tor hit in that period blocks it. Hard rules, OT writes, and `cert-change` are never promoted. `eval/run.mjs --labels <file>` prints that precision after the C6.2 score.
+
 `identity: 'auto'` re-keys an event whose device id is an IP to the MAC learned from DHCP, ARP, or neighbor discovery. The default is `'off'`. `resolve(ip)` returns that MAC. A neighbor-discovery event is `nd`. DHCPv6 may set `v6`, `duid`, and `iaid`. The table is scratch key `identity` in a checkpoint, at most 50,000 rows and 16 addresses per MAC. IPv6 rows expire after 24 hours of silence.
 
 `explain(anomalyId)` returns why an anomaly fired: `test`, `observed`, and either `threshold` or `learned`, plus `suppressWith`. `explainCap` (default 1,000) is an engine-wide LRU. A hard-rule explanation never offers `allow()`, and `suppress` lasts at most 24 hours. `spec-coverage` prints `explains: X of Y detectors`.

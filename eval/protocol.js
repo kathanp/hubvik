@@ -682,6 +682,7 @@ module.exports = {
   hitsFor,
   evaluate,
   summaryLines,
+  formatWilson,
   renderProposals,
   renderMarkdown,
 };
