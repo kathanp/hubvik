@@ -1485,10 +1485,10 @@ class Engine extends EventEmitter {
         return engine._optionsFor(det);
       },
       /**
-       * Hourly ring for the device this context belongs to. The argument is ignored.
-       * @param {any} [_dev]
+       * Hourly ring for the device this context belongs to.
+       * Callers may pass the detector state; it is not read.
        */
-      horizon(_dev) {
+      horizon() {
         return horizonView(device);
       },
     };
