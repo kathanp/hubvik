@@ -1,6 +1,6 @@
 'use strict';
 
-const { median } = require('./lib');
+const { median, explainThreshold } = require('./lib');
 const { assertState } = require('./state');
 
 const detector = {
@@ -10,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.4',
     fpRisk: 'Medium (firmware updates)',
+    explains: true,
   },
   requires: ['T1'],
   category: 'timing',
@@ -85,6 +86,12 @@ function note(dev, ev, alert, ctx) {
     actual: `${dst} every ${Math.round(now / 1000)}s`,
     expected: `about every ${Math.round(base / 1000)}s`,
     data: { dst, medianMs: now, learnedMs: base },
+    explain: explainThreshold({
+      test: 'gt',
+      observed: now,
+      threshold: base * ctx.options.factor,
+      formula: `learnedMs=${base} × factor=${ctx.options.factor}`,
+    }),
   };
 }
 

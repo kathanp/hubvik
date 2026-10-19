@@ -338,6 +338,72 @@ const ATTACKS = {
       resolver: '10.0.0.1',
     });
   },
+  'state-cap'(engine) {
+    engine.feed({ device: 'a', dst: 'a.example', bytes: 1, ts: 1 });
+    engine.feed({ device: 'b', dst: 'b.example', bytes: 1, ts: 2 });
+  },
+  'tier-silent'(engine) {
+    engine.feed({
+      type: 'dns',
+      device: 'd',
+      ts: 0,
+      qname: 'video.vendor.com',
+      qtype: 'A',
+      rcode: 'NOERROR',
+      resolver: '10.0.0.1',
+    });
+    for (let hour = 0; hour <= 6; hour++) {
+      engine.feed({ device: 'd', dst: 'video.vendor.com', bytes: 10, ts: hour * 3600e3 });
+      engine.feed(flow({ ts: hour * 3600e3 }));
+    }
+    engine.tick(6 * 3600e3);
+  },
+  'input-gap'(engine) {
+    engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+    engine.tick(25 * 3600e3);
+  },
+  'new-beacon'(engine) {
+    for (let i = 0; i < 20; i++) {
+      engine.feed(
+        flow({ ts: 10000 + i * 1000, dstIp: '198.51.100.20', bytesOut: 120, pktsOut: 1 }),
+      );
+    }
+  },
+  'protocol-mix-shift'(engine) {
+    for (let i = 0; i < 25; i++) {
+      engine.feed(flow({ ts: 1000 + i, proto: 'tcp', pktsOut: 1, bytesOut: 100 }));
+    }
+    engine.feed(flow({ ts: 120000, proto: 'tcp', pktsOut: 1 }));
+    engine.lock('d');
+    for (let i = 0; i < 25; i++) {
+      engine.feed(flow({ ts: 240000 + i, proto: 'udp', pktsOut: 1, bytesOut: 60 }));
+    }
+    engine.flush(300000);
+  },
+  'beacon-change'(engine) {
+    for (let i = 0; i < 9; i++) engine.feed(flow({ ts: i * 1000, dstIp: '1.2.3.9', bytesOut: 80 }));
+    engine.lock('d');
+    for (let i = 0; i < 8; i++) {
+      engine.feed(flow({ ts: 100000 + i * 10000, dstIp: '1.2.3.9', bytesOut: 80 }));
+    }
+  },
+  'new-protocol'(engine) {
+    engine.feed(flow({ ts: 0 }));
+    engine.lock('d');
+    engine.feed(flow({ ts: 180000, proto: 'gre' }));
+  },
+  'exploit-probe-http'(engine) {
+    engine.feed({
+      type: 'http',
+      device: 'd',
+      ts: 0,
+      dstIp: '10.0.0.8',
+      dstPort: 80,
+      method: 'GET',
+      path: '/shell?',
+      direction: 'in',
+    });
+  },
 };
 
 /**
@@ -359,6 +425,13 @@ function optionsFor(id) {
   ) {
     options.learnMs = 86400000;
   }
+  if (id === 'state-cap') options.maxDevices = 1;
+  if (id === 'tier-silent') options.tiers = ['T0', 'T1', 'T2'];
+  if (id === 'protocol-mix-shift') {
+    options.learnMs = 10 * 3600e3;
+    options.windowMs = 60000;
+  }
+  if (id === 'beacon-change') options.learnMs = 86400000;
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }
