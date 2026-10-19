@@ -233,7 +233,7 @@ During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, 
 
 ## Early shadow detectors
 
-`exploit-probe-http`, `young-domain`, and `ttl-anomaly` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
+`exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
 
 `ttl-anomaly` reads `flow.ttl`. No shipped adapter fills that field, so the detector stays quiet until the host supplies it. `young-domain` does nothing until the host loads a `young-domain` list. Set `expiresTs` about 30 days after registration. Expired rows are ignored.
 
@@ -276,6 +276,8 @@ engine.setPeerGroup('aa:bb:cc:dd:ee:ff', 'cams');
 JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comparison needs at least five other devices in the same group. A fleet wave needs three devices seeing one new destination inside ten minutes. `data.sameGroup` is true when those devices share one peer group.
 
 `identity` defaults to `'off'`. `'auto'` rewrites a device id that is an IP to the MAC from DHCP, ARP, or an `nd` event, and stores the original on `data.observedAs`. `resolve(ip)` reads the same table. IPv6 rows drop after 24 hours without traffic.
+
+`horizons` is on when T1 is on and `slow-scan` or `multi-horizon-exfil` is active. `horizons: false` turns the ring off. Each device keeps 24 hourly rows of bytes, flows, and a HyperLogLog (`p = 8`). A gap over 24 hours clears the ring. `ctx.horizon(dev).last(hours)` and `.sum(field, hours)` are read-only. The ring is in `checkpoint()`.
 
 `explain(anomalyId)` returns the test, the observed value, and either a threshold or what was learned. Reading an id refreshes it. An id older than `explainCap` (default 1,000) returns `null`. For a hard rule, `suppressWith` is only `suppress`, and `untilTs` is at most 24 hours after the anomaly. Calling that `suppress` with the returned arguments mutes later drafts of that detector on that device when `match` equals `actual`.
 

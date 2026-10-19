@@ -634,6 +634,7 @@ function validateOptions(raw) {
         : num(input.explainCap, 'explainCap', { min: 1, integer: true }),
     identity: input.identity == null ? 'off' : identityMode(input.identity),
     promote: parsePromote(input),
+    horizons: input.horizons == null ? null : bool(input.horizons, 'horizons'),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

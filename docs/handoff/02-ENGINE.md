@@ -140,3 +140,7 @@ Policy: `createEngine({ policy: [{ id, severity?, match: { direction?, proto?, p
 `benign.test.js` requires zero anomalies of any severity. `benign-matrix.test.js` runs 14 days × 7 classes × 3 seeds and requires no anomaly at medium or above. Profiles live in `packages/core/test/fixtures/`. Jitter is ±3% so any sample is less than twice any other sample. Clock origin is `Date.UTC(2026, 0, 5)`.
 
 `peer-divergence` and `fleet-wave` are T0. They must return before emitting when there is no peer group, or when fewer than 3 devices newly share a destination. Benign runs are one device and set no peer group.
+
+## Horizons
+
+The ring exists only when T1 is enabled and `slow-scan` or `multi-horizon-exfil` is active, unless `horizons: false`. Flows update the open hour. A window close rolls a finished hour. A gap over 24 hours clears the ring and does not warn. `checkpoint().devices[id].progress.horizon` is the serialized ring.
