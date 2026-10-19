@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainChanged, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'arp-spoof',
@@ -10,6 +11,7 @@ const detector = {
     rel: '0.3',
     fpRisk: 'Low (DHCP reassignments handled via lease events)',
     attack: ['T1557.002'],
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -42,6 +44,7 @@ const detector = {
           actual: `${ev.ip} claimed by ${ev.mac}`,
           expected: `${ev.ip} stays on ${previous}`,
           data: { ip: ev.ip, mac: ev.mac, previous, gateway: Boolean(gateway) },
+          explain: explainChanged({ observed: ev.mac, previous }),
         };
       }
     }
@@ -61,6 +64,12 @@ const detector = {
       actual: `${ev.mac} claims ${ips.size} addresses`,
       expected: `<= ${ctx.options.maxIpsPerMac} addresses per MAC`,
       data: { mac: ev.mac, ips: ips.size },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ips.size,
+        threshold: ctx.options.maxIpsPerMac,
+        formula: `maxIpsPerMac=${ctx.options.maxIpsPerMac}`,
+      }),
     };
   },
 

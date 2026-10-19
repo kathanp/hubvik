@@ -1,6 +1,6 @@
 'use strict';
 
-const { entropy } = require('./lib');
+const { entropy, explainThreshold } = require('./lib');
 const { domainFamily } = require('../engine/net');
 const { assertState } = require('./state');
 
@@ -11,6 +11,7 @@ const detector = {
     consumes: ['dns'],
     rel: '0.3',
     fpRisk: 'Low with the combined score',
+    explains: true,
     attack: ['T1071.004'],
     stage: 'impact',
   },
@@ -68,6 +69,12 @@ const detector = {
       actual: `${ev.qname} (score ${score})`,
       expected: `tunnel score < ${ctx.options.minScore}`,
       data: { score, qname: ev.qname, queries: dev.queries },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: score,
+        threshold: ctx.options.minScore,
+        formula: `minScore=${ctx.options.minScore}`,
+      }),
     };
   },
 

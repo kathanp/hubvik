@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { isPublic } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'coap-amplification',
@@ -14,6 +15,7 @@ const detector = {
     attack: ['T1498'],
     stage: 'impact',
     dedupGroup: 'reflection',
+    explains: true,
   },
   requires: ['T1'],
   category: 'volume',
@@ -43,6 +45,12 @@ const detector = {
       actual: `coap reply to ${ev.dstIp}`,
       expected: 'no large CoAP replies toward the public internet',
       data: { dstIp: ev.dstIp, bytesOut: out, bytesIn: inn },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: out,
+        threshold: ctx.options.minBytes,
+        formula: `minBytes=${ctx.options.minBytes}`,
+      }),
     };
   },
 

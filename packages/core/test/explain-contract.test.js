@@ -142,6 +142,100 @@ const ATTACKS = {
       op: 'mining.subscribe',
     });
   },
+  'horizontal-scan'(engine) {
+    for (let i = 1; i <= 12; i++) {
+      engine.feed(flow({ ts: 1000 + i, dstIp: `1.2.3.${i}`, dstPort: 23 }));
+    }
+  },
+  'packet-flood'(engine) {
+    engine.feed(flow({ ts: 0, pktsOut: 800, pktsIn: 0, bytesOut: 8000, bytesIn: 0 }));
+  },
+  'egress-flood'(engine) {
+    engine.feed(
+      flow({
+        ts: 0,
+        proto: 'udp',
+        dstPort: 5004,
+        dstIp: '8.8.8.8',
+        bytesOut: 60000 * 1400,
+        bytesIn: 0,
+        pktsOut: 60000,
+      }),
+    );
+  },
+  'dns-tunnel'(engine) {
+    for (let i = 0; i < 11; i++) {
+      engine.feed({
+        type: 'dns',
+        device: 'd',
+        ts: 3000,
+        qname: `${'qxvzkplmnbwr'.repeat(4)}${i}.example`,
+        qtype: 'TXT',
+        rcode: 'NOERROR',
+        resolver: '10.0.0.1',
+      });
+    }
+  },
+  'brute-force-out'(engine) {
+    for (let i = 0; i < 16; i++) {
+      engine.feed(
+        flow({
+          ts: 1300,
+          dstPort: 22,
+          dstIp: `1.2.4.${i}`,
+          durationMs: 20,
+          bytesOut: 40,
+          bytesIn: 0,
+        }),
+      );
+    }
+  },
+  'coap-amplification'(engine) {
+    engine.feed(
+      flow({
+        ts: 2000,
+        proto: 'udp',
+        direction: 'out',
+        srcPort: 5683,
+        dstPort: 9999,
+        dstIp: '1.2.3.10',
+        bytesOut: 2000,
+        bytesIn: 0,
+      }),
+    );
+  },
+  'reflection-participation'(engine) {
+    engine.feed(
+      flow({
+        ts: 1000,
+        proto: 'udp',
+        direction: 'out',
+        srcPort: 1900,
+        dstPort: 80,
+        dstIp: '1.2.3.9',
+        bytesOut: 2000,
+        bytesIn: 100,
+      }),
+    );
+  },
+  'arp-spoof'(engine) {
+    engine.feed({
+      type: 'arp',
+      device: 'aa',
+      ts: 1000,
+      ip: '10.0.0.1',
+      mac: 'aa:aa:aa:aa:aa:01',
+      op: 'reply',
+    });
+    engine.feed({
+      type: 'arp',
+      device: 'bb',
+      ts: 1100,
+      ip: '10.0.0.1',
+      mac: 'bb:bb:bb:bb:bb:02',
+      op: 'reply',
+    });
+  },
   'blockchain-c2'(engine) {
     engine.feed({
       type: 'dns',
@@ -166,6 +260,7 @@ function optionsFor(id) {
   if (id === 'alert-storm') options.detectors = { 'alert-storm': { maxPerMinute: 1 } };
   if (id === 'new-device' || id === 'spam-relay') options.learnMs = 1000;
   if (id === 'clock-jump') options.learnMs = 86400000;
+  if (id === 'horizontal-scan' || id === 'dns-tunnel') options.learnMs = 86400000;
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

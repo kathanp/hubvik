@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainThreshold } = require('./lib');
+
 const detector = {
   id: 'packet-flood',
   version: 1,
@@ -8,6 +10,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Very low',
     attack: ['T1498'],
+    explains: true,
     stage: 'impact',
     dedupGroup: 'flood',
   },
@@ -44,6 +47,12 @@ const detector = {
       actual: `${dev.pkts} packets, ${Math.round(avg)} bytes/packet`,
       expected: `< ${ctx.options.minPackets} packets or larger packets`,
       data: { packets: dev.pkts, bytesPerPacket: avg },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.pkts,
+        threshold: ctx.options.minPackets,
+        formula: `minPackets=${ctx.options.minPackets}`,
+      }),
     };
   },
 
