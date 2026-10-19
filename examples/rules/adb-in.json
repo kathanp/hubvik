@@ -1,0 +1,10 @@
+{
+  "id": "adb-in",
+  "on": "flow",
+  "where": { "dstPort": { "eq": 5555 }, "proto": { "eq": "tcp" }, "direction": { "ne": "out" } },
+  "groupBy": ["srcIp"],
+  "window": "1m",
+  "severity": "critical",
+  "category": "app",
+  "attack": ["T1021"]
+}

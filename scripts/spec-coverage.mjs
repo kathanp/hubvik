@@ -171,6 +171,7 @@ for (const file of readdirSync(DETECTOR_DIR)) {
   if (!file.endsWith('.js') || SKIP_FILES.has(file)) continue;
   const loaded = require(join(DETECTOR_DIR, file));
   if (!loaded || typeof loaded.id !== 'string') continue;
+  if (loaded.id.startsWith('rule:')) continue;
   if (loaded.id !== file.slice(0, -3)) {
     fail(`${file} does not export a detector whose id matches the file name`);
     continue;
@@ -218,6 +219,7 @@ for (const row of rows) {
 }
 
 for (const [id, detector] of code) {
+  if (id.startsWith('rule:')) continue;
   if (!seen.has(id)) fail(`${id} has a detector file and no Part B row`);
   if (!detector.meta || typeof detector.meta.rel !== 'string') fail(`${id} is missing meta.rel`);
   if (!detector.meta || !Array.isArray(detector.meta.consumes)) {

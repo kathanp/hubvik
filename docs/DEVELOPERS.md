@@ -122,6 +122,8 @@ engine.loadIndicators([
 
 `loadIndicators` replaces the whole set. If one item is invalid, the previous set stays.
 
+`loadRules` does the same for declarative rules. Each compiled detector id is `rule:<id>`, mode defaults to shadow, and a failed document leaves the previous rule set in place. Operators are comparisons only: no regular expressions, `eval`, or `Function`. Caps are 256 rules and 10,000 groups per rule. Example rules live in `examples/rules/`.
+
 ## Policy
 
 Policy rules are hard rules. Every field you set must match. `dst` entries are exact names, a registrable domain, or `*.example.com`.

@@ -1,0 +1,10 @@
+{
+  "id": "tftp-out",
+  "on": "flow",
+  "where": { "dstPort": { "eq": 69 }, "proto": { "eq": "udp" }, "direction": { "eq": "out" } },
+  "groupBy": ["dstIp"],
+  "window": "1m",
+  "severity": "high",
+  "category": "abuse",
+  "attack": ["T1071"]
+}

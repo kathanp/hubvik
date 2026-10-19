@@ -88,4 +88,4 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 
 ## Session note
 
-2026-10-19: 1a is green. Check 282/282. Coverage 98.04% lines, 86.84% branches. Rich bench 87.35 KB/device. Demo score 100. Next is 1b, the rule language, on `work/finish-spec`.
+2026-10-19: 1a is green and merged onto `work/finish-spec`. Check 282/282. Coverage 98.04% lines, 86.84% branches. Rich bench 87.35 KB/device. Demo score 100. 1c is committed (Rel 0.9). 1b is implemented and waiting on its gate before the box is ticked.

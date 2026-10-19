@@ -24,6 +24,7 @@ const { noteLearning, mark } = require('./learning');
 const { horizonOn, noteHorizon, rollHorizon, horizonView } = require('./horizon');
 const { graphOn, noteGraph, snapshot, exportGraph, importGraph } = require('./graph');
 const { noteCampaign } = require('./campaigns');
+const { compileRules } = require('./rules');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
 const {
@@ -122,6 +123,8 @@ class Engine extends EventEmitter {
     /** @type {any[]} */
     this._campaigns = [];
     this._campaignSeq = 0;
+    /** @type {any[]} */
+    this._rules = [];
     this._rebuildActive();
   }
 
@@ -751,6 +754,19 @@ class Engine extends EventEmitter {
     const next = list.map((item) => validateIndicator(item));
     this.indicators = next;
     this.indicatorIndex = buildIndex(next);
+  }
+
+  /**
+   * Replace the rule set. The previous set is kept when validation fails.
+   * @param {unknown} rules
+   * @returns {void}
+   */
+  loadRules(rules) {
+    const compiled = compileRules(rules, this.opts.windowMs);
+    this._rules = compiled;
+    this.registry = ALL.map((det) => det).concat(compiled);
+    this.byId = new Map(this.registry.map((det) => [det.id, det]));
+    this._rebuildActive();
   }
 
   /**
@@ -1993,7 +2009,7 @@ class Engine extends EventEmitter {
   _assertDetector(detector) {
     if (!detector || typeof detector !== 'object')
       throw new TypeError('detector must be an object');
-    if (typeof detector.id !== 'string' || !/^[a-z0-9-]+$/.test(detector.id)) {
+    if (typeof detector.id !== 'string' || !/^(?:rule:)?[a-z0-9-]+$/.test(detector.id)) {
       throw new TypeError('detector.id is invalid');
     }
     if (!Number.isInteger(detector.version) || detector.version < 1) {

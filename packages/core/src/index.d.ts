@@ -392,6 +392,7 @@ export class Engine extends EventEmitter {
   setDeviceClass(device: string, classId: string): void;
   use(detector: Detector): void;
   loadIndicators(indicators: Indicator[]): void;
+  loadRules(rules: object[]): void;
   exportBaseline(opts?: {
     devices?: string[];
     createdAt?: number;

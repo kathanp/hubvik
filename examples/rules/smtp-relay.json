@@ -1,0 +1,12 @@
+{
+  "id": "smtp-relay",
+  "on": "flow",
+  "where": { "dstPort": { "eq": 25 }, "direction": { "eq": "out" } },
+  "groupBy": ["device"],
+  "window": "1h",
+  "agg": { "n": "count" },
+  "when": { "n": { "gt": 10 } },
+  "severity": "high",
+  "category": "abuse",
+  "attack": ["T1071"]
+}
