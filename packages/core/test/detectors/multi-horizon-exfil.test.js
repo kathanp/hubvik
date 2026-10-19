@@ -14,6 +14,7 @@ test('multi-horizon-exfil emits shadow-anomaly on the holdout', () => {
   const scenario = scenarios().find((row) => row.id === 'holdout-exfil-0.85');
   assert.ok(scenario);
   const engine = createEngine({
+    shadow: true,
     learnMs: scenario.events[scenario.learnCount - 1].ts + 1,
     tiers: ['T1'],
   });
@@ -31,13 +32,14 @@ test('multi-horizon-exfil emits shadow-anomaly on the holdout', () => {
 test('multi-horizon-exfil restores and rejects a bad daily sketch on import', () => {
   const scenario = scenarios().find((row) => row.id === 'holdout-exfil-0.85');
   const engine = createEngine({
+    shadow: true,
     learnMs: scenario.events[scenario.learnCount - 1].ts + 1,
     tiers: ['T1'],
   });
   for (let i = 0; i < scenario.learnCount; i += 1) engine.feed(scenario.events[i]);
   const saved = engine.exportBaseline({ createdAt: 1 });
   const id = scenario.events[0].device;
-  const next = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   next.importBaseline(saved);
   const again = next.exportBaseline({ createdAt: 2 });
   assert.ok(again.devices[id].detectors['multi-horizon-exfil'].state.hourly.count >= 1);
@@ -73,7 +75,12 @@ test('multi-horizon-exfil is silent on the all-tier benign matrix', () => {
         discovery: true,
         ipv6: true,
       });
-      const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS, identity: 'auto' });
+      const engine = createEngine({
+        shadow: true,
+        learnMs: 7 * DAY,
+        tiers: TIERS,
+        identity: 'auto',
+      });
       engine.setDeviceClass(events[0].device, profile);
       /** @type {any[]} */
       const hits = [];

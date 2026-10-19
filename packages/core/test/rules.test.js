@@ -33,7 +33,7 @@ function listen(engine, id) {
 }
 
 test('a telnet scan rule fires on the same hosts as horizontal-scan', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T0', 'T1'] });
   engine.loadRules([rule('telnet-scan.json')]);
   const builtin = listen(engine, 'horizontal-scan');
   const custom = listen(engine, 'rule:telnet-scan');
@@ -46,7 +46,7 @@ test('a telnet scan rule fires on the same hosts as horizontal-scan', () => {
 });
 
 test('an smtp rule fires on the same burst as spam-relay', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   engine.feed(flow({ ts: 1, dstPort: 443 }));
   const saved = engine.exportBaseline({ createdAt: 1 });
   saved.devices.d.detectors['spam-relay'].state = { learned: true };
@@ -62,7 +62,7 @@ test('an smtp rule fires on the same burst as spam-relay', () => {
 });
 
 test('tftp, adb, and a dangerous OT op fire with the built-in detectors', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1', 'T5'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T0', 'T1', 'T5'] });
   engine.loadRules([rule('tftp-out.json'), rule('adb-in.json'), rule('ot-stop.json')]);
   const tftp = listen(engine, 'tftp-activity');
   const tftpRule = listen(engine, 'rule:tftp-out');
@@ -99,7 +99,7 @@ test('tftp, adb, and a dangerous OT op fire with the built-in detectors', () => 
 });
 
 test('loadRules keeps the previous set when a later rule is invalid', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   engine.loadRules([rule('tftp-out.json')]);
   assert.throws(
     () =>
@@ -114,7 +114,7 @@ test('loadRules keeps the previous set when a later rule is invalid', () => {
 });
 
 test('a sequence fires only when the later step is inside the window', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   engine.loadRules([
     {
       id: 'short-then-long',
@@ -149,7 +149,7 @@ test('a sequence fires only when the later step is inside the window', () => {
 });
 
 test('baseline:true learns a port and alerts on a new one', () => {
-  const engine = createEngine({ learnMs: 5000, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 5000, tiers: ['T1'] });
   engine.loadRules([
     {
       id: 'new-in-port',
@@ -173,7 +173,7 @@ test('baseline:true learns a port and alerts on a new one', () => {
 });
 
 test('257 rules are rejected and an oversize group list cannot be imported', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   const rules = [];
   for (let i = 0; i < 257; i += 1) {
     rules.push({ id: `r${i}`, severity: 'low', on: 'flow', window: '1m' });

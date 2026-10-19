@@ -185,7 +185,19 @@ Under this rule, B21 rows are measurement instruments, not alert sources, and 0.
 
 **Order rule.** WP-10.1 runs first, then WP-11. WP-11 blocks every later WP. WP-12 (shadow framework) blocks every new detector.
 
-**Early shadow detectors.** `exploit-probe-http`, `young-domain` and `ttl-anomaly` were built ahead of order. They are Rel 0.8. They ship `mode: 'shadow'` and `enabled: true`.
+**Early shadow detectors.** `exploit-probe-http`, `young-domain` and `ttl-anomaly` were built ahead of order. They are Rel 0.8. They ship `mode: 'shadow'`. `defaults.enabled` stays true. Whether they run is decided by the `shadow` option below.
+
+**Engine option `shadow` (D-34).** This supersedes the enabled-by-default part of D-19. `createEngine({ shadow })` takes `false`, `true`, or an array of detector ids. The default is `false`.
+
+- `false`: no shadow detector runs, creates state, or appears in `exportBaseline()`.
+- `true`: every shadow detector runs.
+- an array: only the listed shadow detectors run.
+- `detectors[id].enabled`, when it is set, wins over `shadow`.
+- `detectors[id].mode: 'live'` promotes that one detector, so it is no longer a shadow detector and it runs.
+
+A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a default engine does not pay memory or CPU for it. The all-tier benign matrix, the multicast-hygiene test, the metamorphic suite, and each shadow detector's own tests pass `shadow: true`. `test/diff` uses `shadow: true`, the setting its golden was captured with, and does not edit the golden.
+
+**Bench budgets.** These are not raised. With default options the 200-device 7-day retained memory stays under 100 KB per device, and the 1,000-device watching median stays under 10 µs. With `shadow: true` the 7-day retained memory also stays under 100 KB per device, because the pilot runs on the same hardware. That run's median is recorded and is not a gate. A new shadow detector in WP-25 or WP-27 may cost at most 2 KB per device on the 7-day sweep with `shadow: true`.
 
 ---
 
@@ -715,7 +727,7 @@ These are the tunables the 0.2 detectors use when the host does not override the
 
 ### Defaults shipped in 0.8 (early shadow)
 
-All three ship `mode: 'shadow'` and `enabled: true`. None is a hard rule.
+All three ship `mode: 'shadow'` and `defaults.enabled: true`. None is a hard rule. The engine runs them only when `shadow` selects them, or when `detectors[id].enabled` is set (D-34).
 
 `exploit-probe-http`
 
@@ -1082,11 +1094,11 @@ The measurement layer. Required before any B21 row (0.5 shadow rule) and before 
 **Shadow detectors.**
 
 - `meta.mode: 'live' | 'shadow'`. Default `live` for B1–B20, `shadow` for B21.
-- A shadow detector runs exactly like a live one (learn, check, window close, export, import) but its drafts are emitted as event `shadow-anomaly` (same shape as A7/A7.1 plus `shadow: true`). They do not get an `incidentId`, do not count toward `alert-storm`, and are not passed to `post-update-drift` or `supply-chain-suspect`.
+- A shadow detector that the `shadow` option selects runs exactly like a live one (learn, check, window close, export, import) but its drafts are emitted as event `shadow-anomaly` (same shape as A7/A7.1 plus `shadow: true`). They do not get an `incidentId`, do not count toward `alert-storm`, and are not passed to `post-update-drift` or `supply-chain-suspect`. With `shadow: false` (the default) it does not run, does not create state, and is omitted from `exportBaseline()`.
 - `createEngine({ detectors: { id: { mode: 'live' } } })` may promote a shadow detector. The engine then emits `warning` `SHADOW_PROMOTED_BY_HOST` once per detector, so the decision is visible in logs.
 - `stats().shadow[id] = { fired, devices, bySeverity, wouldJoinIncident }`. `wouldJoinIncident` counts drafts that would have joined an open incident on that device had they been live.
 - A shadow draft never reaches an exporter unless the host subscribes to `shadow-anomaly`.
-- `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are shadow and enabled. Their own state still round-trips through `exportBaseline()` and `importBaseline()`. The differential comparison ignores a shadow id that is missing on one side (D-24), so the live detectors' baseline stays the oracle.
+- `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are shadow. Their own state round-trips through `exportBaseline()` and `importBaseline()` when `shadow` selects them. The differential comparison ignores a shadow id that is missing on one side (D-24), so the live detectors' baseline stays the oracle.
 
 **Threshold canaries.**
 

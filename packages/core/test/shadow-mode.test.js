@@ -95,8 +95,8 @@ function scan(ts, port) {
 }
 
 test('a shadow detector leaves the live stream and baseline unchanged', () => {
-  const plain = drive(createEngine({ learnMs: 0 }));
-  const withShadow = createEngine({ learnMs: 0 });
+  const plain = drive(createEngine({ shadow: true, learnMs: 0 }));
+  const withShadow = createEngine({ shadow: true, learnMs: 0 });
   withShadow.use(dummy);
   const noisy = drive(withShadow);
   assert.deepStrictEqual(noisy.anomalies, plain.anomalies);
@@ -106,7 +106,7 @@ test('a shadow detector leaves the live stream and baseline unchanged', () => {
 });
 
 test('shadow drafts do not feed alert-storm', () => {
-  const engine = createEngine({ learnMs: 0 });
+  const engine = createEngine({ shadow: true, learnMs: 0 });
   engine.use(dummy);
   /** @type {string[]} */
   const names = [];
@@ -123,6 +123,7 @@ test('canary counts are identical across two runs and stay out of the checkpoint
    */
   function once() {
     const engine = createEngine({
+      shadow: true,
       learnMs: 0,
       tiers: ['T0', 'T1'],
       windowMs: 1000,
@@ -138,6 +139,7 @@ test('canary counts are identical across two runs and stay out of the checkpoint
   assert.strictEqual(first.stats().canary['vertical-scan'].canaryOnly, 1);
   const saved = first.checkpoint({ createdAt: 1 });
   const restored = createEngine({
+    shadow: true,
     learnMs: 0,
     tiers: ['T0', 'T1'],
     windowMs: 1000,
@@ -155,9 +157,10 @@ test('a fifth canary is rejected and a promoted shadow detector warns once', () 
   for (const id of ['fan-out', 'volume-spike', 'new-port', 'new-destination', 'new-protocol']) {
     detectors[id] = { canary: { minPorts: 1 } };
   }
-  assert.throws(() => createEngine({ detectors }), /at most 4 canaries/);
+  assert.throws(() => createEngine({ shadow: true, detectors }), /at most 4 canaries/);
 
   const engine = createEngine({
+    shadow: true,
     learnMs: 0,
     tiers: ['T0', 'T1'],
     detectors: { 'ttl-anomaly': { mode: 'live' } },
@@ -170,4 +173,40 @@ test('a fifth canary is rejected and a promoted shadow detector warns once', () 
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 1 });
   assert.deepStrictEqual(codes, ['SHADOW_PROMOTED_BY_HOST']);
+});
+
+test('shadow defaults off, a list selects one, and enabled still wins', () => {
+  const quiet = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  quiet.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+  const saved = quiet.exportBaseline({ createdAt: 1 });
+  assert.equal(saved.devices.d.detectors['ttl-anomaly'], undefined);
+  assert.equal(quiet.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(quiet.stats().detectors['slow-scan'].reason, 'disabled by configuration');
+
+  const listed = createEngine({ learnMs: 0, tiers: ['T0', 'T1'], shadow: ['ttl-anomaly'] });
+  listed.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+  const row = listed.exportBaseline({ createdAt: 1 });
+  assert.ok(row.devices.d.detectors['ttl-anomaly']);
+  assert.equal(row.devices.d.detectors['slow-scan'], undefined);
+  assert.equal(listed.stats().detectors['ttl-anomaly'].active, true);
+
+  const forced = createEngine({
+    learnMs: 0,
+    tiers: ['T0', 'T1'],
+    detectors: { 'slow-scan': { enabled: true } },
+  });
+  assert.equal(forced.stats().detectors['slow-scan'].active, true);
+  assert.equal(forced.stats().detectors['ttl-anomaly'].active, false);
+
+  const muted = createEngine({
+    learnMs: 0,
+    tiers: ['T1'],
+    shadow: true,
+    detectors: { 'ttl-anomaly': { enabled: false } },
+  });
+  assert.equal(muted.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(muted.stats().detectors['slow-scan'].active, true);
+
+  assert.throws(() => createEngine({ shadow: 'yes' }), /shadow must be/);
+  assert.throws(() => createEngine({ shadow: ['nope'] }), /unknown detector/);
 });

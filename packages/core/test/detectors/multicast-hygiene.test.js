@@ -25,6 +25,7 @@ function watching(profile, discovery) {
     discovery: false,
   });
   const engine = createEngine({
+    shadow: true,
     learnMs: 7 * DAY,
     tiers: TIERS,
     detectors: {

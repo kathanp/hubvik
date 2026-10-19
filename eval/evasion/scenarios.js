@@ -113,7 +113,7 @@ function splitFlood() {
  * @returns {{ id: string, fired: boolean, detectors: string[] }}
  */
 function report(id, events, learnCount) {
-  const engine = createEngine({ learnMs: 1e14, tiers: ['T1'], evidence: false });
+  const engine = createEngine({ shadow: true, learnMs: 1e14, tiers: ['T1'], evidence: false });
   /** @type {any[]} */
   const hits = [];
   const note = (item) => {

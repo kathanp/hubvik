@@ -651,3 +651,11 @@ Check 282/282, duration 1040469 ms. Coverage lines 98.04%, branches 86.84%, func
 The nine new detectors are shadow. A router Neighbor Advertisement fires during learning because `learn()` may return a severity draft (D-32). `npm run demo` printed the same incident, score 100.
 
 Largest packed files, bytes: engine.js 67574, validate.js 31270, LICENSE 11342, checkpoint.js 10321, index.d.ts 10309, CHANGELOG.md 10199, learning.js 7101, feedback.js 7016, graph.js 6262, baseline.js 5392, campaigns.js 5375, promote.js 5225, horizon.js 5126, exploit-probe-http.js 4940, multi-horizon-exfil.js 4866.
+
+## WP-22 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 289/289, duration 1251432 ms. Coverage lines 97.69%, branches 86.02%, functions 97.90%, duration 1145845 ms. Pack-check: core 186 files, 549167 bytes unpacked. `src/engine/engine.js` is 68083 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 56550 accepted, 43450 rejected; checkpoint mutation 53652 accepted, 46348 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected. Bench median 6.75 µs, retained 12.04 KB/device, 1000 devices. Rich bench median 11.17 µs, retained 87.36 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+`loadRules` validates the whole document, then swaps the rule set. `npm run demo` printed the same incident, score 100.

@@ -21,7 +21,7 @@ function subscribe(target) {
 }
 
 test('upnp-callstranger fires when the callback host is public', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -34,7 +34,7 @@ test('upnp-callstranger fires when the callback host is public', () => {
 });
 
 test('upnp-callstranger stays quiet for a private callback', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -46,10 +46,10 @@ test('upnp-callstranger stays quiet for a private callback', () => {
 });
 
 test('upnp-callstranger survives export and import', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'] });
   eng.feed(subscribe('http://10.0.0.9/callback'));
   const saved = eng.exportBaseline({ createdAt: 1 });
-  const next = createEngine({ learnMs: 0, tiers: ['T5'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'] });
   next.importBaseline(saved);
   /** @type {any[]} */
   const hits = [];

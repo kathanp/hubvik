@@ -48,6 +48,26 @@ function identityMode(value) {
 }
 
 /**
+ * Shadow detectors stay off unless the host opts in.
+ * @param {unknown} value
+ * @returns {boolean | string[]}
+ */
+function parseShadow(value) {
+  if (value == null || value === false) return false;
+  if (value === true) return true;
+  if (!Array.isArray(value)) throw new TypeError('shadow must be false, true, or an array of ids');
+  /** @type {string[]} */
+  const ids = [];
+  for (const id of value) {
+    if (typeof id !== 'string' || !/^(?:rule:)?[a-z0-9-]+$/.test(id)) {
+      throw new TypeError('shadow id is invalid');
+    }
+    ids.push(id);
+  }
+  return ids;
+}
+
+/**
  * Default is off. An object uses 3 days and 10 hits unless the host sets them.
  * @param {any} input
  * @returns {false | { afterDays: number, minHits: number }}
@@ -670,6 +690,7 @@ function validateOptions(raw) {
     horizons: input.horizons == null ? null : bool(input.horizons, 'horizons'),
     graph: input.graph == null ? null : bool(input.graph, 'graph'),
     campaigns: input.campaigns == null ? false : bool(input.campaigns, 'campaigns'),
+    shadow: parseShadow(input.shadow),
     linkMs: input.linkMs == null ? 900000 : num(input.linkMs, 'linkMs', { min: 1, integer: true }),
     windowMs:
       input.windowMs == null

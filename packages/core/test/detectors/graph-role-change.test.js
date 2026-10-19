@@ -34,7 +34,7 @@ function inbound(engine, n, ts) {
 }
 
 test('graph-role-change fires when a quiet device gains five LAN clients', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   engine.feed({
     type: 'dhcp',
     device: 'aa:bb:cc:dd:ee:10',
@@ -54,7 +54,7 @@ test('graph-role-change fires when a quiet device gains five LAN clients', () =>
   assert.strictEqual(hits[0].device, 'aa:bb:cc:dd:ee:10');
   assert.strictEqual(hits[0].severity, 'high');
 
-  const hub = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const hub = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   hub.setDeviceClass('aa:bb:cc:dd:ee:10', 'hub');
   hub.feed({
     type: 'dhcp',
@@ -75,7 +75,7 @@ test('graph-role-change fires when a quiet device gains five LAN clients', () =>
 });
 
 test('graph-role-change restores the learned max in-degree', () => {
-  const engine = createEngine({ learnMs: 10_000, tiers: ['T1'], identity: 'auto' });
+  const engine = createEngine({ shadow: true, learnMs: 10_000, tiers: ['T1'], identity: 'auto' });
   engine.feed({
     type: 'dhcp',
     device: 'aa:bb:cc:dd:ee:10',
@@ -89,7 +89,7 @@ test('graph-role-change restores the learned max in-degree', () => {
   const saved = engine.exportBaseline({ createdAt: 1 });
   const state = saved.devices['aa:bb:cc:dd:ee:10'].detectors['graph-role-change'].state;
   assert.strictEqual(state.learnedMax, 1);
-  const next = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   next.importBaseline(saved);
   const again = next.exportBaseline({ createdAt: 2 });
   assert.strictEqual(
@@ -111,6 +111,7 @@ test('graph-role-change is silent on the all-tier benign matrix', () => {
         ipv6: true,
       });
       const engine = createEngine({
+        shadow: true,
         learnMs: 7 * DAY,
         tiers: ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'],
         identity: 'auto',

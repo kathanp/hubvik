@@ -47,6 +47,7 @@ function bind(engine, mac, ip, ts) {
 
 test('graph-new-bridge fires on a zone pair that learning never saw', () => {
   const engine = createEngine({
+    shadow: true,
     learnMs: 500,
     tiers: ['T1'],
     identity: 'auto',
@@ -68,7 +69,7 @@ test('graph-new-bridge fires on a zone pair that learning never saw', () => {
 });
 
 test('graph-new-bridge stays quiet without zones and caps LAN edges at 32', () => {
-  const quiet = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const quiet = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   /** @type {any[]} */
   const hits = [];
   quiet.on('shadow-anomaly', (row) => {
@@ -81,7 +82,7 @@ test('graph-new-bridge stays quiet without zones and caps LAN edges at 32', () =
   quiet.feed(lan({ ts: 300, dstIp: '239.255.255.250', dstPort: 1900, proto: 'udp' }));
   assert.deepStrictEqual(hits, []);
 
-  const capped = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const capped = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   for (let i = 0; i < 33; i += 1) {
     const ip = `10.3.0.${i + 1}`;
     const mac = `aa:bb:cc:dd:ee:${(i + 1).toString(16).padStart(2, '0')}`;
@@ -90,13 +91,13 @@ test('graph-new-bridge stays quiet without zones and caps LAN edges at 32', () =
   }
   assert.strictEqual(capped.graph({ device: 'src' }).lan.length, 32);
   const saved = capped.checkpoint({ createdAt: 1 });
-  const next = createEngine({ learnMs: 0, tiers: ['T1'], identity: 'auto' });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'], identity: 'auto' });
   next.restore(saved);
   assert.strictEqual(next.graph({ device: 'src' }).lan.length, 32);
 });
 
 test('graph-new-bridge import rejects a pair list over the cap', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   engine.feed(lan({ ts: 1, direction: 'out', dstIp: '9.9.9.9' }));
   const saved = engine.exportBaseline({ createdAt: 1 });
   const pairs = [];
@@ -129,6 +130,7 @@ test('graph-new-bridge is silent on the all-tier benign matrix', () => {
         ipv6: true,
       });
       const engine = createEngine({
+        shadow: true,
         learnMs: 7 * DAY,
         tiers: ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'],
         identity: 'auto',

@@ -21,7 +21,7 @@ function offer(ts, serverIp) {
 }
 
 test('dhcpv6-rogue fires on a second DHCPv6 server after the first is learned', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T4'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -34,7 +34,12 @@ test('dhcpv6-rogue fires on a second DHCPv6 server after the first is learned', 
 });
 
 test('dhcpv6-rogue ignores IPv4 DHCP and a configured server', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'], dhcpServers: ['2001:db8::1'] });
+  const eng = createEngine({
+    shadow: true,
+    learnMs: 0,
+    tiers: ['T4'],
+    dhcpServers: ['2001:db8::1'],
+  });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -53,10 +58,10 @@ test('dhcpv6-rogue ignores IPv4 DHCP and a configured server', () => {
 });
 
 test('dhcpv6-rogue keeps a single learned server across export and import', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T4'] });
   eng.feed(offer(1000, '2001:db8::1'));
   const saved = eng.exportBaseline();
-  const next = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   next.importBaseline(saved);
   /** @type {any[]} */
   const hits = [];

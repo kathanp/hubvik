@@ -25,6 +25,7 @@ test('14 benign days on every tier stay under medium', () => {
         discovery: true,
       });
       const engine = createEngine({
+        shadow: true,
         learnMs: 7 * DAY,
         tiers: TIERS,
         detectors: {

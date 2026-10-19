@@ -14,7 +14,7 @@ function wifi(ts, mac, op = 'deauth') {
 }
 
 test('wifi-deauth-flood fires at 30 events in one window', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -26,7 +26,7 @@ test('wifi-deauth-flood fires at 30 events in one window', () => {
 });
 
 test('wifi-deauth-flood fires at 10 against one MAC', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -39,6 +39,7 @@ test('wifi-deauth-flood fires at 10 against one MAC', () => {
 
 test('wifi-deauth-flood caps the per-MAC map at 5000', () => {
   const eng = createEngine({
+    shadow: true,
     learnMs: 0,
     tiers: ['T4'],
     detectors: { 'wifi-deauth-flood': { minCount: 100000, perMac: 100000 } },
@@ -52,9 +53,9 @@ test('wifi-deauth-flood caps the per-MAC map at 5000', () => {
 });
 
 test('wifi-deauth-flood counter survives a checkpoint', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   for (let i = 0; i < 9; i += 1) eng.feed(wifi(1000 + i, 'aa:bb:cc:dd:ee:01'));
-  const next = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   next.restore(eng.checkpoint({ createdAt: 1 }));
   /** @type {any[]} */
   const hits = [];

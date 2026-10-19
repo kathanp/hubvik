@@ -8,7 +8,7 @@ const { flow } = require('../../../../test/fixtures/flow');
 const TIERS = ['T0', 'T1', 'T2'];
 
 test('cloud-storage-exfil fires on a new object-storage upload over 10 MB', () => {
-  const eng = createEngine({ learnMs: 0, tiers: TIERS });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: TIERS });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -20,7 +20,7 @@ test('cloud-storage-exfil fires on a new object-storage upload over 10 MB', () =
 });
 
 test('cloud-storage-exfil ignores a pattern seen while learning and AWS IoT names', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: TIERS });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: TIERS });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -35,7 +35,7 @@ test('cloud-storage-exfil ignores a pattern seen while learning and AWS IoT name
 });
 
 test('cloud-storage-exfil matches a one-label wildcard and a DNS name', () => {
-  const eng = createEngine({ learnMs: 0, tiers: TIERS });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: TIERS });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -62,7 +62,7 @@ test('cloud-storage-exfil matches a one-label wildcard and a DNS name', () => {
 });
 
 test('cloud-storage-exfil import rejects an oversized row list', () => {
-  const eng = createEngine({ learnMs: 0, tiers: TIERS });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: TIERS });
   eng.feed(flow({ ts: 1, dstName: 'x.blob.core.windows.net', bytesOut: 10 }));
   const saved = eng.exportBaseline({ createdAt: 1 });
   const rows = [];
@@ -83,10 +83,10 @@ test('cloud-storage-exfil import rejects an oversized row list', () => {
 });
 
 test('cloud-storage-exfil survives export and import', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: TIERS });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: TIERS });
   eng.feed(flow({ ts: 1000, dstName: 'x.blob.core.windows.net', bytesOut: 100 }));
   const saved = eng.exportBaseline();
-  const next = createEngine({ learnMs: 0, tiers: TIERS });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: TIERS });
   next.importBaseline(saved);
   assert.equal(
     next.exportBaseline().devices.d.detectors['cloud-storage-exfil'].state.rows.length,

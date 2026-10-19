@@ -7,9 +7,18 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 ## Step 1 — Finish 0.8
 
 - [x] 1a. WP-21 shadow detectors green (gate on this branch)
-- [ ] 1b. WP-22 rule language (`loadRules`, sequences, examples, fuzz)
-- [ ] 1c. `peer-divergence-federated` marked Rel 0.9 in SPEC
-- [ ] 1d. 0.8.0 bump, CHANGELOG, local tag `v0.8.0`
+- [x] 1b. WP-22 rule language (`loadRules`, sequences, examples, fuzz)
+- [x] 1c. `peer-divergence-federated` marked Rel 0.9 in SPEC
+- [ ] 1d. 0.8.0 bump, CHANGELOG, local tag `v0.8.0` (after step 1.5)
+
+## Step 1.5 — Memory and speed before adding more
+
+- [ ] 1.5a. Disable-one heap table for the 17 shadow detectors, and the gated 1,000-device median
+- [ ] 1.5b. `shadow` option, default false (D-34). Benign, hygiene, metamorphic, and shadow tests pass `shadow: true`. `test/diff` keeps the golden's setting
+- [ ] 1.5c. Gate defaults (7-day < 100 KB and 1,000-device median < 10 µs) and `shadow: true` 7-day < 100 KB
+- [ ] 1.5d. Representation fix for any shadow detector over 3 KB/device
+- [ ] 1.5e. Later detectors stay at or under 2 KB/device (checked when each is added)
+- [ ] 1.5f. 0.8.0 bump and local tag `v0.8.0` if the gate passes (same as 1d)
 
 ## Step 2 — Code quality (each check added to `npm run gate`)
 
@@ -88,4 +97,4 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 
 ## Session note
 
-2026-10-19: 1a is green and merged onto `work/finish-spec`. Check 282/282. Coverage 98.04% lines, 86.84% branches. Rich bench 87.35 KB/device. Demo score 100. 1c is committed (Rel 0.9). 1b is implemented and waiting on its gate before the box is ticked.
+2026-10-19: 1b gate exited 0. Check 289/289, duration 1251432 ms. Coverage lines 97.69%, branches 86.02%, functions 97.90%. Pack 186 files, 549167 bytes. spec-coverage 137 rows, 126 files, explains 56 of 126. Rules fuzz 87041 rejected. Bench median 6.75 µs, retained 12.04 KB/device. Rich bench median 11.17 µs, retained 87.36 KB/device. Demo score 100. Step 1.5 is next: shadow detectors default off.

@@ -12,7 +12,7 @@ const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
  * @param {Record<string, unknown>} [extra]
  */
 function watch(id, extra = {}) {
-  const engine = createEngine({ learnMs: 0, tiers: TIERS, ...extra });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: TIERS, ...extra });
   /** @type {any[]} */
   const hits = [];
   engine.on('shadow-anomaly', (row) => {

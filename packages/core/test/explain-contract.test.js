@@ -653,7 +653,7 @@ const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 
 function optionsFor(id) {
   /** @type {any} */
-  const options = { tiers: TIERS, learnMs: 0 };
+  const options = { tiers: TIERS, learnMs: 0, shadow: true };
   if (id === 'alert-storm') options.detectors = { 'alert-storm': { maxPerMinute: 1 } };
   if (id === 'new-device' || id === 'spam-relay') options.learnMs = 1000;
   if (id === 'clock-jump') options.learnMs = 86400000;

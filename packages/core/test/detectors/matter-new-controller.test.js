@@ -22,7 +22,7 @@ function matter(ts, peerIp, op = 'AddNOC') {
 }
 
 test('matter-new-controller fires on AddNOC from an unlearned peer', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T5'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -36,7 +36,7 @@ test('matter-new-controller fires on AddNOC from an unlearned peer', () => {
 });
 
 test('matter-new-controller stays quiet for a controller learned at setup', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T5'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -48,7 +48,7 @@ test('matter-new-controller stays quiet for a controller learned at setup', () =
 });
 
 test('matter-new-controller import rejects a peer list over the destination cap', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T5'], maxDestinations: 4 });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'], maxDestinations: 4 });
   eng.feed(matter(1000, '10.0.0.2'));
   const saved = eng.exportBaseline({ createdAt: 1 });
   assert.throws(
@@ -72,9 +72,9 @@ test('matter-new-controller import rejects a peer list over the destination cap'
 });
 
 test('matter-new-controller survives export and import', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T5'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T5'] });
   eng.feed(matter(1000, '10.0.0.2'));
-  const next = createEngine({ learnMs: 0, tiers: ['T5'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T5'] });
   next.importBaseline(eng.exportBaseline({ createdAt: 1 }));
   /** @type {any[]} */
   const hits = [];

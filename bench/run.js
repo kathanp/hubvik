@@ -54,18 +54,21 @@ if (median >= 10 || heapKb >= 100) {
   process.exit(1);
 }
 
-richBench();
+richBench('rich bench', {});
+richBench('shadow bench', { shadow: true });
 
 /**
  * 200 devices, 7 days of rich class traffic, then lock.
- * Heap budget is 100 KB per device. The median is reported and is not a budget.
+ * Heap budget is 100 KB per device. The median is recorded and is not a budget.
+ * @param {string} label
+ * @param {Record<string, unknown>} extra
  * @returns {void}
  */
-function richBench() {
+function richBench(label, extra) {
   const { simulate } = require('../test/fixtures/sim');
   const { CLASS_NAMES } = require('../test/fixtures/profiles');
   const richDevices = 200;
-  const rich = createEngine({ learnMs: 1e14, tiers: TIERS });
+  const rich = createEngine({ learnMs: 1e14, tiers: TIERS, ...extra });
   const richBefore = heapUsed();
   let lastTs = 0;
   let events = 0;
@@ -102,10 +105,10 @@ function richBench() {
   const richStats = rich.stats();
   const richHeapKb = richStats.devices > 0 ? richHeap / richStats.devices / 1024 : 0;
   console.log(
-    `rich bench median ${richMedian.toFixed(2)} µs, retained ${richHeapKb.toFixed(2)} KB/device, devices ${richStats.devices}, events ${events}`,
+    `${label} median ${richMedian.toFixed(2)} µs, retained ${richHeapKb.toFixed(2)} KB/device, devices ${richStats.devices}, events ${events}`,
   );
   if (richHeapKb >= 100) {
-    console.error(`rich bench: retained ${richHeapKb.toFixed(2)} KB/device is over 100 KB`);
+    console.error(`${label}: retained ${richHeapKb.toFixed(2)} KB/device is over 100 KB`);
     process.exit(1);
   }
 }

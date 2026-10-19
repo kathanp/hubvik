@@ -88,6 +88,7 @@ class Engine extends EventEmitter {
     this.names = new Map();
     this.incidentSeq = 0;
     this._checkDetectorOptions(opts);
+    this._checkShadowList();
     let canaries = 0;
     for (const value of Object.values(opts.detectors)) {
       if (value && value.canary != null) canaries += 1;
@@ -138,6 +139,16 @@ class Engine extends EventEmitter {
   }
 
   /** @returns {void} */
+  _checkShadowList() {
+    const shadow = this.opts.shadow;
+    if (!Array.isArray(shadow)) return;
+    for (const id of shadow) {
+      if (id.startsWith('rule:')) continue;
+      if (!this.byId.has(id)) throw new TypeError(`unknown detector ${id}`);
+    }
+  }
+
+  /** @returns {void} */
   _rebuildActive() {
     /** @type {any[]} */
     this.active = [];
@@ -153,6 +164,7 @@ class Engine extends EventEmitter {
       let status;
       const turnedOff =
         (over && over.enabled === false) ||
+        this._shadowBlocked(det) ||
         ((!over || over.enabled == null) && det.defaults && det.defaults.enabled === false);
       if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
       else {
@@ -784,6 +796,7 @@ class Engine extends EventEmitter {
       const detectors = Object.create(null);
       for (const det of this.registry) {
         const stored = device.states.get(det.id);
+        if (this._shadowBlocked(det)) continue;
         if (!stored && det.defaults && det.defaults.enabled === false) continue;
         const state = stored ?? this._freshState(det);
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
@@ -1559,6 +1572,22 @@ class Engine extends EventEmitter {
     if (over && over.mode === 'live') return false;
     if (over && over.mode === 'shadow') return true;
     return Boolean(det.meta && det.meta.mode === 'shadow');
+  }
+
+  /**
+   * A shadow detector stays off unless `shadow` selects it.
+   * `detectors[id].enabled` wins, including an explicit false.
+   * @param {any} det
+   * @returns {boolean}
+   */
+  _shadowBlocked(det) {
+    const over = this.opts.detectors[det.id];
+    if (over && typeof over.enabled === 'boolean') return false;
+    if (!this._isShadow(det)) return false;
+    const shadow = this.opts.shadow;
+    if (shadow === true) return false;
+    if (Array.isArray(shadow)) return !shadow.includes(det.id);
+    return true;
   }
 
   /**

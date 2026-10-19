@@ -15,7 +15,7 @@ function na(ts, ip, mac, router) {
 }
 
 test('nd-spoof fires a router claim during learning and stays a shadow anomaly', () => {
-  const eng = createEngine({ learnMs: 1e14, tiers: ['T4'], identity: 'auto' });
+  const eng = createEngine({ shadow: true, learnMs: 1e14, tiers: ['T4'], identity: 'auto' });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -32,7 +32,7 @@ test('nd-spoof fires a router claim during learning and stays a shadow anomaly',
 });
 
 test('nd-spoof treats a new address for the same MAC as privacy rotation', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'], identity: 'auto' });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'], identity: 'auto' });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -53,7 +53,7 @@ test('nd-spoof treats a new address for the same MAC as privacy rotation', () =>
 });
 
 test('nd-spoof other rebinds wait until watching', () => {
-  const learning = createEngine({ learnMs: 1e14, tiers: ['T4'] });
+  const learning = createEngine({ shadow: true, learnMs: 1e14, tiers: ['T4'] });
   /** @type {any[]} */
   const early = [];
   learning.on('shadow-anomaly', (row) => {
@@ -63,7 +63,7 @@ test('nd-spoof other rebinds wait until watching', () => {
   learning.feed(na(2000, '2001:db8::20', 'aa:bb:cc:dd:ee:02'));
   assert.deepEqual(early, []);
 
-  const eng = createEngine({ learnMs: 1000, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 1000, tiers: ['T4'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -75,7 +75,7 @@ test('nd-spoof other rebinds wait until watching', () => {
 });
 
 test('nd-spoof stops storing bindings at 5000', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   for (let i = 0; i < 5001; i += 1) {
     const hex = i.toString(16).padStart(4, '0');
     eng.feed(na(1000 + i, `2001:db8::${hex}`, 'aa:bb:cc:dd:ee:01'));
@@ -85,10 +85,10 @@ test('nd-spoof stops storing bindings at 5000', () => {
 });
 
 test('nd-spoof binding survives a checkpoint', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   eng.feed(na(1000, '2001:db8::30', 'aa:bb:cc:dd:ee:01'));
   const saved = eng.checkpoint();
-  const next = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   next.restore(saved);
   /** @type {any[]} */
   const hits = [];

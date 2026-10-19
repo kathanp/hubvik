@@ -21,7 +21,7 @@ function assoc(ts, bssid) {
 }
 
 test('evil-twin fires when a learned client joins an unlearned BSSID', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T4'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -36,6 +36,7 @@ test('evil-twin fires when a learned client joins an unlearned BSSID', () => {
 
 test('evil-twin stays quiet for a BSSID the host listed', () => {
   const eng = createEngine({
+    shadow: true,
     learnMs: 5000,
     tiers: ['T4'],
     ownBssids: ['aa:bb:cc:dd:ee:f9'],
@@ -51,7 +52,7 @@ test('evil-twin stays quiet for a BSSID the host listed', () => {
 });
 
 test('evil-twin import rejects more than 32 BSSIDs', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   eng.feed(assoc(1000, 'aa:bb:cc:dd:ee:f0'));
   const saved = eng.exportBaseline({ createdAt: 1 });
   const bssids = [];
@@ -79,10 +80,10 @@ test('evil-twin import rejects more than 32 BSSIDs', () => {
 });
 
 test('evil-twin survives export and import', () => {
-  const eng = createEngine({ learnMs: 5000, tiers: ['T4'] });
+  const eng = createEngine({ shadow: true, learnMs: 5000, tiers: ['T4'] });
   eng.feed(assoc(1000, 'aa:bb:cc:dd:ee:f0'));
   const saved = eng.exportBaseline({ createdAt: 1 });
-  const next = createEngine({ learnMs: 0, tiers: ['T4'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T4'] });
   next.importBaseline(saved);
   /** @type {any[]} */
   const hits = [];

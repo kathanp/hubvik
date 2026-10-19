@@ -23,7 +23,7 @@ function ssh(ts, durationMs, srcIp = '1.2.3.4') {
 }
 
 test('ssh-brute-then-session fires after ten short attempts and one long session', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T0', 'T1'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -37,7 +37,7 @@ test('ssh-brute-then-session fires after ten short attempts and one long session
 });
 
 test('ssh-brute-then-session stays quiet when the long session is a different source', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T0', 'T1'] });
   /** @type {any[]} */
   const hits = [];
   eng.on('shadow-anomaly', (row) => {
@@ -49,7 +49,7 @@ test('ssh-brute-then-session stays quiet when the long session is a different so
 });
 
 test('ssh-brute-then-session import rejects more than 256 sources', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   eng.feed(ssh(1000, 200));
   const saved = eng.exportBaseline({ createdAt: 1 });
   const sources = [];
@@ -75,10 +75,10 @@ test('ssh-brute-then-session import rejects more than 256 sources', () => {
 });
 
 test('ssh-brute-then-session survives export and import', () => {
-  const eng = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const eng = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   eng.feed(ssh(1000, 200));
   const saved = eng.exportBaseline();
-  const next = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   next.importBaseline(saved);
   assert.equal(
     next.exportBaseline().devices.d.detectors['ssh-brute-then-session'].state.sources.length,

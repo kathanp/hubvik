@@ -293,6 +293,8 @@ export interface EngineOptions {
   horizons?: boolean;
   graph?: boolean;
   campaigns?: boolean;
+  /** false: shadow detectors stay off. true: all of them. An array runs only those ids. */
+  shadow?: boolean | string[];
   linkMs?: number;
   ownBssids?: string[];
 }

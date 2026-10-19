@@ -33,6 +33,7 @@ test('WP-21 shadow detectors are silent on the all-tier benign matrix', () => {
         wifi: true,
       });
       const engine = createEngine({
+        shadow: true,
         learnMs: 7 * DAY,
         tiers: ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'],
         identity: 'auto',
