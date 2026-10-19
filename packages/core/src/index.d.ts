@@ -254,6 +254,7 @@ export interface EngineOptions {
   incidentWindowMs?: number;
   browserJa4?: string[];
   reorderMs?: number;
+  maxBuffered?: number;
   minLearnWindows?: number;
   tierSilentMs?: number;
   tierSilentByTier?: Partial<Record<'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5', number>>;

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+When `reorderMs` is greater than 0, `feed()` holds events and delivers them in timestamp order. `reorderMs: 0` does not create a buffer. The hold is capped by `maxBuffered` (default 50,000) and is part of `checkpoint()`. Hosts that merge two log sources set `reorderMs: 5000`; alerts wait that long.
+
 A checkpoint keeps each detector's live state, including open-window counters that `exportBaseline()` does not store, and `restore()` puts that state back.
 
 `packages/core/src/engine/stats/` holds Welford, EWMA, P², HyperLogLog, Count-Min, Page CUSUM, Page–Hinkley, and a seeded FNV-1a/fmix32 hash. No detector reads them yet. Count-Min is LAN-wide scratch only.

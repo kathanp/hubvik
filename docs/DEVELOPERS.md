@@ -172,6 +172,8 @@ Defaults: 10 000 devices, 5 000 destinations per device, 5 000 alert keys, 10 08
 
 Timestamps must not go backward. A backward step is `warning` `CLOCK_JUMP` and a `clock-jump` anomaly, and the event is not applied. A forward step longer than 36 hours is also `clock-jump`. Overnight silence is not a clock jump.
 
+Hosts that merge two or more log sources must set `reorderMs: 5000`. The engine then holds each event until event time has moved 5 seconds past it, and delivers the held events in timestamp order, so a flow that arrives before its DHCP ack is not a `src-spoof`. Alerts are delayed by that much. `reorderMs: 0` (the default) delivers immediately and does not allocate a buffer. `flush()` and `tick(now)` release held events up to their time before they close windows or run silence checks. A bare `flush()` releases every held event. `lock()` releases the buffer before it freezes learning.
+
 `input-gap` reports when `tick(now)` sees 24 hours with no accepted event, and that gap is still inside the history window (7 days by default). A tick at the watermark, including after a restart that has not seen a new event, does not page.
 
 ## Device class

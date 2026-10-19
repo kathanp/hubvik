@@ -183,7 +183,8 @@ function dropOldest(body) {
  * @param {any} device
  */
 function progressOf(device) {
-  return {
+  /** @type {Record<string, unknown>} */
+  const out = {
     mode: device.mode,
     frozen: device.frozen,
     seen: device.seen,
@@ -192,6 +193,8 @@ function progressOf(device) {
     suspicious: device.suspicious ? device.suspicious.slice() : [],
     learningExtended: Boolean(device.learningExtended),
   };
+  if (typeof device.lastTs === 'number') out.lastTs = device.lastTs;
+  return out;
 }
 
 /**
@@ -271,6 +274,9 @@ function applyProgress(device, progress) {
   if (Array.isArray(progress.suspicious)) device.suspicious = progress.suspicious.slice();
   if (typeof progress.learningExtended === 'boolean')
     device.learningExtended = progress.learningExtended;
+  if (typeof progress.lastTs === 'number' && Number.isFinite(progress.lastTs)) {
+    device.lastTs = progress.lastTs;
+  }
 }
 
 module.exports = {

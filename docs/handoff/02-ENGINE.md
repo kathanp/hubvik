@@ -51,6 +51,8 @@ While learning, a non-hard detector's `learn()` is called and `check()` is not. 
 
 `_advanceTo` must keep the open window when the new event falls inside it. Replacing the window on every event makes fan-out count one host. That bug already shipped once and was fixed. Do not reintroduce it.
 
+When `reorderMs > 0`, `feed` appends the validated event to `_reorder` ordered by `(ts, arrival seq)` and only calls `_apply` once `ts <= watermark - reorderMs`. `reorderMs: 0` leaves `_reorder` null and calls `_apply` immediately. `flush` and `tick` release up to their limit first; a bare `flush` releases the whole buffer. Overflow releases the oldest row and warns `REORDER_OVERFLOW` once per minute of event time. The buffer is the checkpoint's `reorder` array. A row that is not already in order is rejected. `lock()` releases the buffer first, so a device created by an event that is still held can be locked.
+
 ## Streaming statistics
 
 `src/engine/stats/` is unused by detectors. `math.js` still owns the Welford summary that `volume-spike`, `fan-out`, and `volume-spike-hourly` export. The new `welford.js` adds min and Chan merge and must not be swapped in until a later WP, because a 7-day learn of the shorter rings would move the golden.

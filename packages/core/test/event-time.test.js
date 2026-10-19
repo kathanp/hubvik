@@ -52,6 +52,7 @@ test('a 10s skew is one clock jump and the event is not learned', () => {
   engine.on('anomaly', (item) => anomalies.push(item));
   engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 60_000 });
   engine.feed({ device: 'd', dst: 'b.example', bytes: 10, ts: 50_000 });
+  engine.flush();
   assert.ok(warnings.some((warning) => warning.code === 'CLOCK_JUMP'));
   assert.strictEqual(anomalies.filter((item) => item.detector === 'clock-jump').length, 1);
   const learned = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['new-destination']
@@ -117,6 +118,7 @@ test('an event older than the open window is dropped and does not reopen it', ()
   engine.on('warning', (warning) => warnings.push(warning));
   engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: 120_000 });
   engine.feed({ device: 'd', dst: 'b.example', bytes: 10, ts: 10_000 });
+  engine.flush();
   assert.ok(warnings.some((warning) => warning.code === 'LATE_EVENT'));
   const dsts = engine.exportBaseline({ createdAt: 0 }).devices.d.detectors['new-destination'].state
     .dsts;
