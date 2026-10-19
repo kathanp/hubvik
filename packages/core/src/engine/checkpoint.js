@@ -20,6 +20,11 @@ const KNOWN = new Set([
  * @returns {any}
  */
 function plain(value) {
+  if (value instanceof Float64Array) {
+    return {
+      f64: Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64'),
+    };
+  }
   if (value instanceof LruSet) return { lru: value.max, values: value.toArray() };
   if (value instanceof SampleRing) return { ring: value.max, values: value.toArray() };
   if (value instanceof Map)
@@ -42,6 +47,13 @@ function plain(value) {
 function revive(value) {
   if (Array.isArray(value)) return value.map(revive);
   if (!value || typeof value !== 'object') return value;
+  if (typeof value.f64 === 'string' && Object.keys(value).length === 1) {
+    const bytes = Buffer.from(value.f64, 'base64');
+    if (bytes.length % 8 !== 0) throw new Error('checkpoint state is invalid');
+    const out = new Float64Array(bytes.length / 8);
+    new Uint8Array(out.buffer).set(bytes);
+    return out;
+  }
   const keys = Object.keys(value);
   const tagged = keys.some(
     (key) => key === 'set' || key === 'map' || key === 'lru' || key === 'ring',
