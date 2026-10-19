@@ -6,6 +6,8 @@
 
 Hourly horizon ring, and shadow detectors `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil`. When the learned hourly deviation is 0, the exfil CUSUM limit is 1 byte (D-30).
 
+LAN graph and shadow detectors `graph-new-bridge` and `graph-role-change`. `campaigns` defaults to false. `lan-via-proxy` is incident stage impact (D-31).
+
 ## 0.7.0
 
 Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `iotwarden@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.

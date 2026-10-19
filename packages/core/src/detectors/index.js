@@ -117,6 +117,8 @@ const ALL = [
   require('./slow-scan'),
   require('./jitter-beacon'),
   require('./multi-horizon-exfil'),
+  require('./graph-new-bridge'),
+  require('./graph-role-change'),
 ];
 
 /** @type {Record<string, any>} */

@@ -635,6 +635,9 @@ function validateOptions(raw) {
     identity: input.identity == null ? 'off' : identityMode(input.identity),
     promote: parsePromote(input),
     horizons: input.horizons == null ? null : bool(input.horizons, 'horizons'),
+    graph: input.graph == null ? null : bool(input.graph, 'graph'),
+    campaigns: input.campaigns == null ? false : bool(input.campaigns, 'campaigns'),
+    linkMs: input.linkMs == null ? 900000 : num(input.linkMs, 'linkMs', { min: 1, integer: true }),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

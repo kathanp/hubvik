@@ -302,3 +302,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed. Core un
 | 200 devices, 7 days, then `lock()` |         6.54 µs | 84.43 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. The hourly ring is on for that run because T1 is on and the new shadow detectors are enabled. Caps were not changed.
+
+## WP-20 — LAN graph, 2026-10-18
+
+`node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.42 µs | 12.04 KB/device |
+| 200 devices, 7 days, then `lock()` |         6.54 µs | 85.51 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. The graph is on because the graph detectors are enabled. Campaigns stay off. Caps were not changed.
