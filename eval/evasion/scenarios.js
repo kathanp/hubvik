@@ -116,11 +116,11 @@ function report(id, events, learnCount) {
   const engine = createEngine({ learnMs: 1e14, tiers: ['T1'], evidence: false });
   /** @type {any[]} */
   const hits = [];
-  engine.on('anomaly', (item) => {
-    if ((SEVERITY[item.severity] ?? -1) >= SEVERITY.medium) {
-      hits.push(item.detector);
-    }
-  });
+  const note = (item) => {
+    if ((SEVERITY[item.severity] ?? -1) >= SEVERITY.medium) hits.push(item.detector);
+  };
+  engine.on('anomaly', note);
+  engine.on('shadow-anomaly', note);
   for (let i = 0; i < learnCount; i += 1) engine.feed(events[i]);
   engine.lock(events[0].device);
   for (let i = learnCount; i < events.length; i += 1) engine.feed(events[i]);
@@ -178,6 +178,21 @@ function renderEvasion(scenarios) {
     const who = scenario.detectors.length > 0 ? scenario.detectors.join(', ') : 'none';
     const spot = scenario.fired ? 'fired' : 'blind spot';
     lines.push(`- ${scenario.id}: ${spot} (${who})`);
+  }
+  lines.push('');
+  lines.push(
+    'Shadow rows measured on this suite. A miss stays a blind spot. The holdout is separate.',
+  );
+  lines.push('');
+  const watch = [
+    ['slow-scan', 'slow-scan'],
+    ['beacon-jitter-40', 'jitter-beacon'],
+    ['exfil-0.9-limit', 'multi-horizon-exfil'],
+  ];
+  for (const [scenarioId, detectorId] of watch) {
+    const scenario = scenarios.find((row) => row.id === scenarioId);
+    const fired = scenario && scenario.detectors.includes(detectorId);
+    lines.push(`- ${detectorId}: ${fired ? 'fired' : 'blind spot'}`);
   }
   lines.push('');
   return lines.join('\n');

@@ -14,16 +14,16 @@ The tree is local `0.7.0`. It is not published. `1.0.0` requires the spec's eval
 
 ## Versions in the tree
 
-| Package                           | Version | Role                                                                    |
-| --------------------------------- | ------- | ----------------------------------------------------------------------- |
-| `packages/core` (`iotwarden`)     | 0.7.0   | Engine, 109 live detectors, and 3 early shadow detectors off by default |
-| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                    |
-| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                 |
-| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                          |
-| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                                       |
-| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                                  |
-| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                             |
-| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                 |
+| Package                           | Version | Role                                                                   |
+| --------------------------------- | ------- | ---------------------------------------------------------------------- |
+| `packages/core` (`iotwarden`)     | 0.7.0   | Engine, 109 live detectors, and 6 shadow detectors (enabled, not live) |
+| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                   |
+| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                |
+| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                         |
+| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                                      |
+| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                                 |
+| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                            |
+| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                |
 
 Git: `main` includes the local `0.7.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
 

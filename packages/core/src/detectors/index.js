@@ -114,6 +114,9 @@ const ALL = [
   require('./exploit-probe-http'),
   require('./young-domain'),
   require('./ttl-anomaly'),
+  require('./slow-scan'),
+  require('./jitter-beacon'),
+  require('./multi-horizon-exfil'),
 ];
 
 /** @type {Record<string, any>} */

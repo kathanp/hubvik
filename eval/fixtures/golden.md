@@ -183,5 +183,5 @@ Synthetic known blind spots. Thresholds were not tuned against this suite.
 
 - slow-scan: no medium-or-above anomaly (none)
 - beacon-jitter-40: no medium-or-above anomaly (none)
-- exfil-0.9-limit: no medium-or-above anomaly (none)
+- exfil-0.9-limit: fired (multi-horizon-exfil)
 - flood-10-destinations: fired (egress-flood)

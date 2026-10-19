@@ -276,6 +276,7 @@ export interface EngineOptions {
   explainCap?: number;
   identity?: 'off' | 'auto';
   promote?: false | { afterDays?: number; minHits?: number };
+  horizons?: boolean;
 }
 
 export interface Baseline {

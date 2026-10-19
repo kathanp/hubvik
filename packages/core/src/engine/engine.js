@@ -21,6 +21,7 @@ const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
 const { ALLOW_KINDS, EVENT_TYPES, EVENT_TYPE_SET, FORBIDDEN_KEYS } = require('./constants');
 const { noteLearning, mark } = require('./learning');
+const { horizonOn, noteHorizon, rollHorizon, horizonView } = require('./horizon');
 const { buildIndex } = require('./indicators');
 const { noteIncident, ackIncident } = require('./incidents');
 const {
@@ -153,6 +154,7 @@ class Engine extends EventEmitter {
       this.active.push(det);
       for (const type of consumes) this.byType[type].push(det);
     }
+    this._horizonOn = horizonOn(this);
   }
 
   /** @returns {any} */
@@ -1336,6 +1338,7 @@ class Engine extends EventEmitter {
    * @param {any} win
    */
   _finalize(device, win) {
+    if (this._horizonOn) rollHorizon(device, win.start);
     const learning =
       !device.frozen &&
       device.learnStart != null &&
@@ -1379,6 +1382,7 @@ class Engine extends EventEmitter {
    * @param {any} event
    */
   _run(device, event) {
+    if (this._horizonOn) noteHorizon(device, event);
     const learning = device.mode === 'learning';
     const ctx = this._ctx(device, learning, event.ts);
     ctx.window = device.open;
@@ -1479,6 +1483,13 @@ class Engine extends EventEmitter {
       /** @param {any} det */
       detectorOptions(det) {
         return engine._optionsFor(det);
+      },
+      /**
+       * Hourly ring for the device this context belongs to.
+       * Callers may pass the detector state; it is not read.
+       */
+      horizon() {
+        return horizonView(device);
       },
     };
   }

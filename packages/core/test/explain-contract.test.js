@@ -423,6 +423,21 @@ const ATTACKS = {
       direction: 'in',
     });
   },
+  'slow-scan'(engine) {
+    for (let i = 0; i < 50; i += 1) {
+      engine.feed(flow({ ts: i * 1000, dstIp: `9.9.0.${(i % 200) + 1}`, dstPort: 8000 + i }));
+    }
+  },
+  'jitter-beacon'(engine) {
+    for (let i = 0; i < 30; i += 1) {
+      engine.feed(flow({ ts: i * 300000, dstIp: '9.9.9.9', bytesOut: 120 }));
+    }
+  },
+  'multi-horizon-exfil'(engine) {
+    for (let hour = 0; hour < 6; hour += 1)
+      engine.feed(flow({ ts: hour * 3600e3, bytesOut: 1000 }));
+    engine.feed(flow({ ts: 6 * 3600e3, bytesOut: 2_000_000 }));
+  },
 };
 
 /**
@@ -452,6 +467,7 @@ function optionsFor(id) {
   }
   if (id === 'beacon-change') options.learnMs = 86400000;
   if (id === 'ttl-anomaly') options.learnMs = 100000;
+  if (id === 'multi-horizon-exfil') options.learnMs = 6 * 3600e3;
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

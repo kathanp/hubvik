@@ -1448,8 +1448,10 @@
     },
     {
       "id": "exfil-0.9-limit",
-      "fired": false,
-      "detectors": []
+      "fired": true,
+      "detectors": [
+        "multi-horizon-exfil"
+      ]
     },
     {
       "id": "flood-10-destinations",

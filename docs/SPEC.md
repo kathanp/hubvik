@@ -1554,7 +1554,7 @@ Same rules as WP-0 to WP-10: one WP per session unless the human says otherwise.
 
 #### WP-19 — Long-horizon aggregates and the three blind-spot detectors (F3, B21)
 
-- [ ] First commit: `eval/evasion-holdout/` scenarios and their parameters. No detector code in that commit.
+- [ ] First commit: `eval/evasion-holdout/` scenarios and their parameters. No detector code in that commit. Magnitudes: 2 new host:port pairs per hour for 30 h, a beacon every 300 s ± 45% for 6 h, and exfil at 0.85 × the slow-exfil hourly limit for 20 h. Seed `20261018`. Addresses are in `47.8.3.0/24`, not the published suite's `45.2.1.0/24`.
 - [ ] `horizons`, then `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, all shadow.
 - [ ] **Done when:** each detector fires (as `shadow-anomaly`) on its holdout scenario, emits nothing at medium or above on the all-tier benign matrix, has the standard four tests, and `eval/results/evasion.md` reports `eval/evasion/` results for the new rows as measured. Blind spots that remain stay listed as blind spots.
 

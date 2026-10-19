@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertSafeKeys } = require('./validate');
+const { exportHorizon, importHorizon } = require('./horizon');
 const { LruSet, SampleRing } = require('./caps');
 
 const MAX_BYTES = 16 * 1024 * 1024;
@@ -213,6 +214,8 @@ function progressOf(device) {
     learningExtended: Boolean(device.learningExtended),
   };
   if (typeof device.lastTs === 'number') out.lastTs = device.lastTs;
+  const horizon = exportHorizon(device);
+  if (horizon) out.horizon = horizon;
   return out;
 }
 
@@ -296,6 +299,7 @@ function applyProgress(device, progress) {
   if (typeof progress.lastTs === 'number' && Number.isFinite(progress.lastTs)) {
     device.lastTs = progress.lastTs;
   }
+  if (progress.horizon != null) importHorizon(device, progress.horizon);
 }
 
 module.exports = {
