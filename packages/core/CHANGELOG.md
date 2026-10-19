@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+`test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, except `src/engine/engine.js`, which is already over that line. `src/data/` must total at most 200 KB.
+
 ## 0.7.0
 
 Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `iotwarden@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.

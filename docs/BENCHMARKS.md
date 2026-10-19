@@ -280,3 +280,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
 | 200 devices, 7 days, then `lock()` |         6.71 µs | 68.69 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-18.1 — pack cap, 2026-10-18
+
+No detector state changed. `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.63 µs | 11.98 KB/device |
+| 200 devices, 7 days, then `lock()` |         6.92 µs | 68.70 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed. Core unpacked size was 463,378 bytes.

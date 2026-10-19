@@ -186,6 +186,27 @@ function changedDetectors(before, after) {
   return [...ids].sort();
 }
 
+/**
+ * Package version is not part of the regression. A release may change `engine.pkg`.
+ * @param {any} engine
+ * @returns {any}
+ */
+function withoutPkg(engine) {
+  if (!engine || typeof engine !== 'object') return engine;
+  const copy = { ...engine };
+  delete copy.pkg;
+  return copy;
+}
+
+test('the package version is not part of the golden comparison', () => {
+  const left = { windowMs: 60000, pkg: 'iotwarden@0.5.0' };
+  const right = { windowMs: 60000, pkg: 'iotwarden@9.9.9' };
+  assert.ok(closeValue(withoutPkg(left), withoutPkg(right)));
+  assert.ok(
+    !closeValue(withoutPkg({ windowMs: 1, pkg: 'a' }), withoutPkg({ windowMs: 2, pkg: 'a' })),
+  );
+});
+
 test('dispatch matches the pre-dispatch anomaly stream and baseline', () => {
   const golden = JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
   const actual = capture(createEngine);
@@ -198,7 +219,10 @@ test('dispatch matches the pre-dispatch anomaly stream and baseline', () => {
     const detectors = changedDetectors(golden[name], actual[name]);
     if (
       golden[name].baseline.createdAt !== actual[name].baseline.createdAt ||
-      !closeValue(golden[name].baseline.engine, actual[name].baseline.engine)
+      !closeValue(
+        withoutPkg(golden[name].baseline.engine),
+        withoutPkg(actual[name].baseline.engine),
+      )
     ) {
       detectors.push('baseline-meta');
     }

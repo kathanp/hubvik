@@ -913,7 +913,7 @@ Every row here ships `meta.mode: 'shadow'` (see 0.5 and F1). **Sev** is the seve
 | `matter-new-controller`     | A new Matter controller joins a device's fabric (`AddNOC` from a node never seen), which is how a smart-home device is taken over after setup   | T5 (`app`)  | New app proto `matter` (F19). Learned set of controller node IDs per device. Fires on `op: 'AddNOC'` or `op: 'AddTrustedRootCertificate'` from an unlearned `peerIp` / node ID while watching                                                                                                                                                                                 | high     | Low. Commissioning a new controller is rare and user-initiated                  | 0.8 |
 | `peer-divergence-federated` | Like `peer-divergence`, but the peer group spans several gateways via F14 summaries                                                             | T0 + F14    | Same rule as `peer-divergence`, applied to the union of local peers and imported summaries. Each summary counts as one peer however many devices it represents. Needs ≥ 3 distinct gateway ids                                                                                                                                                                                | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | 0.8 |
 
-**New data file.** `src/data/storage.json` lists object-storage name patterns (for example `s3.amazonaws.com` and `s3.*.amazonaws.com`, `blob.core.windows.net`, `storage.googleapis.com`, `r2.cloudflarestorage.com`, `backblazeb2.com`). It is a static list of service endpoints, refreshed by hand, not a threat feed. It counts toward the 500 KB pack cap.
+**New data file.** `src/data/storage.json` lists object-storage name patterns (for example `s3.amazonaws.com` and `s3.*.amazonaws.com`, `blob.core.windows.net`, `storage.googleapis.com`, `r2.cloudflarestorage.com`, `backblazeb2.com`). It is a static list of service endpoints, refreshed by hand, not a threat feed. It counts toward the 750 KB pack cap and the 200 KB `src/data` total.
 
 ---
 
@@ -967,6 +967,8 @@ A test validates one anomaly and one incident against a vendored JSON copy of th
 | Per-window dst set             | Stops growing after fan-out fires; count only               |
 
 Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs median `feed()` on a Raspberry Pi 4.** Measured by `bench/` in the repo every release.
+
+The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which was already over that line when the rule was added and is reported rather than split. `src/data/` must total at most 200 KB.
 
 From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line, and it includes every Part F option that defaults on plus every B21 shadow detector. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
@@ -1036,7 +1038,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @iotwarden/adapter-*, @iotwarden/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish.
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which is reported until it is split. `src/data/` must total at most 200 KB.
 
 ## C9. Versioning
 

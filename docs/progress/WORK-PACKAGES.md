@@ -593,3 +593,31 @@ Date: 2026-10-18. Core bumped to 0.7.0. `npm run gate` exited 0, then `npm run d
 Check 213/213, duration 141101 ms. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Pack-check: core 167 files, 462608 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.7.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats `fromJSON` 100,000 rejected; nd 100,000 inputs, 80,018 rejected; feedback 100,000 inputs, 96,145 rejected; reorder restore 100,000 inputs, 60,129 rejected. Bench median 6.88 µs, estimate 4.29 KB/device, retained 11.98 KB/device, 1,000 devices. Rich bench median 6.71 µs, retained 68.69 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed. The golden `pkg` string is `iotwarden@0.7.0`. No anomaly field changed.
 
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100. Local tag `v0.7.0`. Not pushed.
+
+## WP-18.1 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`.
+
+Check 214/214, duration 170732 ms. Coverage lines 97.99%, branches 86.42%, functions 97.90%. Pack-check: core 167 files, 463378 bytes unpacked. The cap is 750 KB. `src/engine/engine.js` is 65,951 bytes, the only file over 60 KB, and it was not split. The 15 largest packed files were:
+
+| Bytes | File                                  |
+| ----: | ------------------------------------- |
+| 65951 | `src/engine/engine.js`                |
+| 29705 | `src/engine/validate.js`              |
+| 11342 | `LICENSE`                             |
+|  9957 | `src/index.d.ts`                      |
+|  9574 | `src/engine/checkpoint.js`            |
+|  9380 | `CHANGELOG.md`                        |
+|  7101 | `src/engine/learning.js`              |
+|  7016 | `src/engine/feedback.js`              |
+|  5392 | `src/engine/baseline.js`              |
+|  5225 | `src/engine/promote.js`               |
+|  4940 | `src/detectors/exploit-probe-http.js` |
+|  4743 | `src/detectors/identity-change.js`    |
+|  4404 | `README.md`                           |
+|  4286 | `src/detectors/egress-flood.js`       |
+|  4196 | `src/detectors/lib.js`                |
+
+`spec-coverage`: 137 rows, 112 detector files, core 0.7.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats 100,000 rejected; nd 80,018 rejected; feedback 96,145 rejected; reorder restore 60,129 rejected. Bench median 6.63 µs, retained 11.98 KB/device. Rich bench median 6.92 µs, retained 68.70 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed without comparing `engine.pkg`. D-28. D-29.
+
+`npm run demo` printed the same incident, score 100.
