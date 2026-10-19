@@ -3,6 +3,7 @@
 const { isMulticast, isLinkLocal } = require('../engine/net');
 const { assertState } = require('./state');
 const { assertSafeKeys } = require('../engine/validate');
+const { explainNewMember } = require('./lib');
 
 const BUCKETS = new Set([64, 128, 255]);
 
@@ -14,6 +15,7 @@ const detector = {
     mode: 'shadow',
     fpRisk: 'Low',
     consumes: ['flow'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'spoof',
@@ -59,6 +61,11 @@ const detector = {
         observedTtl: ev.ttl,
         learned: [...dev.buckets].sort((a, b) => a - b),
       },
+      explain: explainNewMember({
+        observed: bucket,
+        learnedCount: dev.buckets.size,
+        sample: [...dev.buckets],
+      }),
     };
   },
 

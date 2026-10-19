@@ -392,6 +392,25 @@ const ATTACKS = {
     engine.lock('d');
     engine.feed(flow({ ts: 180000, proto: 'gre' }));
   },
+  'young-domain'(engine) {
+    engine.loadIndicators([
+      { value: 'fresh.example', type: 'young-domain', source: 'lab', confidence: 0.8 },
+    ]);
+    engine.feed({
+      type: 'dns',
+      device: 'd',
+      ts: 1000,
+      qname: 'fresh.example',
+      qtype: 'A',
+      rcode: 'NOERROR',
+      resolver: '192.0.2.1',
+    });
+  },
+  'ttl-anomaly'(engine) {
+    for (let i = 0; i < 20; i++) engine.feed(flow({ ts: i * 1000, ttl: 64 }));
+    engine.lock('d');
+    engine.feed(flow({ ts: 200000, ttl: 128 }));
+  },
   'exploit-probe-http'(engine) {
     engine.feed({
       type: 'http',
@@ -432,6 +451,7 @@ function optionsFor(id) {
     options.windowMs = 60000;
   }
   if (id === 'beacon-change') options.learnMs = 86400000;
+  if (id === 'ttl-anomaly') options.learnMs = 100000;
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

@@ -4,6 +4,7 @@ const { exactHit } = require('../engine/indicators');
 const { domainFamily } = require('../engine/net');
 const { assertState } = require('./state');
 const { assertSafeKeys } = require('../engine/validate');
+const { explainMatch } = require('./lib');
 
 const CAP = 1000;
 const DAY = 86_400_000;
@@ -19,6 +20,7 @@ const detector = {
     attack: ['T1583'],
     stage: 'c2',
     dedupGroup: 'indicator',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -48,6 +50,11 @@ const detector = {
       expected: 'a name that is not on the young-domain list',
       dedupKey: family,
       data: { qname: ev.qname, family, value: hit.value, source: hit.source },
+      explain: explainMatch({
+        observed: ev.qname,
+        matched: hit.value,
+        source: hit.source || 'young-domain',
+      }),
     };
   },
 
