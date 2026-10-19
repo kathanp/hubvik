@@ -82,11 +82,6 @@ function mark(engine, device, event, reason, message) {
 }
 
 /**
- * @param {any} engine
- * @param {any} device
- * @param {any} event
- */
-/**
  * More than half of the learned families first appear in the last 10% of learning.
  * @param {any} engine
  * @param {any} device
@@ -202,6 +197,12 @@ function noteBeacon(engine, device, event) {
   );
 }
 
+/**
+ * @param {any} engine
+ * @param {any} device
+ * @param {any} event
+ * @returns {void}
+ */
 function proxyShape(engine, device, event) {
   if ((device.suspicious || []).includes('proxy-shape')) return;
   const shadow = device.proxyShadow || (device.proxyShadow = Object.create(null));
