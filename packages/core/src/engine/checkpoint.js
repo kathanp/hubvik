@@ -4,7 +4,13 @@ const { assertSafeKeys } = require('./validate');
 const { LruSet, SampleRing } = require('./caps');
 
 const MAX_BYTES = 16 * 1024 * 1024;
-const KNOWN = new Set(['arp-spoof', 'identity-change', 'dhcp-starvation', 'fleet-wave']);
+const KNOWN = new Set([
+  'arp-spoof',
+  'identity-change',
+  'identity',
+  'dhcp-starvation',
+  'fleet-wave',
+]);
 
 /**
  * @param {unknown} value
@@ -130,10 +136,23 @@ function assertRevived(scratch) {
       throw new Error('checkpoint scratch arp-spoof is invalid');
     }
   }
-  const identity = scratch['identity-change'];
-  if (identity != null) {
-    if (typeof identity !== 'object' || !(identity.macs instanceof Map)) {
+  const learnedMacs = scratch['identity-change'];
+  if (learnedMacs != null) {
+    if (typeof learnedMacs !== 'object' || !(learnedMacs.macs instanceof Map)) {
       throw new Error('checkpoint scratch identity-change is invalid');
+    }
+  }
+  const bindings = scratch.identity;
+  if (bindings != null) {
+    if (!(bindings instanceof Map)) throw new Error('checkpoint scratch identity is invalid');
+    if (bindings.size > 50_000) throw new Error('array identity exceeds cap');
+    for (const row of bindings.values()) {
+      if (!row || typeof row.mac !== 'string' || typeof row.lastTs !== 'number') {
+        throw new Error('checkpoint scratch identity is invalid');
+      }
+      if (row.source !== 'dhcp' && row.source !== 'arp' && row.source !== 'nd') {
+        throw new Error('checkpoint scratch identity is invalid');
+      }
     }
   }
   const dhcp = scratch['dhcp-starvation'];

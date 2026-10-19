@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+`identity: 'auto'` re-keys an event whose device id is an IP to the MAC learned from DHCP, ARP, or neighbor discovery. The default is `'off'`. `resolve(ip)` returns that MAC. A neighbor-discovery event is `nd`. DHCPv6 may set `v6`, `duid`, and `iaid`. The table is scratch key `identity` in a checkpoint, at most 50,000 rows and 16 addresses per MAC. IPv6 rows expire after 24 hours of silence.
+
 `explain(anomalyId)` returns why an anomaly fired: `test`, `observed`, and either `threshold` or `learned`, plus `suppressWith`. `explainCap` (default 1,000) is an engine-wide LRU. A hard-rule explanation never offers `allow()`, and `suppress` lasts at most 24 hours. `spec-coverage` prints `explains: X of Y detectors`.
 
 When `reorderMs` is greater than 0, `feed()` holds events and delivers them in timestamp order. `reorderMs: 0` does not create a buffer. The hold is capped by `maxBuffered` (default 50,000) and is part of `checkpoint()`. Hosts that merge two log sources set `reorderMs: 5000`; alerts wait that long.

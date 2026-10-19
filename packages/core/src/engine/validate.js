@@ -2,6 +2,7 @@
 
 const { domainToASCII } = require('node:url');
 const { TIER_SET, FORBIDDEN_KEYS, SEVERITY_NAMES, DEFAULTS } = require('./constants');
+const { isIpv6, isMac } = require('./identity');
 const { ipv4 } = require('./net');
 
 /**
@@ -35,6 +36,15 @@ function assertSafeKeys(value, path) {
 function bool(value, name) {
   if (typeof value !== 'boolean') throw new TypeError(`${name} must be a boolean`);
   return value;
+}
+
+/**
+ * @param {unknown} value
+ * @returns {'off' | 'auto'}
+ */
+function identityMode(value) {
+  if (value === 'off' || value === 'auto') return value;
+  throw new TypeError('identity must be off or auto');
 }
 
 /**
@@ -133,7 +143,7 @@ function validateEvent(raw) {
   if (type === 'dns') return { event: dnsEvent(raw, ts, warnings), warnings };
   if (type === 'tls') return { event: tlsEvent(raw, ts, warnings), warnings };
   if (type === 'http') return { event: httpEvent(raw, ts, warnings), warnings };
-  if (type === 'arp' || type === 'dhcp' || type === 'ra' || type === 'discovery') {
+  if (type === 'arp' || type === 'dhcp' || type === 'ra' || type === 'discovery' || type === 'nd') {
     return { event: linkEvent(raw, type, ts, warnings), warnings };
   }
   if (type === 'mapping') return { event: mappingEvent(raw, ts), warnings };
@@ -409,6 +419,31 @@ function linkEvent(raw, type, ts, warnings) {
     } else if (raw.fingerprint != null) {
       warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.fingerprint' });
     }
+    if (raw.v6 === true) event.v6 = true;
+    else if (raw.v6 != null && raw.v6 !== false) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.v6' });
+    }
+    if (typeof raw.duid === 'string' && raw.duid.length > 0 && raw.duid.length <= 130) {
+      event.duid = raw.duid;
+    } else if (raw.duid != null) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.duid' });
+    }
+    if (Number.isInteger(raw.iaid) && raw.iaid >= 0 && raw.iaid <= 0xffffffff)
+      event.iaid = raw.iaid;
+    else if (raw.iaid != null)
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.iaid' });
+  } else if (type === 'nd') {
+    requireFields(raw, ['ip', 'mac', 'op'], 'nd');
+    if (!isIpv6(String(raw.ip))) throw new TypeError('nd.ip must be IPv6');
+    const mac = String(raw.mac).toLowerCase();
+    if (!isMac(mac)) throw new TypeError('nd.mac is invalid');
+    if (raw.op !== 'na' && raw.op !== 'ns' && raw.op !== 'rs' && raw.op !== 'ra') {
+      throw new TypeError('nd.op is invalid');
+    }
+    event.ip = String(raw.ip);
+    event.mac = mac;
+    event.op = raw.op;
+    if (raw.router === true) event.router = true;
   } else if (type === 'ra') {
     requireFields(raw, ['srcMac', 'srcIp'], 'ra');
     event.srcMac = String(raw.srcMac).toLowerCase();
@@ -575,6 +610,7 @@ function validateOptions(raw) {
       input.explainCap == null
         ? 1_000
         : num(input.explainCap, 'explainCap', { min: 1, integer: true }),
+    identity: input.identity == null ? 'off' : identityMode(input.identity),
     windowMs:
       input.windowMs == null
         ? DEFAULTS.windowMs

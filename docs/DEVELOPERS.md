@@ -263,6 +263,8 @@ engine.setPeerGroup('aa:bb:cc:dd:ee:ff', 'cams');
 
 JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comparison needs at least five other devices in the same group. A fleet wave needs three devices seeing one new destination inside ten minutes. `data.sameGroup` is true when those devices share one peer group.
 
+`identity` defaults to `'off'`. `'auto'` rewrites a device id that is an IP to the MAC from DHCP, ARP, or an `nd` event, and stores the original on `data.observedAs`. `resolve(ip)` reads the same table. IPv6 rows drop after 24 hours without traffic.
+
 `explain(anomalyId)` returns the test, the observed value, and either a threshold or what was learned. Reading an id refreshes it. An id older than `explainCap` (default 1,000) returns `null`. For a hard rule, `suppressWith` is only `suppress`, and `untilTs` is at most 24 hours after the anomaly. Calling that `suppress` with the returned arguments mutes later drafts of that detector on that device when `match` equals `actual`.
 
 ## What this tree does not do yet

@@ -7,6 +7,7 @@ const { isGroupDst } = require('../detectors/lib');
 const { LruSet } = require('./caps');
 const { assertSafeKeys, validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
+const { noteIdentity, rekeyIdentity, resolveIp } = require('./identity');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
 const { ALLOW_KINDS, EVENT_TYPES, EVENT_TYPE_SET, FORBIDDEN_KEYS } = require('./constants');
@@ -59,6 +60,8 @@ class Engine extends EventEmitter {
     this.warningCount = 0;
     this.allowCount = 0;
     this.suppressCount = 0;
+    this._rekeyed = 0;
+    this._unresolved = 0;
     this._emittingWarning = false;
     this.startedAt = null;
     this.lastEventTs = null;
@@ -271,6 +274,8 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   _apply(event) {
+    noteIdentity(this, event);
+    rekeyIdentity(this, event);
     const device = this._touch(event.device, event.ts);
     if (!device) return;
     const reorder = this.opts.reorderMs;
@@ -1061,6 +1066,15 @@ class Engine extends EventEmitter {
   }
 
   /** @returns {object} */
+  /**
+   * The MAC bound to an address, or null.
+   * @param {string} ip
+   * @returns {string | null}
+   */
+  resolve(ip) {
+    return resolveIp(this, ip);
+  }
+
   stats() {
     let memoryBytes = 256;
     for (const device of this.devices.values()) {
@@ -1102,6 +1116,11 @@ class Engine extends EventEmitter {
       acks: this.acks.size,
       shadow,
       canary,
+      identity: {
+        rows: this.scratch.get('identity') instanceof Map ? this.scratch.get('identity').size : 0,
+        rekeyed: this._rekeyed || 0,
+        unresolved: this._unresolved || 0,
+      },
     });
   }
 
@@ -1588,6 +1607,9 @@ class Engine extends EventEmitter {
         schema: 1,
         fingerprint,
       };
+      if (event && event.observedAs) {
+        /** @type {Record<string, unknown>} */ (anomaly.data).observedAs = event.observedAs;
+      }
       if (det.meta && typeof det.meta.dedupGroup === 'string') {
         anomaly.dedupGroup = det.meta.dedupGroup;
       }
