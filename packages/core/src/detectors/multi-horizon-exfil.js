@@ -80,7 +80,8 @@ const detector = {
     if (!daily || daily.count < 1) return;
     const bar = 1.5 * quantile(daily);
     const rows = ctx.horizon(dev).last(24);
-    const total = rows.reduce((sum, row) => sum + row.bytesOut, 0);
+    let total = 0;
+    for (const row of rows) total += row.bytesOut;
     const cusum = createCusum({ k: 0.5 * sigma, h: limit, mean: dev.hourly.mean });
     for (const row of rows) pushCusum(cusum, row.bytesOut);
     if (!cusum.alarmed || !(total > bar)) return;
