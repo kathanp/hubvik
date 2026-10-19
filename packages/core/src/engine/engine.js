@@ -90,6 +90,8 @@ class Engine extends EventEmitter {
     this._reorderSeq = 0;
     /** @type {number | null} */
     this._reorderOverflowMinute = null;
+    /** @type {Map<string, any>} */
+    this._explain = new Map();
     this._rebuildActive();
   }
 
@@ -954,6 +956,110 @@ class Engine extends EventEmitter {
     }
   }
 
+  /**
+   * Why an anomaly fired. Older than `explainCap` returns null. Reading an id keeps it.
+   * @param {string} anomalyId
+   * @returns {any}
+   */
+  explain(anomalyId) {
+    const id = String(anomalyId);
+    const row = this._explain.get(id);
+    if (!row) return null;
+    this._explain.delete(id);
+    this._explain.set(id, row);
+    /** @type {any} */
+    const copy = {
+      ...row,
+      suppressWith: row.suppressWith.map((/** @type {any} */ entry) => ({
+        method: entry.method,
+        args: entry.args.map((/** @type {any} */ arg) =>
+          arg && typeof arg === 'object' && !Array.isArray(arg) ? { ...arg } : arg,
+        ),
+      })),
+    };
+    if (row.learned) copy.learned = { ...row.learned };
+    return copy;
+  }
+
+  /**
+   * @param {any} anomaly
+   * @param {any} det
+   * @param {any} item
+   * @returns {void}
+   */
+  _rememberExplain(anomaly, det, item) {
+    const supplied = item.explain && typeof item.explain === 'object' ? item.explain : null;
+    const test = supplied && typeof supplied.test === 'string' ? supplied.test : 'match';
+    const observed =
+      supplied && supplied.observed != null ? supplied.observed : String(anomaly.actual);
+    /** @type {any} */
+    const row = {
+      anomalyId: anomaly.id,
+      detector: anomaly.detector,
+      device: anomaly.device,
+      ts: anomaly.ts,
+      test,
+      observed,
+      evidence: anomaly.evidence == null ? [] : anomaly.evidence,
+      suppressWith: this._suppressWith(det, anomaly, supplied),
+    };
+    if (supplied && supplied.threshold != null) row.threshold = supplied.threshold;
+    if (supplied && supplied.formula != null) row.formula = supplied.formula;
+    if (supplied && supplied.learned != null) row.learned = { ...supplied.learned };
+    const numeric = test === 'gt' || test === 'gte' || test === 'lt';
+    if (supplied && typeof supplied.margin === 'number') row.margin = supplied.margin;
+    else if (numeric && typeof row.observed === 'number' && typeof row.threshold === 'number') {
+      if (row.threshold !== 0) row.margin = row.observed / row.threshold;
+    }
+    if (this._explain.has(anomaly.id)) this._explain.delete(anomaly.id);
+    this._explain.set(anomaly.id, row);
+    while (this._explain.size > this.opts.explainCap) {
+      const oldest = this._explain.keys().next().value;
+      if (oldest == null) break;
+      this._explain.delete(oldest);
+    }
+  }
+
+  /**
+   * @param {any} det
+   * @param {any} anomaly
+   * @param {any} supplied
+   * @returns {{ method: string, args: any[] }[]}
+   */
+  _suppressWith(det, anomaly, supplied) {
+    const day = 24 * 60 * 60 * 1000;
+    const given = supplied && Array.isArray(supplied.suppressWith) ? supplied.suppressWith : null;
+    /** @type {{ method: string, args: any[] }[]} */
+    let list = given
+      ? given.map((/** @type {any} */ entry) => ({
+          method: entry.method,
+          args: Array.isArray(entry.args) ? entry.args.slice() : [],
+        }))
+      : [
+          {
+            method: 'suppress',
+            args: [
+              anomaly.device,
+              anomaly.detector,
+              det.hardRule
+                ? { match: String(anomaly.actual), untilTs: anomaly.ts + day }
+                : { match: String(anomaly.actual) },
+            ],
+          },
+        ];
+    if (!det.hardRule) return list;
+    list = list.filter((entry) => entry.method !== 'allow');
+    return list.map((entry) => {
+      if (entry.method !== 'suppress') return entry;
+      const args = entry.args.slice();
+      const opts = args[2] && typeof args[2] === 'object' ? { ...args[2] } : {};
+      const cap = anomaly.ts + day;
+      if (typeof opts.untilTs !== 'number' || opts.untilTs > cap) opts.untilTs = cap;
+      args[2] = opts;
+      return { method: 'suppress', args };
+    });
+  }
+
   /** @returns {object} */
   stats() {
     let memoryBytes = 256;
@@ -1498,6 +1604,7 @@ class Engine extends EventEmitter {
         anomaly.shadow = true;
         if (route === 'canary') this._rememberFp(device, det.id, fingerprint, 'canary');
         else this._noteShadow(device, det, anomaly);
+        this._rememberExplain(anomaly, det, item);
         this.emit('shadow-anomaly', anomaly);
         continue;
       }
@@ -1506,6 +1613,7 @@ class Engine extends EventEmitter {
       anomaly.id = String(this.seq);
       if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
       noteIncident(this, device, anomaly);
+      this._rememberExplain(anomaly, det, item);
       this.emit('anomaly', anomaly);
       if (
         learning &&

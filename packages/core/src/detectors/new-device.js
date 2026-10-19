@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainNewMember } = require('./lib');
+
 const detector = {
   id: 'new-device',
   version: 1,
@@ -19,6 +21,7 @@ const detector = {
     ],
     rel: '0.2',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T0'],
   category: 'link',
@@ -41,6 +44,11 @@ const detector = {
       actual: ev.device || ctx.deviceId,
       expected: 'devices seen before learning finished',
       data: { firstTs: ev.ts },
+      explain: explainNewMember({
+        observed: ev.device || ctx.deviceId,
+        learnedCount: 0,
+        sample: [],
+      }),
     };
   },
 

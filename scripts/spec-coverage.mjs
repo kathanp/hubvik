@@ -266,9 +266,14 @@ writeFileSync(OUT, lines.join('\n'));
 execFileSync(join(ROOT, 'node_modules/.bin/prettier'), ['--write', OUT], { stdio: 'ignore' });
 
 if (!process.exitCode) {
+  let explains = 0;
+  for (const detector of code.values()) {
+    if (detector.meta && detector.meta.explains === true) explains += 1;
+  }
   console.log(
     `spec-coverage: ${rows.length} rows, ${code.size} detector files, core ${pkg.version}`,
   );
+  console.log(`explains: ${explains} of ${code.size} detectors`);
   for (const line of pending) {
     if (line.includes('Rel 0.5')) console.log(line.replace(/^- /, 'pending: '));
   }

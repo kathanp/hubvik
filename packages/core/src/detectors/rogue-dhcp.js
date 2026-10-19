@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const detector = {
   id: 'rogue-dhcp',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['dhcp'],
     rel: '0.3',
     fpRisk: 'Very low',
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -68,6 +70,7 @@ function alert(ctx, ev, server, expected) {
     actual: server,
     expected: `DHCP from ${expected}`,
     data: { serverIp: server },
+    explain: explainChanged({ observed: server, previous: expected }),
   };
 }
 

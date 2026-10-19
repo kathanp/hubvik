@@ -1,5 +1,7 @@
 'use strict';
 
+const { explainThreshold } = require('./lib');
+
 const detector = {
   id: 'spam-relay',
   version: 1,
@@ -8,6 +10,7 @@ const detector = {
     rel: '0.2',
     fpRisk: '',
     attack: ['T1071'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'abuse',
@@ -63,6 +66,12 @@ function draft(ctx, ev, count) {
     actual: `${count} SMTP connections this hour`,
     expected: `devices that do not relay mail`,
     data: { dstIp: ev.dstIp || null, count },
+    explain: explainThreshold({
+      test: 'gt',
+      observed: count,
+      threshold: ctx.options.minConnections,
+      formula: `minConnections=${ctx.options.minConnections}`,
+    }),
   };
 }
 

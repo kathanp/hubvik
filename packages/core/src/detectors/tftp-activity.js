@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'tftp-activity',
@@ -11,6 +12,7 @@ const detector = {
     rel: '0.2',
     fpRisk: '',
     attack: ['T1071'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'abuse',
@@ -36,6 +38,7 @@ const detector = {
       actual: `tftp ${key}`,
       expected: 'no TFTP toward the WAN',
       data: { dstIp: ev.dstIp || null },
+      explain: explainMatch({ observed: `tftp ${key}`, matched: 69, source: 'dstPort' }),
     };
   },
 

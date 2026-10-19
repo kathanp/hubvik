@@ -259,6 +259,7 @@ export interface EngineOptions {
   tierSilentMs?: number;
   tierSilentByTier?: Partial<Record<'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5', number>>;
   evidence?: boolean;
+  explainCap?: number;
 }
 
 export interface Baseline {
@@ -282,6 +283,7 @@ export interface Detector {
   meta?: {
     rel?: string;
     mode?: 'live' | 'shadow';
+    explains?: boolean;
     fpRisk?: string;
     consumes?: Array<
       | 'summary'
@@ -352,6 +354,20 @@ export class Engine extends EventEmitter {
   checkpoint(opts?: { devices?: string[]; createdAt?: number; sign?: string | Buffer }): object;
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
+  explain(anomalyId: string): {
+    anomalyId: string;
+    detector: string;
+    device: string;
+    ts: number;
+    test: 'gt' | 'gte' | 'lt' | 'new-member' | 'changed' | 'match' | 'sequence';
+    observed: number | string;
+    threshold?: number;
+    formula?: string;
+    learned?: Record<string, number | string>;
+    margin?: number;
+    evidence: unknown;
+    suppressWith: Array<{ method: 'allow' | 'suppress' | 'relearn'; args: unknown[] }>;
+  } | null;
   on(event: 'anomaly', listener: (anomaly: Anomaly) => void): this;
   on(event: 'shadow-anomaly', listener: (anomaly: Anomaly) => void): this;
   on(event: 'incident', listener: (incident: Incident) => void): this;
