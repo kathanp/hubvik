@@ -69,6 +69,19 @@ export interface DhcpEvent {
   serverIp?: string;
   requestedIp?: string;
   fingerprint?: string;
+  v6?: boolean;
+  duid?: string;
+  iaid?: number;
+}
+
+export interface NdEvent {
+  type: 'nd';
+  device: string;
+  ts?: number;
+  ip: string;
+  mac: string;
+  op: 'na' | 'ns' | 'rs' | 'ra';
+  router?: boolean;
 }
 
 export interface DiscoveryEvent {
@@ -157,7 +170,8 @@ export type FeedEvent =
   | HttpEvent
   | AppEvent
   | DiscoveryEvent
-  | DhcpEvent;
+  | DhcpEvent
+  | NdEvent;
 
 export interface PolicyRule {
   id: string;
@@ -260,6 +274,7 @@ export interface EngineOptions {
   tierSilentByTier?: Partial<Record<'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5', number>>;
   evidence?: boolean;
   explainCap?: number;
+  identity?: 'off' | 'auto';
 }
 
 export interface Baseline {
@@ -327,6 +342,7 @@ export interface EngineStats {
     }
   >;
   canary: Record<string, { liveOnly: number; canaryOnly: number; both: number }>;
+  identity: { rows: number; rekeyed: number; unresolved: number };
 }
 
 export class Engine extends EventEmitter {
@@ -354,6 +370,7 @@ export class Engine extends EventEmitter {
   checkpoint(opts?: { devices?: string[]; createdAt?: number; sign?: string | Buffer }): object;
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
+  resolve(ip: string): string | null;
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

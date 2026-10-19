@@ -17,7 +17,7 @@ function pickHost(spec, n) {
 
 /**
  * T0 connection summaries for one benign device class.
- * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean, discovery?: boolean }} opts
+ * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean, discovery?: boolean, ipv6?: boolean }} opts
  * @returns {object[]}
  */
 function simulate(opts) {
@@ -46,8 +46,54 @@ function simulate(opts) {
       }
     }
   }
-  if (!opts.rich) return events;
-  return enrich(spec, events, origin, opts.days, opts.profile, opts.discovery === true);
+  const out = opts.rich
+    ? enrich(spec, events, origin, opts.days, opts.profile, opts.discovery === true)
+    : events;
+  if (opts.ipv6 === true) {
+    addIpv6(spec, out, origin, opts.days);
+    out.sort((a, b) => a.ts - b.ts);
+  }
+  return out;
+}
+
+/**
+ * One temporary address per day, then one flow that uses that address as the device id.
+ * @param {{ device: string, hosts: string[] }} spec
+ * @param {object[]} events
+ * @param {number} origin
+ * @param {number} days
+ */
+function addIpv6(spec, events, origin, days) {
+  const mac = 'aa:bb:cc:dd:ee:01';
+  for (let day = 0; day < days; day++) {
+    const ts = origin + day * DAY;
+    const temp = `2001:db8:${day}::1`;
+    events.push({
+      type: 'nd',
+      device: spec.device,
+      ts: ts + 10,
+      ip: temp,
+      mac,
+      op: 'na',
+    });
+    events.push({
+      type: 'flow',
+      device: temp,
+      ts: ts + 11,
+      srcIp: temp,
+      srcPort: 40000,
+      dstIp: '1.1.1.1',
+      dstPort: 443,
+      proto: 'tcp',
+      direction: 'out',
+      bytesOut: 100,
+      bytesIn: 80,
+      pktsOut: 1,
+      pktsIn: 1,
+      durationMs: 40,
+      dstName: spec.hosts[0],
+    });
+  }
 }
 
 /**
