@@ -3,7 +3,14 @@
   "on": "app",
   "where": {
     "op": {
-      "in": ["ReinitializeDevice", "DeviceCommunicationControl", "AtomicWriteFile", "fc8", "STOP", "download"]
+      "in": [
+        "ReinitializeDevice",
+        "DeviceCommunicationControl",
+        "AtomicWriteFile",
+        "fc8",
+        "STOP",
+        "download"
+      ]
     }
   },
   "groupBy": ["device"],
