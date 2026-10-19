@@ -225,3 +225,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
 
 `node --expose-gc bench/reorder.js` is the same 1,000-device line with `reorderMs: 5000`. Median `feed()` was 6.08 µs. Retained memory was 8.63 KB/device after `lock()` released the buffer, and 11.34 KB/device while the buffer still held the last 5 seconds of events.
+
+## WP-15 — explainability, 2026-10-18
+
+`explain()` stores one object per anomaly, capped at 1,000 for the whole engine. The 7-day line does not fill that cap. `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.92 µs | 11.69 KB/device |
+| 200 devices, 7 days, then `lock()` |         7.79 µs | 68.15 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
