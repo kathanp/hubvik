@@ -585,3 +585,11 @@ Check 213/213, duration 291129 ms. Coverage lines 97.99%, branches 86.49%, funct
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100.
 
 `ramp`, `late-family-burst`, and `beacon-born-in-learning` each fire once and set `learningQuality.ready` to false. Both benign matrices, with `discovery: true` and `ipv6: true`, emitted none of those reasons.
+
+## 0.7.0 release gate
+
+Date: 2026-10-18. Core bumped to 0.7.0. `npm run gate` exited 0, then `npm run demo`.
+
+Check 213/213, duration 141101 ms. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Pack-check: core 167 files, 462608 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.7.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats `fromJSON` 100,000 rejected; nd 100,000 inputs, 80,018 rejected; feedback 100,000 inputs, 96,145 rejected; reorder restore 100,000 inputs, 60,129 rejected. Bench median 6.88 µs, estimate 4.29 KB/device, retained 11.98 KB/device, 1,000 devices. Rich bench median 6.71 µs, retained 68.69 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed. The golden `pkg` string is `iotwarden@0.7.0`. No anomaly field changed.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100. Local tag `v0.7.0`. Not pushed.

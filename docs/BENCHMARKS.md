@@ -269,3 +269,14 @@ The three new warnings count during learning and do not add a per-destination ta
 | 200 devices, 7 days, then `lock()` |         7.92 µs | 68.67 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## 0.7.0 release gate, 2026-10-18
+
+`npm run gate` on core 0.7.0 exited 0, then `npm run demo`. `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.88 µs | 11.98 KB/device |
+| 200 devices, 7 days, then `lock()` |         6.71 µs | 68.69 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.

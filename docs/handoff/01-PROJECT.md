@@ -10,13 +10,13 @@ Author: Kathan Patel. License: Apache-2.0. Package name: `iotwarden` (unscoped c
 
 Status line, and it must stay until a script in this repo produces real numbers: **prototype — not validated on real traffic.** Do not claim a detection rate, a benchmark, a dataset result, or a market rank. Do not cite CICIoT2023, IoT-23, or N-BaIoT as results. Those names appear only as future evaluation inputs.
 
-The tree is local `0.5.0`. It is not published. `1.0.0` requires the spec's evaluation harness results and a 30-day real deployment. Do not bump to 1.0.
+The tree is local `0.7.0`. It is not published. `1.0.0` requires the spec's evaluation harness results and a 30-day real deployment. Do not bump to 1.0.
 
 ## Versions in the tree
 
 | Package                           | Version | Role                                                                    |
 | --------------------------------- | ------- | ----------------------------------------------------------------------- |
-| `packages/core` (`iotwarden`)     | 0.5.0   | Engine, 109 live detectors, and 3 early shadow detectors off by default |
+| `packages/core` (`iotwarden`)     | 0.7.0   | Engine, 109 live detectors, and 3 early shadow detectors off by default |
 | `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                    |
 | `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                 |
 | `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                          |
@@ -25,7 +25,7 @@ The tree is local `0.5.0`. It is not published. `1.0.0` requires the spec's eval
 | `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                             |
 | `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                 |
 
-Git: `main` includes the local `0.5.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
+Git: `main` includes the local `0.7.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
 
 ## Gate
 

@@ -4,7 +4,7 @@ Per-device network anomaly detection for **IoT gateways, smart-home hubs, buildi
 
 Every IoT device talks through a gateway. iotwarden runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: 0.5.0 prototype. Not for production. Not validated on real traffic.
+> Status: 0.7.0 prototype. Not for production. Not validated on real traffic.
 
 ## Install
 

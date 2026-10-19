@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.7.0
+
+Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `iotwarden@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.
+
 Learning can warn `SUSPICIOUS_LEARNING` for `ramp`, `late-family-burst`, and `beacon-born-in-learning`. Each sets `learningQuality.ready` to false. They do not raise an anomaly.
 
 `feedback(id or fingerprint, verdict)` stores the last 10,000 operator labels in `checkpoint()`. `exportLabels()` writes them as JSONL. `stats().precision` is the 7-day count with a Wilson interval, and `NOISY_DETECTOR` fires once when the false-positive rate is over 50% on at least 10 labels. `promote: { afterDays, minHits }` (default off) moves a watched destination family, port, JA4, or resolver into the baseline and warns `BASELINE_PROMOTED`. A high-or-above anomaly, a hard-rule anomaly, or a threat-intel, proxy-SDK, or Tor hit in that period blocks it. Hard rules, OT writes, and `cert-change` are never promoted. `eval/run.mjs --labels <file>` prints that precision after the C6.2 score.
