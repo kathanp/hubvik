@@ -340,24 +340,24 @@ Events in the 7-day run: 6,948,925. Under 100 KB. The 1,000-device median is the
 
 `node --expose-gc bench/heap-one.js`, 16 devices, sequential, every shadow detector still running. Retained is heap plus ArrayBuffers after two collections. Three baselines, median 205.42 KB/device. A row is that median minus the same run with one detector disabled. A second pass of three runs replaced the rows that moved by more than 1 KB, including `upnp-callstranger`, whose first run sat 29 KB the wrong way. Negative rows are inside the baseline spread.
 
-| Detector                   | KB/device |
-| -------------------------- | --------: |
-| `multi-horizon-exfil`      |      4.58 |
-| `slow-scan`                |      2.71 |
-| `cloud-storage-exfil`      |      2.12 |
-| `ttl-anomaly`              |      1.86 |
-| `jitter-beacon`            |      1.80 |
-| `exploit-then-download`    |      1.30 |
-| `graph-role-change`        |      0.87 |
-| `graph-new-bridge`         |      0.80 |
-| `dhcpv6-rogue`             |      0.20 |
-| `young-domain`             |      0.18 |
-| `matter-new-controller`    |      0.07 |
-| `evil-twin`                |      0.04 |
-| `exploit-probe-http`       |      0.03 |
-| `ssh-brute-then-session`   |     -0.27 |
-| `nd-spoof`                 |     -0.31 |
-| `upnp-callstranger`        |     -0.41 |
-| `wifi-deauth-flood`        |     -0.52 |
+| Detector                 | KB/device |
+| ------------------------ | --------: |
+| `multi-horizon-exfil`    |      4.58 |
+| `slow-scan`              |      2.71 |
+| `cloud-storage-exfil`    |      2.12 |
+| `ttl-anomaly`            |      1.86 |
+| `jitter-beacon`          |      1.80 |
+| `exploit-then-download`  |      1.30 |
+| `graph-role-change`      |      0.87 |
+| `graph-new-bridge`       |      0.80 |
+| `dhcpv6-rogue`           |      0.20 |
+| `young-domain`           |      0.18 |
+| `matter-new-controller`  |      0.07 |
+| `evil-twin`              |      0.04 |
+| `exploit-probe-http`     |      0.03 |
+| `ssh-brute-then-session` |     -0.27 |
+| `nd-spoof`               |     -0.31 |
+| `upnp-callstranger`      |     -0.41 |
+| `wifi-deauth-flood`      |     -0.52 |
 
 Only `multi-horizon-exfil` is over 3 KB/device on this 16-device sweep. Its exported state is about 0.3 KB. The rest of the row is object overhead plus a fixed cost divided by 16 devices. After the typed-array pack, two baselines averaged 204.88 KB/device and two disabled runs averaged 201.00, so the row is 3.88 KB/device. Caps were not changed. Detector output was not changed.
