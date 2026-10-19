@@ -83,41 +83,42 @@ function views(anomalies) {
 }
 
 /**
- * Arrival order changes a running total, which event completes a set, or which cause is named first.
- * src-spoof and packet-flood are dropped. proxy-relay sorts its lists. supply-chain-suspect keeps the alert and drops the cause. D-25.
- * @param {any} item
- * @returns {string}
+ * Events in timestamp order. A step that is not an event stays immediately before the next event.
+ * @param {any[]} steps
+ * @returns {any[]}
  */
-function orderView(item) {
-  if (item.detector === 'src-spoof' || item.detector === 'packet-flood') return '';
-  const supply = item.detector === 'supply-chain-suspect';
-  const copy = {
-    ...item,
-    ts: item.detector === 'proxy-relay' || supply ? 0 : item.ts,
-    actual: supply ? '' : item.actual,
-    expected: supply ? '' : item.expected,
-    data: supply ? {} : sortLists(item.data),
-  };
-  return view(copy);
-}
-
-/**
- * @param {any} value
- * @returns {any}
- */
-function sortLists(value) {
-  if (Array.isArray(value)) {
-    const items = value.map((item) => sortLists(item));
-    if (items.every((item) => typeof item === 'string')) return items.slice().sort();
-    return items;
+function sortedStream(steps) {
+  /** @type {{ step: any, ts: number }[]} */
+  const ops = [];
+  /** @type {any[]} */
+  const events = [];
+  /** @type {any[]} */
+  let pending = [];
+  for (const step of steps) {
+    if (step && step.op) pending.push(step);
+    else {
+      for (const op of pending) ops.push({ step: op, ts: step.ts });
+      pending = [];
+      events.push(step);
+    }
   }
-  if (value && typeof value === 'object') {
-    /** @type {Record<string, unknown>} */
-    const out = {};
-    for (const [key, item] of Object.entries(value)) out[key] = sortLists(item);
-    return out;
+  events.sort((a, b) => a.ts - b.ts);
+  /** @type {any[]} */
+  const out = [];
+  let index = 0;
+  for (const event of events) {
+    while (index < ops.length && ops[index].ts <= event.ts) {
+      out.push(ops[index].step);
+      index += 1;
+    }
+    out.push(event);
   }
-  return value;
+  while (index < ops.length) {
+    out.push(ops[index].step);
+    index += 1;
+  }
+  out.push(...pending);
+  return out;
 }
 
 /**
@@ -558,7 +559,6 @@ test('shuffling inside 5000 ms does not change the anomaly multiset', () => {
   const rng = mulberry32(1);
   for (const item of cases()) {
     const opts = { ...item.opts, reorderMs: 5000 };
-    // reorderMs accepts a late event and does not hold one that already arrived (A2.3). src-spoof uses the lease it has seen. packet-flood reports the running total at the moment the threshold is crossed, so arrival order changes that total. D-25.
     /** @type {Map<number, any[]>} */
     const groups = new Map();
     /** @type {any[]} */
@@ -581,20 +581,30 @@ test('shuffling inside 5000 ms does not change the anomaly multiset', () => {
         shuffled.push(entry);
         continue;
       }
-      const list = groups.get(entry).slice();
-      for (let i = list.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        const swap = list[i];
-        list[i] = list[j];
-        list[j] = swap;
+      const list = groups.get(entry);
+      /** @type {any[][]} */
+      const tied = [];
+      /** @type {Map<number, any[]>} */
+      const byTs = new Map();
+      for (const event of list) {
+        let group = byTs.get(event.ts);
+        if (!group) {
+          group = [];
+          byTs.set(event.ts, group);
+          tied.push(group);
+        }
+        group.push(event);
       }
-      shuffled.push(...list);
+      for (let i = tied.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const swap = tied[i];
+        tied[i] = tied[j];
+        tied[j] = swap;
+      }
+      for (const group of tied) shuffled.push(...group);
     }
-    const got = play(opts, shuffled, item.flushAt).anomalies.map(orderView).filter(Boolean).sort();
-    const expected = play(opts, item.steps, item.flushAt)
-      .anomalies.map(orderView)
-      .filter(Boolean)
-      .sort();
+    const got = views(play(opts, shuffled, item.flushAt).anomalies);
+    const expected = views(play(opts, sortedStream(item.steps), item.flushAt).anomalies);
     assert.deepStrictEqual(got, expected, item.name);
   }
 });

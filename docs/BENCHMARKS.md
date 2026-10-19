@@ -212,3 +212,16 @@ A checkpoint now also stores live detector state. `node --expose-gc bench/run.js
 | 200 devices, 7 days, then `lock()` |         8.92 µs | 67.99 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-14.1 — reorder buffer, 2026-10-18
+
+`reorderMs` stays 0 on the 7-day line, so that run does not allocate a buffer. `node --expose-gc bench/run.js` then printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.42 µs | 11.67 KB/device |
+| 200 devices, 7 days, then `lock()` |         6.96 µs | 68.11 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+`node --expose-gc bench/reorder.js` is the same 1,000-device line with `reorderMs: 5000`. Median `feed()` was 6.08 µs. Retained memory was 8.63 KB/device after `lock()` released the buffer, and 11.34 KB/device while the buffer still held the last 5 seconds of events.

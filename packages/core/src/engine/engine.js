@@ -5,7 +5,7 @@ const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
 const { isGroupDst } = require('../detectors/lib');
 const { LruSet } = require('./caps');
-const { validateEvent, validateOptions, validateIndicator } = require('./validate');
+const { assertSafeKeys, validateEvent, validateOptions, validateIndicator } = require('./validate');
 const { windowStart, planClose } = require('./window');
 const { prepareImport, attachMeta } = require('./baseline');
 const { buildStats } = require('./stats');
@@ -83,6 +83,13 @@ class Engine extends EventEmitter {
     this._canary = Object.create(null);
     this._promotionsNoted = false;
     this.shadowSeq = 0;
+    /** @type {{ seq: number, event: any }[] | null} */
+    this._reorder = opts.reorderMs > 0 ? [] : null;
+    /** @type {Map<string, number>} */
+    this._reorderHigh = new Map();
+    this._reorderSeq = 0;
+    /** @type {number | null} */
+    this._reorderOverflowMinute = null;
     this._rebuildActive();
   }
 
@@ -233,6 +240,17 @@ class Engine extends EventEmitter {
    */
   feed(raw) {
     this._notePromotions();
+    const event = this._prepare(raw);
+    if (this._reorder) this._acceptReorder(event);
+    else this._apply(event);
+  }
+
+  /**
+   * Validate and count one event. Does not deliver it to detectors.
+   * @param {object} raw
+   * @returns {any}
+   */
+  _prepare(raw) {
     const { event, warnings } = validateEvent(raw);
     if (event.type === 'flow') {
       if (!event.dst) event.dst = event.dstName || event.dstIp;
@@ -242,6 +260,15 @@ class Engine extends EventEmitter {
     this.eventsIn += 1;
     for (const warning of warnings) this._warn(warning.code, warning.message, event.device);
     if (this.startedAt == null) this.startedAt = event.ts;
+    return event;
+  }
+
+  /**
+   * Deliver one event to detectors. `reorderMs: 0` does this inside `feed`.
+   * @param {any} event
+   * @returns {void}
+   */
+  _apply(event) {
     const device = this._touch(event.device, event.ts);
     if (!device) return;
     const reorder = this.opts.reorderMs;
@@ -288,6 +315,105 @@ class Engine extends EventEmitter {
   }
 
   /**
+   * Hold an event until event time has moved `reorderMs` past it.
+   * @param {any} event
+   * @returns {void}
+   */
+  _acceptReorder(event) {
+    if (this._reorderLate(event)) return;
+    const buffer = this._reorder;
+    if (!buffer) return;
+    this._reorderSeq += 1;
+    const row = { seq: this._reorderSeq, event };
+    if (buffer.length >= this.opts.maxBuffered) {
+      const head = buffer[0];
+      this._noteReorderOverflow(event);
+      if (event.ts < head.event.ts) {
+        this._noteReorderHigh(event);
+        this._apply(event);
+        this._releaseReorder(/** @type {number} */ (this.watermark) - this.opts.reorderMs);
+        return;
+      }
+      buffer.shift();
+      this._apply(head.event);
+    }
+    let lo = 0;
+    let hi = buffer.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      const other = buffer[mid];
+      if (other.event.ts < event.ts || (other.event.ts === event.ts && other.seq < row.seq)) {
+        lo = mid + 1;
+      } else hi = mid;
+    }
+    buffer.splice(lo, 0, row);
+    this._noteReorderHigh(event);
+    this._releaseReorder(/** @type {number} */ (this.watermark) - this.opts.reorderMs);
+  }
+
+  /**
+   * @param {any} event
+   * @returns {void}
+   */
+  _noteReorderHigh(event) {
+    const prev = this._reorderHigh.get(event.device);
+    if (prev == null || event.ts > prev) this._reorderHigh.set(event.device, event.ts);
+    if (this.watermark == null || event.ts > this.watermark) this.watermark = event.ts;
+    this.lastEventTs = this.watermark;
+  }
+
+  /**
+   * @param {any} event
+   * @returns {void}
+   */
+  _noteReorderOverflow(event) {
+    const minute = Math.floor(event.ts / 60_000);
+    if (this._reorderOverflowMinute === minute) return;
+    this._reorderOverflowMinute = minute;
+    this._warn('REORDER_OVERFLOW', 'reorder buffer released the oldest event', event.device);
+  }
+
+  /**
+   * Drop an event that is already behind the release limit or a sealed window.
+   * @param {any} event
+   * @returns {boolean}
+   */
+  _reorderLate(event) {
+    const reorder = this.opts.reorderMs;
+    const device = this.devices.get(event.device);
+    const inOpen =
+      device && device.open != null && event.ts >= device.open.start && event.ts < device.open.end;
+    if (!inOpen && device && device.seen && this._rejectedTime(device, event, reorder)) return true;
+    const high = this._reorderHigh.get(event.device);
+    const behindDevice = high != null && event.ts < high - reorder;
+    const behindWatermark = this.watermark != null && event.ts < this.watermark - reorder;
+    if (!behindDevice && !behindWatermark) return false;
+    if (behindDevice) {
+      const holder = device && device.seen ? device : this._touch(event.device, event.ts);
+      if (holder) {
+        this._warn('CLOCK_JUMP', 'timestamp moved backward', event.device);
+        this._clockJump(holder, event);
+      }
+    }
+    this._warn('LATE_EVENT', 'event is older than an open window', event.device);
+    return true;
+  }
+
+  /**
+   * Deliver buffered events whose timestamp is at or before `limit`.
+   * @param {number} limit
+   * @returns {void}
+   */
+  _releaseReorder(limit) {
+    const buffer = this._reorder;
+    if (!buffer) return;
+    while (buffer.length > 0 && buffer[0].event.ts <= limit) {
+      const row = buffer.shift();
+      if (row) this._apply(row.event);
+    }
+  }
+
+  /**
    * Feed a batch after sorting it by timestamp. Does not mutate the input array.
    * @param {any[]} events
    * @returns {void}
@@ -310,10 +436,12 @@ class Engine extends EventEmitter {
       throw new TypeError('flush time is invalid');
     }
     if (!explicit) {
+      this._releaseReorder(Infinity);
       this._drain();
       this.tick();
       return;
     }
+    this._releaseReorder(now);
     for (const device of this.devices.values()) {
       if (!device.seen) continue;
       const plan = planClose(
@@ -377,6 +505,7 @@ class Engine extends EventEmitter {
     const at = now === undefined ? this.watermark : now;
     if (at == null) return;
     if (typeof at !== 'number' || !Number.isFinite(at)) throw new TypeError('tick time is invalid');
+    this._releaseReorder(at);
     const det = this.byId.get('went-silent');
     const status = this.detectorStatus['went-silent'];
     if (det && status && status.active && typeof det.tick === 'function') {
@@ -398,6 +527,7 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   lock(deviceId) {
+    this._releaseReorder(Infinity);
     const list = deviceId == null ? [...this.devices.values()] : [this._requireDevice(deviceId)];
     for (const device of list) {
       if (device.mode === 'learning' && device.seen) {
@@ -669,6 +799,12 @@ class Engine extends EventEmitter {
       watermark: this.watermark,
       scratch: plainScratch(this.scratch),
     };
+    if (this._reorder) {
+      /** @type {any} */ (body).reorder = this._reorder.map((row) => ({
+        seq: row.seq,
+        event: row.event,
+      }));
+    }
     if (fit(body)) this._warn('CHECKPOINT_TRUNCATED', 'checkpoint dropped the oldest LAN rows');
     return attachMeta(body, {
       sign: opts.sign,
@@ -688,7 +824,6 @@ class Engine extends EventEmitter {
     const cp = /** @type {any} */ (raw);
     assertCheckpoint(cp);
     /** @type {Record<string, any>} */
-    /** @type {Record<string, any>} */
     const revived = {};
     if (cp.scratch != null) {
       for (const key of Object.keys(cp.scratch)) {
@@ -700,6 +835,7 @@ class Engine extends EventEmitter {
       }
     }
     assertRevived(revived);
+    const reorder = this._readReorder(cp.reorder);
     if (cp.devices && typeof cp.devices === 'object') {
       for (const row of Object.values(cp.devices)) {
         if (row && typeof row === 'object' && row.live) this._probeLive(row.live);
@@ -718,6 +854,67 @@ class Engine extends EventEmitter {
           if (row.live) device.states = thawStates(row.live);
         }
       }
+    }
+    if (reorder) {
+      this._reorder = reorder.rows;
+      this._reorderSeq = reorder.seq;
+    }
+    this._rebuildReorderHigh();
+  }
+
+  /**
+   * Validate a checkpoint reorder buffer without installing it.
+   * @param {unknown} raw
+   * @returns {{ rows: { seq: number, event: any }[], seq: number } | null}
+   */
+  _readReorder(raw) {
+    if (raw == null) return null;
+    if (!Array.isArray(raw)) throw new Error('checkpoint reorder buffer is invalid');
+    if (raw.length > this.opts.maxBuffered) {
+      throw new Error('checkpoint reorder buffer exceeds cap');
+    }
+    /** @type {{ seq: number, event: any }[]} */
+    const rows = [];
+    let seq = 0;
+    let prevTs = -Infinity;
+    let prevSeq = 0;
+    for (const item of raw) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        throw new Error('checkpoint reorder buffer is invalid');
+      }
+      assertSafeKeys(item, 'reorder');
+      if (typeof item.seq !== 'number' || !Number.isInteger(item.seq) || item.seq < 1) {
+        throw new Error('checkpoint reorder buffer is invalid');
+      }
+      if (!item.event || typeof item.event !== 'object' || Array.isArray(item.event)) {
+        throw new Error('checkpoint reorder buffer is invalid');
+      }
+      const checked = validateEvent(item.event);
+      if (checked.event.ts < prevTs || (checked.event.ts === prevTs && item.seq <= prevSeq)) {
+        throw new Error('checkpoint reorder buffer is invalid');
+      }
+      prevTs = checked.event.ts;
+      prevSeq = item.seq;
+      rows.push({ seq: item.seq, event: item.event });
+      if (item.seq > seq) seq = item.seq;
+    }
+    return { rows, seq };
+  }
+
+  /**
+   * Highest accepted timestamp per device, from applied events and the buffer.
+   * @returns {void}
+   */
+  _rebuildReorderHigh() {
+    this._reorderHigh = new Map();
+    for (const device of this.devices.values()) {
+      if (typeof device.lastTs === 'number') this._reorderHigh.set(device.id, device.lastTs);
+    }
+    if (!this._reorder) return;
+    for (const row of this._reorder) {
+      const prev = this._reorderHigh.get(row.event.device);
+      if (prev == null || row.event.ts > prev)
+        this._reorderHigh.set(row.event.device, row.event.ts);
     }
   }
 

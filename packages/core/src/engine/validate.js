@@ -557,6 +557,10 @@ function validateOptions(raw) {
     learnMs: input.learnMs == null ? DEFAULTS.learnMs : num(input.learnMs, 'learnMs', { min: 0 }),
     reorderMs:
       input.reorderMs == null ? 0 : num(input.reorderMs, 'reorderMs', { min: 0, integer: true }),
+    maxBuffered:
+      input.maxBuffered == null
+        ? 50_000
+        : num(input.maxBuffered, 'maxBuffered', { min: 1, integer: true }),
     minLearnWindows:
       input.minLearnWindows == null
         ? 0
