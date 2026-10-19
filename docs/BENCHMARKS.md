@@ -236,3 +236,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
 | 200 devices, 7 days, then `lock()` |         7.79 µs | 68.15 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-16 — identity, 2026-10-18
+
+The identity table is off unless `identity` is `'auto'`. The 7-day bench leaves it off. `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.46 µs | 11.70 KB/device |
+| 200 devices, 7 days, then `lock()` |         6.50 µs | 68.37 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
