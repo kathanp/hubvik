@@ -41,10 +41,11 @@ function fail(message) {
  * @returns {string[]}
  */
 function cells(line) {
-  const parts = line.split('|');
+  const raw = line.replace(/\\\|/g, '\u0000');
+  const parts = raw.split('|');
   if (line.startsWith('|')) parts.shift();
   if (line.endsWith('|')) parts.pop();
-  return parts.map((part) => part.trim());
+  return parts.map((part) => part.replaceAll('\u0000', '|').trim());
 }
 
 /**

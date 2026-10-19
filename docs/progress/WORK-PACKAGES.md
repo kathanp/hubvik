@@ -641,3 +641,13 @@ Check 236/236, duration 248376 ms. Coverage lines 98.01%, branches 86.63%, funct
 `test/replay/kimwolf-lan-pivot.test.js` produced exactly one campaign, 2 devices, stages c2, spread, and impact. `campaigns` stays off unless the host sets it, so the existing suite does not emit `campaign`. D-31.
 
 `npm run demo` printed the same incident, score 100.
+
+## WP-21 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 282/282, duration 1040469 ms. Coverage lines 98.04%, branches 86.84%, functions 97.91%, duration 1603802 ms. Pack-check: core 185 files, 527121 bytes unpacked. `src/engine/engine.js` is 67574 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 56550 accepted, 43450 rejected; checkpoint mutation 53652 accepted, 46348 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected. Bench median 7.17 µs, retained 12.04 KB/device. Rich bench median 10.13 µs, retained 87.35 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+The nine new detectors are shadow. A router Neighbor Advertisement fires during learning because `learn()` may return a severity draft (D-32). `npm run demo` printed the same incident, score 100.
+
+Largest packed files, bytes: engine.js 67574, validate.js 31270, LICENSE 11342, checkpoint.js 10321, index.d.ts 10309, CHANGELOG.md 10199, learning.js 7101, feedback.js 7016, graph.js 6262, baseline.js 5392, campaigns.js 5375, promote.js 5225, horizon.js 5126, exploit-probe-http.js 4940, multi-horizon-exfil.js 4866.

@@ -6,18 +6,20 @@
 
 `feed` validates before any detector runs. Unknown `type` throws `TypeError`. A missing `device` throws. Optional bad fields are dropped and counted as `warning` `FIELD_DROPPED`.
 
-| type      | Tier tag | Required fields                           | Notes                                                                                                                                                                                                           |
-| --------- | -------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| (none)    | T0       | `device`                                  | Summary. `dst`, `bytes`, `ts` optional                                                                                                                                                                          |
-| `flow`    | T1       | `device`                                  | Addresses, ports, `proto`, `direction` `out\|in\|lan`, byte and packet counters, `durationMs`, `tcpOutcome`, `dstName`, `icmpType`                                                                              |
-| `dns`     | T2       | `device`, `qname`                         | `qtype`, `rcode`, `resolver`, `answers[]` of `{type, value, ttl}`                                                                                                                                               |
-| `tls`     | T3       | `device`, `dstIp`, `dstPort`              | `sni`, `ja4` (string ≤ 255), `version` (≤ 32), `alpn` (≤ 8 strings), `cert.{issuer, subject, sha256, selfSigned, notAfter}`                                                                                     |
-| `http`    | T3       | `device`, `dstIp`, `dstPort`, `method`    | `host`, `path`, `status`, `direction` `out` or `in`. Any other `direction` is dropped with `FIELD_DROPPED`                                                                                                      |
-| `mapping` | T1       | `device`, `proto`, `port`                 | `proto` is `upnp`, `nat-pmp`, or `pcp`                                                                                                                                                                          |
-| `arp`     | T4       | `ip`, `mac`, `op`                         | `device` optional                                                                                                                                                                                               |
-| `dhcp`    | T4       | `mac`, `msg`                              | `serverIp`, `requestedIp`                                                                                                                                                                                       |
-| `ra`      | T4       | `srcMac`, `srcIp`                         |                                                                                                                                                                                                                 |
-| `app`     | T5       | `device`, `proto`, `role`, `peerIp`, `op` | `proto` must be in the app set: bacnet, modbus, dnp3, knx, s7, enip, mqtt, coap, rtsp, onvif, stratum, smtp. `role` is `client` or `server`. `target`, `value` (number or string), `result` `ok\|error\|reject` |
+| type      | Tier tag | Required fields                           | Notes                                                                                                                                                                                                                         |
+| --------- | -------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| (none)    | T0       | `device`                                  | Summary. `dst`, `bytes`, `ts` optional                                                                                                                                                                                        |
+| `flow`    | T1       | `device`                                  | Addresses, ports, `proto`, `direction` `out\|in\|lan`, byte and packet counters, `durationMs`, `tcpOutcome`, `dstName`, `icmpType`                                                                                            |
+| `dns`     | T2       | `device`, `qname`                         | `qtype`, `rcode`, `resolver`, `answers[]` of `{type, value, ttl}`                                                                                                                                                             |
+| `tls`     | T3       | `device`, `dstIp`, `dstPort`              | `sni`, `ja4` (string ≤ 255), `version` (≤ 32), `alpn` (≤ 8 strings), `cert.{issuer, subject, sha256, selfSigned, notAfter}`                                                                                                   |
+| `http`    | T3       | `device`, `dstIp`, `dstPort`, `method`    | `host`, `path`, `status`, `direction` `out` or `in`. Any other `direction` is dropped with `FIELD_DROPPED`                                                                                                                    |
+| `mapping` | T1       | `device`, `proto`, `port`                 | `proto` is `upnp`, `nat-pmp`, or `pcp`                                                                                                                                                                                        |
+| `arp`     | T4       | `ip`, `mac`, `op`                         | `device` optional                                                                                                                                                                                                             |
+| `dhcp`    | T4       | `mac`, `msg`                              | `serverIp`, `requestedIp`, `v6`, `duid`, `iaid`                                                                                                                                                                               |
+| `ra`      | T4       | `srcMac`, `srcIp`                         |                                                                                                                                                                                                                               |
+| `nd`      | T4       | `device`, `ip`, `mac`, `op`               | `op` is `na`, `ns`, `rs`, or `ra`. `ip` is IPv6. `router: true` marks a router address                                                                                                                                        |
+| `wifi`    | T4       | `device`, `mac`, `op`                     | `op` is `assoc`, `disassoc`, `deauth`, or `auth-fail`. Optional `bssid`, `ssid` (≤ 32), `reason`                                                                                                                              |
+| `app`     | T5       | `device`, `proto`, `role`, `peerIp`, `op` | `proto` must be in the app set: bacnet, modbus, dnp3, knx, s7, enip, mqtt, coap, rtsp, onvif, stratum, smtp, upnp, matter. `role` is `client` or `server`. `target`, `value` (number or string), `result` `ok\|error\|reject` |
 
 Names are lowercased, a trailing dot is stripped, and IDN goes through `node:url` `domainToASCII`. An IPv4-mapped IPv6 address (`::ffff:a.b.c.d`) is normalized to IPv4 **before** `domainToASCII`, because `domainToASCII('::ffff:192.0.2.1')` returns `''`.
 
@@ -38,6 +40,8 @@ The engine does not filter events by tier. If T1 is enabled, a T1 detector's `ch
 ## Windows and learning
 
 Window start is epoch-aligned: `ts - (ts % windowMs)`. Default 60 seconds.
+
+While learning, a detector with `hardRule: false` gets `learn()` instead of `check()`. A `learn()` return with a string `reason` is `SUSPICIOUS_LEARNING`. A return with `severity` and no `reason` is emitted (shadow, for a shadow detector). That is how `nd-spoof` reports a router claim before lock (D-32).
 
 Learning starts at the device's first accepted event. The device becomes watching when `ts >= learnStart + learnMs`. `learnMs: 0` flips to watching **before** detectors run, so the first event is a `check`, not a `learn`.
 
@@ -111,7 +115,7 @@ Optional HMAC-SHA256 via `node:crypto`: `exportBaseline({ sign: key })`, `import
 
 ## Context object passed to detectors
 
-`ctx` fields: `learning`, `ts`, `deviceId`, `hour(ts)`, `day(ts)`, `options`, `window`, `extra`, `learnMs`, `engineStarted`, `indicatorIndex`, `policy`, `deviceClass`, `gatewayIp`, `dhcpServers`, `routers`, `zones`, `browserJa4`, `peerGroup`, `scratch`, `peers()`, `peerState(other, id)`, `lookup(ip)`.
+`ctx` fields: `learning`, `ts`, `deviceId`, `hour(ts)`, `day(ts)`, `options`, `window`, `extra`, `learnMs`, `engineStarted`, `indicatorIndex`, `policy`, `deviceClass`, `gatewayIp`, `dhcpServers`, `routers`, `ownBssids`, `zones`, `browserJa4`, `peerGroup`, `scratch`, `peers()`, `peerState(other, id)`, `lookup(ip)`.
 
 `lookup` is wrapped. A non-object return becomes null. A thrown lookup is not caught. `peers()` returns other **seen** devices with the same `peerGroup`. `scratch` is an engine-wide `Map`. ARP bindings, DHCP starvation, and fleet-wave rows live there because the events come from different device ids. Document that those tables are process memory, not the per-device baseline.
 

@@ -462,6 +462,166 @@ const ATTACKS = {
       flow({ ts: 2000, device: 'src', direction: 'lan', dstIp: '10.2.0.2', dstPort: 80 }),
     );
   },
+  'exploit-then-download'(engine) {
+    engine.feed(
+      flow({
+        ts: 1000,
+        direction: 'in',
+        srcIp: '1.2.3.4',
+        srcPort: 443,
+        dstIp: '10.0.0.5',
+        dstPort: 80,
+      }),
+    );
+    engine.feed(
+      flow({
+        ts: 2000,
+        direction: 'out',
+        dstIp: '9.9.9.9',
+        dstPort: 443,
+        bytesIn: 200000,
+      }),
+    );
+  },
+  'ssh-brute-then-session'(engine) {
+    for (let i = 0; i < 10; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000 + i,
+          direction: 'in',
+          srcIp: '1.2.3.4',
+          srcPort: 40000,
+          dstIp: '10.0.0.5',
+          dstPort: 22,
+          durationMs: 200,
+        }),
+      );
+    }
+    engine.feed(
+      flow({
+        ts: 2000,
+        direction: 'in',
+        srcIp: '1.2.3.4',
+        srcPort: 40000,
+        dstIp: '10.0.0.5',
+        dstPort: 22,
+        durationMs: 60000,
+      }),
+    );
+  },
+  'cloud-storage-exfil'(engine) {
+    engine.feed(
+      flow({
+        ts: 1000,
+        dstName: 'bucket.s3.amazonaws.com',
+        dstIp: '1.2.3.4',
+        bytesOut: 11 * 1024 * 1024,
+      }),
+    );
+  },
+  'nd-spoof'(engine) {
+    engine.feed({
+      type: 'nd',
+      device: 'cam-1',
+      ts: 1000,
+      op: 'na',
+      ip: '2001:db8::1',
+      mac: 'aa:bb:cc:dd:ee:01',
+      router: true,
+    });
+    engine.feed({
+      type: 'nd',
+      device: 'cam-1',
+      ts: 2000,
+      op: 'na',
+      ip: '2001:db8::1',
+      mac: 'aa:bb:cc:dd:ee:02',
+      router: true,
+    });
+  },
+  'dhcpv6-rogue'(engine) {
+    engine.feed({
+      type: 'dhcp',
+      device: 'cam-1',
+      ts: 1000,
+      mac: 'aa:bb:cc:dd:ee:01',
+      msg: 'offer',
+      v6: true,
+      serverIp: '2001:db8::1',
+    });
+    engine.feed({
+      type: 'dhcp',
+      device: 'cam-1',
+      ts: 6000,
+      mac: 'aa:bb:cc:dd:ee:01',
+      msg: 'offer',
+      v6: true,
+      serverIp: '2001:db8::9',
+    });
+  },
+  'wifi-deauth-flood'(engine) {
+    for (let i = 0; i < 30; i += 1) {
+      engine.feed({
+        type: 'wifi',
+        device: 'cam-1',
+        ts: 1000 + i,
+        mac: 'aa:bb:cc:dd:ee:01',
+        op: 'deauth',
+      });
+    }
+  },
+  'evil-twin'(engine) {
+    engine.feed({
+      type: 'wifi',
+      device: 'cam-1',
+      ts: 1000,
+      mac: 'aa:bb:cc:dd:ee:01',
+      bssid: 'aa:bb:cc:dd:ee:f0',
+      ssid: 'home',
+      op: 'assoc',
+    });
+    engine.feed({
+      type: 'wifi',
+      device: 'cam-1',
+      ts: 6000,
+      mac: 'aa:bb:cc:dd:ee:01',
+      bssid: 'aa:bb:cc:dd:ee:f9',
+      ssid: 'home',
+      op: 'assoc',
+    });
+  },
+  'upnp-callstranger'(engine) {
+    engine.feed({
+      type: 'app',
+      device: 'cam-1',
+      ts: 1000,
+      proto: 'upnp',
+      role: 'server',
+      peerIp: '10.0.0.50',
+      op: 'SUBSCRIBE',
+      target: 'http://1.2.3.4/callback',
+    });
+  },
+  'matter-new-controller'(engine) {
+    engine.feed({
+      type: 'app',
+      device: 'cam-1',
+      ts: 1000,
+      proto: 'matter',
+      role: 'server',
+      peerIp: '10.0.0.2',
+      op: 'AddNOC',
+    });
+    engine.feed({
+      type: 'app',
+      device: 'cam-1',
+      ts: 6000,
+      proto: 'matter',
+      role: 'server',
+      peerIp: '10.0.0.9',
+      op: 'AddNOC',
+    });
+  },
   'graph-role-change'(engine) {
     engine.feed({
       type: 'dhcp',
@@ -522,6 +682,9 @@ function optionsFor(id) {
     ];
   }
   if (id === 'graph-role-change') options.identity = 'auto';
+  if (id === 'evil-twin' || id === 'matter-new-controller' || id === 'dhcpv6-rogue') {
+    options.learnMs = 5000;
+  }
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }

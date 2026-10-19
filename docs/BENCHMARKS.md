@@ -313,3 +313,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. The hourly ring is on for that
 | 200 devices, 7 days, then `lock()` |         6.54 µs | 85.51 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. The graph is on because the graph detectors are enabled. Campaigns stay off. Caps were not changed.
+
+## WP-21 — remaining shadow detectors, 2026-10-19
+
+`node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         7.17 µs | 12.04 KB/device |
+| 200 devices, 7 days, then `lock()` |        10.13 µs | 87.35 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. The new detectors are enabled and shadow. Caps were not changed.

@@ -34,6 +34,8 @@ const EVENT_TYPES = [
   'discovery',
   'mapping',
   'app',
+  'nd',
+  'wifi',
 ];
 const EVENT_TYPE_SET = new Set(EVENT_TYPES);
 const SEVERITY_NAMES = new Set(Object.keys(SEVERITY));
