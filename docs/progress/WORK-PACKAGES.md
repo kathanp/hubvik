@@ -575,3 +575,13 @@ Check 207/207, duration 161657 ms. Coverage lines 97.97%, branches 86.39%, funct
 `npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100.
 
 A6.1 baseline promotion was not in the code. It is now, default off. A family seen on 3 UTC days and 10 times is promoted and warned `BASELINE_PROMOTED`. A high anomaly in that period blocks it. Twenty labels round-trip through `exportLabels()`, and `eval/run.mjs --labels` on the synthetic corpus prints precision with a Wilson interval. `NOISY_DETECTOR` fires once when the false-positive rate is over 50% on at least 10 labels in 7 days.
+
+## WP-18 gate
+
+Date: 2026-10-18. `npm run gate` exited 0, then `npm run demo`. The first gate failed types because `proxyShape` lost its parameter comment. That comment was restored and the gate was run again.
+
+Check 213/213, duration 291129 ms. Coverage lines 97.99%, branches 86.49%, functions 97.90%. Pack-check: core 167 files, 462608 bytes unpacked. `spec-coverage`: 137 rows, 112 detector files, core 0.5.0, `explains: 42 of 112 detectors`, ok. Fuzz: feed 100,000 inputs, 33,401 rejected; baseline 100,000 rejected; checkpoint 100,000 rejected; baseline mutation 54,402 accepted, 45,598 rejected; checkpoint mutation 51,835 accepted, 48,165 rejected; stats `fromJSON` 100,000 rejected. Bench median 6.42 µs, estimate 4.29 KB/device, retained 11.98 KB/device, 1,000 devices. Rich bench median 7.92 µs, retained 68.67 KB/device, 200 devices, 6,948,925 events. `test/diff/` passed inside that check.
+
+`npm run demo` printed went-silent, new-destination, new-domain-family, wrong-time, fan-out, volume-spike, volume-spike-hourly, and incident stages c2, recon, impact, score 100.
+
+`ramp`, `late-family-burst`, and `beacon-born-in-learning` each fire once and set `learningQuality.ready` to false. Both benign matrices, with `discovery: true` and `ipv6: true`, emitted none of those reasons.

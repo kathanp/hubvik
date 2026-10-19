@@ -215,6 +215,10 @@ engine.feed({
 
 The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`. A newly registered name uses `type: 'young-domain'`.
 
+## Learning-poison warnings
+
+During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, `late-family-burst`, or `beacon-born-in-learning`. `ramp` compares mean bytes per active window in the last third of `learnMs` with the first third, and needs 100 active windows in each. `late-family-burst` fires when more than half of the learned families were first seen in the last 10% of `learnMs`. The first-seen map stops at `maxDestinations`. `beacon-born-in-learning` applies the `new-beacon` periodicity test to a destination whose first flow is after half of `learnMs`. It keeps 16 such destinations. Any of the three leaves `learningQuality.ready` false.
+
 ## Feedback and promotion
 
 `feedback(anomalyId or fingerprint, verdict, { operator, note })` appends one record. Verdicts are `tp`, `fp`, `benign-true`, and `unknown`. The ring holds 10,000 and is restored from `checkpoint().feedback`. `exportLabels()` is JSONL. `stats().precision[detector]` counts labels whose timestamp is inside the last 7 days of the watermark. `fpRate` is `fp / n`. `NOISY_DETECTOR` warns once when `fpRate > 0.5` and `n >= 10`.

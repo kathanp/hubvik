@@ -258,3 +258,14 @@ Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
 | 200 devices, 7 days, then `lock()` |         9.63 µs | 68.34 KB/device |
 
 Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
+
+## WP-18 — learning-poison guards, 2026-10-18
+
+The three new warnings count during learning and do not add a per-destination table on the 7-day line (`learnMs` is far longer than the run, so the last third and the midpoint are never reached). `node --expose-gc bench/run.js` printed:
+
+| Line                               | median `feed()` |        retained |
+| ---------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries       |         6.42 µs | 11.98 KB/device |
+| 200 devices, 7 days, then `lock()` |         7.92 µs | 68.67 KB/device |
+
+Events in the 7-day run: 6,948,925. Under 100 KB. Caps were not changed.
