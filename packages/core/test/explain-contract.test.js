@@ -103,6 +103,56 @@ const ATTACKS = {
     engine.feed(flow({ ts: 0, dstIp: '1.2.3.4' }));
     engine.feed(flow({ ts: 1000, dstIp: '1.2.3.5' }));
   },
+  'policy-violation'(engine) {
+    engine.feed(flow({ ts: 0, dstPort: 23 }));
+  },
+  'threat-intel-match'(engine) {
+    engine.loadIndicators([
+      { value: 'evil.example', type: 'domain', source: 'lab', confidence: 0.7 },
+    ]);
+    engine.feed({ device: 'd', dst: 'a.evil.example', bytes: 1, ts: 100 });
+  },
+  'adb-exposure'(engine) {
+    engine.feed(
+      flow({ ts: 1000, direction: 'lan', srcIp: '10.0.0.9', dstIp: '10.0.0.8', dstPort: 5555 }),
+    );
+  },
+  'inbound-from-wan'(engine) {
+    engine.feed(
+      flow({ ts: 0, direction: 'in', srcIp: '1.2.3.50', dstPort: 23, dstIp: '10.0.0.8' }),
+    );
+  },
+  'icmp-redirect'(engine) {
+    engine.feed(
+      flow({ ts: 1900, proto: 'icmp', icmpType: 5, srcIp: '10.0.0.50', direction: 'lan' }),
+    );
+  },
+  'tor-or-proxy'(engine) {
+    engine.loadIndicators([{ value: '203.0.113.50', type: 'tor', source: 'lab' }]);
+    engine.feed(flow({ ts: 1100, dstIp: '203.0.113.50' }));
+  },
+  cryptomining(engine) {
+    engine.feed({
+      type: 'app',
+      device: 'd',
+      ts: 1100,
+      proto: 'stratum',
+      role: 'client',
+      peerIp: '198.51.100.41',
+      op: 'mining.subscribe',
+    });
+  },
+  'blockchain-c2'(engine) {
+    engine.feed({
+      type: 'dns',
+      device: 'd',
+      ts: 2000,
+      qname: 'eth.llamarpc.com',
+      qtype: 'A',
+      rcode: 'NOERROR',
+      resolver: '10.0.0.1',
+    });
+  },
 };
 
 /**
@@ -116,6 +166,9 @@ function optionsFor(id) {
   if (id === 'alert-storm') options.detectors = { 'alert-storm': { maxPerMinute: 1 } };
   if (id === 'new-device' || id === 'spam-relay') options.learnMs = 1000;
   if (id === 'clock-jump') options.learnMs = 86400000;
+  if (id === 'policy-violation') {
+    options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
+  }
   return options;
 }
 
