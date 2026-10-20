@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	duration	orig_bytes	resp_bytes	orig_pkts	resp_pkts
+#types	time	string	addr	port	addr	port	enum	interval	count	count	count	count
+1000.000	C1	10.0.0.20	41000	10.0.0.1	1883	tcp	0.2	80	40	1	1

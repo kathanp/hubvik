@@ -1,0 +1,31 @@
+{
+  "name": "@iotwarden/adapter-openwrt",
+  "version": "0.1.0",
+  "description": "Parse OpenWrt logread lines into dhcp, nd, and wifi events. UNVERIFIED.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "openwrt"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  }
+}

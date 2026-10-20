@@ -1,0 +1,4 @@
+{
+  "horizontal-scan": [{ "action": "block-destination", "minConfidence": 0.5 }],
+  "new-destination": [{ "action": "review", "minConfidence": 0 }]
+}

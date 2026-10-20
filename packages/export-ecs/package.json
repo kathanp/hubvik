@@ -1,0 +1,31 @@
+{
+  "name": "@iotwarden/export-ecs",
+  "version": "0.1.0",
+  "description": "Elastic Common Schema documents for iotwarden records.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "ecs"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  }
+}

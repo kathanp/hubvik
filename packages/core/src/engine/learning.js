@@ -318,7 +318,8 @@ const learningMethods = {
       windowsActive,
       families,
       suspicious,
-      ready: suspicious.length === 0 && windowsActive >= this.opts.minLearnWindows,
+      ready:
+        suspicious.length === 0 && windowsActive >= this.opts.minLearnWindows && !device.shedLearn,
     };
   },
 

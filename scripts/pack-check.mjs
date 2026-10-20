@@ -130,6 +130,12 @@ function checkWorkspace(workspace) {
       if (text.includes(word)) fail(`${rel} ${filePath} contains ${word}`);
     }
     if (TOKEN.test(text)) fail(`${rel} ${filePath} matches a token pattern`);
+    if (
+      rel === 'packages/respond-nftables' &&
+      /require\((['"])(?:node:)?(?:child_process|worker_threads)\1\)/.test(text)
+    ) {
+      fail(`${rel} ${filePath} must not require child_process or worker_threads`);
+    }
   }
 
   if (process.exitCode) return;

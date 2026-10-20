@@ -1,6 +1,6 @@
 'use strict';
 
-const { createEngine } = require('../packages/core/src/index.js');
+const { createEngine, createShardedEngine } = require('../packages/core/src/index.js');
 
 const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
 const DEVICES = 1_000;
@@ -48,6 +48,35 @@ const estimateKb = stats.devices > 0 ? stats.memoryBytes / stats.devices / 1024 
 const heapKb = stats.devices > 0 ? heapBytes / stats.devices / 1024 : 0;
 console.log(
   `bench median ${median.toFixed(2)} µs, estimate ${estimateKb.toFixed(2)} KB/device, retained ${heapKb.toFixed(2)} KB/device, devices ${stats.devices}`,
+);
+const sharded = createShardedEngine({
+  learnMs: LEARN_MS,
+  tiers: TIERS,
+  shards: 4,
+  inline: true,
+});
+for (let i = 0; i < DEVICES; i++) {
+  sharded.feed({ device: `d${i}`, dst: 'learn.example', bytes: 100, ts: 0 });
+  sharded.feed({ device: `d${i}`, dst: 'learn.example', bytes: 100, ts: LEARN_MS });
+}
+sharded.lock();
+/** @type {number[]} */
+const shardSamples = [];
+for (let i = 0; i < SAMPLES; i++) {
+  const ts = LEARN_MS + 1_000 + i;
+  const start = process.hrtime.bigint();
+  sharded.feed({
+    device: `d${i % DEVICES}`,
+    dst: 'bench.example',
+    bytes: 100,
+    ts,
+  });
+  shardSamples.push(Number(process.hrtime.bigint() - start) / 1_000);
+}
+shardSamples.sort((a, b) => a - b);
+const shardMedian = shardSamples[Math.floor(shardSamples.length / 2)];
+console.log(
+  `bench 4-shard median ${shardMedian.toFixed(2)} µs versus single ${median.toFixed(2)} µs`,
 );
 if (median >= 10 || heapKb >= 100) {
   console.error('bench: over the x86 budget');

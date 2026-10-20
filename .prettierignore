@@ -11,3 +11,5 @@ eval/fixtures/golden.md
 eval/fixtures/golden.proposals.md
 eval/results/evasion.md
 test/diff/golden.json
+api/*.api.json
+packages/cli/test/kimwolf.snapshot.html

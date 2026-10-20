@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/export-syslog",
+  "exports": [
+    "format"
+  ],
+  "methods": {
+    "format": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const format: unknown;\n"
+}

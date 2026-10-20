@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/export-ecs",
+  "exports": [
+    "toDocument"
+  ],
+  "methods": {
+    "toDocument": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const toDocument: unknown;\n"
+}

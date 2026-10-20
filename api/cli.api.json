@@ -1,0 +1,20 @@
+{
+  "name": "@iotwarden/cli",
+  "exports": [
+    "checkRule",
+    "diffBaseline",
+    "doctor",
+    "replay",
+    "reportHtml",
+    "verifyBaseline"
+  ],
+  "methods": {
+    "checkRule": [],
+    "diffBaseline": [],
+    "doctor": [],
+    "replay": [],
+    "reportHtml": [],
+    "verifyBaseline": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const checkRule: unknown;\nexport const replay: unknown;\nexport const doctor: unknown;\nexport const reportHtml: unknown;\nexport const diffBaseline: unknown;\nexport const verifyBaseline: unknown;\n"
+}

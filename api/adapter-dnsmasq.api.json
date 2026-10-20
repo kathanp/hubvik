@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/adapter-dnsmasq",
+  "exports": [
+    "createParser"
+  ],
+  "methods": {
+    "createParser": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const createParser: unknown;\n"
+}

@@ -431,6 +431,7 @@ module.exports = {
       else if (/** @type {Record<string, string[]>} */ (ATTACK)[det.id]) {
         anomaly.attack = /** @type {Record<string, string[]>} */ (ATTACK)[det.id].slice();
       }
+      this._decorateAnomaly(anomaly, det, item);
       if (shadow) {
         this.shadowSeq += 1;
         anomaly.id = `s${this.shadowSeq}`;
@@ -541,20 +542,22 @@ module.exports = {
    * @param {string} code
    * @param {string} message
    * @param {string} [device]
-   * @param {{ reason?: string, ts?: number, detector?: string, value?: string }} [extra]
+   * @param {{ reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number }} [extra]
    */
   _warn(code, message, device, extra) {
     this.warningCount += 1;
     if (this._emittingWarning) return;
     this._emittingWarning = true;
     try {
-      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number, detector?: string, value?: string }} */
+      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number }} */
       const warning = { code, message };
       if (device) warning.device = device;
       if (extra && extra.reason) warning.reason = extra.reason;
       if (extra && typeof extra.ts === 'number') warning.ts = extra.ts;
       if (extra && extra.detector) warning.detector = extra.detector;
       if (extra && extra.value != null) warning.value = extra.value;
+      if (extra && extra.shed) warning.shed = extra.shed;
+      if (extra && extra.perEventUs != null) warning.perEventUs = extra.perEventUs;
       this.emit('warning', warning);
     } finally {
       this._emittingWarning = false;

@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/respond-nftables",
+  "exports": [
+    "render"
+  ],
+  "methods": {
+    "render": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const render: unknown;\n"
+}

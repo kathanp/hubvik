@@ -20,6 +20,7 @@ const feedMethods = require('./feed');
 const emitMethods = require('./emit');
 const persistMethods = require('./persist');
 const { learningMethods } = require('./learning');
+const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = require('./finish09');
 
 class Engine extends EventEmitter {
   /**
@@ -55,6 +56,8 @@ class Engine extends EventEmitter {
     this.inputGapAt = null;
     /** @type {Set<string>} */
     this.capAlerts = new Set();
+    /** @type {string[]} */
+    this._removedSince = [];
     this.indicatorIndex = buildIndex([]);
     this.scratch = new Map();
     /** @type {Map<string, string>} Canonical copy of a repeated destination name. */
@@ -257,6 +260,8 @@ class Engine extends EventEmitter {
    */
   forget(deviceId) {
     this.devices.delete(deviceId);
+    if (!this._removedSince) this._removedSince = [];
+    this._removedSince.push(deviceId);
   }
 
   /**
@@ -366,28 +371,33 @@ class Engine extends EventEmitter {
     /** @type {Record<string, { liveOnly: number, canaryOnly: number, both: number }>} */
     const canary = Object.create(null);
     for (const [id, row] of Object.entries(this._canary)) canary[id] = { ...row };
-    return buildStats({
-      events: this.eventsIn,
-      anomalies: this.anomalyCount,
-      warnings: this.warningCount,
-      devices: [...this.devices.values()].filter((device) => device.seen).length,
-      indicators: this.indicators.length,
-      detectors: this.detectorStatus,
-      memoryBytes,
-      watermark: this.watermark,
-      learningQuality: /** @type {any} */ (this)._learningQuality(),
-      allows: this.allowCount,
-      suppresses: this.suppressCount,
-      acks: this.acks.size,
-      shadow,
-      canary,
-      identity: {
-        rows: this.scratch.get('identity') instanceof Map ? this.scratch.get('identity').size : 0,
-        rekeyed: this._rekeyed || 0,
-        unresolved: this._unresolved || 0,
-      },
-      precision: precisionOf(this),
-    });
+    const snap = /** @type {any} */ (
+      buildStats({
+        events: this.eventsIn,
+        anomalies: this.anomalyCount,
+        warnings: this.warningCount,
+        devices: [...this.devices.values()].filter((device) => device.seen).length,
+        indicators: this.indicators.length,
+        detectors: this.detectorStatus,
+        memoryBytes,
+        watermark: this.watermark,
+        learningQuality: /** @type {any} */ (this)._learningQuality(),
+        allows: this.allowCount,
+        suppresses: this.suppressCount,
+        acks: this.acks.size,
+        shadow,
+        canary,
+        identity: {
+          rows: this.scratch.get('identity') instanceof Map ? this.scratch.get('identity').size : 0,
+          rekeyed: this._rekeyed || 0,
+          unresolved: this._unresolved || 0,
+        },
+        precision: precisionOf(this),
+      })
+    );
+    if (this.opts.budget) snap.shed = /** @type {any} */ (this)._shedIds();
+    if (this.opts.classSuggest) snap.classSuggestions = classSuggestions(this);
+    return snap;
   }
 
   /**
@@ -450,11 +460,22 @@ class Engine extends EventEmitter {
       deviceId: device.id,
       /** @param {number} value */
       hour(value) {
+        if (device.timeZone) return zonedClock(value, device.timeZone).hour;
         return engine.opts.hourOf(value);
       },
       /** @param {number} value */
       day(value) {
+        if (device.timeZone) return zonedClock(value, device.timeZone).day;
         return engine.opts.dayOf(value);
+      },
+      peerSummaries() {
+        return engine._peerSummaries || [];
+      },
+      mud() {
+        return device.mud || null;
+      },
+      summaryKey() {
+        return engine._summaryKey || null;
       },
       options: null,
       window: null,
@@ -601,6 +622,14 @@ function createEngine(opts) {
   return new Engine(opts);
 }
 
+/**
+ * In-process shards. Worker threads wait for a Raspberry Pi 4 bench.
+ * @param {object} [opts]
+ */
+function createShardedEngine(opts) {
+  return sharded(createEngine, opts);
+}
+
 Object.assign(
   Engine.prototype,
   stateMethods,
@@ -609,6 +638,27 @@ Object.assign(
   learningMethods,
   emitMethods,
   persistMethods,
+  finishMethods,
 );
 
-module.exports = { createEngine, Engine };
+/**
+ * @param {any} engine
+ */
+function classSuggestions(engine) {
+  /** @type {Record<string, { class: string, score: number, reasons: string[] }[]>} */
+  const out = Object.create(null);
+  for (const device of engine.devices.values()) {
+    if (!device.classScores) continue;
+    const rows = Object.keys(device.classScores)
+      .map((classId) => ({
+        class: classId,
+        score: device.classScores[classId],
+        reasons: (device.classReasons && device.classReasons[classId]) || [],
+      }))
+      .sort((a, b) => b.score - a.score || (a.class < b.class ? -1 : 1));
+    if (rows.length > 0) out[device.id] = rows;
+  }
+  return out;
+}
+
+module.exports = { createEngine, createShardedEngine, Engine };

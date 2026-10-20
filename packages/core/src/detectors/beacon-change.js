@@ -38,9 +38,10 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
+    if (!Array.isArray(state.learned)) throw new Error('beacon-change learned must be an array');
+    if (state.learned.length > 5000) throw new Error('array beacon-change.learned exceeds cap');
     dev.learned = new Map();
     dev.tracks = new Map();
-    if (!Array.isArray(state.learned) || state.learned.length > 5000) return;
     for (const pair of state.learned) {
       if (Array.isArray(pair) && pair.length === 2) dev.learned.set(String(pair[0]), pair[1]);
     }

@@ -20,5 +20,13 @@
     "iotwarden",
     "conntrack",
     "netfilter"
-  ]
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  }
 }

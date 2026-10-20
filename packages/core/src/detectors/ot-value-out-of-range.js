@@ -55,9 +55,12 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
+    if (!Array.isArray(state.ranges))
+      throw new Error('ot-value-out-of-range ranges must be an array');
+    if (state.ranges.length > 5000)
+      throw new Error('array ot-value-out-of-range.ranges exceeds cap');
     dev.ranges = new Map();
     dev.fired = new Set();
-    if (!Array.isArray(state.ranges) || state.ranges.length > 5000) return;
     for (const pair of state.ranges) {
       if (Array.isArray(pair) && pair[1] && typeof pair[1].n === 'number') {
         dev.ranges.set(String(pair[0]), pair[1]);

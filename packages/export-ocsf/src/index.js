@@ -15,7 +15,11 @@ const SEVERITY = {
  */
 function toFinding(record, opts = {}) {
   const version = opts && opts.ocsfVersion ? String(opts.ocsfVersion) : '1.4.0';
-  const update = Boolean(record && Array.isArray(record.anomalyIds));
+  const update = Boolean(
+    record &&
+    (Array.isArray(record.anomalyIds) ||
+      (Array.isArray(record.devices) && Array.isArray(record.edges))),
+  );
   const severity = record && SEVERITY[record.severity] ? record.severity : 'info';
   const ts = record && typeof record.ts === 'number' ? record.ts : 0;
   const attacks = Array.isArray(record && record.attack) ? record.attack.map(String) : [];
@@ -49,7 +53,12 @@ function toFinding(record, opts = {}) {
     finding_info: {
       uid,
       title: record && record.detector ? String(record.detector) : '',
-      desc: record && record.expected ? String(record.expected) : '',
+      desc:
+        record && typeof record.explain === 'string'
+          ? record.explain
+          : record && record.expected
+            ? String(record.expected)
+            : '',
       attacks: attacks.map((technique) => ({ technique: { uid: technique } })),
     },
     device: { uid: record && record.device ? String(record.device) : '' },

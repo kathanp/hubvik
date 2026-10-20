@@ -17,6 +17,9 @@ const STEPS = [
   ['coverage', 'npm', ['run', 'coverage']],
   ['pack:check', 'npm', ['run', 'pack:check']],
   ['spec-coverage', process.execPath, ['scripts/spec-coverage.mjs']],
+  ['detector-lint', process.execPath, ['scripts/detector-lint.mjs']],
+  ['publint-lite', process.execPath, ['scripts/publint-lite.mjs']],
+  ['api-snapshot', process.execPath, ['scripts/api-snapshot.mjs']],
   ['fuzz', 'npm', ['run', 'fuzz']],
   ['bench', process.execPath, ['--expose-gc', 'bench/run.js']],
 ];

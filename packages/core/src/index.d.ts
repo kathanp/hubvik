@@ -297,6 +297,24 @@ export interface EngineOptions {
   shadow?: boolean | string[];
   linkMs?: number;
   ownBssids?: string[];
+  budget?:
+    | false
+    | {
+        perEventUs?: number;
+        sampleEvery?: number;
+        recoverWindows?: number;
+        clock?: () => bigint;
+      };
+  calibratedConfidence?: boolean;
+  classSuggest?: boolean;
+  responseHints?: boolean;
+  redact?:
+    | {
+        key: string | Buffer;
+        fields?: string[];
+        redactMap?: (token: string, value: string) => void;
+      }
+    | false;
 }
 
 export interface Baseline {
@@ -403,6 +421,12 @@ export class Engine extends EventEmitter {
   importBaseline(baseline: object, opts?: { merge?: boolean; verify?: string | Buffer }): void;
   checkpoint(opts?: { devices?: string[]; createdAt?: number; sign?: string | Buffer }): object;
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
+  checkpointDelta(sinceSeq: number, opts?: { sign?: string | Buffer }): object;
+  applyDelta(delta: object, opts?: { sign?: string | Buffer }): void;
+  setDeviceTimezone(device: string, ianaZone: string): void;
+  loadMud(device: string, acl: { allows: object[] } | null): void;
+  exportSummary(opts: { key: string | Buffer; gatewayId: string }): object;
+  importPeerSummaries(list: object[], opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
   resolve(ip: string): string | null;
   feedback(
@@ -449,4 +473,5 @@ export class Engine extends EventEmitter {
 }
 
 export function createEngine(opts?: EngineOptions): Engine;
+export function createShardedEngine(opts: EngineOptions & { shards: number; inline: true }): Engine;
 export const detectors: Record<string, Detector>;

@@ -21,10 +21,14 @@ module.exports = {
    * @returns {void}
    */
   feed(raw) {
+    this.stateSeq = (this.stateSeq || 0) + 1;
+    const budget = this.opts.budget;
+    const started = budget ? budget.clock() : null;
     this._notePromotions();
     const event = this._prepare(raw);
     if (this._reorder) this._acceptReorder(event);
     else this._apply(event);
+    if (budget) this._budgetAccount(budget.clock() - started);
   },
 
   /**
@@ -97,6 +101,8 @@ module.exports = {
       } else this._enterWatch(device, event.ts);
     }
     this._run(device, event);
+    if (this.opts.classSuggest) this._noteClass(device, event);
+    device.dirtySeq = this.stateSeq || 0;
     this._tierNeverSeen(event.ts);
   },
 
@@ -235,6 +241,12 @@ module.exports = {
     ctx.window = device.open;
     const list = this.byType[event.type] || [];
     for (const det of list) {
+      if (this._sheds(det)) {
+        if (learning && !this._shedLearn && !det.hardRule && typeof det.learn === 'function') {
+          det.learn(/** @type {any} */ (this)._state(device, det), event, ctx);
+        } else if (learning && this._shedLearn) device.shedLearn = true;
+        continue;
+      }
       const state = /** @type {any} */ (this)._state(device, det);
       ctx.options = /** @type {any} */ (this)._optionsFor(det);
       if (learning && !det.hardRule) {

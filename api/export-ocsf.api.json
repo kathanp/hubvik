@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/export-ocsf",
+  "exports": [
+    "toFinding"
+  ],
+  "methods": {
+    "toFinding": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const toFinding: unknown;\n"
+}

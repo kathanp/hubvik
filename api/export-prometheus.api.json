@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/export-prometheus",
+  "exports": [
+    "toText"
+  ],
+  "methods": {
+    "toText": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const toText: unknown;\n"
+}

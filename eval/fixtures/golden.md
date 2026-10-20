@@ -20,6 +20,10 @@ False positives: 0 anomalies at medium or above, 3 benign device-days, 0 per ben
 
 Benign intervals with a false positive: n too small (0 detected, 5 benign intervals)
 
+calibratedConfidence detection: 20/25 = 80.0% (95% Wilson 60.9%–91.1%)
+
+calibratedConfidence false positives: 0 anomalies at medium or above, 3 benign device-days, 0 per benign device-day.
+
 ## By type
 
 - HorizontalScan: n too small (7 detected, 7 attack instances); strict 7/7 = 100.0% (95% Wilson 64.6%–100.0%)

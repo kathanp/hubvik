@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { loadIot23 } = require('./iot23.js');
 const { loadCiciot2023 } = require('./ciciot2023.js');
+const { loadIeeeDataport } = require('./ieee-dataport.js');
+const { loadCiciomt2024 } = require('./ciciomt2024.js');
 const {
   evaluate,
   renderMarkdown,
@@ -71,6 +73,9 @@ function loadDataset(dataset, zeekLogs) {
   if (dataset === 'iot23') return { rows: loadIot23(zeekLogs), tiers: ['T1'] };
   if (dataset === 'ciciot2023')
     return { rows: loadCiciot2023(zeekLogs), tiers: ['T1', 'T2', 'T3'] };
+  if (dataset === 'ieee-dataport') return { rows: loadIeeeDataport(zeekLogs), tiers: ['T1', 'T4'] };
+  if (dataset === 'ciciomt2024')
+    return { rows: loadCiciomt2024(zeekLogs), tiers: ['T1', 'T2', 'T5'] };
   throw new TypeError(`no joiner for dataset ${dataset}`);
 }
 

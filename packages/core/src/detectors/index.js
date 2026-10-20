@@ -128,6 +128,17 @@ const ALL = [
   require('./evil-twin'),
   require('./upnp-callstranger'),
   require('./matter-new-controller'),
+  require('./day-of-week-drift'),
+  require('./sni-ip-mismatch'),
+  require('./mac-randomization-churn'),
+  require('./discovery-spoof'),
+  require('./mud-violation'),
+  require('./fleet-baseline-poisoning'),
+  require('./ot-schedule-drift'),
+  require('./reverse-shell-shape'),
+  require('./llmnr-nbns-poison'),
+  require('./dns-answer-mismatch'),
+  require('./peer-divergence-federated'),
 ];
 
 /** @type {Record<string, any>} */

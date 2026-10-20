@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p
+#types	time	string	addr	port	addr	port
+3000.000	M2	10.0.0.21	42000	10.0.0.1	1883

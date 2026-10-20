@@ -171,7 +171,9 @@ test('the synthetic corpus matches the committed golden report', () => {
     console.log = original;
   }
   assert.deepStrictEqual(stdout, summaryLines(result));
-  assert.strictEqual(stdout.length, 5);
+  assert.strictEqual(stdout.length, 7);
+  assert.match(stdout[5], /^calibratedConfidence detection: /);
+  assert.match(stdout[6], /^calibratedConfidence FP\/device-day: /);
   assert.strictEqual(fs.readFileSync(path.join(dir, 'iot23.md'), 'utf8'), goldenMd);
   assert.strictEqual(
     fs.readFileSync(path.join(dir, 'iot23.proposals.md'), 'utf8'),

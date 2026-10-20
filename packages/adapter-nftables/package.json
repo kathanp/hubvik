@@ -1,0 +1,31 @@
+{
+  "name": "@iotwarden/adapter-nftables",
+  "version": "0.1.0",
+  "description": "Parse nftables JSON counters into iotwarden flow summaries. UNVERIFIED.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "iotwarden",
+    "nftables"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  }
+}

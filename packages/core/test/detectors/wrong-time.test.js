@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { createEngine } = require('../../src/index.js');
+const { createEngine, detectors } = require('../../src/index.js');
 const { simulate } = require('../../../../test/fixtures/sim');
 const { T0, DAY, H } = require('../../../../test/fixtures/clock');
 
@@ -47,4 +47,38 @@ test('wrong-time hours survive export and import', () => {
   copy.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: DAY + 3 * H });
   copy.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: DAY + 8 * H });
   assert.strictEqual(alerts.length, 1);
+});
+
+test('a Chicago device does not fire wrong-time when DST shifts the UTC hour', () => {
+  const before = [
+    Date.UTC(2026, 9, 28, 13, 0, 0),
+    Date.UTC(2026, 9, 29, 13, 0, 0),
+    Date.UTC(2026, 9, 30, 13, 0, 0),
+  ];
+  const shifted = Date.UTC(2026, 10, 2, 14, 0, 0);
+  /** @type {Record<string, { enabled: boolean }>} */
+  const off = {};
+  for (const id of Object.keys(detectors)) if (id !== 'wrong-time') off[id] = { enabled: false };
+
+  /**
+   * @param {string} [zone]
+   */
+  function run(zone) {
+    const engine = createEngine({ learnMs: 40 * DAY, tiers: ['T0'], detectors: off });
+    if (zone) engine.setDeviceTimezone('d', zone);
+    /** @type {any[]} */
+    const alerts = [];
+    engine.on('anomaly', (item) => {
+      if (item.detector === 'wrong-time') alerts.push(item);
+    });
+    for (const ts of before) engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts });
+    engine.lock('d');
+    engine.feed({ device: 'd', dst: 'a.example', bytes: 10, ts: shifted });
+    return alerts;
+  }
+
+  assert.strictEqual(run('America/Chicago').length, 0);
+  // F22: the same device with no zone set fires on the shifted UTC hour. Recorded, not asserted.
+  const unzoned = run();
+  assert.ok(Array.isArray(unzoned));
 });

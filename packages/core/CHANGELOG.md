@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+Local only. Not a version bump and not a 0.9 gate. The Raspberry Pi 4 bench and the real-traffic 0.6 gate are still open.
+
+Default-off engine options: `budget`, `calibratedConfidence`, `classSuggest`, `responseHints`, `redact`. `setDeviceTimezone`, `loadMud`, `checkpointDelta`, `applyDelta`, `exportSummary`, `importPeerSummaries`, and inline-only `createShardedEngine`. Worker shards throw until a person measures a Raspberry Pi 4.
+
+Shadow detectors, Rel 0.9: `day-of-week-drift`, `sni-ip-mismatch`, `mac-randomization-churn`, `discovery-spoof`, `mud-violation`, `fleet-baseline-poisoning`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`, `peer-divergence-federated`. They do not run unless `shadow` selects them. `peer-divergence-federated` counts each imported summary as one peer and also counts local peers in the same group. `importPeerSummaries` rejects forbidden keys and a non-array `groups` field before it replaces the previous summaries. With `calibratedConfidence`, a detector that does not return `margin` keeps the constant in `src/data/confidence.json`. Class suggestion scores a smart TV only after a browser JA4 and more than 30 families in a day, and a thermostat only for MQTT publish under 50 KB in that hour.
+
+New packages, each 0.1.0 and UNVERIFIED where the parser was written from documentation: `@iotwarden/adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables`, and `cli`. `respond-nftables` returns rule text and does not execute it. `export-ocsf` maps a campaign like an incident update and copies `explain` into `finding_info.desc`.
+
 ## 0.8.0
 
 Local release, not published. The 0.8 gate measured 67.86 KB retained per device on the 200-device 7-day bench with default options (rich median `feed()` 7.46 µs, 6,948,925 events). With `shadow: true` the same bench retained 74.39 KB per device (median 9.92 µs). The 1,000-device watching median was 6.92 µs, retained 11.99 KB per device. The alignment re-gate measured defaults at 9.33 µs and 68.13 KB, `shadow: true` at 10.38 µs and 74.52 KB, and a 1,000-device median of 7.29 µs. The shadow median is over 10 µs and is not a gate. Check 295/295. Coverage lines 97.70%, branches 86.04%, functions 97.83%. Fuzz stayed clean. `npm run demo` scored the same incident at 100. Still a prototype, not validated on real traffic.
