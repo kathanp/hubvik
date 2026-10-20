@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	mac	msg	device	server_ip	requested_ip
+#types	time	string	string	string	addr	addr
+1001.000	aa:bb:cc:dd:ee:01	ack	cam	192.168.0.1	10.0.0.8

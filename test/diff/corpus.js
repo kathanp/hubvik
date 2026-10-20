@@ -68,7 +68,7 @@ function capture(createEngine) {
   const out = Object.create(null);
 
   {
-    const engine = createEngine({ learnMs: 86_400_000, tiers: ['T0', 'T1'] });
+    const engine = createEngine({ shadow: true, learnMs: 86_400_000, tiers: ['T0', 'T1'] });
     const anomalies = listen(engine);
     for (let i = 1; i <= 12; i++) {
       engine.feed({
@@ -108,7 +108,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 86_400_000, tiers: ['T0', 'T1', 'T2'] });
+    const engine = createEngine({ shadow: true, learnMs: 86_400_000, tiers: ['T0', 'T1', 'T2'] });
     const anomalies = listen(engine);
     const names = [
       'www.amazon.com',
@@ -168,7 +168,11 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 7 * 24 * 3600e3, tiers: ['T0', 'T1', 'T2'] });
+    const engine = createEngine({
+      shadow: true,
+      learnMs: 7 * 24 * 3600e3,
+      tiers: ['T0', 'T1', 'T2'],
+    });
     engine.setDeviceClass('box', 'tv-box');
     const anomalies = listen(engine);
     const names = [
@@ -202,7 +206,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 86_400_000, tiers: ['T0', 'T3'] });
+    const engine = createEngine({ shadow: true, learnMs: 86_400_000, tiers: ['T0', 'T3'] });
     const anomalies = listen(engine);
     engine.feed({
       type: 'tls',
@@ -227,7 +231,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 86_400_000, tiers: ['T0', 'T5'] });
+    const engine = createEngine({ shadow: true, learnMs: 86_400_000, tiers: ['T0', 'T5'] });
     const anomalies = listen(engine);
     for (const value of [20, 21, 22]) {
       engine.feed(app(1000 + value, '10.0.0.2', 'WriteProperty', 'setpoint', value));
@@ -240,7 +244,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 86_400_000, tiers: ['T1'] });
+    const engine = createEngine({ shadow: true, learnMs: 86_400_000, tiers: ['T1'] });
     const anomalies = listen(engine);
     engine.feed({
       type: 'flow',
@@ -262,7 +266,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 0, tiers: ['T1', 'T2'] });
+    const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1', 'T2'] });
     engine.setDeviceClass('tv', 'smart-tv');
     engine.loadIndicators([
       { value: 'sdk.proxy.example', type: 'proxy-sdk', source: 'lab', confidence: 0.9 },
@@ -314,7 +318,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 60_000, tiers: TIERS });
+    const engine = createEngine({ shadow: true, learnMs: 60_000, tiers: TIERS });
     const anomalies = listen(engine);
     engine.feed(volumeBurst('cam', 0, 1_000_000));
     engine.flush(60_000);
@@ -322,7 +326,7 @@ function capture(createEngine) {
   }
 
   {
-    const engine = createEngine({ learnMs: 60_000, tiers: TIERS });
+    const engine = createEngine({ shadow: true, learnMs: 60_000, tiers: TIERS });
     const anomalies = listen(engine);
     for (const event of fanout('cam', 0, 25)) engine.feed(event);
     engine.flush(60_000);
@@ -332,7 +336,7 @@ function capture(createEngine) {
   for (const seed of [1, 2, 3]) {
     for (const profile of CLASS_NAMES) {
       const events = simulate({ profile, days: 14, seed, startTs: T0, rich: true });
-      const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS });
+      const engine = createEngine({ shadow: true, learnMs: 7 * DAY, tiers: TIERS });
       engine.setDeviceClass(events[0].device, profile);
       const anomalies = listen(engine);
       for (const event of events) engine.feed(event);

@@ -1,0 +1,8 @@
+{
+  "camera": [{ "feature": "rtsp-or-upload", "weight": 0.5 }],
+  "hvac-controller": [{ "feature": "bacnet-or-modbus-server", "weight": 0.7 }],
+  "printer": [{ "feature": "listen-631-9100-515", "weight": 0.6 }],
+  "nas": [{ "feature": "listen-445-2049-548", "weight": 0.6 }],
+  "smart-tv": [{ "feature": "browser-ja4-and-families", "weight": 0.5 }],
+  "thermostat": [{ "feature": "mqtt-publish", "weight": 0.4 }]
+}

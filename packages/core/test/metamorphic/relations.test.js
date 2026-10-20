@@ -42,7 +42,7 @@ const THRESHOLD = [
  * @param {number} [flushAt]
  */
 function play(opts, steps, flushAt) {
-  const engine = createEngine(opts);
+  const engine = createEngine({ shadow: true, ...opts });
   /** @type {any[]} */
   const anomalies = [];
   engine.on('anomaly', (item) => anomalies.push(item));
@@ -539,7 +539,7 @@ test('a checkpoint in the middle matches an uninterrupted run', () => {
     const base = views(play(item.opts, item.steps, item.flushAt).anomalies);
     const first = play(item.opts, head);
     const saved = first.engine.checkpoint({ createdAt: 1 });
-    const second = createEngine(item.opts);
+    const second = createEngine({ shadow: true, ...item.opts });
     /** @type {any[]} */
     const rest = [];
     second.on('anomaly', (row) => rest.push(row));
@@ -700,7 +700,7 @@ test('the first suppress entry removes one replay anomaly and leaves the rest', 
     });
     assert.ok(chosen, spec.name);
     const entry = first.engine.explain(chosen.id).suppressWith[0];
-    const second = createEngine(spec.opts);
+    const second = createEngine({ shadow: true, ...spec.opts });
     /** @type {any[]} */
     const anomalies = [];
     second.on('anomaly', (item) => anomalies.push(item));

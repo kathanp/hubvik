@@ -59,12 +59,14 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `iotwarden` (`packages/core`) 0.5.0
+- [x] `iotwarden` (`packages/core`) 0.8.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
+  - [x] Baseline version 3, with version 2 and version 1 import
   - [x] Incidents
   - [x] Detectors through release 0.5
-  - [ ] Baseline version 3
+  - [x] Shadow mode, canaries, explain, identity, feedback, graph, campaigns, and the rule language
+  - [x] B21 rows through WP-21, all `mode: 'shadow'`
   - [ ] Published to npm
 - [x] `@iotwarden/adapter-conntrack` 0.2.0 — `conntrack` lines to flow events
 - [x] `@iotwarden/adapter-dnsmasq` 0.2.0 — dnsmasq query lines to DNS events
@@ -75,14 +77,24 @@ These are not new features. They are places where the shipped behavior cannot do
 - [x] `@iotwarden/export-syslog` 0.1.0 — RFC 5424 and a CEF message
 - [x] `@iotwarden/export-webhook` 0.1.0 — POST with retry, backoff, and HMAC
   - [x] The caller supplies `fetch`
+- [x] `@iotwarden/adapter-unbound` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/adapter-ipfix` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/adapter-openwrt` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/adapter-nftables` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/adapter-ssdp` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/export-prometheus` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/export-ecs` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/export-mqtt` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/respond-nftables (text only)` 0.1.0 — UNVERIFIED
+- [x] `@iotwarden/cli` 0.1.0 — UNVERIFIED
 - [x] `eval/` harness
   - [x] IoT-23 joiner
   - [x] CICIoT2023 joiner
   - [x] Wilson intervals
   - [x] Ablation
   - [x] Evasion suite
-  - [ ] IEEE DataPort ARP joiner
-  - [ ] CICIoMT2024 joiner
+  - [x] IEEE DataPort ARP joiner
+  - [x] CICIoMT2024 joiner
   - [ ] 0.6 gate in C10
 
 ### Phases
@@ -137,30 +149,54 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] OCSF version option
 - [ ] 0.6
   - [x] Evaluation harness in the tree
-  - [ ] WP-9 finished (IEEE DataPort and CICIoMT2024 joiners are open)
+  - [ ] WP-9 finished (joiners are in; C6.3 gates are not met)
   - [ ] Detector dispositions from ablation decided
   - [ ] C10 gate for 0.6
+- [x] 0.7
+  - [x] WP-11 memory budget (7-day retained under 100 KB per device)
+  - [x] WP-12 shadow mode and canaries
+  - [x] WP-13 streaming statistics
+  - [x] WP-14 metamorphic suite
+  - [x] WP-15 `explain()`
+  - [x] WP-16 identity resolution
+  - [x] WP-17 feedback and labels
+  - [x] WP-18 learning-poisoning guards (`ramp`, `late-family-burst`, `beacon-born-in-learning`)
+- [x] 0.8
+  - [x] WP-19 `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`
+  - [x] WP-20 graph and campaigns
+  - [x] WP-21 remaining B21 rows
+  - [x] WP-22 rule language
+  - [x] Local tag `v0.8.0`
+  - [ ] Raspberry Pi 4 bench numbers
+- [ ] 0.9
+  - [x] WP-23 load shedding and incremental checkpoints
+  - [x] WP-24 calibrated confidence, class suggestion, time zones, redaction
+  - [x] WP-25 inline sharding, federation, `peer-divergence-federated`
+  - [x] WP-26 adapters, exporters, response hints, CLI (UNVERIFIED)
+  - [x] Former 1.x rows shipped as Rel 0.9 shadow
+  - [ ] Full `npm run gate` on the committed tree
+  - [ ] Raspberry Pi 4 bench numbers
 - [ ] 1.0
-  - [ ] MUD input
+  - [x] MUD input
   - [ ] API freeze
   - [ ] Security review
   - [ ] 0.6 gate met
   - [ ] 30-day pilot on at least one home and one building, with FP per device-day published
   - [ ] One minor release with no API change
-- [ ] Early shadow detectors (Rel 0.8, off until WP-12)
-  - [ ] `exploit-probe-http`
-  - [ ] `young-domain`
-  - [ ] `ttl-anomaly`
-- [ ] 1.x detectors
-  - [ ] `day-of-week-drift`
-  - [ ] `sni-ip-mismatch`
-  - [ ] `discovery-spoof`
-  - [ ] `fleet-baseline-poisoning`
-  - [ ] `mac-randomization-churn`
-  - [ ] `ot-schedule-drift`
-  - [ ] `reverse-shell-shape`
-  - [ ] `llmnr-nbns-poison`
-  - [ ] `dns-answer-mismatch`
+- [x] Early shadow detectors (Rel 0.8; they run only when `shadow` selects them)
+  - [x] `exploit-probe-http`
+  - [x] `young-domain`
+  - [x] `ttl-anomaly`
+- [x] 1.x detectors shipped as Rel 0.9 shadow (they run only when `shadow` selects them)
+  - [x] `day-of-week-drift`
+  - [x] `sni-ip-mismatch`
+  - [x] `discovery-spoof`
+  - [x] `fleet-baseline-poisoning`
+  - [x] `mac-randomization-churn`
+  - [x] `ot-schedule-drift`
+  - [x] `reverse-shell-shape`
+  - [x] `llmnr-nbns-poison`
+  - [x] `dns-answer-mismatch`
 
 ## 0.5 What spec 3.1 adds, and the rule that governs it (2026-10-18)
 
@@ -185,7 +221,19 @@ Under this rule, B21 rows are measurement instruments, not alert sources, and 0.
 
 **Order rule.** WP-10.1 runs first, then WP-11. WP-11 blocks every later WP. WP-12 (shadow framework) blocks every new detector.
 
-**Early shadow detectors.** `exploit-probe-http`, `young-domain` and `ttl-anomaly` were built ahead of order. They are Rel 0.8. They ship `mode: 'shadow'` and `enabled: true`.
+**Early shadow detectors.** `exploit-probe-http`, `young-domain` and `ttl-anomaly` were built ahead of order. They are Rel 0.8. They ship `mode: 'shadow'`. `defaults.enabled` stays true. Whether they run is decided by the `shadow` option below.
+
+**Engine option `shadow` (D-34).** This supersedes the enabled-by-default part of D-19. `createEngine({ shadow })` takes `false`, `true`, or an array of detector ids. The default is `false`.
+
+- `false`: no shadow detector runs, creates state, or appears in `exportBaseline()`.
+- `true`: every shadow detector runs.
+- an array: only the listed shadow detectors run.
+- `detectors[id].enabled`, when it is set, wins over `shadow`.
+- `detectors[id].mode: 'live'` promotes that one detector, so it is no longer a shadow detector and it runs.
+
+A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a default engine does not pay memory or CPU for it. The measured cost of leaving them on was 87.36 KB per device against 67.86 KB with them off (D-34). A pilot that does not opt in collects no shadow evidence, and under the shadow rule above no B21 row can move to `live` without that evidence. The all-tier benign matrix, the multicast-hygiene test, the metamorphic suite, and each shadow detector's own tests pass `shadow: true`. `test/diff` uses `shadow: true`, the setting its golden was captured with, and does not edit the golden.
+
+**Bench budgets.** These are not raised. With default options the 200-device 7-day retained memory stays under 100 KB per device, and the 1,000-device watching median stays under 10 µs. With `shadow: true` the 7-day retained memory also stays under 100 KB per device, because the pilot runs on the same hardware. That run's median is recorded and is not a gate. A new shadow detector in WP-25 or WP-27 may cost at most 2 KB per device on the 7-day sweep with `shadow: true`.
 
 ---
 
@@ -287,7 +335,7 @@ The engine runs on **event time** (`ev.ts`), never on wall-clock time, except wh
 
 Core stays zero-dependency. Parsers ship as optional packages that turn log lines into events:
 
-`@iotwarden/adapter-conntrack`, `-dnsmasq`, `-unbound`, `-zeek`, `-suricata-eve`, `-ipfix`, `-openwrt`.
+`@iotwarden/adapter-conntrack`, `-dnsmasq`, `-unbound`, `-zeek`, `-suricata-eve`, `-ipfix`, `-openwrt`, `-nftables`, `-ssdp`.
 
 ## A3. Concepts
 
@@ -381,11 +429,13 @@ interface Detector {
 
 Per-detector options: `createEngine({ detectors: { beaconing: { enabled: true, severity: 'high', minConnections: 20 } } })`.
 
-## A6. Baseline format (version 2)
+## A6. Baseline format (version 3)
+
+Version 2 and version 1 baselines still import; a version 2 file is upgraded by computing streaming stats from its stored samples (D-16).
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "createdAt": 0,
   "engine": { "windowMs": 60000, "pkg": "iotwarden@0.4.0" },
   "devices": {
@@ -507,14 +557,14 @@ Columns: **Needs** = input tier. **Rel** = release (0.1, 0.2, 0.3, 0.4, 1.0, 1.x
 
 ## B4. Timing and rhythm
 
-| ID                  | Catches                                                                   | Needs | Method                                                                                                                      | Sev    | FP risk                                                                                                                | Rel |
-| ------------------- | ------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------- | --- |
-| `wrong-time`        | Active in an hour never seen                                              | T0    | Exists. Fix day/hour clock mismatch                                                                                         | low    | Medium                                                                                                                 | 0.1 |
-| `new-beacon`        | **New** periodic communication to a non-baseline destination              | T1    | Per (device, dst) inter-arrival times: low dispersion (MAD/median), low skew, ≥ 20 connections, consistent sizes. Score 0–1 | high   | **High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline | 0.3 |
-| `beacon-change`     | A known vendor beacon changes period or size sharply                      | T1    | Compare learned period/size to current                                                                                      | medium | Medium (firmware updates)                                                                                              | 0.4 |
-| `long-connection`   | New long-lived session (reverse shell, tunnel)                            | T1    | durationMs above learned p99 to a non-baseline dst                                                                          | high   | Low                                                                                                                    | 0.3 |
-| `went-silent`       | Device stops all traffic (bricked, unplugged, wiped, blocked by attacker) | T0    | No events for `k ×` learned max gap during its active hours                                                                 | medium | Medium                                                                                                                 | 0.2 |
-| `day-of-week-drift` | Weekend/weekday pattern change                                            | T0    | Per-weekday activity profile                                                                                                | low    | Medium; needs ≥ 2 weeks learning                                                                                       | 1.x |
+| ID                  | Catches                                                                   | Needs | Method                                                                                                                                                                                           | Sev    | FP risk                                                                                                                | Rel |
+| ------------------- | ------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------------- | --- |
+| `wrong-time`        | Active in an hour never seen                                              | T0    | Exists. Fix day/hour clock mismatch                                                                                                                                                              | low    | Medium                                                                                                                 | 0.1 |
+| `new-beacon`        | **New** periodic communication to a non-baseline destination              | T1    | Per (device, dst) inter-arrival times: low dispersion (MAD/median), low skew, ≥ 20 connections, consistent sizes. Score 0–1                                                                      | high   | **High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline | 0.3 |
+| `beacon-change`     | A known vendor beacon changes period or size sharply                      | T1    | Compare learned period/size to current                                                                                                                                                           | medium | Medium (firmware updates)                                                                                              | 0.4 |
+| `long-connection`   | New long-lived session (reverse shell, tunnel)                            | T1    | durationMs above learned p99 to a non-baseline dst                                                                                                                                               | high   | Low                                                                                                                    | 0.3 |
+| `went-silent`       | Device stops all traffic (bricked, unplugged, wiped, blocked by attacker) | T0    | No events for `k ×` learned max gap during its active hours                                                                                                                                      | medium | Medium                                                                                                                 | 0.2 |
+| `day-of-week-drift` | Weekend/weekday pattern change                                            | T0    | Per-weekday activity profile. Shadow. Quiet until 14 days. Fires when the day's windows are at least max(8, 3 × the learned weekday mean), or the learned mean is at least 8 and the day is idle | low    | Medium; needs ≥ 2 weeks learning                                                                                       | 0.9 |
 
 ## B5. DNS
 
@@ -533,14 +583,14 @@ Columns: **Needs** = input tier. **Rel** = release (0.1, 0.2, 0.3, 0.4, 1.0, 1.x
 
 These read handshake metadata only. Nothing is decrypted.
 
-| ID                       | Catches                                                                                    | Needs | Method                             | Sev    | FP risk                                                  | Rel |
-| ------------------------ | ------------------------------------------------------------------------------------------ | ----- | ---------------------------------- | ------ | -------------------------------------------------------- | --- |
-| `new-client-fingerprint` | Device starts using a TLS client stack it never used (new malware process, firmware swap)  | T3    | Per-device JA4 set                 | high   | Low on single-purpose IoT, medium after firmware updates | 0.4 |
-| `cert-change`            | Known SNI now presents a cert from a different issuer, self-signed, or expired             | T3    | Learned issuer/fingerprint per SNI | high   | Low; strong MITM signal                                  | 0.4 |
-| `sni-missing`            | TLS without SNI to a non-baseline destination                                              | T3    | Flag                               | medium | Medium                                                   | 0.4 |
-| `sni-ip-mismatch`        | SNI claims a vendor name but the IP never resolved for it (domain fronting, hard-coded C2) | T2+T3 | Join                               | high   | Medium (CDNs)                                            | 1.x |
-| `tls-on-odd-port`        | TLS to a port the device never used for TLS                                                | T1+T3 | Port set per protocol              | medium | Low                                                      | 0.4 |
-| `cleartext-regression`   | Device that always used TLS starts sending HTTP/MQTT/Telnet in clear                       | T1/T3 | Learned per-dst TLS share          | high   | Low; downgrade attack or tampered firmware               | 0.4 |
+| ID                       | Catches                                                                                             | Needs | Method                                                         | Sev    | FP risk                                                  | Rel |
+| ------------------------ | --------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------- | ------ | -------------------------------------------------------- | --- |
+| `new-client-fingerprint` | Device starts using a TLS client stack it never used (new malware process, firmware swap)           | T3    | Per-device JA4 set                                             | high   | Low on single-purpose IoT, medium after firmware updates | 0.4 |
+| `cert-change`            | Known SNI now presents a cert from a different issuer, self-signed, or expired                      | T3    | Learned issuer/fingerprint per SNI                             | high   | Low; strong MITM signal                                  | 0.4 |
+| `sni-missing`            | TLS without SNI to a non-baseline destination                                                       | T3    | Flag                                                           | medium | Medium                                                   | 0.4 |
+| `sni-ip-mismatch`        | SNI claims a vendor name but the IP never resolved for it (domain fronting, hard-coded C2). Shadow. | T2+T3 | Join of recent A answers, cap 64 names and 8 addresses, 1 hour | high   | Medium (CDNs)                                            | 0.9 |
+| `tls-on-odd-port`        | TLS to a port the device never used for TLS                                                         | T1+T3 | Port set per protocol                                          | medium | Low                                                      | 0.4 |
+| `cleartext-regression`   | Device that always used TLS starts sending HTTP/MQTT/Telnet in clear                                | T1/T3 | Learned per-dst TLS share                                      | high   | Low; downgrade attack or tampered firmware               | 0.4 |
 
 **Fingerprint licensing.** JA4 (TLS client) is BSD-3-Clause. JA4S, JA4H, JA4X, JA4SSH, JA4T and JA4D carry the FoxIO License 1.1, which is aimed at academic, internal business and research use. Core accepts any JA4 string the host supplies and never computes the other JA4+ variants itself. **Before shipping a commercial product that computes JA4+ beyond JA4, get legal review.**
 
@@ -565,25 +615,25 @@ Detection is layered by what the gateway can actually see. The library does not 
 
 Needs T4. These protect the network, not just one device's traffic, so many report the **attacker MAC**, not the victim.
 
-| ID                        | Catches                                                                                    | Method                                                              | Sev      | FP risk                                           | Rel |
-| ------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- | -------- | ------------------------------------------------- | --- |
-| `new-device`              | Unknown MAC joins                                                                          | First event for unseen ID after engine has been running `> learnMs` | medium   | Low                                               | 0.2 |
-| `arp-spoof`               | IP ↔ MAC binding changes, or one MAC claims many IPs, or gateway IP claimed by another MAC | Binding table with history                                          | critical | Low (DHCP reassignments handled via lease events) | 0.3 |
-| `gratuitous-arp-flood`    | Gratuitous ARP storm                                                                       | Rate                                                                | high     | Low                                               | 0.3 |
-| `rogue-dhcp`              | DHCP OFFER/ACK from a server that is not the configured one                                | Allowed server set                                                  | critical | Very low                                          | 0.3 |
-| `dhcp-starvation`         | Many DISCOVERs from random MACs                                                            | Unique MAC rate                                                     | high     | Low                                               | 0.3 |
-| `rogue-ra`                | IPv6 Router Advertisement from an unexpected router                                        | Allowed RA sources                                                  | critical | Very low                                          | 0.3 |
-| `identity-change`         | Same MAC, different DHCP fingerprint (option 55 list, vendor class, hostname) or JA4T      | Learned host-supplied `dhcp.fingerprint` per MAC                    | high     | Low; signals MAC cloning or firmware swap         | 0.5 |
-| `mac-randomization-churn` | Many short-lived MACs with the same DHCP fingerprint                                       | Fingerprint → MAC set                                               | info     | Phones do this legitimately; report, don't alarm  | 1.x |
-| `discovery-spoof`         | mDNS/SSDP announcements claiming another device's name                                     | Name ↔ MAC table                                                    | high     | Low                                               | 1.x |
+| ID                        | Catches                                                                                    | Method                                                                   | Sev      | FP risk                                           | Rel |
+| ------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -------- | ------------------------------------------------- | --- |
+| `new-device`              | Unknown MAC joins                                                                          | First event for unseen ID after engine has been running `> learnMs`      | medium   | Low                                               | 0.2 |
+| `arp-spoof`               | IP ↔ MAC binding changes, or one MAC claims many IPs, or gateway IP claimed by another MAC | Binding table with history                                               | critical | Low (DHCP reassignments handled via lease events) | 0.3 |
+| `gratuitous-arp-flood`    | Gratuitous ARP storm                                                                       | Rate                                                                     | high     | Low                                               | 0.3 |
+| `rogue-dhcp`              | DHCP OFFER/ACK from a server that is not the configured one                                | Allowed server set                                                       | critical | Very low                                          | 0.3 |
+| `dhcp-starvation`         | Many DISCOVERs from random MACs                                                            | Unique MAC rate                                                          | high     | Low                                               | 0.3 |
+| `rogue-ra`                | IPv6 Router Advertisement from an unexpected router                                        | Allowed RA sources                                                       | critical | Very low                                          | 0.3 |
+| `identity-change`         | Same MAC, different DHCP fingerprint (option 55 list, vendor class, hostname) or JA4T      | Learned host-supplied `dhcp.fingerprint` per MAC                         | high     | Low; signals MAC cloning or firmware swap         | 0.5 |
+| `mac-randomization-churn` | Many short-lived MACs with the same DHCP fingerprint. Shadow.                              | Fingerprint → MAC set, 5 MACs in 1 hour, cap 256 fingerprints and 8 MACs | info     | Phones do this legitimately; report, don't alarm  | 0.9 |
+| `discovery-spoof`         | mDNS/SSDP announcements claiming another device's name. Shadow.                            | Name ↔ MAC table, cap 5,000. The first MAC wins                          | high     | Low                                               | 0.9 |
 
 ## B8. Policy and allowlists
 
-| ID                 | Catches                                                                    | Needs | Method                                                                                           | Sev      | Rel |
-| ------------------ | -------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------ | -------- | --- |
-| `policy-violation` | Host-declared rules broken, e.g. "camera: WAN only to *.vendor.com:443"    | any   | Declarative rule set: allow/deny by dst, domain family, port, proto, direction, hours            | per rule | 0.2 |
-| `mud-violation`    | Traffic outside the device's **Manufacturer Usage Description** (RFC 8520) | T1+T2 | Host fetches and verifies the MUD file and passes the parsed ACL; engine checks flows against it | high     | 1.0 |
-| `zone-violation`   | Device crosses a network zone boundary (IoT VLAN → main LAN)               | T1    | Host tags IP ranges as zones                                                                     | high     | 0.3 |
+| ID                 | Catches                                                                             | Needs | Method                                                                                                                                            | Sev      | Rel |
+| ------------------ | ----------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --- |
+| `policy-violation` | Host-declared rules broken, e.g. "camera: WAN only to *.vendor.com:443"             | any   | Declarative rule set: allow/deny by dst, domain family, port, proto, direction, hours                                                             | per rule | 0.2 |
+| `mud-violation`    | Traffic outside the device's **Manufacturer Usage Description** (RFC 8520). Shadow. | T1+T2 | Host fetches and verifies the MUD file and passes the parsed ACL via `loadMud`; engine checks flows against it. No ACL means quiet. Cap 64 allows | high     | 0.9 |
+| `zone-violation`   | Device crosses a network zone boundary (IoT VLAN → main LAN)                        | T1    | Host tags IP ranges as zones                                                                                                                      | high     | 0.3 |
 
 **MUD reality check.** MUD is a published IETF standard, but deployments are still early: a survey of real implementations found mostly proof-of-concept systems, with gaps such as no rules for lateral movement within a network, and MUD URLs that a compromised device could forge over DHCP or LLDP. Treat MUD as an extra input when available, never as the main detection method.
 
@@ -591,11 +641,11 @@ Needs T4. These protect the network, not just one device's traffic, so many repo
 
 These need the host to aggregate events from many devices (one big gateway, or a central service fed by many gateways).
 
-| ID                         | Catches                                                                       | Method                                                                                        | Sev                                                                                                                                                                   | Rel |
-| -------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| `peer-divergence`          | One device behaves unlike others of the same model                            | Compare device's destination families, ports, volume band to peer-group consensus (≥ 5 peers) | high                                                                                                                                                                  | 0.4 |
-| `fleet-wave`               | Many devices hit the same new destination within minutes                      | Count devices per new dst per 10 min                                                          | **Ambiguous by design.** Vendor update (suppress) or worm (escalate). Output `fleet-wave` with `data.peersAffected`, `data.sameGroup`; host decides. Default `medium` | 0.4 |
-| `fleet-baseline-poisoning` | An imported fleet baseline contains destinations no peer ever learned locally | Compare import vs local peers                                                                 | high                                                                                                                                                                  | 1.x |
+| ID                         | Catches                                                                                | Method                                                                                                    | Sev                                                                                                                                                                   | Rel |
+| -------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| `peer-divergence`          | One device behaves unlike others of the same model                                     | Compare device's destination families, ports, volume band to peer-group consensus (≥ 5 peers)             | high                                                                                                                                                                  | 0.4 |
+| `fleet-wave`               | Many devices hit the same new destination within minutes                               | Count devices per new dst per 10 min                                                                      | **Ambiguous by design.** Vendor update (suppress) or worm (escalate). Output `fleet-wave` with `data.peersAffected`, `data.sameGroup`; host decides. Default `medium` | 0.4 |
+| `fleet-baseline-poisoning` | An imported fleet baseline contains destinations no peer ever learned locally. Shadow. | Compare import vs local peers. Quiet when no local peer has a learned family. Cap 1,000 compared families | high                                                                                                                                                                  | 0.9 |
 
 ## B10. Hard rules — fire during learning too
 
@@ -686,7 +736,7 @@ These are the tunables the 0.2 detectors use when the host does not override the
 | `sni-missing`             | a handshake with no SNI to an address that never presented one                                                                                              | Medium                                                                                           |
 | `tls-on-odd-port`         | TLS to a destination port that was not learned                                                                                                              | Medium                                                                                           |
 | `cleartext-regression`    | HTTP, FTP, Telnet, or MQTT cleartext to a destination that previously used TLS                                                                              | High. Ports 21, 23, 80, 1883 versus 443 and 8883                                                 |
-| `browser-mimic`           | JA4 is in `browserJa4` and the class is set and is not `tv-box`, `nas`, or `hub`                                                                            | High. No class, or an empty browser list, stays quiet                                            |
+| `browser-mimic`           | JA4 is in `browserJa4` and the class is set and its `allowsBrowserJa4` flag is not true (true on `tv-box`, `nas`, `hub`, `smart-tv`)                        | High. No class, or an empty browser list, stays quiet                                            |
 | `posture-weak-tls`        | `TLSv1.0`, `TLSv1.1`, `SSLv3`, `SSLv2`, a self-signed certificate, or `notAfter` before the event time                                                      | Low. This is posture, not an attack                                                              |
 | `proxy-backconnect`       | one flow lasting at least 60 s, then at least 8 flows of at most 2 s within 5 s                                                                             | Critical                                                                                         |
 | `lan-via-proxy`           | a LAN flow within 1 s of an inbound flow that carried bytes                                                                                                 | Critical                                                                                         |
@@ -715,7 +765,7 @@ These are the tunables the 0.2 detectors use when the host does not override the
 
 ### Defaults shipped in 0.8 (early shadow)
 
-All three ship `mode: 'shadow'` and `enabled: true`. None is a hard rule.
+All three ship `mode: 'shadow'` and `defaults.enabled: true`. None is a hard rule. The engine does not run them, create their state, or export them unless `shadow` is `true`, `shadow` lists the id, or `detectors[id].enabled` is set (D-34). A pilot sets `shadow: true`. Without that, these rows cannot be promoted.
 
 `exploit-probe-http`
 
@@ -769,18 +819,18 @@ The threat has moved past Mirai-style DDoS. Today, compromised IoT devices are m
 
 Building-management servers are a stated target market, so this group is not optional. BACnet and Modbus have **no authentication** in common deployments: anyone who can send packets can write setpoints, stop equipment or reflash controllers.
 
-| ID                      | Catches                                                                                                                                                                       | Needs | Method                                                             | Sev      | Rel |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------ | -------- | --- |
-| `ot-new-master`         | A host that never talked to a controller now does (new Modbus master, new BACnet client)                                                                                      | T1/T5 | Per-controller client set                                          | critical | 0.4 |
-| `ot-write-new`          | Write operation from a client that only ever read, or to an object/register never written: Modbus FC 5/6/15/16, BACnet `WriteProperty` / `WritePropertyMultiple`              | T5    | Learned (client, op, target) set                                   | high     | 0.4 |
-| `ot-dangerous-op`       | `ReinitializeDevice`, `DeviceCommunicationControl` (silences a controller), `AtomicWriteFile` (program/firmware write), Modbus FC 8 diagnostics, S7 STOP/PLC program download | T5    | Hard rule, always alert; host can allow during maintenance windows | critical | 0.4 |
-| `ot-value-out-of-range` | Setpoint written outside learned min/max (e.g. chiller setpoint to 40 °C)                                                                                                     | T5    | Per (target) learned range + host-declared physical limits         | critical | 0.4 |
-| `ot-write-rate`         | Sudden burst of writes (rapid on/off cycling can damage motors and compressors)                                                                                               | T5    | Writes/window vs baseline                                          | high     | 0.4 |
-| `ot-recon`              | BACnet `Who-Is` / `Who-Has` sweeps, Modbus FC 43 (read device identification), scans of 47808/502/102/44818/20000/1911/4911                                                   | T1/T5 | Unique targets per window                                          | high     | 0.4 |
-| `ot-spoof`              | BACnet `I-Am` for a device instance ID already owned by another MAC/IP                                                                                                        | T5    | Instance ID ↔ address table                                        | critical | 0.4 |
-| `ot-wan-exposure`       | OT protocol traffic crossing to/from WAN, BACnet BBMD foreign-device registration from a public IP                                                                            | T1    | Direction + port                                                   | critical | 0.3 |
-| `ot-error-burst`        | Spike in protocol exceptions/rejects (fuzzing, wrong-register probing)                                                                                                        | T5    | Error rate vs baseline                                             | medium   | 0.4 |
-| `ot-schedule-drift`     | Writes outside the learned operating schedule                                                                                                                                 | T5    | Hour-of-week profile per (client, op)                              | medium   | 1.x |
+| ID                      | Catches                                                                                                                                                                       | Needs | Method                                                                                                                                | Sev      | Rel |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------- | -------- | --- |
+| `ot-new-master`         | A host that never talked to a controller now does (new Modbus master, new BACnet client)                                                                                      | T1/T5 | Per-controller client set                                                                                                             | critical | 0.4 |
+| `ot-write-new`          | Write operation from a client that only ever read, or to an object/register never written: Modbus FC 5/6/15/16, BACnet `WriteProperty` / `WritePropertyMultiple`              | T5    | Learned (client, op, target) set                                                                                                      | high     | 0.4 |
+| `ot-dangerous-op`       | `ReinitializeDevice`, `DeviceCommunicationControl` (silences a controller), `AtomicWriteFile` (program/firmware write), Modbus FC 8 diagnostics, S7 STOP/PLC program download | T5    | Hard rule, always alert; host can allow during maintenance windows                                                                    | critical | 0.4 |
+| `ot-value-out-of-range` | Setpoint written outside learned min/max (e.g. chiller setpoint to 40 °C)                                                                                                     | T5    | Per (target) learned range + host-declared physical limits                                                                            | critical | 0.4 |
+| `ot-write-rate`         | Sudden burst of writes (rapid on/off cycling can damage motors and compressors)                                                                                               | T5    | Writes/window vs baseline                                                                                                             | high     | 0.4 |
+| `ot-recon`              | BACnet `Who-Is` / `Who-Has` sweeps, Modbus FC 43 (read device identification), scans of 47808/502/102/44818/20000/1911/4911                                                   | T1/T5 | Unique targets per window                                                                                                             | high     | 0.4 |
+| `ot-spoof`              | BACnet `I-Am` for a device instance ID already owned by another MAC/IP                                                                                                        | T5    | Instance ID ↔ address table                                                                                                           | critical | 0.4 |
+| `ot-wan-exposure`       | OT protocol traffic crossing to/from WAN, BACnet BBMD foreign-device registration from a public IP                                                                            | T1    | Direction + port                                                                                                                      | critical | 0.3 |
+| `ot-error-burst`        | Spike in protocol exceptions/rejects (fuzzing, wrong-register probing)                                                                                                        | T5    | Error rate vs baseline                                                                                                                | medium   | 0.4 |
+| `ot-schedule-drift`     | Writes outside the learned operating schedule. Shadow.                                                                                                                        | T5    | Hour-of-week profile per (client, op), cap 32 pairs. Fires when the pair has at least 4 learned hours and this hour was never learned | medium   | 0.9 |
 
 ## B14. IoT application protocols (MQTT, CoAP, RTSP/ONVIF)
 
@@ -805,15 +855,15 @@ Building-management servers are a stated target market, so this group is not opt
 
 ## B16. Remote access, tunnels and covert channels
 
-| ID                    | Catches                                                                                                                                                   | Needs | Method                                 | Sev    | Rel |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------- | ------ | --- |
-| `tunnel-service`      | Device connects to tunnel/remote-access services (ngrok, Cloudflare Tunnel, Tailscale/ZeroTier coordinators, remote-desktop relays) never in its baseline | T2    | Indicator domain families              | high   | 0.3 |
-| `vpn-protocol`        | New WireGuard (UDP, fixed 148-byte handshake initiation), OpenVPN, IPsec (500/4500, ESP), or SSH session from a device that never used one                | T1    | Port/proto + handshake-size heuristics | high   | 0.3 |
-| `icmp-tunnel`         | ICMP echo with large or highly variable payloads, or ICMP volume far over ping norms                                                                      | T1    | Bytes/packet and variance on ICMP      | high   | 0.3 |
-| `ipv6-tunnel`         | 6in4 (IP proto 41), Teredo (UDP 3544), 6to4 appearing on an IPv4-only device                                                                              | T1    | Protocol set                           | high   | 0.3 |
-| `quic-new`            | QUIC (UDP 443) from a device that never used it, to a non-baseline host                                                                                   | T1    | Port+proto set                         | medium | 0.4 |
-| `ntp-rogue`           | Device syncs time from a non-baseline NTP server (time manipulation breaks cert checks and logs)                                                          | T1    | UDP 123 destination set                | medium | 0.3 |
-| `reverse-shell-shape` | Interactive-looking session: small packets both directions, human-paced timing, to a non-baseline host                                                    | T1    | Packet size / inter-arrival profile    | high   | 1.x |
+| ID                    | Catches                                                                                                                                                   | Needs | Method                                                                                                              | Sev    | Rel |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------- | ------ | --- |
+| `tunnel-service`      | Device connects to tunnel/remote-access services (ngrok, Cloudflare Tunnel, Tailscale/ZeroTier coordinators, remote-desktop relays) never in its baseline | T2    | Indicator domain families                                                                                           | high   | 0.3 |
+| `vpn-protocol`        | New WireGuard (UDP, fixed 148-byte handshake initiation), OpenVPN, IPsec (500/4500, ESP), or SSH session from a device that never used one                | T1    | Port/proto + handshake-size heuristics                                                                              | high   | 0.3 |
+| `icmp-tunnel`         | ICMP echo with large or highly variable payloads, or ICMP volume far over ping norms                                                                      | T1    | Bytes/packet and variance on ICMP                                                                                   | high   | 0.3 |
+| `ipv6-tunnel`         | 6in4 (IP proto 41), Teredo (UDP 3544), 6to4 appearing on an IPv4-only device                                                                              | T1    | Protocol set                                                                                                        | high   | 0.3 |
+| `quic-new`            | QUIC (UDP 443) from a device that never used it, to a non-baseline host                                                                                   | T1    | Port+proto set                                                                                                      | medium | 0.4 |
+| `ntp-rogue`           | Device syncs time from a non-baseline NTP server (time manipulation breaks cert checks and logs)                                                          | T1    | UDP 123 destination set                                                                                             | medium | 0.3 |
+| `reverse-shell-shape` | Interactive-looking session: small packets both directions, human-paced timing, to a non-baseline host. Shadow.                                           | T1    | At least 8 packets each way, 40–200 bytes per packet, duration at least 30 s, once per destination per hour, cap 64 | high   | 0.9 |
 
 ## B17. Firmware updates and supply chain
 
@@ -826,13 +876,13 @@ Building-management servers are a stated target market, so this group is not opt
 
 ## B18. IP-layer spoofing and integrity
 
-| ID                    | Catches                                                                                             | Needs                | Method                                                                                                                                  | Sev      | Rel |
-| --------------------- | --------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | --- |
-| `src-spoof`           | Packets from a device with a source IP that is not its lease (spoofed floods)                       | T1+T4                | Flow srcIp vs DHCP lease / ARP binding                                                                                                  | critical | 0.3 |
-| `ttl-anomaly`         | Device's outbound TTL/hop-limit changes (different OS stack or packets crafted by raw-socket tools) | T1 (needs TTL field) | Initial-TTL bucket 64, 128, or 255. Multicast, broadcast, and link-local destinations are skipped. See Defaults shipped in 0.8. Shadow. | medium   | 0.8 |
-| `llmnr-nbns-poison`   | Device answering LLMNR (5355) / NBNS (137) / mDNS queries for names it does not own                 | T4                   | Name ownership table                                                                                                                    | high     | 1.x |
-| `icmp-redirect`       | ICMP redirects on the LAN from a non-router host                                                    | T1                   | Hard rule                                                                                                                               | high     | 0.3 |
-| `dns-answer-mismatch` | Device receives DNS answers from an IP other than the resolver it queried (off-path spoofing)       | T2                   | Query/answer source join                                                                                                                | high     | 1.x |
+| ID                    | Catches                                                                                                | Needs                | Method                                                                                                                                  | Sev      | Rel |
+| --------------------- | ------------------------------------------------------------------------------------------------------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | --- |
+| `src-spoof`           | Packets from a device with a source IP that is not its lease (spoofed floods)                          | T1+T4                | Flow srcIp vs DHCP lease / ARP binding                                                                                                  | critical | 0.3 |
+| `ttl-anomaly`         | Device's outbound TTL/hop-limit changes (different OS stack or packets crafted by raw-socket tools)    | T1 (needs TTL field) | Initial-TTL bucket 64, 128, or 255. Multicast, broadcast, and link-local destinations are skipped. See Defaults shipped in 0.8. Shadow. | medium   | 0.8 |
+| `llmnr-nbns-poison`   | Device answering LLMNR (5355) / NBNS (137) / mDNS queries for names it does not own. Shadow.           | T2                   | Optional `dns.port` of 5355 or 137 plus a NOERROR answer. Names learned while learning, cap 256. Events without `port` stay quiet       | high     | 0.9 |
+| `icmp-redirect`       | ICMP redirects on the LAN from a non-router host                                                       | T1                   | Hard rule                                                                                                                               | high     | 0.3 |
+| `dns-answer-mismatch` | Device receives DNS answers from an IP other than the resolver it queried (off-path spoofing). Shadow. | T2                   | Optional `dns.from`. Quiet when `from` is absent or equal to `resolver`                                                                 | high     | 0.9 |
 
 ## B19. Posture and device-class priors
 
@@ -911,7 +961,7 @@ Every row here ships `meta.mode: 'shadow'` (see 0.5 and F1). **Sev** is the seve
 | `evil-twin`                 | A known SSID appears behind a BSSID never learned, and a learned client associates to it                                                        | T4 (`wifi`) | Learned `ssid → bssid set` (cap 32 BSSIDs per SSID). Fires on `assoc` of a learned client MAC to an unlearned BSSID for a learned SSID. Mesh networks: the host lists its own BSSIDs in `ownBssids`                                                                                                                                                                           | critical | Medium on mesh networks without `ownBssids`                                     | 0.8 |
 | `upnp-callstranger`         | UPnP `SUBSCRIBE` whose `CALLBACK` URL points to a public address (CVE-2020-12695 data-exfil and DDoS vector)                                    | T5 (`app`)  | New app proto `upnp` (F19). Fires when `op === 'SUBSCRIBE'` and the callback host in `target` is a public IP or a name with a public family                                                                                                                                                                                                                                   | critical | Very low                                                                        | 0.8 |
 | `matter-new-controller`     | A new Matter controller joins a device's fabric (`AddNOC` from a node never seen), which is how a smart-home device is taken over after setup   | T5 (`app`)  | New app proto `matter` (F19). Learned set of controller node IDs per device. Fires on `op: 'AddNOC'` or `op: 'AddTrustedRootCertificate'` from an unlearned `peerIp` / node ID while watching                                                                                                                                                                                 | high     | Low. Commissioning a new controller is rare and user-initiated                  | 0.8 |
-| `peer-divergence-federated` | Like `peer-divergence`, but the peer group spans several gateways via F14 summaries                                                             | T0 + F14    | Same rule as `peer-divergence`, applied to the union of local peers and imported summaries. Each summary counts as one peer however many devices it represents. Needs ≥ 3 distinct gateway ids                                                                                                                                                                                | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | 0.8 |
+| `peer-divergence-federated` | Like `peer-divergence`, but the peer group spans several gateways via F14 summaries                                                             | T0 + F14    | Same rule as `peer-divergence`, applied to the union of local peers and imported summaries. Each summary counts as one peer however many devices it represents. Needs ≥ 3 distinct gateway ids. Deferred to WP-25. Not part of 0.8                                                                                                                                            | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | 0.9 |
 
 **New data file.** `src/data/storage.json` lists object-storage name patterns (for example `s3.amazonaws.com` and `s3.*.amazonaws.com`, `blob.core.windows.net`, `storage.googleapis.com`, `r2.cloudflarestorage.com`, `backblazeb2.com`). It is a static list of service endpoints, refreshed by hand, not a threat feed. It counts toward the 750 KB pack cap and the 200 KB `src/data` total.
 
@@ -940,7 +990,7 @@ Every anomaly carries `attack` IDs where a clear mapping exists. Examples: `T104
 
 Core emits native objects. Optional packages convert:
 
-`@iotwarden/export-ocsf` (OCSF Detection Finding), `-syslog` (RFC 5424 / CEF), `-webhook`, and later `-ecs` (Elastic) and `-mqtt` (for home-automation hubs). Only the first three exist.
+`@iotwarden/export-ocsf` (OCSF Detection Finding), `-syslog` (RFC 5424 / CEF), `-webhook`, and later `-ecs` (Elastic) and `-mqtt` (for home-automation hubs). `-ecs` and `-mqtt` also exist at 0.1.0, UNVERIFIED.
 
 **OCSF version is an option, not a constant.** Consumers pin versions: Cisco XDR's findings intake accepts OCSF 1.4.0 Detection Findings, and AWS Security Hub uses OCSF 1.6. `export-ocsf` takes `{ ocsfVersion: '1.4.0' }` (default `'1.4.0'`) and writes it into `metadata.version`. Fixed mapping:
 
@@ -968,9 +1018,9 @@ A test validates one anomaly and one incident against a vendored JSON copy of th
 
 Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs median `feed()` on a Raspberry Pi 4.** Measured by `bench/` in the repo every release.
 
-The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which was already over that line when the rule was added and is reported rather than split. `src/data/` must total at most 200 KB.
+The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
-From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line, and it includes every Part F option that defaults on plus every B21 shadow detector. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
+From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` is also kept under 100 KB per device. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
 ## C5. Feedback loop
 
@@ -1015,7 +1065,7 @@ Short lab captures make FP-per-day estimates weak. They support the 0.6 gate. Th
 | medium   | < 1 per device per day  | [ ] |
 
 - [x] `eval/run.mjs --dataset <name> --zeek-logs <dir>` writes `eval/results/<dataset>.json` and `.md`.
-- [ ] README numbers are copied from those files only.
+- [x] README numbers are copied from those files only.
 - [x] **Publish the misses** next to the hits.
 
 ## C7. Security of the package itself
@@ -1038,7 +1088,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @iotwarden/adapter-*, @iotwarden/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which is reported until it is split. `src/data/` must total at most 200 KB.
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 ## C9. Versioning
 
@@ -1048,19 +1098,19 @@ Semver. While 0.x, minor may break API. Changing any threshold formula or defaul
 
 Rows 0.1–0.4 are history. Their gate column records what was planned; the **Met?** column records what happened.
 
-| Release | Scope                                                                                                                                                                                                                                                                     | Gate                                                                                                                                           | Met?                                                                                    |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **0.1** | Engine fixes, original 4 detectors, plugin interface                                                                                                                                                                                                                      | All v1 acceptance tests                                                                                                                        | [X]                                                                                     |
-| **0.2** | T1/T2, hard rules, 0.2 detectors, conntrack + dnsmasq adapters                                                                                                                                                                                                            | CICIoT2023 Recon/DDoS/Mirai ≥ 90 %, FP gates                                                                                                   | [ ] not run                                                                             |
-| **0.3** | 0.3 detectors, T4, incidents, proxyware, class priors                                                                                                                                                                                                                     | IoT-23 results published; BADBOX/Kimwolf replay                                                                                                | [ ] replay only                                                                         |
-| **0.4** | T3, T5, OT, MQTT/ONVIF, fleet, Zeek/Suricata adapters, exporters                                                                                                                                                                                                          | 30-day pilot, home + building                                                                                                                  | [ ]                                                                                     |
-| **0.5** | Part E WP-0 to WP-8: defects D1–D12, learning quality, evidence/dedup, checkpoint, `identity-change`, B20 rows, fuzz, bench                                                                                                                                               | `npm run gate` with the all-tier benign matrix; fuzz 100,000 inputs clean; bench budgets met; `spec-coverage` clean                            | [X] x86 proxy. [ ] Raspberry Pi 4. [ ] real-traffic evaluation                          |
-| **0.6** | WP-9, WP-10: eval harness, OCSF version option. Detector dispositions from ablation                                                                                                                                                                                       | CICIoT2023 and IoT-23 results files exist and are in the README, misses included; C6.3 FP gates met for every default-on detector              | [ ]                                                                                     |
-| **0.7** | Part E WP-11 to WP-18: memory budget, shadow mode and canaries, streaming statistics, metamorphic suite, explainability, identity, feedback and labels, learning-poisoning guards                                                                                         | 7-day 200-device retained memory < 100 KB per device; metamorphic suite green; fuzz clean including new import paths; `test/diff/` within D-17 | [X] 68.69 KB/device, check 213/213, fuzz clean, test/diff within D-17. [ ] real traffic |
-| **0.8** | WP-19 to WP-22: long-horizon aggregates, graph, campaigns, every B21 row in shadow, rule language                                                                                                                                                                         | Every B21 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix. No B21 row is live | [ ]                                                                                     |
-| **0.9** | WP-23 to WP-26: load shedding, incremental checkpoints, calibrated confidence, class suggestion, time zones, redaction, sharding, federation, new adapters, exporters, response hints, CLI                                                                                | 0.8 gate; Raspberry Pi 4 bench measured by the human; every new package passes `npm run gate`                                                  | [ ]                                                                                     |
-| **1.0** | MUD input, API freeze, security review, B21 promotions decided from eval and pilot labels                                                                                                                                                                                 | 0.6 gate met; 30-day pilot on ≥ 1 home and ≥ 1 building with FP per device-day published; one minor release with no API change                 | [ ]                                                                                     |
-| **1.x** | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Each needs a numeric default written into this spec before code | Each one: benign all-tier run + an eval or replay result                                                                                       | [ ]                                                                                     |
+| Release | Scope                                                                                                                                                                                                                                        | Gate                                                                                                                                           | Met?                                                                                                                                |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **0.1** | Engine fixes, original 4 detectors, plugin interface                                                                                                                                                                                         | All v1 acceptance tests                                                                                                                        | [X]                                                                                                                                 |
+| **0.2** | T1/T2, hard rules, 0.2 detectors, conntrack + dnsmasq adapters                                                                                                                                                                               | CICIoT2023 Recon/DDoS/Mirai ≥ 90 %, FP gates                                                                                                   | [ ] not run                                                                                                                         |
+| **0.3** | 0.3 detectors, T4, incidents, proxyware, class priors                                                                                                                                                                                        | IoT-23 results published; BADBOX/Kimwolf replay                                                                                                | [ ] replay only                                                                                                                     |
+| **0.4** | T3, T5, OT, MQTT/ONVIF, fleet, Zeek/Suricata adapters, exporters                                                                                                                                                                             | 30-day pilot, home + building                                                                                                                  | [ ]                                                                                                                                 |
+| **0.5** | Part E WP-0 to WP-8: defects D1–D12, learning quality, evidence/dedup, checkpoint, `identity-change`, B20 rows, fuzz, bench                                                                                                                  | `npm run gate` with the all-tier benign matrix; fuzz 100,000 inputs clean; bench budgets met; `spec-coverage` clean                            | [X] x86 proxy. [ ] Raspberry Pi 4. [ ] real-traffic evaluation                                                                      |
+| **0.6** | WP-9, WP-10: eval harness, OCSF version option. Detector dispositions from ablation                                                                                                                                                          | CICIoT2023 and IoT-23 results files exist and are in the README, misses included; C6.3 FP gates met for every default-on detector              | [ ]                                                                                                                                 |
+| **0.7** | Part E WP-11 to WP-18: memory budget, shadow mode and canaries, streaming statistics, metamorphic suite, explainability, identity, feedback and labels, learning-poisoning guards                                                            | 7-day 200-device retained memory < 100 KB per device; metamorphic suite green; fuzz clean including new import paths; `test/diff/` within D-17 | [X] 68.69 KB/device, check 213/213, fuzz clean, test/diff within D-17. [ ] real traffic                                             |
+| **0.8** | WP-19 to WP-22: long-horizon aggregates, graph, campaigns, every B21 row in shadow, rule language                                                                                                                                            | Every B21 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix. No B21 row is live | [X] defaults 67.86 KB/device, shadow:true 74.39 KB/device, 1,000-device median 6.92 µs, check 290/290, fuzz clean. [ ] real traffic |
+| **0.9** | WP-23 to WP-26: load shedding, incremental checkpoints, calibrated confidence, class suggestion, time zones, redaction, sharding, federation, new adapters, exporters, response hints, CLI                                                   | 0.8 gate; Raspberry Pi 4 bench measured by the human; every new package passes `npm run gate`                                                  | [ ]                                                                                                                                 |
+| **1.0** | MUD input, API freeze, security review, B21 promotions decided from eval and pilot labels                                                                                                                                                    | 0.6 gate met; 30-day pilot on ≥ 1 home and ≥ 1 building with FP per device-day published; one minor release with no API change                 | [ ]                                                                                                                                 |
+| **1.x** | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Numeric defaults are now in Part B | Shipped as Rel 0.9 shadow. Each still needs a benign all-tier run + an eval or replay result before going live                                 | [ ]                                                                                                                                 |
 
 ---
 
@@ -1082,11 +1132,12 @@ The measurement layer. Required before any B21 row (0.5 shadow rule) and before 
 **Shadow detectors.**
 
 - `meta.mode: 'live' | 'shadow'`. Default `live` for B1–B20, `shadow` for B21.
-- A shadow detector runs exactly like a live one (learn, check, window close, export, import) but its drafts are emitted as event `shadow-anomaly` (same shape as A7/A7.1 plus `shadow: true`). They do not get an `incidentId`, do not count toward `alert-storm`, and are not passed to `post-update-drift` or `supply-chain-suspect`.
+- A shadow detector that the `shadow` option selects runs exactly like a live one (learn, check, window close, export, import) but its drafts are emitted as event `shadow-anomaly` (same shape as A7/A7.1 plus `shadow: true`). They do not get an `incidentId`, do not count toward `alert-storm`, and are not passed to `post-update-drift` or `supply-chain-suspect`. With `shadow: false` (the default) it does not run, does not create state, and is omitted from `exportBaseline()`.
 - `createEngine({ detectors: { id: { mode: 'live' } } })` may promote a shadow detector. The engine then emits `warning` `SHADOW_PROMOTED_BY_HOST` once per detector, so the decision is visible in logs.
 - `stats().shadow[id] = { fired, devices, bySeverity, wouldJoinIncident }`. `wouldJoinIncident` counts drafts that would have joined an open incident on that device had they been live.
 - A shadow draft never reaches an exporter unless the host subscribes to `shadow-anomaly`.
-- `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are shadow and enabled. Their own state still round-trips through `exportBaseline()` and `importBaseline()`. The differential comparison ignores a shadow id that is missing on one side (D-24), so the live detectors' baseline stays the oracle.
+- `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are shadow. Their own state round-trips through `exportBaseline()` and `importBaseline()` when `shadow` selects them. The differential comparison ignores a shadow id that is missing on one side (D-24), so the live detectors' baseline stays the oracle.
+- Importing a baseline that contains shadow state into an engine with `shadow: false` does not throw. The bytes stay on the device and the detectors do not run. A later `exportBaseline()` omits those keys.
 
 **Threshold canaries.**
 
@@ -1124,7 +1175,7 @@ The engine reasons in 60-second windows. Three published blind spots (slow scan,
 - Exposed to detectors as `ctx.horizon(dev).last(hours)` and `.sum(field, hours)`. Read-only.
 - Rolled on window close using event time only. A gap longer than 24 h resets the ring and is not an alert.
 - Consumers: `slow-scan`, `multi-horizon-exfil` (B21). No live detector reads it in 3.1.
-- Option `horizons: false` (default `true` only when any B21 consumer is enabled).
+- Option `horizons: false` turns the ring off. `horizons: true` turns it on. When `horizons` is omitted, the ring is on only while `slow-scan` or `multi-horizon-exfil` is actually running. With `shadow: false` those two are not running, so the ring stays off (D-34).
 
 ## F4. Explainability
 
@@ -1174,7 +1225,7 @@ Incidents are per device. Kimwolf-style attacks are not: a proxy endpoint pivots
 
 ## F7. LAN communication graph
 
-- Option `graph: false` (default `true` when any B21 graph detector is enabled).
+- Option `graph: false` turns the graph off. `graph: true` turns it on. When `graph` is omitted, the graph is on only while `graph-new-bridge` or `graph-role-change` is actually running. With `shadow: false` those two are not running, so the graph stays off (D-34).
 - Nodes are devices. LAN edges are keyed `(src device, dst device, dstPort, proto)` with `{ firstTs, lastTs, flows }`. WAN edges are collapsed to domain family (or `/24` for IPs with no name), `{ firstTs, lastTs, bytesOut }`.
 - Caps: 32 LAN edges and 64 WAN families per device, LRU. About 6 KB per device worst case.
 - Learned flag per edge, so a detector can ask "was this edge present during learning?"
@@ -1410,9 +1461,9 @@ For hosts that forward anomalies off the gateway.
 
 # PART E — WORK PACKAGES FOR THE CODING AGENT
 
-Do these in order. One WP per session unless the human says otherwise. Each WP: write the SPEC/CHANGELOG lines it needs first (most are already in this file), implement, test, run the gate, append the real gate output to `docs/progress/WORK-PACKAGES.md`, then **stop**.
+Do these in order. One WP per session unless the human says otherwise. Each WP: write the SPEC/CHANGELOG lines it needs first (most are already in this file), implement, test, run the gate, record the numbers in `docs/BENCHMARKS.md` and the choices in `docs/DECISIONS.md`, then **stop**.
 
-Standing rules from `01-PROJECT.md` and `04-HOW-TO-ADD.md` still apply: zero runtime deps, no `Date.now()`/`Math.random()` in tests, caps with a test that hits them, no invented metrics, no publish/push/commit unless asked, no JA4 computation, no bundled feeds.
+Standing rules from `docs/RULES.md` and `CONTRIBUTING.md` still apply: zero runtime deps, no `Date.now()`/`Math.random()` in tests, caps with a test that hits them, no invented metrics, no publish/push/commit unless asked, no JA4 computation, no bundled feeds.
 
 Gate for every WP:
 
@@ -1433,8 +1484,8 @@ npm run gate && npm run demo
 
 - [x] New `packages/core/test/benign-matrix-tiers.test.js`: `tiers: ['T0','T1','T2','T3','T4','T5']`, every class in `test/fixtures/profiles.js` plus the new `smart-tv` profile, 14 days × 3 seeds, simulator emitting every tier the profile has. Assertion: zero anomalies at `medium` or above; anomalies at `low`/`info` are listed in the test output.
 - [x] Extend `sim.js` so every profile emits realistic T1–T5 events (flows with both directions and TCP outcomes, DNS with answers and TTLs, TLS with stable JA4 and issuer, ARP/DHCP renewals with lease changes, BACnet reads and scheduled writes for `hvac-controller`, MQTT publishes for `thermostat`). Profiles must include the ordinary noise that breaks naive detectors: DHCP lease renewals with a new IP, CDN answers rotating within one family, NTP to two pool servers, a firmware download of 30 MB once in 14 days.
-- [x] **Expect failures.** For each failing detector: fix the detector logic if it is wrong; if a threshold must move, change SPEC "Defaults shipped" + CHANGELOG in the same commit and record the before/after in `docs/progress/WORK-PACKAGES.md`. Never weaken the assertion, never exclude a detector from the run.
-- [x] **Done when:** the new test passes with no detector excluded, and `docs/progress/WORK-PACKAGES.md` lists every threshold that changed and why.
+- [x] **Expect failures.** For each failing detector: fix the detector logic if it is wrong; if a threshold must move, change SPEC "Defaults shipped" + CHANGELOG in the same commit and record the before/after in the CHANGELOG. Never weaken the assertion, never exclude a detector from the run.
+- [x] **Done when:** the new test passes with no detector excluded, and the CHANGELOG lists every threshold that changed and why.
 
 ### WP-2 — Event time (D2, D3)
 
@@ -1471,7 +1522,7 @@ npm run gate && npm run demo
 - [x] Test: learn ARP bindings, checkpoint, new engine, restore, attacker claims the gateway IP first → `arp-spoof` fires (it would not without the restore).
 - [x] Fuzz-style test: 1,000 seeded corrupt checkpoints are rejected and leave state unchanged.
 
-### WP-8 — Phase 5 hardening (from `CURSOR_BUILD.md`)
+### WP-8 — Phase 5 hardening
 
 - [x] Fuzz (`fuzz/feed.fuzz.js`, `fuzz/baseline.fuzz.js`, `fuzz/checkpoint.fuzz.js`, `fuzz/mutate.fuzz.js`), 100,000 seeded inputs each. Every accepted mutation keeps collection caps, leaves `Object.prototype` clean, and survives `export` → `import` → `export` byte for byte (`createdAt` fixed).
 - [x] Bench with **all tiers on**. Feed 1,000 devices past `learnMs`, call `lock()`, then time `feed()` in the watching state. Proxy budgets on x86 CI: median `feed()` < 10 µs, < 100 KB per watching device. The bench exits non-zero when a budget is missed. `npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then this bench. It finishes every step and, when any step failed, exits non-zero and lists those steps.
@@ -1483,10 +1534,10 @@ npm run gate && npm run demo
 - [x] `eval/run.mjs`
 - [x] IoT-23 label joiner
 - [x] CICIoT2023 label joiner
-- [ ] IEEE DataPort ARP label joiner
-- [ ] CICIoMT2024 label joiner
+- [x] IEEE DataPort ARP label joiner
+- [x] CICIoMT2024 label joiner
 - [x] C6.2 protocol: Wilson intervals, ablation, and the evasion suite
-- [ ] Detection numbers copied into a README from the result files
+- [x] Detection numbers copied into a README from the result files
 - [ ] C6.3 false-positive gates met for every default-on detector
 
 ### WP-10 — `export-ocsf` version option (0.6)
@@ -1495,7 +1546,7 @@ npm run gate && npm run demo
 
 ### Work packages for spec 3.1 (WP-10.2 to WP-26)
 
-Same rules as WP-0 to WP-10: one WP per session unless the human says otherwise. Write the SPEC and CHANGELOG lines first, implement, test, run the gate plus `npm run demo`, append the real output to `docs/progress/WORK-PACKAGES.md`, then stop. A WP that changes the anomaly stream of a B1–B20 detector must either pass `test/diff/` within D-17 tolerance or carry a "Defaults shipped" change. Every new option is in `index.d.ts` and `docs/DEVELOPERS.md`.
+Same rules as WP-0 to WP-10: one WP per session unless the human says otherwise. Write the SPEC and CHANGELOG lines first, implement, test, run the gate plus `npm run demo`, record the numbers in `docs/BENCHMARKS.md` and the choices in `docs/DECISIONS.md`, then stop. A WP that changes the anomaly stream of a B1–B20 detector must either pass `test/diff/` within D-17 tolerance or carry a "Defaults shipped" change. Every new option is in `index.d.ts` and `docs/DEVELOPERS.md`.
 
 #### WP-10.2 — Multicast hygiene
 
@@ -1505,105 +1556,105 @@ Same rules as WP-0 to WP-10: one WP per session unless the human says otherwise.
 
 #### WP-11 — Memory budget (D13). Blocks everything below.
 
-- [ ] Precondition: the human answers **Q-8**. Until then, stop at the first step that needs the acceptance-test change.
-- [ ] Finish WP-9.9: `volume-spike`, `fan-out` and `volume-spike-hourly` keep F2 `welford.js` state. Baseline version 3 (D-16). Version 2 and version 1 still import.
-- [ ] Move `upload-ratio-shift` and `failed-connection-ratio` history rings to `welford.js` the same way.
-- [ ] Profile `update-over-cleartext` (12.99 KB/device in WP-9.8) and `beacon-change`. Record the structure that holds the bytes. Fix it only if the stream stays within D-17 tolerance.
-- [ ] **Done when:** the 200-device 7-day `bench/run.js` line is under 100 KB retained (heap + ArrayBuffers) per device, `test/diff/` passes within D-17 tolerance, and `docs/BENCHMARKS.md` has the before and after per structure. If 100 KB is not reached, record the number and stop. Do not raise the budget and do not lower a cap.
+- [x] Precondition: the human answers **Q-8**. Until then, stop at the first step that needs the acceptance-test change.
+- [x] Finish WP-9.9: `volume-spike`, `fan-out` and `volume-spike-hourly` keep F2 `welford.js` state. Baseline version 3 (D-16). Version 2 and version 1 still import.
+- [ ] Move `upload-ratio-shift` and `failed-connection-ratio` history rings to `welford.js` the same way. Not done: both still keep capped sample rings, recorded in `docs/BENCHMARKS.md`, because a Welford of every window would not match the golden.
+- [x] Profile `update-over-cleartext` (12.99 KB/device in WP-9.8) and `beacon-change`. Record the structure that holds the bytes. Fix it only if the stream stays within D-17 tolerance.
+- [x] **Done when:** the 200-device 7-day `bench/run.js` line is under 100 KB retained (heap + ArrayBuffers) per device, `test/diff/` passes within D-17 tolerance, and `docs/BENCHMARKS.md` has the before and after per structure. If 100 KB is not reached, record the number and stop. Do not raise the budget and do not lower a cap.
 
 #### WP-12 — Shadow mode and canaries (F1)
 
-- [ ] `meta.mode`, `shadow-anomaly` event, `stats().shadow`, `SHADOW_PROMOTED_BY_HOST`.
-- [ ] `canary` option, `stats().canary`, cap 4.
-- [ ] `spec-coverage` reads B21's mode and fails when a B21 file's `meta.mode` is not `shadow`.
-- [ ] **Done when:** the F1 done-when holds, and a test registers a dummy shadow detector that fires on every event and proves the live stream, incidents and baseline are byte-identical to a run without it.
+- [x] `meta.mode`, `shadow-anomaly` event, `stats().shadow`, `SHADOW_PROMOTED_BY_HOST`.
+- [x] `canary` option, `stats().canary`, cap 4.
+- [x] `spec-coverage` reads B21's mode and fails when a B21 file's `meta.mode` is not `shadow`.
+- [x] **Done when:** the F1 done-when holds, and a test registers a dummy shadow detector that fires on every event and proves the live stream, incidents and baseline are byte-identical to a run without it.
 
 #### WP-13 — Streaming statistics library (F2)
 
-- [ ] All eight primitives with their accuracy tests, `toJSON` / `fromJSON`, and fuzz targets for `fromJSON`.
-- [ ] No detector migrates in this WP except as WP-11 already did.
-- [ ] **Done when:** every accuracy row in F2 is a passing test with a fixed seed, and coverage stays ≥ 90 % lines and ≥ 80 % branches.
+- [x] All eight primitives with their accuracy tests, `toJSON` / `fromJSON`, and fuzz targets for `fromJSON`.
+- [x] No detector migrates in this WP except as WP-11 already did.
+- [x] **Done when:** every accuracy row in F2 is a passing test with a fixed seed, and coverage stays ≥ 90 % lines and ≥ 80 % branches.
 
 #### WP-14 — Metamorphic suite (F18)
 
-- [ ] All seven relations. Shadow non-interference uses the WP-12 dummy until B21 rows exist, then every implemented B21 row.
-- [ ] Expect failures. Fix the code. Each exemption gets a one-line reason in the test and a `DECISIONS.md` entry.
-- [ ] **Done when:** every relation passes on the all-tier benign matrix (seed 1) and every replay.
+- [x] All seven relations. Shadow non-interference uses the WP-12 dummy until B21 rows exist, then every implemented B21 row.
+- [x] Expect failures. Fix the code. Each exemption gets a one-line reason in the test and a `DECISIONS.md` entry.
+- [x] **Done when:** every relation passes on the all-tier benign matrix (seed 1) and every replay.
 
 #### WP-15 — Explainability (F4)
 
-- [ ] `explain()`, `explainCap`, `meta.explains`.
-- [ ] Explanations for all hard rules and the 20 detectors that fired most in `eval/fixtures/golden.md` (list them in the progress note).
-- [ ] **Done when:** the F4 done-when holds.
+- [x] `explain()`, `explainCap`, `meta.explains`.
+- [x] Explanations for all hard rules and the 20 detectors that fired most in `eval/fixtures/golden.md` (list them in the progress note).
+- [x] **Done when:** the F4 done-when holds.
 
 #### WP-16 — Identity resolution (F8)
 
-- [ ] `nd` event, `dhcp.v6` / `duid` / `iaid`, identity table, `identity: 'auto'`, `resolve()`, checkpoint table.
-- [ ] Simulator: an IPv6 temporary address rotating daily on every rich profile.
-- [ ] **Done when:** the F8 test passes and both benign matrices still pass with `identity: 'auto'`.
+- [x] `nd` event, `dhcp.v6` / `duid` / `iaid`, identity table, `identity: 'auto'`, `resolve()`, checkpoint table.
+- [x] Simulator: an IPv6 temporary address rotating daily on every rich profile.
+- [x] **Done when:** the F8 test passes and both benign matrices still pass with `identity: 'auto'`.
 
 #### WP-17 — Feedback, labels, promotion check (F11)
 
-- [ ] `feedback()`, `exportLabels()`, `stats().precision`, `eval/run.mjs --labels`.
-- [ ] Verify A6.1 promotion and C5 `NOISY_DETECTOR`. If missing, implement exactly as written.
-- [ ] **Done when:** a seeded test labels 20 anomalies, `exportLabels()` round-trips, and `eval/run.mjs --labels` on the synthetic corpus prints precision with a Wilson interval.
+- [x] `feedback()`, `exportLabels()`, `stats().precision`, `eval/run.mjs --labels`.
+- [x] Verify A6.1 promotion and C5 `NOISY_DETECTOR`. If missing, implement exactly as written.
+- [x] **Done when:** a seeded test labels 20 anomalies, `exportLabels()` round-trips, and `eval/run.mjs --labels` on the synthetic corpus prints precision with a Wilson interval.
 
 #### WP-18 — Learning-poisoning guards (F12)
 
-- [ ] Three reasons, each with a firing test. Both benign matrices emit none.
+- [x] Three reasons, each with a firing test. Both benign matrices emit none.
 
 #### WP-19 — Long-horizon aggregates and the three blind-spot detectors (F3, B21)
 
-- [ ] First commit: `eval/evasion-holdout/` scenarios and their parameters. No detector code in that commit. Magnitudes: 2 new host:port pairs per hour for 30 h, a beacon every 300 s ± 45% for 6 h, and exfil at 0.85 × the slow-exfil hourly limit for 20 h. Seed `20261018`. Addresses are in `47.8.3.0/24`, not the published suite's `45.2.1.0/24`.
-- [ ] `horizons`, then `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, all shadow.
-- [ ] **Done when:** each detector fires (as `shadow-anomaly`) on its holdout scenario, emits nothing at medium or above on the all-tier benign matrix, has the standard four tests, and `eval/results/evasion.md` reports `eval/evasion/` results for the new rows as measured. Blind spots that remain stay listed as blind spots.
+- [x] First commit: `eval/evasion-holdout/` scenarios and their parameters. No detector code in that commit. Magnitudes: 2 new host:port pairs per hour for 30 h, a beacon every 300 s ± 45% for 6 h, and exfil at 0.85 × the slow-exfil hourly limit for 20 h. Seed `20261018`. Addresses are in `47.8.3.0/24`, not the published suite's `45.2.1.0/24`.
+- [x] `horizons`, then `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, all shadow.
+- [x] **Done when:** each detector fires (as `shadow-anomaly`) on its holdout scenario, emits nothing at medium or above on the all-tier benign matrix, has the standard four tests, and `eval/results/evasion.md` reports `eval/evasion/` results for the new rows as measured. Blind spots that remain stay listed as blind spots.
 
 #### WP-20 — Graph and campaigns (F7, F6, graph rows of B21)
 
-- [ ] `graph` option and `graph()` API, then `graph-new-bridge`, `graph-role-change` (shadow), then `campaigns` and the `campaign` event.
-- [ ] Replay `kimwolf-lan-pivot.test.js`.
-- [ ] **Done when:** the replay yields one campaign as specified in F6, and `campaigns: false` leaves every existing test byte-identical.
+- [x] `graph` option and `graph()` API, then `graph-new-bridge`, `graph-role-change` (shadow), then `campaigns` and the `campaign` event.
+- [x] Replay `kimwolf-lan-pivot.test.js`.
+- [x] **Done when:** the replay yields one campaign as specified in F6, and `campaigns: false` leaves every existing test byte-identical.
 
 #### WP-21 — Remaining B21 rows
 
-- [ ] `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil` (plus `src/data/storage.json`), `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, `matter-new-controller`. One commit each, shadow, standard four tests, one replay each.
-- [ ] `wifi` event and `upnp` / `matter` app protos (from F19) land in the commit of their first consumer.
-- [ ] **Done when:** `spec-coverage` is clean at core 0.8.0 and every B21 row except `peer-divergence-federated` (WP-25) has a file.
+- [x] `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil` (plus `src/data/storage.json`), `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, `matter-new-controller`. One commit each, shadow, standard four tests, one replay each.
+- [x] `wifi` event and `upnp` / `matter` app protos (from F19) land in the commit of their first consumer.
+- [x] **Done when:** `spec-coverage` is clean at core 0.8.0 and every B21 row except `peer-divergence-federated` (WP-25) has a file.
 
 #### WP-22 — Rule language (F10)
 
-- [ ] Validator, compiler, `loadRules`, sequences, `baseline: true`, `examples/rules/`, oracle test against five built-ins, fuzz target `fuzz/rules.fuzz.js` (100,000 seeded inputs).
-- [ ] **Done when:** the oracle test passes, the fuzz run is clean, and a rule set at the 256-rule cap with 10,000 groups each stays inside a measured memory figure recorded in `docs/BENCHMARKS.md`.
+- [x] Validator, compiler, `loadRules`, sequences, `baseline: true`, `examples/rules/`, oracle test against five built-ins, fuzz target `fuzz/rules.fuzz.js` (100,000 seeded inputs).
+- [x] **Done when:** the oracle test passes, the fuzz run is clean, and a rule set at the 256-rule cap with 10,000 groups each stays inside a measured memory figure recorded in `docs/BENCHMARKS.md`.
 
 #### WP-23 — Load shedding and incremental checkpoints (F13, F14)
 
-- [ ] `budget` with an injected clock. A test drives the fake clock over budget and asserts the shed order and that no hard rule is shed.
-- [ ] `checkpointDelta`, `applyDelta`, HMAC chain, and the F14 done-when.
+- [x] `budget` with an injected clock. A test drives the fake clock over budget and asserts the shed order and that no hard rule is shed.
+- [x] `checkpointDelta`, `applyDelta`, HMAC chain, and the F14 done-when.
 
 #### WP-24 — Calibrated confidence, class suggestion, time zones, redaction (F5, F9, F22, F21)
 
 - [ ] Four independent commits. Each option defaults off and leaves every existing test unchanged.
-- [ ] The eval harness prints results under both `calibratedConfidence` settings.
+- [x] The eval harness prints results under both `calibratedConfidence` settings.
 
 #### WP-25 — Sharding and federation (F15, `peer-divergence-federated`)
 
 - [ ] `createShardedEngine` with `inline` mode and the F15 done-when.
-- [ ] `exportSummary({ key, gatewayId })` and `importPeerSummaries(list, { verify })`. Summaries hold per-peer-group HMAC-tokenized families, port sets, an HLL of families and counts, and no device ids. Cap 1,000 summaries, staleness 7 days, signature required when `verify` is set.
-- [ ] `peer-divergence-federated` (shadow).
+- [x] `exportSummary({ key, gatewayId })` and `importPeerSummaries(list, { verify })`. Summaries hold per-peer-group HMAC-tokenized families, port sets, an HLL of families and counts, and no device ids. Cap 1,000 summaries, staleness 7 days, signature required when `verify` is set.
+- [x] `peer-divergence-federated` (shadow).
 
 #### WP-26 — Packages: adapters, exporters, response hints, CLI (F16, F17, F19, F20)
 
 - [ ] One package per commit at `0.1.0`, zero deps, fixtures, `UNVERIFIED` where written from documentation.
-- [ ] `pack-check` rule for `respond-nftables` (no `child_process`, no `worker_threads`).
+- [x] `pack-check` rule for `respond-nftables` (no `child_process`, no `worker_threads`).
 - [ ] **Done when:** every package passes `npm run gate`, and `iotwarden replay` then `iotwarden report` on the Kimwolf pivot replay produces an HTML file that matches its snapshot.
 
 ### Questions to put in `docs/QUESTIONS.md` before WP-11 starts
 
-- [ ] **Q-8** WP-9.9 removed `state.samples`. The acceptance test "idle-heavy learning period: volume threshold counts silent windows" asserts on that array. The behavior it protects still holds: the same scenario stays quiet at 2,100,000 bytes and fires at 5,000,000. May the assertion change from inspecting `state.samples` to asserting that behavior, plus `state.count` including the idle windows? (Spec default: no change until the human says yes.)
-- [ ] **Q-9** Should shadow anomalies reach exporters by default when a host subscribes to `anomaly` only? (Spec default: no. Hosts must subscribe to `shadow-anomaly` explicitly.)
-- [ ] **Q-10** F15 sharding adds `worker_threads`. Is a multi-core gateway (Raspberry Pi 4 class) a target for 1.0, or should F15 wait until after 1.0? (Spec default: build `inline` mode in 0.9, ship workers only after the Pi 4 bench exists.)
-- [ ] **Q-11** F16 response hints: is the `@iotwarden/respond-nftables` package acceptable given the "the library never blocks" positioning, as long as it only renders text? (Spec default: yes, text only, default off.)
-- [ ] **Q-12** `matter-new-controller` depends on a host that can see Matter operational events. Does any target host have that today? If not, the row waits in 1.x instead of 0.8. (Spec default: keep at 0.8 in shadow; the detector stays inactive without `app` events with proto `matter`.)
+- [x] **Q-8** WP-9.9 removed `state.samples`. The acceptance test "idle-heavy learning period: volume threshold counts silent windows" asserts on that array. The behavior it protects still holds: the same scenario stays quiet at 2,100,000 bytes and fires at 5,000,000. May the assertion change from inspecting `state.samples` to asserting that behavior, plus `state.count` including the idle windows? (Spec default: no change until the human says yes.) Resolved: yes.
+- [x] **Q-9** Should shadow anomalies reach exporters by default when a host subscribes to `anomaly` only? (Spec default: no. Hosts must subscribe to `shadow-anomaly` explicitly.) Resolved: no.
+- [x] **Q-10** F15 sharding adds `worker_threads`. Is a multi-core gateway (Raspberry Pi 4 class) a target for 1.0, or should F15 wait until after 1.0? (Spec default: build `inline` mode in 0.9, ship workers only after the Pi 4 bench exists.) Resolved: inline only until a Pi 4 bench exists.
+- [x] **Q-11** F16 response hints: is the `@iotwarden/respond-nftables` package acceptable given the "the library never blocks" positioning, as long as it only renders text? (Spec default: yes, text only, default off.) Resolved: yes, text only, default off.
+- [x] **Q-12** `matter-new-controller` depends on a host that can see Matter operational events. Does any target host have that today? If not, the row waits in 1.x instead of 0.8. (Spec default: keep at 0.8 in shadow; the detector stays inactive without `app` events with proto `matter`.) Resolved: stays at 0.8 in shadow.
 
 ### Questions to put in `docs/QUESTIONS.md` before WP-1 starts
 

@@ -641,3 +641,37 @@ Check 236/236, duration 248376 ms. Coverage lines 98.01%, branches 86.63%, funct
 `test/replay/kimwolf-lan-pivot.test.js` produced exactly one campaign, 2 devices, stages c2, spread, and impact. `campaigns` stays off unless the host sets it, so the existing suite does not emit `campaign`. D-31.
 
 `npm run demo` printed the same incident, score 100.
+
+## WP-21 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 282/282, duration 1040469 ms. Coverage lines 98.04%, branches 86.84%, functions 97.91%, duration 1603802 ms. Pack-check: core 185 files, 527121 bytes unpacked. `src/engine/engine.js` is 67574 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 56550 accepted, 43450 rejected; checkpoint mutation 53652 accepted, 46348 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected. Bench median 7.17 µs, retained 12.04 KB/device. Rich bench median 10.13 µs, retained 87.35 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+The nine new detectors are shadow. A router Neighbor Advertisement fires during learning because `learn()` may return a severity draft (D-32). `npm run demo` printed the same incident, score 100.
+
+Largest packed files, bytes: engine.js 67574, validate.js 31270, LICENSE 11342, checkpoint.js 10321, index.d.ts 10309, CHANGELOG.md 10199, learning.js 7101, feedback.js 7016, graph.js 6262, baseline.js 5392, campaigns.js 5375, promote.js 5225, horizon.js 5126, exploit-probe-http.js 4940, multi-horizon-exfil.js 4866.
+
+## WP-22 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 289/289, duration 1251432 ms. Coverage lines 97.69%, branches 86.02%, functions 97.90%, duration 1145845 ms. Pack-check: core 186 files, 549167 bytes unpacked. `src/engine/engine.js` is 68083 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 56550 accepted, 43450 rejected; checkpoint mutation 53652 accepted, 46348 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected. Bench median 6.75 µs, retained 12.04 KB/device, 1000 devices. Rich bench median 11.17 µs, retained 87.36 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
+
+`loadRules` validates the whole document, then swaps the rule set. `npm run demo` printed the same incident, score 100.
+
+## WP-21.5 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 290/290, duration 772726 ms. Coverage lines 97.71%, branches 86.04%, functions 97.83%, duration 799587 ms. Pack-check: core 186 files, 552355 bytes unpacked. `src/engine/engine.js` is 69008 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 54731 accepted, 45269 rejected; checkpoint mutation 52243 accepted, 47757 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected. Bench median 6.92 µs, retained 11.99 KB/device, 1000 devices. Rich bench (defaults) median 7.46 µs, retained 67.86 KB/device, 200 devices, 6,948,925 events. Shadow bench (`shadow: true`) median 9.92 µs, retained 74.39 KB/device. Both under 100 KB. The 1,000-device median is under 10 µs. The shadow median is recorded and not gated.
+
+`npm run demo` printed the same incident, score 100.
+
+## Pre-Step-2 alignment gate
+
+Date: 2026-10-20. `npm run gate` exited 0, then `npm run demo`. The local tag was not moved until this gate passed.
+
+Check 295/295, duration 459561 ms. Coverage lines 97.70%, branches 86.04%, functions 97.83%, duration 1100995 ms. Pack-check compares `npm pack --dry-run --json` field `unpackedSize` to 750 × 1024 for `packages/core` and 500 × 1024 for every other package. Core: 186 files, 553281 bytes unpacked during the gate. The changelog sentence added after that gate makes the tagged tree 553480 bytes unpacked. Both are under 750 KB. `src/engine/engine.js` is 69008 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.8.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 54731 accepted, 45269 rejected; checkpoint mutation 52243 accepted, 47757 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected; rules mutation 66158 accepted of 100000, crashes 0. Bench median 7.29 µs, retained 12.01 KB/device, 1000 devices. Rich bench (defaults) median 9.33 µs, retained 68.13 KB/device, 200 devices, 6,948,925 events. Shadow bench (`shadow: true`) median 10.38 µs, retained 74.52 KB/device. Both under 100 KB. The 1,000-device median is under 10 µs. The shadow median is over 10 µs and is not a gate.
+
+`npm run demo` printed the same incident, score 100.

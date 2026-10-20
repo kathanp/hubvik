@@ -1,0 +1,21 @@
+{
+  "id": "ot-stop",
+  "on": "app",
+  "where": {
+    "op": {
+      "in": [
+        "ReinitializeDevice",
+        "DeviceCommunicationControl",
+        "AtomicWriteFile",
+        "fc8",
+        "STOP",
+        "download"
+      ]
+    }
+  },
+  "groupBy": ["device"],
+  "window": "1m",
+  "severity": "critical",
+  "category": "ot",
+  "attack": ["T1565"]
+}

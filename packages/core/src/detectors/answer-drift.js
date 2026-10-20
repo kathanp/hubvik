@@ -53,9 +53,10 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
+    if (!Array.isArray(state.answers)) throw new Error('answer-drift answers must be an array');
+    if (state.answers.length > 5000) throw new Error('array answer-drift.answers exceeds cap');
     dev.answers = new Map();
     dev.fired = new Set();
-    if (!Array.isArray(state.answers) || state.answers.length > 5000) return;
     for (const pair of state.answers) {
       if (Array.isArray(pair) && Array.isArray(pair[1]))
         dev.answers.set(String(pair[0]), pair[1].slice(0, 8));

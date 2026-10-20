@@ -1,0 +1,12 @@
+{
+  "name": "@iotwarden/export-mqtt",
+  "exports": [
+    "publishWith",
+    "toMessages"
+  ],
+  "methods": {
+    "publishWith": [],
+    "toMessages": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const toMessages: unknown;\nexport const publishWith: unknown;\n"
+}

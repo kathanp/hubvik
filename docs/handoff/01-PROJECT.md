@@ -14,22 +14,22 @@ The tree is local `0.7.0`. It is not published. `1.0.0` requires the spec's eval
 
 ## Versions in the tree
 
-| Package                           | Version | Role                                                                   |
-| --------------------------------- | ------- | ---------------------------------------------------------------------- |
-| `packages/core` (`iotwarden`)     | 0.7.0   | Engine, 109 live detectors, and 6 shadow detectors (enabled, not live) |
-| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                   |
-| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                |
-| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                         |
-| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                                      |
-| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                                 |
-| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                            |
-| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                |
+| Package                           | Version | Role                                                                    |
+| --------------------------------- | ------- | ----------------------------------------------------------------------- |
+| `packages/core` (`iotwarden`)     | 0.7.0   | Engine, 109 live detectors, and 17 shadow detectors (enabled, not live) |
+| `@iotwarden/adapter-conntrack`    | 0.2.0   | `conntrack -L` / `-E` lines to flows                                    |
+| `@iotwarden/adapter-dnsmasq`      | 0.2.0   | `log-queries=extra` lines to DNS events                                 |
+| `@iotwarden/adapter-zeek`         | 0.1.0   | Zeek JSON logs                                                          |
+| `@iotwarden/adapter-suricata-eve` | 0.1.0   | Suricata EVE JSON                                                       |
+| `@iotwarden/export-ocsf`          | 0.2.0   | OCSF Detection Finding, class_uid 2004                                  |
+| `@iotwarden/export-syslog`        | 0.1.0   | RFC 5424 plus a CEF message                                             |
+| `@iotwarden/export-webhook`       | 0.1.0   | POST with retry, backoff, HMAC. Caller supplies `fetch`                 |
 
 Git: `main` includes the local `0.7.0` release. Nothing is pushed and nothing is published. Do not push or `npm publish` unless the human asks. The human does every `npm login`, `npm publish`, `git push`, and `gh repo create`.
 
 ## Gate
 
-Coverage thresholds are 90% lines and 80% branches. The unpacked core cap is 750 KB. No packed file may exceed 60 KB except `src/engine/engine.js`, which is already over that line and is reported rather than split. `src/data/` must total at most 200 KB. `npm run demo` prints the camera hijack and one critical incident with stages c2, recon, and impact. `went-silent` in that demo is a two-hour tick after the last heartbeat.
+Coverage thresholds are 90% lines and 80% branches. The unpacked core cap is 750 KB. No packed file may exceed 60 KB. `src/engine/engine.js` is split and is not exempt (D-35). `src/data/` must total at most 200 KB. `npm run demo` prints the camera hijack and one critical incident with stages c2, recon, and impact. `went-silent` in that demo is a two-hour tick after the last heartbeat.
 
 `npm run fuzz` feeds 100,000 seeded inputs through `feed`, `importBaseline`, and `restore`, then mutates one valid baseline and one valid checkpoint. `npm run bench` feeds 1,000 devices past `learnMs`, calls `lock()`, and times watching-state `feed()`. It exits non-zero when the median is at least 10 µs or the measured heap delta is at least 100 KB per device. The 2026-10-17 gate, after `feed()` dispatched by `meta.consumes`, measured 6.13 µs and 1.19 KB/device. The 10 µs budget is unchanged. SPEC C10 row 0.5 records that pass. Core stays 0.5.0.
 
@@ -92,4 +92,4 @@ Default options that matter: `learnMs` 7 days, `windowMs` 60 seconds, `tiers` `[
 
 WP-9, the evaluation harness, is not started. It needs the human's datasets. GitHub, the npm org, and trusted publishing are not started. Before any future publish the human still has to do a trademark search, create the npm org, and choose a disclosure email. `SECURITY.md` has no disclosure address yet. `repository`, `bugs`, and `homepage` are omitted until a GitHub remote exists.
 
-Spec rows still unimplemented are the 1.x rows. The tree has 109 live detectors plus 3 early shadow detectors, off by default, listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; that number is recorded, not tuned.
+Spec rows still unimplemented include the 1.x rows and `peer-divergence-federated` (WP-25). The tree has 109 live detectors plus 17 shadow detectors, enabled, listed in `03-DETECTORS.md`. `identity-change` is implemented. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; that number is recorded, not tuned.

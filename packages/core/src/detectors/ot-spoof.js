@@ -51,9 +51,10 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
+    if (!Array.isArray(state.owners)) throw new Error('ot-spoof owners must be an array');
+    if (state.owners.length > 5000) throw new Error('array ot-spoof.owners exceeds cap');
     dev.owners = new Map();
     dev.fired = new Set();
-    if (!Array.isArray(state.owners) || state.owners.length > 5000) return;
     for (const pair of state.owners) {
       if (Array.isArray(pair) && pair.length === 2)
         dev.owners.set(String(pair[0]), String(pair[1]));

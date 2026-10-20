@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { createEngine } = require('../src/index.js');
+const { createEngine, detectors } = require('../src/index.js');
 
 const dummy = {
   id: 'shadow-dummy',
@@ -95,8 +95,8 @@ function scan(ts, port) {
 }
 
 test('a shadow detector leaves the live stream and baseline unchanged', () => {
-  const plain = drive(createEngine({ learnMs: 0 }));
-  const withShadow = createEngine({ learnMs: 0 });
+  const plain = drive(createEngine({ shadow: true, learnMs: 0 }));
+  const withShadow = createEngine({ shadow: true, learnMs: 0 });
   withShadow.use(dummy);
   const noisy = drive(withShadow);
   assert.deepStrictEqual(noisy.anomalies, plain.anomalies);
@@ -106,7 +106,7 @@ test('a shadow detector leaves the live stream and baseline unchanged', () => {
 });
 
 test('shadow drafts do not feed alert-storm', () => {
-  const engine = createEngine({ learnMs: 0 });
+  const engine = createEngine({ shadow: true, learnMs: 0 });
   engine.use(dummy);
   /** @type {string[]} */
   const names = [];
@@ -123,6 +123,7 @@ test('canary counts are identical across two runs and stay out of the checkpoint
    */
   function once() {
     const engine = createEngine({
+      shadow: true,
       learnMs: 0,
       tiers: ['T0', 'T1'],
       windowMs: 1000,
@@ -138,6 +139,7 @@ test('canary counts are identical across two runs and stay out of the checkpoint
   assert.strictEqual(first.stats().canary['vertical-scan'].canaryOnly, 1);
   const saved = first.checkpoint({ createdAt: 1 });
   const restored = createEngine({
+    shadow: true,
     learnMs: 0,
     tiers: ['T0', 'T1'],
     windowMs: 1000,
@@ -155,9 +157,10 @@ test('a fifth canary is rejected and a promoted shadow detector warns once', () 
   for (const id of ['fan-out', 'volume-spike', 'new-port', 'new-destination', 'new-protocol']) {
     detectors[id] = { canary: { minPorts: 1 } };
   }
-  assert.throws(() => createEngine({ detectors }), /at most 4 canaries/);
+  assert.throws(() => createEngine({ shadow: true, detectors }), /at most 4 canaries/);
 
   const engine = createEngine({
+    shadow: true,
     learnMs: 0,
     tiers: ['T0', 'T1'],
     detectors: { 'ttl-anomaly': { mode: 'live' } },
@@ -170,4 +173,151 @@ test('a fifth canary is rejected and a promoted shadow detector warns once', () 
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
   engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 1 });
   assert.deepStrictEqual(codes, ['SHADOW_PROMOTED_BY_HOST']);
+});
+
+test('shadow defaults off, a list selects one, and enabled still wins', () => {
+  const quiet = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  quiet.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+  const saved = quiet.exportBaseline({ createdAt: 1 });
+  assert.equal(saved.devices.d.detectors['ttl-anomaly'], undefined);
+  assert.equal(quiet.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(quiet.stats().detectors['slow-scan'].reason, 'disabled by configuration');
+
+  const listed = createEngine({ learnMs: 0, tiers: ['T0', 'T1'], shadow: ['ttl-anomaly'] });
+  listed.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 0 });
+  const row = listed.exportBaseline({ createdAt: 1 });
+  assert.ok(row.devices.d.detectors['ttl-anomaly']);
+  assert.equal(row.devices.d.detectors['slow-scan'], undefined);
+  assert.equal(listed.stats().detectors['ttl-anomaly'].active, true);
+
+  const forced = createEngine({
+    learnMs: 0,
+    tiers: ['T0', 'T1'],
+    detectors: { 'slow-scan': { enabled: true } },
+  });
+  assert.equal(forced.stats().detectors['slow-scan'].active, true);
+  assert.equal(forced.stats().detectors['ttl-anomaly'].active, false);
+
+  const muted = createEngine({
+    learnMs: 0,
+    tiers: ['T1'],
+    shadow: true,
+    detectors: { 'ttl-anomaly': { enabled: false } },
+  });
+  assert.equal(muted.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(muted.stats().detectors['slow-scan'].active, true);
+
+  assert.throws(() => createEngine({ shadow: 'yes' }), /shadow must be/);
+  assert.throws(() => createEngine({ shadow: ['nope'] }), /unknown detector/);
+});
+
+const ALL_TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
+const SHADOW_IDS = Object.values(detectors)
+  .filter((det) => det.meta && det.meta.mode === 'shadow')
+  .map((det) => det.id);
+
+const young = {
+  value: 'fresh.example',
+  type: 'young-domain',
+  source: 'lab',
+  confidence: 0.8,
+};
+
+/**
+ * @param {string} qname
+ * @param {number} ts
+ */
+function youngQuery(qname, ts) {
+  return {
+    type: 'dns',
+    device: 'd',
+    ts,
+    qname,
+    qtype: 'A',
+    rcode: 'NOERROR',
+    resolver: '192.0.2.1',
+  };
+}
+
+/**
+ * @param {any} engine
+ * @returns {any[]}
+ */
+function watchYoung(engine) {
+  /** @type {any[]} */
+  const hits = [];
+  engine.on('shadow-anomaly', (row) => {
+    if (row.detector === 'young-domain') hits.push(row);
+  });
+  engine.loadIndicators([young]);
+  engine.feed(youngQuery('fresh.example', 1_000));
+  return hits;
+}
+
+test('a default engine stores no shadow state and stays quiet on a shadow replay', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ALL_TIERS });
+  const hits = watchYoung(engine);
+  assert.deepStrictEqual(hits, []);
+  const saved = engine.exportBaseline({ createdAt: 1 });
+  const device = engine.devices.get('d');
+  for (const id of SHADOW_IDS) {
+    assert.equal(saved.devices.d.detectors[id], undefined, id);
+    assert.equal(device.states.has(id), false, id);
+    assert.equal(engine.stats().detectors[id].active, false, id);
+  }
+});
+
+test('shadow true runs every shadow detector', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ALL_TIERS, shadow: true });
+  const hits = watchYoung(engine);
+  assert.equal(hits.length, 1);
+  const status = engine.stats().detectors;
+  for (const id of SHADOW_IDS) assert.equal(status[id].active, true, id);
+  assert.ok(engine.exportBaseline({ createdAt: 1 }).devices.d.detectors['young-domain']);
+});
+
+test('a shadow id list runs only the named detectors', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ALL_TIERS, shadow: ['young-domain'] });
+  const hits = watchYoung(engine);
+  assert.equal(hits.length, 1);
+  const saved = engine.exportBaseline({ createdAt: 1 });
+  assert.ok(saved.devices.d.detectors['young-domain']);
+  assert.equal(saved.devices.d.detectors['ttl-anomaly'], undefined);
+  assert.equal(engine.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(engine.stats().detectors['slow-scan'].active, false);
+  assert.equal(engine.devices.get('d').states.has('ttl-anomaly'), false);
+});
+
+test('detectors[id].enabled runs only that shadow detector', () => {
+  const engine = createEngine({
+    learnMs: 0,
+    tiers: ALL_TIERS,
+    detectors: { 'young-domain': { enabled: true } },
+  });
+  const hits = watchYoung(engine);
+  assert.equal(hits.length, 1);
+  const saved = engine.exportBaseline({ createdAt: 1 });
+  assert.ok(saved.devices.d.detectors['young-domain']);
+  assert.equal(saved.devices.d.detectors['ttl-anomaly'], undefined);
+  assert.equal(engine.stats().detectors['ttl-anomaly'].active, false);
+  assert.equal(engine.devices.get('d').states.has('slow-scan'), false);
+});
+
+test('a shadow baseline imports into a default engine and is not re-exported', () => {
+  const source = createEngine({ learnMs: 0, tiers: ALL_TIERS, shadow: true });
+  assert.equal(watchYoung(source).length, 1);
+  const saved = source.exportBaseline({ createdAt: 1 });
+  assert.ok(saved.devices.d.detectors['young-domain']);
+  const quiet = createEngine({ learnMs: 0, tiers: ALL_TIERS });
+  assert.doesNotThrow(() => quiet.importBaseline(saved));
+  const again = quiet.exportBaseline({ createdAt: 1 });
+  assert.equal(again.devices.d.detectors['young-domain'], undefined);
+  assert.equal(again.devices.d.detectors['ttl-anomaly'], undefined);
+  assert.ok(quiet.devices.get('d').states.has('young-domain'));
+  /** @type {any[]} */
+  const hits = [];
+  quiet.on('shadow-anomaly', (row) => hits.push(row));
+  quiet.loadIndicators([young]);
+  quiet.feed(youngQuery('other.example', 2_000));
+  assert.deepStrictEqual(hits, []);
 });

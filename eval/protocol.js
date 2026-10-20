@@ -202,9 +202,10 @@ function exercised(det, tiers, types) {
  * @param {Map<string, any>} plans
  * @param {string[]} tiers
  * @param {string | null} disabled
+ * @param {{ calibratedConfidence?: boolean }} [extra]
  * @returns {any[]}
  */
-function replay(plans, tiers, disabled) {
+function replay(plans, tiers, disabled, extra) {
   /** @type {any[]} */
   const anomalies = [];
   for (const [device, plan] of plans) {
@@ -212,6 +213,7 @@ function replay(plans, tiers, disabled) {
       learnMs: plan.learn.length === 0 ? 0 : 1e14,
       tiers,
       evidence: false,
+      calibratedConfidence: extra != null && extra.calibratedConfidence === true,
       detectors: disabled ? { [disabled]: { enabled: false } } : undefined,
     });
     engine.on('anomaly', (item) => {
@@ -404,6 +406,17 @@ function evaluate(rows, opts) {
     for (const row of plan.learn) if (row.malicious) maliciousLearnEvents += 1;
   }
   const maliciousLearnShare = learnEvents === 0 ? 0 : maliciousLearnEvents / learnEvents;
+  const calibratedScored = afterLock(
+    replay(plans, tiers, null, { calibratedConfidence: true }),
+    plans,
+  );
+  const calibratedDetected = intervals.filter(
+    (interval) => hitsFor(interval, calibratedScored).length > 0,
+  ).length;
+  const calibratedFp = calibratedScored.filter(
+    (item) =>
+      counts(item.severity) && !intervals.some((interval) => inDetectionWindow(interval, item)),
+  ).length;
   const byLabel = typeRates(instances);
   /** @type {Set<string>} */
   const types = new Set();
@@ -474,6 +487,12 @@ function evaluate(rows, opts) {
     benignIntervalsWithFalsePositive: formatRate(benignHit, benign.length, 'benign intervals'),
     ablation,
     proposals: ablation.map((row) => row.proposal).filter(Boolean),
+    calibrated: {
+      detection: formatRate(calibratedDetected, instances.length, 'attack instances'),
+      falsePositives: calibratedFp,
+      benignDeviceDays: days,
+      falsePositivesPerDeviceDay: days > 0 ? calibratedFp / days : null,
+    },
   };
 }
 
@@ -504,7 +523,7 @@ function typeRates(instances) {
 }
 
 /**
- * Five lines for stdout.
+ * Stdout lines. The last two are the same rates with `calibratedConfidence` on.
  * @param {any} result
  * @returns {string[]}
  */
@@ -513,13 +532,22 @@ function summaryLines(result) {
     result.falsePositivesPerDeviceDay == null
       ? 'no rate'
       : String(result.falsePositivesPerDeviceDay);
-  return [
+  const lines = [
     `dataset: ${result.dataset}`,
     `devices: ${result.learning.length}`,
     `attack instances: ${result.attackInstances}`,
     `detection: ${result.detection}`,
     `FP/device-day: ${fp}`,
   ];
+  if (result.calibrated) {
+    const calibratedFp =
+      result.calibrated.falsePositivesPerDeviceDay == null
+        ? 'no rate'
+        : String(result.calibrated.falsePositivesPerDeviceDay);
+    lines.push(`calibratedConfidence detection: ${result.calibrated.detection}`);
+    lines.push(`calibratedConfidence FP/device-day: ${calibratedFp}`);
+  }
+  return lines;
 }
 
 /**
@@ -589,7 +617,9 @@ function renderMarkdown(result) {
     '',
     'Attack intervals: contiguous Malicious runs per (device, detailed-label), merged when the gap is under 5 minutes.',
     '',
-    ...(result.dataset === 'ciciot2023'
+    ...(result.dataset === 'ciciot2023' ||
+    result.dataset === 'ieee-dataport' ||
+    result.dataset === 'ciciomt2024'
       ? ['UNVERIFIED: written from documentation, not run on real data.', '']
       : []),
     ...(result.tiers.length === 1 && result.tiers[0] === 'T1'
@@ -608,6 +638,14 @@ function renderMarkdown(result) {
     '',
     `Benign intervals with a false positive: ${result.benignIntervalsWithFalsePositive}`,
     '',
+    ...(result.calibrated
+      ? [
+          `calibratedConfidence detection: ${result.calibrated.detection}`,
+          '',
+          `calibratedConfidence false positives: ${result.calibrated.falsePositives} anomalies at medium or above, ${result.calibrated.benignDeviceDays} benign device-days, ${result.calibrated.falsePositivesPerDeviceDay == null ? 'no rate (0 device-days)' : `${result.calibrated.falsePositivesPerDeviceDay} per benign device-day`}.`,
+          '',
+        ]
+      : []),
     '## By type',
     '',
   ];

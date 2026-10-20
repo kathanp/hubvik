@@ -1,0 +1,1150 @@
+{
+  "dataset": "iot23",
+  "tiers": ["T1"],
+  "learning": [
+    {
+      "device": "0.0.0.0",
+      "learningMs": 19517353,
+      "short": true
+    },
+    {
+      "device": "192.168.2.1",
+      "learningMs": 19524637,
+      "short": true
+    },
+    {
+      "device": "fe80::80e6:50ff:fe12:1464",
+      "learningMs": 19453751,
+      "short": true
+    },
+    {
+      "device": "169.254.15.115",
+      "learningMs": 19453750,
+      "short": true
+    },
+    {
+      "device": "192.168.2.3",
+      "learningMs": 17851657,
+      "short": true
+    },
+    {
+      "device": "fe80::4eef:c0ff:fe27:561e",
+      "learningMs": 6510830,
+      "short": true
+    },
+    {
+      "device": "::",
+      "learningMs": 18884509,
+      "short": true
+    },
+    {
+      "device": "fe80::482:6d20:b3e:adf4",
+      "learningMs": 125676,
+      "short": true
+    },
+    {
+      "device": "192.168.69.192",
+      "learningMs": 124241,
+      "short": true
+    },
+    {
+      "device": "fe80::82e6:50ff:fe21:867c",
+      "learningMs": 948,
+      "short": true
+    },
+    {
+      "device": "192.168.69.129",
+      "learningMs": 125441,
+      "short": true
+    },
+    {
+      "device": "fe80::1060:27a7:f64c:dec9",
+      "learningMs": 124931,
+      "short": true
+    },
+    {
+      "device": "fe80::1847:a1bd:8d13:f43c",
+      "learningMs": 120630,
+      "short": true
+    },
+    {
+      "device": "192.168.69.73",
+      "learningMs": 122675,
+      "short": true
+    },
+    {
+      "device": "fe80::ad:a9ad:1b82:2e67",
+      "learningMs": 71271,
+      "short": true
+    },
+    {
+      "device": "fe80::14c5:8f26:563a:f0cb",
+      "learningMs": 63977,
+      "short": true
+    },
+    {
+      "device": "192.168.69.17",
+      "learningMs": 0,
+      "short": true
+    },
+    {
+      "device": "192.168.69.136",
+      "learningMs": 67862,
+      "short": true
+    },
+    {
+      "device": "fe80::106c:9e5b:3af8:9cf",
+      "learningMs": 59188,
+      "short": true
+    },
+    {
+      "device": "192.168.69.200",
+      "learningMs": 58473,
+      "short": true
+    },
+    {
+      "device": "fe80::183b:7564:dbcc:3eca",
+      "learningMs": 31948,
+      "short": true
+    },
+    {
+      "device": "192.168.69.178",
+      "learningMs": 26727,
+      "short": true
+    },
+    {
+      "device": "192.168.69.241",
+      "learningMs": 0,
+      "short": true
+    },
+    {
+      "device": "fe80::1c5c:213d:7cf8:890",
+      "learningMs": 921,
+      "short": true
+    }
+  ],
+  "learnEvents": 1374,
+  "maliciousLearnEvents": 0,
+  "maliciousLearnShare": 0,
+  "poisonedPrefix": false,
+  "attackInstances": 0,
+  "detected": 0,
+  "detection": "no rate",
+  "strictDetected": 0,
+  "strictInstances": 0,
+  "strictDetection": "no rate",
+  "byLabel": [],
+  "misses": [],
+  "hits": [],
+  "falsePositives": 0,
+  "benignDeviceDays": 0,
+  "falsePositivesPerDeviceDay": null,
+  "benignIntervals": 0,
+  "benignIntervalsWithFalsePositive": "no rate",
+  "ablation": [
+    {
+      "detector": "new-destination",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "new-domain-family",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "new-port",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-protocol",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "fan-out",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "horizontal-scan",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "vertical-scan",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "failed-connection-ratio",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-lateral",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "volume-spike",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "volume-spike-hourly",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "upload-ratio-shift",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "packet-flood",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "egress-flood",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "reflection-participation",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "coap-amplification",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "wrong-time",
+      "severity": "low",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "went-silent",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "tier-silent",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "nxdomain-burst",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "resolver-bypass",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dns-rebinding",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "private-answer-for-public-name",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "threat-intel-match",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "bogon-destination",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "inbound-from-wan",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-device",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "policy-violation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "adb-exposure",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-new-broker",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "spam-relay",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "tftp-activity",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "posture-listening-risky",
+      "severity": "low",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "posture-wan-exposed",
+      "severity": "low",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "input-gap",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "clock-jump",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "state-cap",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "alert-storm",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "class-violation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "supply-chain-suspect",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "proxy-relay",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "proxy-sdk-traffic",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "blockchain-c2",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "direct-ip",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "new-asn",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-country",
+      "severity": "low",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "upnp-port-open",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "tor-or-proxy",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-sweep",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "brute-force-out",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "brute-force-in",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "slow-exfil",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "protocol-mix-shift",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "connection-churn",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-beacon",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "long-connection",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "dga",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dns-tunnel",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "arp-spoof",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "gratuitous-arp-flood",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "rogue-dhcp",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "identity-change",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "dhcp-starvation",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "rogue-ra",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "src-spoof",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "icmp-redirect",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "zone-violation",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "stream-to-new-destination",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "cryptomining",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ot-wan-exposure",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "tunnel-service",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "vpn-protocol",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "icmp-tunnel",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ipv6-tunnel",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ntp-rogue",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "update-from-new-source",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "update-over-cleartext",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "post-update-drift",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "posture-cleartext-auth",
+      "severity": "low",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "new-client-fingerprint",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "cert-change",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "sni-missing",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "tls-on-odd-port",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "cleartext-regression",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "browser-mimic",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "posture-weak-tls",
+      "severity": "low",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "proxy-backconnect",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "lan-via-proxy",
+      "severity": "critical",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "p2p-pattern",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "credential-stuffing-out",
+      "severity": "high",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "ad-fraud",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "quic-new",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "beacon-change",
+      "severity": "medium",
+      "exercised": true,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": true,
+      "proposal": null
+    },
+    {
+      "detector": "answer-drift",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "fast-flux",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-new-master",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-write-new",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-dangerous-op",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-value-out-of-range",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-write-rate",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-recon",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-spoof",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "ot-error-burst",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-wildcard-subscribe",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-topic-new",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "mqtt-publish-rate",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "onvif-config-change",
+      "severity": "critical",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "peer-divergence",
+      "severity": "high",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    },
+    {
+      "detector": "fleet-wave",
+      "severity": "medium",
+      "exercised": false,
+      "unique": 0,
+      "falsePositives": 0,
+      "zeroUnique": false,
+      "proposal": null
+    }
+  ],
+  "proposals": [],
+  "evasion": [
+    {
+      "id": "slow-scan",
+      "fired": false,
+      "detectors": []
+    },
+    {
+      "id": "beacon-jitter-40",
+      "fired": false,
+      "detectors": []
+    },
+    {
+      "id": "exfil-0.9-limit",
+      "fired": false,
+      "detectors": []
+    },
+    {
+      "id": "flood-10-destinations",
+      "fired": true,
+      "detectors": ["egress-flood"]
+    }
+  ]
+}

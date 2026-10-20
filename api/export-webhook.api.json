@@ -1,0 +1,10 @@
+{
+  "name": "@iotwarden/export-webhook",
+  "exports": [
+    "createSender"
+  ],
+  "methods": {
+    "createSender": []
+  },
+  "dts": "declare const api: Record<string, unknown>;\nexport default api;\nexport const createSender: unknown;\n"
+}

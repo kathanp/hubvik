@@ -37,6 +37,7 @@ test('jitter-beacon emits shadow-anomaly on the holdout', () => {
   const scenario = scenarios().find((row) => row.id === 'holdout-beacon-45');
   assert.ok(scenario);
   const engine = createEngine({
+    shadow: true,
     learnMs: scenario.events[scenario.learnCount - 1].ts + 1,
     tiers: ['T1'],
   });
@@ -52,7 +53,7 @@ test('jitter-beacon emits shadow-anomaly on the holdout', () => {
 });
 
 test('jitter-beacon keeps 64 destinations and rejects a 65th on import', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   for (let i = 0; i < 65; i += 1) engine.feed(flow({ ts: i, dstIp: `9.9.1.${i}` }));
   const saved = engine.exportBaseline({ createdAt: 1 });
   assert.strictEqual(saved.devices.d.detectors['jitter-beacon'].state.tracks.length, 64);
@@ -88,11 +89,11 @@ test('jitter-beacon keeps 64 destinations and rejects a 65th on import', () => {
 });
 
 test('jitter-beacon restores a track', () => {
-  const engine = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   engine.feed(flow({ ts: 0 }));
   engine.feed(flow({ ts: 300000 }));
   const saved = engine.exportBaseline({ createdAt: 1 });
-  const next = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   next.importBaseline(saved);
   const again = next.exportBaseline({ createdAt: 2 });
   assert.strictEqual(again.devices.d.detectors['jitter-beacon'].state.tracks.length, 1);
@@ -110,7 +111,12 @@ test('jitter-beacon is silent on the all-tier benign matrix', () => {
         discovery: true,
         ipv6: true,
       });
-      const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS, identity: 'auto' });
+      const engine = createEngine({
+        shadow: true,
+        learnMs: 7 * DAY,
+        tiers: TIERS,
+        identity: 'auto',
+      });
       engine.setDeviceClass(events[0].device, profile);
       /** @type {any[]} */
       const hits = [];

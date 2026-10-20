@@ -2,11 +2,35 @@
 
 ## Unreleased
 
-`test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, except `src/engine/engine.js`, which is already over that line. `src/data/` must total at most 200 KB.
+Local only. Not a version bump and not a 0.9 gate. The Raspberry Pi 4 bench and the real-traffic 0.6 gate are still open.
+
+Default-off engine options: `budget`, `calibratedConfidence`, `classSuggest`, `responseHints`, `redact`. `setDeviceTimezone`, `loadMud`, `checkpointDelta`, `applyDelta`, `exportSummary`, `importPeerSummaries`, and inline-only `createShardedEngine`. Worker shards throw until a person measures a Raspberry Pi 4.
+
+Shadow detectors, Rel 0.9: `day-of-week-drift`, `sni-ip-mismatch`, `mac-randomization-churn`, `discovery-spoof`, `mud-violation`, `fleet-baseline-poisoning`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`, `peer-divergence-federated`. They do not run unless `shadow` selects them. `peer-divergence-federated` counts each imported summary as one peer and also counts local peers in the same group. `importPeerSummaries` rejects forbidden keys and a non-array `groups` field before it replaces the previous summaries. With `calibratedConfidence`, a detector that does not return `margin` keeps the constant in `src/data/confidence.json`. Class suggestion scores a smart TV only after a browser JA4 and more than 30 families in a day, and a thermostat only for MQTT publish under 50 KB in that hour.
+
+New packages, each 0.1.0 and UNVERIFIED where the parser was written from documentation: `@iotwarden/adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables`, and `cli`. `respond-nftables` returns rule text and does not execute it. `export-ocsf` maps a campaign like an incident update and copies `explain` into `finding_info.desc`.
+
+## 0.8.0
+
+Local release, not published. The 0.8 gate measured 67.86 KB retained per device on the 200-device 7-day bench with default options (rich median `feed()` 7.46 µs, 6,948,925 events). With `shadow: true` the same bench retained 74.39 KB per device (median 9.92 µs). The 1,000-device watching median was 6.92 µs, retained 11.99 KB per device. The alignment re-gate measured defaults at 9.33 µs and 68.13 KB, `shadow: true` at 10.38 µs and 74.52 KB, and a 1,000-device median of 7.29 µs. The shadow median is over 10 µs and is not a gate. Check 295/295. Coverage lines 97.70%, branches 86.04%, functions 97.83%. Fuzz stayed clean. `npm run demo` scored the same incident at 100. Still a prototype, not validated on real traffic.
+
+`test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, including `src/engine/engine.js` (D-35). `src/data/` must total at most 200 KB.
 
 Hourly horizon ring, and shadow detectors `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil`. When the learned hourly deviation is 0, the exfil CUSUM limit is 1 byte (D-30).
 
 LAN graph and shadow detectors `graph-new-bridge` and `graph-role-change`. `campaigns` defaults to false. `lan-via-proxy` is incident stage impact (D-31).
+
+Shadow detectors `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil` (`src/data/storage.json`), `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, and `matter-new-controller`. Event type `wifi`. App protos `upnp` and `matter`. `ownBssids` lists mesh BSSIDs. A `learn()` return that carries `severity` and no `reason` is emitted, so a router Neighbor Advertisement can fire during learning while the detector stays shadow (D-32).
+
+`peer-divergence-federated` is Rel 0.9 and is not part of 0.8 (D-33).
+
+`loadRules(rules)` compiles declarative rules to shadow detectors `rule:<id>` after every rule validates. A failed load leaves the previous set in place. There is no regular expression operator. Caps are 256 rules and 10,000 groups per rule.
+
+`shadow` defaults to false (D-34). A shadow detector does not run, create state, or appear in `exportBaseline()` unless `shadow` is true, its id is listed, or `detectors[id].enabled` is set. `detectors[id].mode: 'live'` still promotes one.
+
+`multi-horizon-exfil` keeps its hourly summary in a `Float64Array`. The exported baseline fields are unchanged. A checkpoint stores that array as base64 so the bytes round-trip. That summary is the learned hourly mean and deviation, not a second copy of the F3 hour ring. `check()` still reads `ctx.horizon` for the last 24 hours.
+
+A baseline exported with shadow detectors on imports into a default engine without throwing. The state is kept and not run, and the next export omits it. A pilot sets `shadow: true`, or a B21 row has no evidence and cannot be promoted (D-34).
 
 ## 0.7.0
 

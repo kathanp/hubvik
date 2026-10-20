@@ -152,13 +152,26 @@ export interface AppEvent {
     | 'rtsp'
     | 'onvif'
     | 'stratum'
-    | 'smtp';
+    | 'smtp'
+    | 'upnp'
+    | 'matter';
   role: 'client' | 'server';
   peerIp: string;
   op: string;
   target?: string;
   value?: number | string;
   result?: 'ok' | 'error' | 'reject';
+}
+
+export interface WifiEvent {
+  type: 'wifi';
+  device: string;
+  ts?: number;
+  mac: string;
+  bssid?: string;
+  ssid?: string;
+  op: 'assoc' | 'disassoc' | 'deauth' | 'auth-fail';
+  reason?: number;
 }
 
 export type FeedEvent =
@@ -171,7 +184,8 @@ export type FeedEvent =
   | AppEvent
   | DiscoveryEvent
   | DhcpEvent
-  | NdEvent;
+  | NdEvent
+  | WifiEvent;
 
 export interface PolicyRule {
   id: string;
@@ -279,7 +293,28 @@ export interface EngineOptions {
   horizons?: boolean;
   graph?: boolean;
   campaigns?: boolean;
+  /** false: shadow detectors stay off. true: all of them. An array runs only those ids. */
+  shadow?: boolean | string[];
   linkMs?: number;
+  ownBssids?: string[];
+  budget?:
+    | false
+    | {
+        perEventUs?: number;
+        sampleEvery?: number;
+        recoverWindows?: number;
+        clock?: () => bigint;
+      };
+  calibratedConfidence?: boolean;
+  classSuggest?: boolean;
+  responseHints?: boolean;
+  redact?:
+    | {
+        key: string | Buffer;
+        fields?: string[];
+        redactMap?: (token: string, value: string) => void;
+      }
+    | false;
 }
 
 export interface Baseline {
@@ -377,6 +412,7 @@ export class Engine extends EventEmitter {
   setDeviceClass(device: string, classId: string): void;
   use(detector: Detector): void;
   loadIndicators(indicators: Indicator[]): void;
+  loadRules(rules: object[]): void;
   exportBaseline(opts?: {
     devices?: string[];
     createdAt?: number;
@@ -385,6 +421,12 @@ export class Engine extends EventEmitter {
   importBaseline(baseline: object, opts?: { merge?: boolean; verify?: string | Buffer }): void;
   checkpoint(opts?: { devices?: string[]; createdAt?: number; sign?: string | Buffer }): object;
   restore(checkpoint: object, opts?: { verify?: string | Buffer }): void;
+  checkpointDelta(sinceSeq: number, opts?: { sign?: string | Buffer }): object;
+  applyDelta(delta: object, opts?: { sign?: string | Buffer }): void;
+  setDeviceTimezone(device: string, ianaZone: string): void;
+  loadMud(device: string, acl: { allows: object[] } | null): void;
+  exportSummary(opts: { key: string | Buffer; gatewayId: string }): object;
+  importPeerSummaries(list: object[], opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
   resolve(ip: string): string | null;
   feedback(
@@ -431,4 +473,5 @@ export class Engine extends EventEmitter {
 }
 
 export function createEngine(opts?: EngineOptions): Engine;
+export function createShardedEngine(opts: EngineOptions & { shards: number; inline: true }): Engine;
 export const detectors: Record<string, Detector>;

@@ -34,6 +34,7 @@ function flow(ttl, ts, dstIp = '1.2.3.4') {
  */
 function engine() {
   return createEngine({
+    shadow: true,
     learnMs: 100_000,
     tiers: ['T1'],
     detectors: { 'ttl-anomaly': { enabled: true } },

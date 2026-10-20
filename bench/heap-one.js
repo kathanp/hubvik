@@ -36,7 +36,10 @@ function main() {
     if (!detectors[disable]) throw new Error(`unknown detector ${disable}`);
     over[disable] = { enabled: false };
   }
-  const engine = createEngine({ learnMs: 1e14, tiers: TIERS, detectors: over });
+  /** @type {Record<string, unknown>} */
+  const extra = {};
+  if (process.env.SHADOW === '1') extra.shadow = true;
+  const engine = createEngine({ learnMs: 1e14, tiers: TIERS, detectors: over, ...extra });
   const before = heapUsed();
   let events = 0;
   for (let i = 0; i < count; i++) {

@@ -11,6 +11,8 @@ const KNOWN = new Set([
   'identity',
   'dhcp-starvation',
   'fleet-wave',
+  'nd-spoof',
+  'wifi-deauth-flood',
 ]);
 
 /**
@@ -18,6 +20,11 @@ const KNOWN = new Set([
  * @returns {any}
  */
 function plain(value) {
+  if (value instanceof Float64Array) {
+    return {
+      f64: Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64'),
+    };
+  }
   if (value instanceof LruSet) return { lru: value.max, values: value.toArray() };
   if (value instanceof SampleRing) return { ring: value.max, values: value.toArray() };
   if (value instanceof Map)
@@ -40,6 +47,13 @@ function plain(value) {
 function revive(value) {
   if (Array.isArray(value)) return value.map(revive);
   if (!value || typeof value !== 'object') return value;
+  if (typeof value.f64 === 'string' && Object.keys(value).length === 1) {
+    const bytes = Buffer.from(value.f64, 'base64');
+    if (bytes.length % 8 !== 0) throw new Error('checkpoint state is invalid');
+    const out = new Float64Array(bytes.length / 8);
+    new Uint8Array(out.buffer).set(bytes);
+    return out;
+  }
   const keys = Object.keys(value);
   const tagged = keys.some(
     (key) => key === 'set' || key === 'map' || key === 'lru' || key === 'ring',
@@ -154,6 +168,19 @@ function assertRevived(scratch) {
       if (row.source !== 'dhcp' && row.source !== 'arp' && row.source !== 'nd') {
         throw new Error('checkpoint scratch identity is invalid');
       }
+    }
+  }
+  const nd = scratch['nd-spoof'];
+  if (nd != null) {
+    if (typeof nd !== 'object' || !(nd.bindings instanceof Map)) {
+      throw new Error('checkpoint scratch nd-spoof is invalid');
+    }
+    if (nd.bindings.size > 5000) throw new Error('array bindings exceeds cap');
+  }
+  const wifi = scratch['wifi-deauth-flood'];
+  if (wifi != null) {
+    if (typeof wifi !== 'object' || !(wifi.byMac instanceof Map)) {
+      throw new Error('checkpoint scratch wifi-deauth-flood is invalid');
     }
   }
   const dhcp = scratch['dhcp-starvation'];

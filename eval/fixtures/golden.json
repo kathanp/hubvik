@@ -1435,6 +1435,12 @@
     }
   ],
   "proposals": [],
+  "calibrated": {
+    "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+    "falsePositives": 0,
+    "benignDeviceDays": 3,
+    "falsePositivesPerDeviceDay": 0
+  },
   "evasion": [
     {
       "id": "slow-scan",

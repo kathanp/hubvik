@@ -1,0 +1,6 @@
+#separator \x09
+#empty_field (empty)
+#unset_field -
+#fields	ts	ip	mac	op	device
+#types	time	addr	string	string	string
+2000.000	192.168.0.1	aa:bb:cc:dd:ee:99	reply	attacker

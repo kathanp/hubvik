@@ -13,11 +13,7 @@ function engine(list) {
   for (const id of Object.keys(detectors)) {
     if (id !== 'young-domain' && id !== 'threat-intel-match') options[id] = { enabled: false };
   }
-  const box = createEngine({
-    learnMs: 0,
-    tiers: ['T0', 'T2'],
-    detectors: options,
-  });
+  const box = createEngine({ shadow: true, learnMs: 0, tiers: ['T0', 'T2'], detectors: options });
   if (list) box.loadIndicators(list);
   return box;
 }

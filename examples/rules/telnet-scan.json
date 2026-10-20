@@ -1,0 +1,12 @@
+{
+  "id": "telnet-scan",
+  "on": "flow",
+  "where": { "dstPort": { "in": [23, 2323] }, "direction": { "eq": "out" } },
+  "groupBy": ["device"],
+  "window": "1m",
+  "agg": { "hosts": { "distinct": "dstIp" } },
+  "when": { "hosts": { "gt": 20 } },
+  "severity": "critical",
+  "category": "scan",
+  "attack": ["T1046"]
+}

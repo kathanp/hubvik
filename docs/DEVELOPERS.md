@@ -97,7 +97,7 @@ engine.feed({
 
 Names are lowercased, a trailing dot is removed, and IDN is punycoded. IPv4-mapped IPv6 (`::ffff:192.0.2.1`) becomes `192.0.2.1`. A bad optional field is dropped and counted as `warning` `FIELD_DROPPED`. An unknown `type` throws.
 
-Call `flush(now)` or `tick(now)` from a timer. Do not call a bare `flush()` while the gateway is still receiving traffic. A bare `flush()` is an end-of-input drain: it closes every open window whose start is ≤ the watermark, including the window that contains the watermark, then calls `tick(watermark)`. `flush(now)` closes only windows whose end is ≤ `now`. A backward step inside the current window is accepted even when `reorderMs` is 0. `reorderMs` extends that tolerance before the window and stays 0 through 0.5. Hosts that merge two adapters set `reorderMs: 5000`. `minLearnWindows` stays 0. 500 suits devices with a steady heartbeat; leave at 0 for devices that can be idle for days, such as printers.
+Call `flush(now)` or `tick(now)` from a timer. Do not call a bare `flush()` while the gateway is still receiving traffic. A bare `flush()` is an end-of-input drain: it closes every open window whose start is ≤ the watermark, including the window that contains the watermark, then calls `tick(watermark)`. `flush(now)` closes only windows whose end is ≤ `now`. `minLearnWindows` stays 0. 500 suits devices with a steady heartbeat; leave at 0 for devices that can be idle for days, such as printers.
 
 ## Learning
 
@@ -122,6 +122,8 @@ engine.loadIndicators([
 
 `loadIndicators` replaces the whole set. If one item is invalid, the previous set stays.
 
+`loadRules` does the same for declarative rules. Each compiled detector id is `rule:<id>`, mode defaults to shadow, and a failed document leaves the previous rule set in place. Operators are comparisons only: no regular expressions, `eval`, or `Function`. Caps are 256 rules and 10,000 groups per rule. Example rules live in `examples/rules/`.
+
 ## Policy
 
 Policy rules are hard rules. Every field you set must match. `dst` entries are exact names, a registrable domain, or `*.example.com`.
@@ -140,13 +142,13 @@ An empty `policy` array disables `policy-violation`.
 
 ## Baselines
 
-`exportBaseline()` writes version 2 JSON. Pass `{ sign: key }` to add an HMAC-SHA256 signature (`node:crypto`). `importBaseline(data, { verify: key, merge: true })` checks the whole document before it changes any device. Version 1 baselines from 0.1 still import.
+`exportBaseline()` writes version 3 JSON. Version 2 and version 1 baselines still import; a version 2 file is upgraded by computing streaming stats from its stored samples (D-16). Pass `{ sign: key }` to add an HMAC-SHA256 signature (`node:crypto`). `importBaseline(data, { verify: key, merge: true })` checks the whole document before it changes any device.
 
 Do not treat a baseline as a secret store. Anyone who can edit it chooses what "normal" means. `baseline.engine.pkg` is the package version. The regression comparison ignores it.
 
-## Adapters
+## Adapters and exporters
 
-Parsers live in their own packages so core stays dependency-free.
+Parsers live in their own packages so core stays dependency-free. None of them calls `feed`.
 
 - `packages/adapter-conntrack` reads `conntrack -L` / `conntrack -E` lines into T1 flows.
 - `packages/adapter-dnsmasq` reads `log-queries=extra` lines into T2 DNS events.
@@ -155,6 +157,8 @@ Parsers live in their own packages so core stays dependency-free.
 - `packages/export-ocsf` maps an anomaly to an OCSF Detection Finding (`class_uid` 2004).
 - `packages/export-syslog` formats RFC 5424 with a CEF message.
 - `packages/export-webhook` POSTs JSON. You pass `fetch`. Optional `sign` sets `x-iotwarden-signature` to HMAC-SHA256 of the body. Failed attempts back off.
+
+Added in the 0.9 work, each at 0.1.0 and **UNVERIFIED** (written from documentation, not run on real logs): `adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables` (renders rule text only, never executes), and `@iotwarden/cli`.
 
 ```js
 const { createParser } = require('@iotwarden/adapter-conntrack');
@@ -168,11 +172,11 @@ Defaults: 10 000 devices, 5 000 destinations per device, 5 000 alert keys, 10 08
 
 `alert-storm` starts at 1000 anomalies from one device in one minute. Later anomalies from that device are dropped until the next minute.
 
-The unpacked core package must stay at or under 750 KB. A packed file over 60 KB fails that check, except `src/engine/engine.js`, which is already larger and is printed rather than split. `src/data/` must total at most 200 KB.
+The unpacked core package must stay at or under 750 KB. No packed file may exceed 60 KB, `src/engine/engine.js` included (D-35). `src/data/` must total at most 200 KB.
 
 ## Clock
 
-Timestamps must not go backward. A backward step is `warning` `CLOCK_JUMP` and a `clock-jump` anomaly, and the event is not applied. A forward step longer than 36 hours is also `clock-jump`. Overnight silence is not a clock jump.
+A backward step that stays inside the device's current open window is accepted, whatever `reorderMs` is. A backward step outside that window and larger than `reorderMs` is `warning` `CLOCK_JUMP` and a `clock-jump` anomaly, and the event is not applied. A forward step longer than 36 hours is also `clock-jump`. Overnight silence is not a clock jump.
 
 Hosts that merge two or more log sources must set `reorderMs: 5000`. The engine then holds each event until event time has moved 5 seconds past it, and delivers the held events in timestamp order, so a flow that arrives before its DHCP ack is not a `src-spoof`. Alerts are delayed by that much. `reorderMs: 0` (the default) delivers immediately and does not allocate a buffer. `flush()` and `tick(now)` release held events up to their time before they close windows or run silence checks. A bare `flush()` releases every held event. `lock()` releases the buffer before it freezes learning.
 
@@ -184,7 +188,7 @@ Hosts that merge two or more log sources must set `reorderMs: 5000`. The engine 
 engine.setDeviceClass('aa:bb:cc:dd:ee:ff', 'plug');
 ```
 
-Classes shipped: `camera`, `tv-box`, `thermostat`, `hvac-controller`, `plug`, `hub`, `printer`, `nas`. A class violation can fire during learning. That is how a device that shipped already infected is still reported. No class means those checks stay quiet.
+Classes shipped: `camera`, `tv-box`, `smart-tv`, `thermostat`, `hvac-controller`, `plug`, `hub`, `printer`, `nas`. A class violation can fire during learning. That is how a device that shipped already infected is still reported. No class means those checks stay quiet.
 
 ## Incidents
 
@@ -229,13 +233,38 @@ During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, 
 
 ## Streaming statistics
 
-`packages/core/src/engine/stats/` is the Welford, EWMA, P², HyperLogLog, Count-Min, CUSUM, Page–Hinkley, and hash library. Detectors still use their own state. Count-Min is for one LAN-wide table, not one table per device.
+`packages/core/src/engine/stats/` is the Welford, EWMA, P², HyperLogLog, Count-Min, CUSUM, Page–Hinkley, and hash library. Count-Min is for one LAN-wide table, not one table per device. `multi-horizon-exfil` uses the P² and CUSUM primitives; other detectors keep their own state.
 
-## Early shadow detectors
+## Shadow detectors
 
-`exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, `graph-new-bridge`, and `graph-role-change` are enabled and `meta.mode` is `shadow`. Subscribe to `shadow-anomaly` to see them. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
+A shadow detector learns and checks like a live one, but it emits `shadow-anomaly`, never `anomaly`. It never joins an incident or a campaign and never reaches an exporter unless you subscribe to `shadow-anomaly`.
 
-`ttl-anomaly` reads `flow.ttl`. No shipped adapter fills that field, so the detector stays quiet until the host supplies it. `young-domain` does nothing until the host loads a `young-domain` list. Set `expiresTs` about 30 days after registration. Expired rows are ignored.
+They are off by default (D-34). They run only when `createEngine({ shadow: true })`, when `shadow` lists their ids, or when `detectors[id].enabled` is set.
+
+Rel 0.8: `exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, `graph-new-bridge`, `graph-role-change`, `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil`, `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, `matter-new-controller`.
+
+Rel 0.9: `day-of-week-drift`, `sni-ip-mismatch`, `mac-randomization-churn`, `discovery-spoof`, `mud-violation`, `fleet-baseline-poisoning`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`, `peer-divergence-federated`.
+
+Several of these stay quiet until the host supplies an input the core never derives:
+
+| Detector                    | Needs                                    |
+| --------------------------- | ---------------------------------------- |
+| `ttl-anomaly`               | `flow.ttl`                               |
+| `young-domain`              | indicators of type `young-domain`        |
+| `mud-violation`             | a verified, parsed MUD ACL via `loadMud` |
+| `llmnr-nbns-poison`         | `dns.port` of 5355 or 137                |
+| `dns-answer-mismatch`       | `dns.from`                               |
+| `peer-divergence-federated` | summaries via `importPeerSummaries`      |
+
+`loadRules` compiles rules as shadow detectors, so a host that loads rules also sets `shadow: true` or lists `rule:<id>`. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.
+
+`exportBaseline()` from a pilot engine includes shadow state. Importing that file into a default engine does not throw. The state stays on the device, the detectors do not run, and the next `exportBaseline()` leaves the shadow keys out.
+
+## Running a pilot
+
+A pilot that wants shadow evidence must opt in as above. Shadow anomalies are the only evidence the shadow rule accepts before a row can move to `live`. A site that leaves the default collects none.
+
+With `shadow: true` the x86 bench median was 10.38 µs, over the 10 µs line. It is not gated. Shadow mode is not claimed budget-safe on x86, or on a Raspberry Pi 4 until it is measured there.
 
 ## TLS, building protocols, and fleets
 
@@ -277,12 +306,28 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 `identity` defaults to `'off'`. `'auto'` rewrites a device id that is an IP to the MAC from DHCP, ARP, or an `nd` event, and stores the original on `data.observedAs`. `resolve(ip)` reads the same table. IPv6 rows drop after 24 hours without traffic.
 
-`horizons` is on when T1 is on and `slow-scan` or `multi-horizon-exfil` is active. `horizons: false` turns the ring off. Each device keeps 24 hourly rows of bytes, flows, and a HyperLogLog (`p = 8`). A gap over 24 hours clears the ring. `ctx.horizon(dev).last(hours)` and `.sum(field, hours)` are read-only. The ring is in `checkpoint()`.
+`horizons` is on when T1 is on and `slow-scan` or `multi-horizon-exfil` is running. `horizons: false` turns the ring off. Each device keeps 24 hourly rows of bytes, flows, and a HyperLogLog (`p = 8`). A gap over 24 hours clears the ring. `ctx.horizon(dev).last(hours)` and `.sum(field, hours)` are read-only. The ring is in `checkpoint()`.
 
 `explain(anomalyId)` returns the test, the observed value, and either a threshold or what was learned. Reading an id refreshes it. An id older than `explainCap` (default 1,000) returns `null`. For a hard rule, `suppressWith` is only `suppress`, and `untilTs` is at most 24 hours after the anomaly. Calling that `suppress` with the returned arguments mutes later drafts of that detector on that device when `match` equals `actual`.
+
+## Options added in the 0.9 work (all default off)
+
+| Option / method                                               | What it does                                                                                                                                         |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `budget: { perEventUs, sampleEvery, recoverWindows, clock? }` | Sheds non-hard detectors tier by tier (T5, T3, T2, T1, T0) when `feed()` is over budget. Hard rules are never shed. Warns `DEGRADED` and `RECOVERED` |
+| `checkpointDelta(sinceSeq)` / `applyDelta(d)`                 | Incremental checkpoints with a hash chain. A delta out of order or with a wrong `prevHash` is rejected without changing state                        |
+| `calibratedConfidence: true`                                  | Confidence from the margin over threshold instead of per-detector constants. Hard rules keep their constants                                         |
+| `stats().classSuggestions`                                    | Suggested class per device and `CLASS_SUGGESTED`. The engine never calls `setDeviceClass` itself                                                     |
+| `setDeviceTimezone(device, ianaZone)`                         | Local hour and day for that device, so `wrong-time` and hourly baselines follow daylight saving                                                      |
+| `redact: { key, fields }`                                     | HMAC tokens in emitted objects only. Internal state is not redacted                                                                                  |
+| `createShardedEngine({ shards, inline: true })`               | Inline sharding only. Worker threads wait for a Raspberry Pi 4 bench (Q-10)                                                                          |
+| `exportSummary` / `importPeerSummaries`                       | Federation summaries for `peer-divergence-federated`. No device ids. Cap 1,000, stale after 7 days                                                   |
+| `responseHints: true`                                         | Adds `anomaly.response` text hints. `ot-*` detectors only ever get `review`                                                                          |
 
 ## What this tree does not do yet
 
 `checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
-Manufacturer Usage Description files, MAC randomization, discovery spoofing, TTL changes, and interactive-session shape are specified and not implemented. DHCP fingerprint identity is `identity-change`: the host supplies `dhcp.fingerprint`, and core does not derive it. `npm run bench` and `npm run fuzz` run. The watching-state bench meets the 10 µs budget after dispatch by `meta.consumes`; see `docs/BENCHMARKS.md`. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.
+Every spec row has a detector file. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
+
+With default options the bench meets both budgets on x86: under 10 µs median `feed()` at 1,000 devices and under 100 KB per device on the 7-day line. See `docs/BENCHMARKS.md`. A Raspberry Pi 4 has not been measured. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.

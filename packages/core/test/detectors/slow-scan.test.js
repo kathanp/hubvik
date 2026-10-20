@@ -37,6 +37,7 @@ test('slow-scan emits shadow-anomaly on the holdout and ignores multicast', () =
   const scenario = scenarios().find((row) => row.id === 'holdout-slow-scan');
   assert.ok(scenario);
   const engine = createEngine({
+    shadow: true,
     learnMs: scenario.events[scenario.learnCount - 1].ts + 1,
     tiers: ['T1'],
   });
@@ -61,7 +62,7 @@ test('slow-scan emits shadow-anomaly on the holdout and ignores multicast', () =
 });
 
 test('slow-scan learned-pair cap drops the next destination', () => {
-  const engine = createEngine({ learnMs: 10_000, tiers: ['T1'], maxDestinations: 2 });
+  const engine = createEngine({ shadow: true, learnMs: 10_000, tiers: ['T1'], maxDestinations: 2 });
   engine.feed(flow({ ts: 0, dstIp: '9.9.0.1', dstPort: 1 }));
   engine.feed(flow({ ts: 1, dstIp: '9.9.0.2', dstPort: 2 }));
   engine.feed(flow({ ts: 2, dstIp: '9.9.0.3', dstPort: 3 }));
@@ -93,10 +94,10 @@ test('slow-scan learned-pair cap drops the next destination', () => {
 });
 
 test('slow-scan restores the learned daily max', () => {
-  const engine = createEngine({ learnMs: 10_000, tiers: ['T1'] });
+  const engine = createEngine({ shadow: true, learnMs: 10_000, tiers: ['T1'] });
   engine.feed(flow({ ts: 0, dstIp: '9.9.0.1', dstPort: 80 }));
   const saved = engine.exportBaseline({ createdAt: 1 });
-  const next = createEngine({ learnMs: 0, tiers: ['T1'] });
+  const next = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   next.importBaseline(saved);
   const again = next.exportBaseline({ createdAt: 2 });
   assert.deepStrictEqual(again.devices.d.detectors['slow-scan'].state.pairs, ['9.9.0.1:80']);
@@ -114,7 +115,12 @@ test('slow-scan is silent on the all-tier benign matrix', () => {
         discovery: true,
         ipv6: true,
       });
-      const engine = createEngine({ learnMs: 7 * DAY, tiers: TIERS, identity: 'auto' });
+      const engine = createEngine({
+        shadow: true,
+        learnMs: 7 * DAY,
+        tiers: TIERS,
+        identity: 'auto',
+      });
       engine.setDeviceClass(events[0].device, profile);
       /** @type {any[]} */
       const hits = [];

@@ -17,7 +17,7 @@ function pickHost(spec, n) {
 
 /**
  * T0 connection summaries for one benign device class.
- * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean, discovery?: boolean, ipv6?: boolean }} opts
+ * @param {{ profile: string, days: number, seed?: number, startTs?: number, rich?: boolean, discovery?: boolean, ipv6?: boolean, wifi?: boolean }} opts
  * @returns {object[]}
  */
 function simulate(opts) {
@@ -47,12 +47,18 @@ function simulate(opts) {
     }
   }
   const out = opts.rich
-    ? enrich(spec, events, origin, opts.days, opts.profile, opts.discovery === true)
+    ? enrich(
+        spec,
+        events,
+        origin,
+        opts.days,
+        opts.profile,
+        opts.discovery === true,
+        opts.wifi === true,
+      )
     : events;
-  if (opts.ipv6 === true) {
-    addIpv6(spec, out, origin, opts.days);
-    out.sort((a, b) => a.ts - b.ts);
-  }
+  if (opts.ipv6 === true) addIpv6(spec, out, origin, opts.days);
+  if (opts.ipv6 === true || opts.wifi === true) out.sort((a, b) => a.ts - b.ts);
   return out;
 }
 
@@ -105,8 +111,9 @@ function addIpv6(spec, events, origin, days) {
  * @param {number} days
  * @param {string} profile
  * @param {boolean} discovery
+ * @param {boolean} wifi
  */
-function enrich(spec, summaries, origin, days, profile, discovery) {
+function enrich(spec, summaries, origin, days, profile, discovery, wifi) {
   /** @type {object[]} */
   const events = [];
   const mac = 'aa:bb:cc:dd:ee:01';
@@ -137,6 +144,26 @@ function enrich(spec, summaries, origin, days, profile, discovery) {
     if (discovery) {
       events.push(multicast(spec.device, dayStart + 4_000, '224.0.0.251', 5353, 255, lease));
       events.push(multicast(spec.device, dayStart + 5_000, '239.255.255.250', 1900, 2, lease));
+    }
+    if (wifi) {
+      events.push({
+        type: 'wifi',
+        device: spec.device,
+        ts: dayStart + 9_000,
+        mac,
+        bssid: 'aa:bb:cc:dd:ee:f0',
+        ssid: 'home',
+        op: 'assoc',
+      });
+      events.push({
+        type: 'wifi',
+        device: spec.device,
+        ts: dayStart + 20 * H,
+        mac,
+        bssid: 'aa:bb:cc:dd:ee:f0',
+        ssid: 'home',
+        op: 'disassoc',
+      });
     }
     if (HTTP_PROFILES.has(profile)) {
       events.push(httpStatus(spec.device, dayStart + 6_000, HTTP_PATHS[0]));
