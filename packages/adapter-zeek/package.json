@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-zeek",
+  "name": "@hubvik/adapter-zeek",
   "version": "0.1.0",
-  "description": "Parse Zeek JSON logs into iotwarden events.",
+  "description": "Parse Zeek JSON logs into hubvik events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "zeek",
     "ics"
   ],

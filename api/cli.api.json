@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/cli",
+  "name": "@hubvik/cli",
   "exports": [
     "checkRule",
     "diffBaseline",

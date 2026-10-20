@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { createEngine } = require('iotwarden');
+const { createEngine } = require('hubvik');
 const { main } = require('../cli.js');
 
 test('eval --labels on the synthetic corpus prints precision with a Wilson interval', () => {
@@ -20,7 +20,7 @@ test('eval --labels on the synthetic corpus prints precision with a Wilson inter
     engine.feed({ device: `d${i}`, dst: 'a.example', bytes: 1, ts: 5000 });
   }
   for (let i = 0; i < 20; i += 1) engine.feedback(found[i].id, i < 12 ? 'tp' : 'fp');
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-labels-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-labels-'));
   const labels = path.join(dir, 'labels.jsonl');
   fs.writeFileSync(labels, engine.exportLabels());
   const corpus = path.join(__dirname, '..', 'fixtures', 'conn.log.labeled');

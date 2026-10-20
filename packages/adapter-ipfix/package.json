@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-ipfix",
+  "name": "@hubvik/adapter-ipfix",
   "version": "0.1.0",
-  "description": "Parse IPFIX and NetFlow v9 buffers into iotwarden flow events. UNVERIFIED.",
+  "description": "Parse IPFIX and NetFlow v9 buffers into hubvik flow events. UNVERIFIED.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "ipfix",
     "netflow"
   ],

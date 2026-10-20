@@ -16,7 +16,7 @@ const LOGS = new Set([
 ]);
 
 /**
- * Parse one Zeek JSON log line into iotwarden events.
+ * Parse one Zeek JSON log line into hubvik events.
  * `log` selects the Zeek path: conn, dns, ssl, http, modbus, dnp3,
  * mqtt_connect, mqtt_subscribe, mqtt_publish, or the ICSNPP logs bacnet, s7comm, enip.
  * @param {{ log?: string, device?: (ip: string) => string, now?: (ts: number) => number }} [opts]

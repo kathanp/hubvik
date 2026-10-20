@@ -1,21 +1,21 @@
-# iotwarden
+# hubvik
 
 Per-device network anomaly detection for **IoT gateways, smart-home hubs, building-management servers and small network appliances**.
 
-Every IoT device talks through a gateway. iotwarden runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
+Every IoT device talks through a gateway. hubvik runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: 0.8.0 prototype. Not for production. Not validated on real traffic. The package is not published.
+> Status: 0.8.0 prototype. Not for production. Not validated on real traffic. The package is not published. Later modules (load shedding, checkpoint deltas, federation, class suggestion, redaction) are in the tree under Unreleased in `CHANGELOG.md` and are not a version bump.
 
 ## Install
 
 ```
-npm install iotwarden
+npm install hubvik
 ```
 
 ## Use
 
 ```js
-const { createEngine } = require('iotwarden');
+const { createEngine } = require('hubvik');
 
 const engine = createEngine({ learnMs: 7 * 24 * 3600e3 }); // learn for 7 days
 
@@ -34,7 +34,7 @@ const baseline = engine.exportBaseline();
 otherEngine.importBaseline(baseline);
 ```
 
-iotwarden never blocks anything by itself. It only reports.
+hubvik never blocks anything by itself. It only reports.
 
 ## Detectors (0.8.0)
 
@@ -47,7 +47,7 @@ Default enabled tier is `T0`. Pass `tiers: ['T0', 'T1', 'T2']` to turn on flow a
 | `volume-spike`    | Far more data than normal: data theft, flooding               | high     |
 | `wrong-time`      | Activity in an hour the device was never active               | low      |
 
-0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. 0.5.0 adds `identity-change`, `tier-silent`, `egress-flood`, and `proxy-sdk-traffic`. 0.7.0 and 0.8.0 add shadow detectors, explain, identity, feedback, the rule language, long-horizon aggregates, and campaigns. Shadow detectors run only when `createEngine({ shadow: true })` or `shadow` lists their ids. Flow, DNS, TLS, and app detectors stay off until you enable the tier and send those events. The full list and the tunables are in [`docs/SPEC.md`](../../docs/SPEC.md) and [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
+0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. 0.5.0 adds `identity-change`, `tier-silent`, `egress-flood`, and `proxy-sdk-traffic`. 0.7.0 and 0.8.0 add shadow detectors, explain, identity, feedback, the rule language, long-horizon aggregates, and campaigns. Shadow detectors run only when `createEngine({ shadow: true })` or `shadow` lists their ids. Flow, DNS, TLS, and app detectors stay off until you enable the tier and send those events. The detector catalog is [`docs/DETECTORS.md`](../../docs/DETECTORS.md). How to feed events is [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
 
 ## Options
 

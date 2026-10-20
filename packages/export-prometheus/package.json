@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-prometheus",
+  "name": "@hubvik/export-prometheus",
   "version": "0.1.0",
-  "description": "Prometheus text for iotwarden stats().",
+  "description": "Prometheus text for hubvik stats().",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "prometheus"
   ],
   "types": "./src/index.d.ts",

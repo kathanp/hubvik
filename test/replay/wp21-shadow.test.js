@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { createEngine } = require('iotwarden');
+const { createEngine } = require('hubvik');
 const { flow } = require('../fixtures/flow');
 
 const TIERS = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];

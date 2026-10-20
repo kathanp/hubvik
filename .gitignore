@@ -5,3 +5,21 @@ eval/data/
 .env*
 .npmrc
 .DS_Store
+
+# Local working notes. Kept on disk, not part of the public repo.
+docs/SPEC.md
+docs/AUTOPILOT*.md
+docs/guard.mjs
+docs/handoff/
+docs/progress/
+docs/ARCHITECTURE.md
+docs/BENCHMARKS.md
+docs/CODE_OF_CONDUCT.md
+docs/CONTRIBUTING.md
+docs/DECISIONS.md
+docs/OPERATIONS.md
+docs/QUESTIONS.md
+docs/RULES.md
+docs/adr/
+docs/.gitignore
+cursor-kit/

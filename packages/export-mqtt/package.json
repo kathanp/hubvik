@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-mqtt",
+  "name": "@hubvik/export-mqtt",
   "version": "0.1.0",
-  "description": "MQTT topic and payload pairs for iotwarden records. The caller supplies publish.",
+  "description": "MQTT topic and payload pairs for hubvik records. The caller supplies publish.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "mqtt"
   ],
   "types": "./src/index.d.ts",

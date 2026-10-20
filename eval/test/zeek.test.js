@@ -17,7 +17,7 @@ const HEADER = [
 ].join('\n');
 
 test('tab-separated and space-separated label columns both parse', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-zeek-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-zeek-'));
   const tabbed = path.join(dir, 'conn.log.labeled');
   fs.writeFileSync(
     tabbed,
@@ -67,7 +67,7 @@ test('tab-separated and space-separated label columns both parse', () => {
 });
 
 test('two malicious runs are one instance at 2 minutes and two at 10 minutes', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-gap-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-gap-'));
   function write(name, secondTs) {
     const file = path.join(dir, name);
     fs.writeFileSync(

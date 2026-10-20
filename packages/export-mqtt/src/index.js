@@ -16,14 +16,14 @@ function toMessages(record) {
     devices: row.devices || null,
   });
   if (Array.isArray(row.devices) && row.id) {
-    return [{ topic: `iotwarden/campaign/${row.id}`, payload: body }];
+    return [{ topic: `hubvik/campaign/${row.id}`, payload: body }];
   }
   if (Array.isArray(row.anomalyIds)) {
-    return [{ topic: `iotwarden/incident/${row.device || 'unknown'}`, payload: body }];
+    return [{ topic: `hubvik/incident/${row.device || 'unknown'}`, payload: body }];
   }
   return [
     {
-      topic: `iotwarden/anomaly/${row.device || 'unknown'}/${row.detector || 'unknown'}`,
+      topic: `hubvik/anomaly/${row.device || 'unknown'}/${row.detector || 'unknown'}`,
       payload: body,
     },
   ];

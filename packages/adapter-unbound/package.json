@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-unbound",
+  "name": "@hubvik/adapter-unbound",
   "version": "0.1.0",
-  "description": "Parse Unbound query and reply lines into iotwarden DNS events. UNVERIFIED against production logs.",
+  "description": "Parse Unbound query and reply lines into hubvik DNS events. UNVERIFIED against production logs.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "unbound",
     "dns"
   ],

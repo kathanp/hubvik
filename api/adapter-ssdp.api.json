@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-ssdp",
+  "name": "@hubvik/adapter-ssdp",
   "exports": [
     "createParser"
   ],

@@ -1,9 +1,9 @@
-# @iotwarden/adapter-conntrack
+# @hubvik/adapter-conntrack
 
-Turns `conntrack -L` and `conntrack -E` lines into iotwarden T1 flow events. No dependencies.
+Turns `conntrack -L` and `conntrack -E` lines into hubvik T1 flow events. No dependencies.
 
 ```js
-const { createParser } = require('@iotwarden/adapter-conntrack');
+const { createParser } = require('@hubvik/adapter-conntrack');
 
 const parser = createParser({
   device: (srcIp) => srcIp,

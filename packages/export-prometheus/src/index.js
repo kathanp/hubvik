@@ -7,14 +7,14 @@
 function toText(stats) {
   const snap = stats || {};
   const lines = [
-    '# HELP iotwarden_events_total Events fed to the engine',
-    '# TYPE iotwarden_events_total counter',
-    `iotwarden_events_total ${num(snap.events)}`,
-    `iotwarden_anomalies_total ${num(snap.anomalies)}`,
-    `iotwarden_warnings_total ${num(snap.warnings)}`,
-    `iotwarden_devices ${num(snap.devices)}`,
-    `iotwarden_memory_bytes ${num(snap.memoryBytes)}`,
-    `iotwarden_watermark_lag_ms 0`,
+    '# HELP hubvik_events_total Events fed to the engine',
+    '# TYPE hubvik_events_total counter',
+    `hubvik_events_total ${num(snap.events)}`,
+    `hubvik_anomalies_total ${num(snap.anomalies)}`,
+    `hubvik_warnings_total ${num(snap.warnings)}`,
+    `hubvik_devices ${num(snap.devices)}`,
+    `hubvik_memory_bytes ${num(snap.memoryBytes)}`,
+    `hubvik_watermark_lag_ms 0`,
   ];
   const learning = snap.learningQuality || {};
   let learningN = 0;
@@ -23,10 +23,10 @@ function toText(stats) {
     if (row && row.ready) watchingN += 1;
     else learningN += 1;
   }
-  lines.push(`iotwarden_devices_learning ${learningN}`);
-  lines.push(`iotwarden_devices_watching ${watchingN}`);
+  lines.push(`hubvik_devices_learning ${learningN}`);
+  lines.push(`hubvik_devices_watching ${watchingN}`);
   const shed = Array.isArray(snap.shed) ? snap.shed.length : 0;
-  lines.push(`iotwarden_shed_tiers ${shed}`);
+  lines.push(`hubvik_shed_tiers ${shed}`);
   return `${lines.join('\n')}\n`;
 }
 

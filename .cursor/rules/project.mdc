@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Project rules (always apply)
 
-Source of truth: `docs/SPEC.md`. Build order: `CURSOR_BUILD.md`. Package name: `iotwarden`. Read both before any task.
+Source of truth: `docs/SPEC.md`. Build order: `CURSOR_BUILD.md`. Package name: `hubvik`. Read both before any task.
 
 ## Never
 - Never run `npm publish`, `npm stage publish`, `git push`, `gh repo create`, or `npm login`. The human does all of these.

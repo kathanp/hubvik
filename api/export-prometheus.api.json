@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/export-prometheus",
+  "name": "@hubvik/export-prometheus",
   "exports": [
     "toText"
   ],

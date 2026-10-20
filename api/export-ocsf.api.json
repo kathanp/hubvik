@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/export-ocsf",
+  "name": "@hubvik/export-ocsf",
   "exports": [
     "toFinding"
   ],

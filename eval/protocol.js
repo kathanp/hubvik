@@ -1,6 +1,6 @@
 'use strict';
 
-const { createEngine, detectors, SEVERITY } = require('iotwarden');
+const { createEngine, detectors, SEVERITY } = require('hubvik');
 const LABEL_MAP = require('./label-map.json');
 
 const DAY = 24 * 60 * 60 * 1000;

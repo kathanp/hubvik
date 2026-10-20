@@ -2,7 +2,7 @@
 
 /**
  * Parse one Suricata EVE JSON line.
- * `flow`, `dns`, `tls`, and `http` become iotwarden events.
+ * `flow`, `dns`, `tls`, and `http` become hubvik events.
  * `alert` is passed through as `{ type: 'alert', ... }` for the host. Do not feed that object to the engine.
  * @param {{ device?: (ip: string) => string, now?: (iso: string) => number }} [opts]
  */

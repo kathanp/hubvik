@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-nftables",
+  "name": "@hubvik/adapter-nftables",
   "version": "0.1.0",
-  "description": "Parse nftables JSON counters into iotwarden flow summaries. UNVERIFIED.",
+  "description": "Parse nftables JSON counters into hubvik flow summaries. UNVERIFIED.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "nftables"
   ],
   "types": "./src/index.d.ts",

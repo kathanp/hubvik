@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-conntrack",
+  "name": "@hubvik/adapter-conntrack",
   "version": "0.2.0",
-  "description": "Parse conntrack list and event lines into iotwarden flow events.",
+  "description": "Parse conntrack list and event lines into hubvik flow events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "conntrack",
     "netfilter"
   ],

@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/export-ecs",
+  "name": "@hubvik/export-ecs",
   "exports": [
     "toDocument"
   ],

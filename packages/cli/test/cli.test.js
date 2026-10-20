@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
-const { createEngine } = require('iotwarden');
+const { createEngine } = require('hubvik');
 const { checkRule, replay, doctor, reportHtml } = require('../src/lib.js');
 
 test('rules check rejects a regex operator and replay uses the injected engine', () => {

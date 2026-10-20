@@ -133,7 +133,7 @@ test('IoT-23 conn.log.labeled joins through adapter-zeek on tier T1', () => {
 });
 
 test('the cli writes json and markdown and rejects an unknown dataset', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-eval-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-eval-'));
   const result = main(['--dataset', 'iot23', '--zeek-logs', FIXTURE], {
     outDir: dir,
     evasionPath: path.join(dir, 'evasion.md'),
@@ -157,7 +157,7 @@ test('the synthetic corpus matches the committed golden report', () => {
   const goldenJson = JSON.parse(
     fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'golden.json'), 'utf8'),
   );
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iotwarden-corpus-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-corpus-'));
   const stdout = [];
   const original = console.log;
   console.log = (line) => stdout.push(String(line));

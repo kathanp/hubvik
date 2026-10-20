@@ -4,7 +4,7 @@ const { createHmac } = require('node:crypto');
 
 /**
  * POST anomalies to a URL. Pass `fetch` so tests never touch the network.
- * `sign` is the HMAC-SHA256 key. The header is `x-iotwarden-signature`.
+ * `sign` is the HMAC-SHA256 key. The header is `x-hubvik-signature`.
  * Failed responses are retried with exponential backoff.
  * @param {{ url: string, fetch: typeof fetch, sign?: string | Buffer, maxAttempts?: number, backoffMs?: number, sleep?: (ms: number) => Promise<void> }} opts
  */
@@ -24,9 +24,7 @@ function createSender(opts) {
       /** @type {Record<string, string>} */
       const headers = { 'content-type': 'application/json' };
       if (opts.sign != null) {
-        headers['x-iotwarden-signature'] = createHmac('sha256', opts.sign)
-          .update(body)
-          .digest('hex');
+        headers['x-hubvik-signature'] = createHmac('sha256', opts.sign).update(body).digest('hex');
       }
       let last = null;
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {

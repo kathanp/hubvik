@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-ocsf",
+  "name": "@hubvik/export-ocsf",
   "version": "0.2.0",
-  "description": "Map an iotwarden anomaly to an OCSF Detection Finding.",
+  "description": "Map a hubvik anomaly to an OCSF Detection Finding.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "ocsf"
   ],
   "types": "./src/index.d.ts",

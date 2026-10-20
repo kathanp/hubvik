@@ -25,7 +25,7 @@ test('retries, then sends the HMAC header', async () => {
   assert.strictEqual(calls.length, 3);
   const body = JSON.stringify({ id: '1', detector: 'cert-change' });
   const mac = createHmac('sha256', 'lab-key').update(body).digest('hex');
-  assert.strictEqual(calls[2].headers['x-iotwarden-signature'], mac);
+  assert.strictEqual(calls[2].headers['x-hubvik-signature'], mac);
 });
 
 test('rejects a sender without a url and a thrown fetch', async () => {

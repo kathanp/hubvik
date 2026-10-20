@@ -18,7 +18,7 @@ test('formats RFC 5424 with a CEF message', () => {
     { host: 'gateway' },
   );
   assert.ok(
-    line.startsWith('<131>1 2026-01-05T00:00:00.000Z gateway iotwarden - cert-change - CEF:0|'),
+    line.startsWith('<131>1 2026-01-05T00:00:00.000Z gateway hubvik - cert-change - CEF:0|'),
   );
   assert.ok(line.includes('cs1=cam-1'));
   assert.ok(line.includes('msg=Vendor CA'));
@@ -28,7 +28,7 @@ test('uses info defaults and strips CEF separators', () => {
   const line = format({ detector: 'x', actual: 'a|b\nc', device: 'cam' });
   assert.ok(line.startsWith('<134>1 '));
   assert.ok(line.includes('a b c'));
-  assert.ok(line.includes('iotwarden'));
+  assert.ok(line.includes('hubvik'));
   const bare = format(null);
-  assert.ok(bare.includes('CEF:0|iotwarden|iotwarden|0.1.0|-|-|1|'));
+  assert.ok(bare.includes('CEF:0|hubvik|hubvik|0.1.0|-|-|1|'));
 });

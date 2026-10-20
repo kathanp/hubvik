@@ -1,10 +1,10 @@
-# iotwarden
+# hubvik
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **0.8.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. Release 0.9 (load shedding, federation, extra adapters, the CLI) is specified and not finished. Nothing in this repo is published to npm.
+Status: **0.8.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 0.9 modules are in this tree (load shedding, incremental checkpoints, federation, the extra adapters, and the CLI) and are not a 0.9 release: core is still 0.8.0, and `npm run gate` has not been re-run since they landed. Nothing in this repo is published to npm.
 
-The behavior spec is [`docs/SPEC.md`](docs/SPEC.md). How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The build order is [`CURSOR_BUILD.md`](CURSOR_BUILD.md).
+How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is [`docs/DETECTORS.md`](docs/DETECTORS.md).
 
 ```
 npm test

@@ -1,4 +1,4 @@
-# @iotwarden/adapter-unbound
+# @hubvik/adapter-unbound
 
 UNVERIFIED. Written from Unbound's documented `log-queries` / `log-replies` text, not from a capture.
 

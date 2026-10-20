@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-nftables",
+  "name": "@hubvik/adapter-nftables",
   "exports": [
     "createParser"
   ],

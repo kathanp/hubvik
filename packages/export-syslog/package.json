@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-syslog",
+  "name": "@hubvik/export-syslog",
   "version": "0.1.0",
-  "description": "Format an iotwarden anomaly as RFC 5424 syslog and CEF.",
+  "description": "Format a hubvik anomaly as RFC 5424 syslog and CEF.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "syslog",
     "cef"
   ],

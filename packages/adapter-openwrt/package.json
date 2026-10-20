@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-openwrt",
+  "name": "@hubvik/adapter-openwrt",
   "version": "0.1.0",
   "description": "Parse OpenWrt logread lines into dhcp, nd, and wifi events. UNVERIFIED.",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "openwrt"
   ],
   "types": "./src/index.d.ts",

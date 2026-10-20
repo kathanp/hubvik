@@ -1,9 +1,9 @@
-# @iotwarden/adapter-dnsmasq
+# @hubvik/adapter-dnsmasq
 
-Turns dnsmasq `log-queries=extra` lines into iotwarden DNS events. No dependencies.
+Turns dnsmasq `log-queries=extra` lines into hubvik DNS events. No dependencies.
 
 ```js
-const { createParser } = require('@iotwarden/adapter-dnsmasq');
+const { createParser } = require('@hubvik/adapter-dnsmasq');
 
 const parser = createParser({
   device: (clientIp) => clientIp,

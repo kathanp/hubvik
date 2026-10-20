@@ -1,4 +1,4 @@
-# @iotwarden/adapter-openwrt
+# @hubvik/adapter-openwrt
 
 UNVERIFIED. Reads logread lines:
 

@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-conntrack",
+  "name": "@hubvik/adapter-conntrack",
   "exports": [
     "createParser"
   ],

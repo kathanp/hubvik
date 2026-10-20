@@ -199,8 +199,8 @@ function withoutPkg(engine) {
 }
 
 test('the package version is not part of the golden comparison', () => {
-  const left = { windowMs: 60000, pkg: 'iotwarden@0.5.0' };
-  const right = { windowMs: 60000, pkg: 'iotwarden@9.9.9' };
+  const left = { windowMs: 60000, pkg: 'hubvik@0.5.0' };
+  const right = { windowMs: 60000, pkg: 'hubvik@9.9.9' };
   assert.ok(closeValue(withoutPkg(left), withoutPkg(right)));
   assert.ok(
     !closeValue(withoutPkg({ windowMs: 1, pkg: 'a' }), withoutPkg({ windowMs: 2, pkg: 'a' })),

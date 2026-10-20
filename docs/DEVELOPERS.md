@@ -1,15 +1,15 @@
-# Building with iotwarden
+# Building with hubvik
 
-iotwarden is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
+hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
 Status of the code in this repo: prototype. It has not been validated on real traffic. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
-The publishable package is `packages/core` (`iotwarden`). It has no runtime dependencies and needs Node.js 22 or newer.
+The publishable package is `packages/core` (`hubvik`). It has no runtime dependencies and needs Node.js 22 or newer.
 
 ```js
-const { createEngine, detectors, SEVERITY } = require('iotwarden');
+const { createEngine, detectors, SEVERITY } = require('hubvik');
 
 const engine = createEngine({
   learnMs: 7 * 24 * 3600e3,
@@ -156,12 +156,12 @@ Parsers live in their own packages so core stays dependency-free. None of them c
 - `packages/adapter-suricata-eve` reads EVE `flow`, `dns`, `tls`, and `http`. An `alert` line is returned for the host and is not an engine event.
 - `packages/export-ocsf` maps an anomaly to an OCSF Detection Finding (`class_uid` 2004).
 - `packages/export-syslog` formats RFC 5424 with a CEF message.
-- `packages/export-webhook` POSTs JSON. You pass `fetch`. Optional `sign` sets `x-iotwarden-signature` to HMAC-SHA256 of the body. Failed attempts back off.
+- `packages/export-webhook` POSTs JSON. You pass `fetch`. Optional `sign` sets `x-hubvik-signature` to HMAC-SHA256 of the body. Failed attempts back off.
 
-Added in the 0.9 work, each at 0.1.0 and **UNVERIFIED** (written from documentation, not run on real logs): `adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables` (renders rule text only, never executes), and `@iotwarden/cli`.
+Added in the 0.9 work, each at 0.1.0 and **UNVERIFIED** (written from documentation, not run on real logs): `adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables` (renders rule text only, never executes), and `@hubvik/cli`.
 
 ```js
-const { createParser } = require('@iotwarden/adapter-conntrack');
+const { createParser } = require('@hubvik/adapter-conntrack');
 const parser = createParser({ device: (ip) => ip });
 for (const event of parser.write(line)) engine.feed(event);
 ```
@@ -330,4 +330,4 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 Every spec row has a detector file. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
 
-With default options the bench meets both budgets on x86: under 10 µs median `feed()` at 1,000 devices and under 100 KB per device on the 7-day line. See `docs/BENCHMARKS.md`. A Raspberry Pi 4 has not been measured. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.
+With default options the bench meets both budgets on x86: under 10 µs median `feed()` at 1,000 devices and under 100 KB per device on the 7-day line. A Raspberry Pi 4 has not been measured. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.

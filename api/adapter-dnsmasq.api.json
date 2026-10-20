@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-dnsmasq",
+  "name": "@hubvik/adapter-dnsmasq",
   "exports": [
     "createParser"
   ],

@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/respond-nftables",
+  "name": "@hubvik/respond-nftables",
   "version": "0.1.0",
-  "description": "Render iotwarden response hints as nftables rule text. Never executes a rule.",
+  "description": "Render hubvik response hints as nftables rule text. Never executes a rule.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "nftables"
   ],
   "types": "./src/index.d.ts",

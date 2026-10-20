@@ -1,6 +1,6 @@
 # CURSOR BUILD PLAYBOOK â€” IoT network anomaly detection package
 
-Chosen package name: **iotwarden** (2026-10-16, verdict CLEAR). `<pkg>` below means `iotwarden`.
+Chosen package name: **hubvik** (2026-10-16, verdict CLEAR). `<pkg>` below means `hubvik`.
 
 You are building an npm package from `docs/SPEC.md` (spec v2.1, 118 detectors). This file says **in what order**, **what "done" means**, and **when to stop**. `.cursor/rules/project.mdc` holds the rules that always apply.
 
@@ -35,10 +35,10 @@ Write `scripts/check-name.mjs` (Node built-ins only, `fetch` is global in Node â
 Run it:
 
 ```
-node scripts/check-name.mjs cybershield edgewarden iotwarden lanwarden devicewarden
+node scripts/check-name.mjs cybershield edgewarden hubvik lanwarden devicewarden
 ```
 
-**Known result on 2026-10-16:** `cybershield` is free on npm, but **RISKY**. A French security company (Securas) already publishes five "CyberShield WAF" packages: `cybershield-js`, `react-cybershield`, `angular-cybershield`, `plugin-cybershield`, `cyber-shield-express`. Same brand, same industry, so there is confusion and trademark-dispute risk; npm can transfer a name on a trademark claim. `edgewarden`, `iotwarden`, `lanwarden` and `devicewarden` were free with no similar packages.
+**Known result on 2026-10-16:** `cybershield` is free on npm, but **RISKY**. A French security company (Securas) already publishes five "CyberShield WAF" packages: `cybershield-js`, `react-cybershield`, `angular-cybershield`, `plugin-cybershield`, `cyber-shield-express`. Same brand, same industry, so there is confusion and trademark-dispute risk; npm can transfer a name on a trademark claim. `edgewarden`, `hubvik`, `lanwarden` and `devicewarden` were free with no similar packages.
 
 **STOP. Ask the human to pick the final name.** Do not continue until they answer.
 

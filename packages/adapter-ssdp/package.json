@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-ssdp",
+  "name": "@hubvik/adapter-ssdp",
   "version": "0.1.0",
   "description": "Parse passive SSDP lines into discovery and UPnP app events. UNVERIFIED.",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "ssdp",
     "upnp"
   ],

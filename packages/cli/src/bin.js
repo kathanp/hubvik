@@ -37,9 +37,9 @@ function main(argv) {
   if (command === 'doctor') {
     let createEngine;
     try {
-      createEngine = require('iotwarden').createEngine;
+      createEngine = require('hubvik').createEngine;
     } catch {
-      process.stderr.write('iotwarden is not installed\n');
+      process.stderr.write('hubvik is not installed\n');
       return 1;
     }
     const report = doctor(readFileSync(sub, 'utf8'), {
@@ -53,9 +53,9 @@ function main(argv) {
   if (command === 'replay') {
     let createEngine;
     try {
-      createEngine = require('iotwarden').createEngine;
+      createEngine = require('hubvik').createEngine;
     } catch {
-      process.stderr.write('iotwarden is not installed\n');
+      process.stderr.write('hubvik is not installed\n');
       return 1;
     }
     const rows = replay(readFileSync(sub, 'utf8'), {
@@ -83,7 +83,7 @@ function main(argv) {
     process.stdout.write(`${changes.join('\n')}\n`);
     return 0;
   }
-  process.stderr.write('usage: iotwarden replay|report|doctor|baseline|rules\n');
+  process.stderr.write('usage: hubvik replay|report|doctor|baseline|rules\n');
   return 1;
 }
 

@@ -7,13 +7,13 @@
  */
 function render(hint, opts = {}) {
   const family = opts.family || 'inet';
-  const table = opts.table || 'iotwarden';
+  const table = opts.table || 'hubvik';
   const chain = opts.chain || 'forward';
   const action = hint && hint.action ? hint.action : 'review';
   const target = sanitize(hint && hint.target ? hint.target : '');
   const fingerprint = sanitize(hint && hint.fingerprint ? hint.fingerprint : '');
   const expiry = hint && hint.expiryMs ? String(hint.expiryMs) : '0';
-  const comment = `iotwarden ${fingerprint} exp ${expiry}`;
+  const comment = `hubvik ${fingerprint} exp ${expiry}`;
   if (action === 'review' || action === 'relearn' || !target) {
     return `add rule ${family} ${table} ${chain} comment "${comment}"`;
   }

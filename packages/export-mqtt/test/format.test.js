@@ -12,10 +12,10 @@ test('mqtt topics follow the record kind', () => {
     severity: 'high',
     ts: 5,
   });
-  assert.strictEqual(anomaly[0].topic, 'iotwarden/anomaly/cam/fan-out');
+  assert.strictEqual(anomaly[0].topic, 'hubvik/anomaly/cam/fan-out');
   /** @type {string[]} */
   const topics = [];
   const count = publishWith((topic) => topics.push(topic), { id: 'c1', devices: ['a'], edges: [] });
   assert.strictEqual(count, 1);
-  assert.strictEqual(topics[0], 'iotwarden/campaign/c1');
+  assert.strictEqual(topics[0], 'hubvik/campaign/c1');
 });

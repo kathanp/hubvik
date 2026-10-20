@@ -65,7 +65,7 @@ function toFinding(record, opts = {}) {
     attacks,
     metadata: {
       version,
-      product: { name: 'iotwarden', vendor_name: 'iotwarden' },
+      product: { name: 'hubvik', vendor_name: 'hubvik' },
     },
   };
   if (record && record.evidence && Array.isArray(record.evidence.sample)) {

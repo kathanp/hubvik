@@ -174,7 +174,7 @@ const methods = {
         {
           version: 3,
           createdAt: 0,
-          engine: { windowMs: this.opts.windowMs, pkg: 'iotwarden' },
+          engine: { windowMs: this.opts.windowMs, pkg: 'hubvik' },
           devices,
         },
         { merge: true },

@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/respond-nftables",
+  "name": "@hubvik/respond-nftables",
   "exports": [
     "render"
   ],

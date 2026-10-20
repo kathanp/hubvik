@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-openwrt",
+  "name": "@hubvik/adapter-openwrt",
   "exports": [
     "createParser"
   ],

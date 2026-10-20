@@ -1,11 +1,11 @@
-# @iotwarden/adapter-zeek
+# @hubvik/adapter-zeek
 
-Turns Zeek JSON logs into iotwarden events. No dependencies.
+Turns Zeek JSON logs into hubvik events. No dependencies.
 
 Supported `log` values: `conn`, `dns`, `ssl`, `http`, `modbus`, `dnp3`, `mqtt_connect`, `mqtt_subscribe`, `mqtt_publish`, and the CISA ICSNPP logs `bacnet`, `s7comm`, `enip`.
 
 ```js
-const { createParser } = require('@iotwarden/adapter-zeek');
+const { createParser } = require('@hubvik/adapter-zeek');
 
 const parser = createParser({
   log: 'conn',

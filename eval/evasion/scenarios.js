@@ -1,6 +1,6 @@
 'use strict';
 
-const { createEngine, SEVERITY } = require('iotwarden');
+const { createEngine, SEVERITY } = require('hubvik');
 
 const WINDOW = 60_000;
 const HOUR = 3600e3;

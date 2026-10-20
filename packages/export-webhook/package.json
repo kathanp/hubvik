@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-webhook",
+  "name": "@hubvik/export-webhook",
   "version": "0.1.0",
-  "description": "POST an iotwarden anomaly with retry and an HMAC header.",
+  "description": "POST a hubvik anomaly with retry and an HMAC header.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "webhook"
   ],
   "types": "./src/index.d.ts",

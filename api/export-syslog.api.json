@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/export-syslog",
+  "name": "@hubvik/export-syslog",
   "exports": [
     "format"
   ],

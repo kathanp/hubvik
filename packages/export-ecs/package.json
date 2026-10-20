@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/export-ecs",
+  "name": "@hubvik/export-ecs",
   "version": "0.1.0",
-  "description": "Elastic Common Schema documents for iotwarden records.",
+  "description": "Elastic Common Schema documents for hubvik records.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "ecs"
   ],
   "types": "./src/index.d.ts",

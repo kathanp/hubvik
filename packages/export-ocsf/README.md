@@ -1,9 +1,9 @@
-# @iotwarden/export-ocsf
+# @hubvik/export-ocsf
 
-Maps one iotwarden anomaly to an OCSF Detection Finding (`class_uid` 2004). Pass `{ ocsfVersion: '1.4.0' }` to pin the schema version written into `metadata.version`. An incident object becomes an Update. No dependencies.
+Maps one hubvik anomaly to an OCSF Detection Finding (`class_uid` 2004). Pass `{ ocsfVersion: '1.4.0' }` to pin the schema version written into `metadata.version`. An incident object becomes an Update. No dependencies.
 
 ```js
-const { toFinding } = require('@iotwarden/export-ocsf');
+const { toFinding } = require('@hubvik/export-ocsf');
 
 engine.on('anomaly', (anomaly) => {
   const finding = toFinding(anomaly);

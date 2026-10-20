@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/cli",
+  "name": "@hubvik/cli",
   "version": "0.1.0",
-  "description": "Replay, report, and check iotwarden files. Zero runtime dependencies.",
+  "description": "Replay, report, and check hubvik files. Zero runtime dependencies.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -9,7 +9,7 @@
   },
   "main": "./src/lib.js",
   "bin": {
-    "iotwarden": "./src/bin.js"
+    "hubvik": "./src/bin.js"
   },
   "files": [
     "src",
@@ -20,7 +20,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "cli"
   ],
   "types": "./src/index.d.ts",

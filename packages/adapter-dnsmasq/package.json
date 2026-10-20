@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-dnsmasq",
+  "name": "@hubvik/adapter-dnsmasq",
   "version": "0.2.0",
-  "description": "Parse dnsmasq log-queries=extra lines into iotwarden DNS events.",
+  "description": "Parse dnsmasq log-queries=extra lines into hubvik DNS events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "dnsmasq",
     "dns"
   ],

@@ -14,12 +14,12 @@ function toDocument(record) {
     'ecs.version': '8.11.0',
     event: {
       kind: 'alert',
-      dataset: 'iotwarden',
+      dataset: 'hubvik',
       category: row.devices && row.edges ? ['intrusion_detection'] : ['network'],
       severity: row.severity || 'info',
     },
     message: row.actual || row.summary || '',
-    observer: { name: 'iotwarden' },
+    observer: { name: 'hubvik' },
   };
   if (row.device) doc.host = { name: String(row.device) };
   if (Array.isArray(row.devices)) doc.related = { hosts: row.devices.map(String) };

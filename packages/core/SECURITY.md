@@ -1,6 +1,6 @@
 # Security
 
-iotwarden is a detector. It does not block, drop, or modify traffic.
+hubvik is a detector. It does not block, drop, or modify traffic.
 
 ## Supported versions
 

@@ -1,7 +1,7 @@
 {
-  "name": "@iotwarden/adapter-suricata-eve",
+  "name": "@hubvik/adapter-suricata-eve",
   "version": "0.1.0",
-  "description": "Parse Suricata EVE JSON into iotwarden events.",
+  "description": "Parse Suricata EVE JSON into hubvik events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",
   "engines": {
@@ -17,7 +17,7 @@
   "sideEffects": false,
   "dependencies": {},
   "keywords": [
-    "iotwarden",
+    "hubvik",
     "suricata",
     "eve"
   ],

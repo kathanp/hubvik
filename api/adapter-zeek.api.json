@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-zeek",
+  "name": "@hubvik/adapter-zeek",
   "exports": [
     "createParser"
   ],

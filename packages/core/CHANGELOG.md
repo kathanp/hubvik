@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-Local only. Not a version bump and not a 0.9 gate. The Raspberry Pi 4 bench and the real-traffic 0.6 gate are still open.
+The npm name is `hubvik`. Scoped packages are `@hubvik/*`. The CLI binary is `hubvik`. The 2026-10-16 name `iotwarden` is retired. Local only. Not a version bump and not a 0.9 gate. The Raspberry Pi 4 bench and the real-traffic 0.6 gate are still open.
 
 Default-off engine options: `budget`, `calibratedConfidence`, `classSuggest`, `responseHints`, `redact`. `setDeviceTimezone`, `loadMud`, `checkpointDelta`, `applyDelta`, `exportSummary`, `importPeerSummaries`, and inline-only `createShardedEngine`. Worker shards throw until a person measures a Raspberry Pi 4.
 
 Shadow detectors, Rel 0.9: `day-of-week-drift`, `sni-ip-mismatch`, `mac-randomization-churn`, `discovery-spoof`, `mud-violation`, `fleet-baseline-poisoning`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`, `peer-divergence-federated`. They do not run unless `shadow` selects them. `peer-divergence-federated` counts each imported summary as one peer and also counts local peers in the same group. `importPeerSummaries` rejects forbidden keys and a non-array `groups` field before it replaces the previous summaries. With `calibratedConfidence`, a detector that does not return `margin` keeps the constant in `src/data/confidence.json`. Class suggestion scores a smart TV only after a browser JA4 and more than 30 families in a day, and a thermostat only for MQTT publish under 50 KB in that hour.
 
-New packages, each 0.1.0 and UNVERIFIED where the parser was written from documentation: `@iotwarden/adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables`, and `cli`. `respond-nftables` returns rule text and does not execute it. `export-ocsf` maps a campaign like an incident update and copies `explain` into `finding_info.desc`.
+New packages, each 0.1.0 and UNVERIFIED where the parser was written from documentation: `@hubvik/adapter-unbound`, `adapter-ipfix`, `adapter-openwrt`, `adapter-nftables`, `adapter-ssdp`, `export-prometheus`, `export-ecs`, `export-mqtt`, `respond-nftables`, and `cli`. `respond-nftables` returns rule text and does not execute it. `export-ocsf` maps a campaign like an incident update and copies `explain` into `finding_info.desc`.
 
 ## 0.8.0
 
@@ -34,7 +34,7 @@ A baseline exported with shadow detectors on imports into a default engine witho
 
 ## 0.7.0
 
-Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `iotwarden@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.
+Local release, not published. The 0.7 gate measured 68.69 KB retained per device on the 200-device 7-day bench (median `feed()` 6.71 µs, 6,948,925 events). Check 213/213. Coverage lines 97.99%, branches 86.48%, functions 97.90%. Fuzz stayed clean, including neighbor-discovery events, `feedback()`, and `restore()` of a reorder buffer. `test/diff/` matches. The golden baseline records `pkg` `hubvik@0.7.0`; no anomaly field changed. Still a prototype, not validated on real traffic.
 
 Learning can warn `SUSPICIOUS_LEARNING` for `ramp`, `late-family-burst`, and `beacon-born-in-learning`. Each sets `learningQuality.ready` to false. They do not raise an anomaly.
 

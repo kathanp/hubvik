@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/adapter-unbound",
+  "name": "@hubvik/adapter-unbound",
   "exports": [
     "createParser"
   ],

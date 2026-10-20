@@ -1,5 +1,5 @@
 {
-  "name": "@iotwarden/export-mqtt",
+  "name": "@hubvik/export-mqtt",
   "exports": [
     "publishWith",
     "toMessages"

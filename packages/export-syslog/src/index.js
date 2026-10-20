@@ -14,12 +14,12 @@ function format(anomaly, opts = {}) {
   const pri = 16 * 8 + PRI[severity];
   const ts = anomaly && typeof anomaly.ts === 'number' ? anomaly.ts : 0;
   const host = opts.host || '-';
-  const app = opts.app || 'iotwarden';
+  const app = opts.app || 'hubvik';
   const detector = anomaly && anomaly.detector ? sanitize(anomaly.detector) : '-';
   const cef = [
     'CEF:0',
-    'iotwarden',
-    'iotwarden',
+    'hubvik',
+    'hubvik',
     '0.1.0',
     detector,
     sanitize(anomaly && anomaly.actual ? anomaly.actual : detector),
