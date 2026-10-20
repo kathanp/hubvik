@@ -220,4 +220,200 @@ function proxyShape(engine, device, event) {
   }
 }
 
-module.exports = { noteLearning, mark };
+const learningMethods = {
+  /**
+   * @this {any}
+   * End learning for one device, or for every device.
+   * @param {string} [deviceId]
+   * @returns {void}
+   */
+  lock(deviceId) {
+    /** @type {any} */ (this)._releaseReorder(Infinity);
+    const list =
+      deviceId == null
+        ? [...this.devices.values()]
+        : [/** @type {any} */ (this)._requireDevice(deviceId)];
+    for (const device of list) {
+      if (device.mode === 'learning' && device.seen) {
+        if (!this._quality(device).ready) {
+          this._warn('LOCKED_UNREVIEWED', 'locked before learning looked clean', device.id);
+        }
+        this._enterWatch(device, device.learnStart ?? 0);
+      }
+    }
+  },
+
+  /**
+   * @this {any}
+   * Clear detector baselines and learn again from the next event.
+   * @param {string} deviceId
+   * @param {{ detectors?: string[] }} [opts]
+   * @returns {void}
+   */
+  relearn(deviceId, opts = {}) {
+    const device = /** @type {any} */ (this)._requireDevice(deviceId);
+    const ids = opts.detectors ?? this.registry.map((/** @type {any} */ det) => det.id);
+    if (!Array.isArray(ids)) throw new TypeError('detectors must be an array');
+    for (const id of ids) {
+      const det = this.byId.get(id);
+      if (!det) throw new TypeError(`unknown detector ${id}`);
+      device.states.set(id, /** @type {any} */ (this)._freshState(det));
+    }
+    device.mode = 'learning';
+    device.frozen = false;
+    device.learnStart = null;
+    device.open = null;
+    device.cursor = null;
+    device.sealedUntil = null;
+  },
+
+  /**
+   * @this {any}
+   * @param {any} device
+   * @param {number} ts
+   */
+  _enterWatch(device, ts) {
+    if (device.mode === 'watching') return;
+    device.mode = 'watching';
+    device.frozen = true;
+    this.emit('learned', { device: device.id, ts });
+  },
+
+  /**
+   * @this {any}
+   * After a large download, several new behaviors are one incident with two explanations.
+   * @param {any} device
+   */
+  _maybeDrift(device) {
+    if (device.postDrift || !device.incident) return;
+    const names = device.incident.detectors || [];
+    if (!names.some((/** @type {string} */ name) => name.startsWith('update-'))) return;
+    const others = names.filter(
+      (/** @type {string} */ name) => !name.startsWith('update-') && name !== 'post-update-drift',
+    );
+    if (others.length < 3) return;
+    device.postDrift = true;
+    this._special(
+      'post-update-drift',
+      device,
+      { ts: device.incident.lastTs, device: device.id },
+      {
+        kind: 'post-update-drift',
+        others: others.length,
+        updateId: names.find((/** @type {string} */ name) => name.startsWith('update-')),
+      },
+      false,
+    );
+  },
+
+  /**
+   * @this {any}
+   * @param {any} device
+   */
+  _quality(device) {
+    const suspicious = device.suspicious ? device.suspicious.slice() : [];
+    const windowsActive = device.windowsActive || 0;
+    const families = device.learnFamilies ? device.learnFamilies.size : 0;
+    return {
+      windowsActive,
+      families,
+      suspicious,
+      ready: suspicious.length === 0 && windowsActive >= this.opts.minLearnWindows,
+    };
+  },
+
+  /**
+   * @this {any}
+   * @returns {Record<string, { windowsActive: number, families: number, suspicious: string[], ready: boolean }>}
+   */
+  _learningQuality() {
+    /** @type {Record<string, any>} */
+    const out = Object.create(null);
+    for (const device of this.devices.values()) {
+      if (!device.seen) continue;
+      out[device.id] = this._quality(device);
+    }
+    return out;
+  },
+
+  /**
+   * @this {any}
+   * One warning per enabled tier that still has no events once learning has ended.
+   * @param {number} now
+   */
+  _tierNeverSeen(now) {
+    if (typeof now !== 'number' || this.startedAt == null) return;
+    if (now < this.startedAt + this.opts.learnMs) return;
+    if (!this.tierNeverWarned) this.tierNeverWarned = Object.create(null);
+    const seen = /** @type {any} */ (this).tierSeen || {};
+    for (const tier of this.opts.tiers) {
+      if (typeof seen[tier] === 'number' || this.tierNeverWarned[tier]) continue;
+      this.tierNeverWarned[tier] = true;
+      this._warn('TIER_NEVER_SEEN', `${tier} had no events by the end of learning`, undefined, {
+        ts: now,
+      });
+    }
+  },
+
+  /**
+   * @this {any}
+   * @param {number} now
+   */
+  _tierSilent(now) {
+    const seen = /** @type {any} */ (this).tierSeen || {};
+    const enabled = this.opts.tiers;
+    const limitOf = (/** @type {string} */ tier) => {
+      const table = this.opts.tierSilentByTier;
+      if (table && typeof table[tier] === 'number') return table[tier];
+      return this.opts.tierSilentMs;
+    };
+    const fresh = (/** @type {string} */ tier) => {
+      const last = seen[tier];
+      return typeof last === 'number' && now - last < this.opts.tierSilentMs;
+    };
+    const live = enabled.some(fresh);
+    if (!live) return;
+    if (!this.tierSilentFired) this.tierSilentFired = Object.create(null);
+    for (const tier of enabled) {
+      const last = seen[tier];
+      if (typeof last !== 'number') continue;
+      if (now - last < limitOf(tier)) continue;
+      const key = String(last);
+      if (this.tierSilentFired[tier] === key) continue;
+      this.tierSilentFired[tier] = key;
+      const detectors = this.registry
+        .filter(
+          (/** @type {any} */ det) =>
+            det.requires.includes(tier) &&
+            this.detectorStatus[det.id] &&
+            this.detectorStatus[det.id].active,
+        )
+        .map((/** @type {any} */ det) => det.id);
+      const device = { id: 'engine', suppress: new Map(), states: new Map() };
+      this._special(
+        'tier-silent',
+        device,
+        { ts: now, device: 'engine' },
+        { kind: 'tier-silent', tier, detectors },
+        false,
+      );
+    }
+  },
+
+  /**
+   * @this {any}
+   * @param {number} now
+   */
+  _inputGap(now) {
+    if (this.lastEventTs == null) return;
+    const gap = now - this.lastEventTs;
+    const span = this.opts.maxWindows * this.opts.windowMs;
+    if (gap < 24 * 3600e3 || gap > span) return;
+    if (this.inputGapAt === this.lastEventTs) return;
+    this.inputGapAt = this.lastEventTs;
+    const device = { id: 'engine', suppress: new Map(), states: new Map() };
+    this._special('input-gap', device, { ts: now, gapMs: gap }, { kind: 'input-gap' }, false);
+  },
+};
+
+module.exports = { noteLearning, mark, learningMethods };
