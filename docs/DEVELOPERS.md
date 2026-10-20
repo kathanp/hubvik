@@ -233,6 +233,12 @@ During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, 
 
 `packages/core/src/engine/stats/` is the Welford, EWMA, P², HyperLogLog, Count-Min, CUSUM, Page–Hinkley, and hash library. Detectors still use their own state. Count-Min is for one LAN-wide table, not one table per device.
 
+## Running a pilot
+
+A pilot that wants shadow evidence must call `createEngine({ shadow: true })`, or pass the detector ids in `shadow`, or set `detectors[id].enabled: true`. The default is off (D-34). Shadow anomalies are the only evidence the shadow rule accepts before a B21 row can move to `live`. A site that leaves the default collects none, so those rows stay shadow.
+
+`exportBaseline()` from a pilot engine includes shadow state. Importing that file into a default engine does not throw. The state stays on the device, the detectors do not run, and the next `exportBaseline()` leaves the shadow keys out.
+
 ## Early shadow detectors
 
 `exploit-probe-http`, `young-domain`, `ttl-anomaly`, `slow-scan`, `jitter-beacon`, `multi-horizon-exfil`, `graph-new-bridge`, `graph-role-change`, `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil`, `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, and `matter-new-controller` have `meta.mode` `shadow`. They stay off unless `createEngine({ shadow: true })`, `shadow` lists their ids, or `detectors[id].enabled` is set (D-34). Subscribe to `shadow-anomaly` to see them. `loadRules` compiles rules as shadow detectors, so a host that loads rules also sets `shadow: true` or lists `rule:<id>`. `createEngine({ detectors: { 'ttl-anomaly': { mode: 'live' } } })` promotes one and emits warning `SHADOW_PROMOTED_BY_HOST` once. A canary is `detectors[id].canary` with option overrides. The engine allows four. Canary state is not in `exportBaseline()` or `checkpoint()`.

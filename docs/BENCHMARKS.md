@@ -372,4 +372,18 @@ Only `multi-horizon-exfil` is over 3 KB/device on this 16-device sweep. Its expo
 | 200 devices, 7 days, defaults       |         7.46 µs | 67.86 KB/device |
 | 200 devices, 7 days, `shadow: true` |         9.92 µs | 74.39 KB/device |
 
-Events in each 7-day run: 6,948,925. Both 7-day lines are under 100 KB. The 1,000-device median is under 10 µs. The `shadow: true` median is recorded and is not a gate. Defaults leave the horizon ring and the LAN graph off, because the detectors that turn them on are shadow. Caps were not changed.
+Events in each 7-day run: 6,948,925. Both 7-day lines are under 100 KB. The 1,000-device median is under 10 µs. The `shadow: true` median, 9.92 µs, is within 1% of the 10 µs x86 budget. It is recorded and is not a gate. Shadow mode is not claimed budget-safe on a Raspberry Pi 4 until it is measured there. Defaults leave the horizon ring and the LAN graph off, because the detectors that turn them on are shadow. Caps were not changed.
+
+## Alignment re-gate, 2026-10-20
+
+`npm run gate` exited 0. `node --expose-gc bench/run.js` printed:
+
+| Line                                | median `feed()` |        retained |
+| ----------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries        |         7.29 µs | 12.01 KB/device |
+| 200 devices, 7 days, defaults       |         9.33 µs | 68.13 KB/device |
+| 200 devices, 7 days, `shadow: true` |        10.38 µs | 74.52 KB/device |
+
+Events in each 7-day run: 6,948,925. Defaults stay under 10 µs and under 100 KB. The `shadow: true` median is over the 10 µs x86 line. It is still not a gate. Shadow mode is not claimed budget-safe on x86 from this run, and it is not claimed budget-safe on a Raspberry Pi 4 until it is measured there.
+
+`multi-horizon-exfil` does not keep a second hourly ring. Learned hours are five numbers in a `Float64Array` (count, mean, M2, min, max) plus one P² sketch of daily totals. `check()` reads the last 24 hours from `ctx.horizon`, the same ring `slow-scan` uses. Turning this detector off does not shrink that ring while `slow-scan` is still running. The 3.88 KB sweep row is larger than the exported state (about 0.3 KB) because the 16-device sweep divides fixed allocator cost by 16.

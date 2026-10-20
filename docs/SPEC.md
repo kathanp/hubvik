@@ -195,7 +195,7 @@ Under this rule, B21 rows are measurement instruments, not alert sources, and 0.
 - `detectors[id].enabled`, when it is set, wins over `shadow`.
 - `detectors[id].mode: 'live'` promotes that one detector, so it is no longer a shadow detector and it runs.
 
-A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a default engine does not pay memory or CPU for it. The all-tier benign matrix, the multicast-hygiene test, the metamorphic suite, and each shadow detector's own tests pass `shadow: true`. `test/diff` uses `shadow: true`, the setting its golden was captured with, and does not edit the golden.
+A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a default engine does not pay memory or CPU for it. The measured cost of leaving them on was 87.36 KB per device against 67.86 KB with them off (D-34). A pilot that does not opt in collects no shadow evidence, and under the shadow rule above no B21 row can move to `live` without that evidence. The all-tier benign matrix, the multicast-hygiene test, the metamorphic suite, and each shadow detector's own tests pass `shadow: true`. `test/diff` uses `shadow: true`, the setting its golden was captured with, and does not edit the golden.
 
 **Bench budgets.** These are not raised. With default options the 200-device 7-day retained memory stays under 100 KB per device, and the 1,000-device watching median stays under 10 µs. With `shadow: true` the 7-day retained memory also stays under 100 KB per device, because the pilot runs on the same hardware. That run's median is recorded and is not a gate. A new shadow detector in WP-25 or WP-27 may cost at most 2 KB per device on the 7-day sweep with `shadow: true`.
 
@@ -727,7 +727,7 @@ These are the tunables the 0.2 detectors use when the host does not override the
 
 ### Defaults shipped in 0.8 (early shadow)
 
-All three ship `mode: 'shadow'` and `defaults.enabled: true`. None is a hard rule. The engine runs them only when `shadow` selects them, or when `detectors[id].enabled` is set (D-34).
+All three ship `mode: 'shadow'` and `defaults.enabled: true`. None is a hard rule. The engine does not run them, create their state, or export them unless `shadow` is `true`, `shadow` lists the id, or `detectors[id].enabled` is set (D-34). A pilot sets `shadow: true`. Without that, these rows cannot be promoted.
 
 `exploit-probe-http`
 
@@ -982,7 +982,7 @@ Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs medi
 
 The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which was already over that line when the rule was added and is reported rather than split. `src/data/` must total at most 200 KB.
 
-From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line, and it includes every Part F option that defaults on plus every B21 shadow detector. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
+From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` is also kept under 100 KB per device. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
 ## C5. Feedback loop
 
@@ -1099,6 +1099,7 @@ The measurement layer. Required before any B21 row (0.5 shadow rule) and before 
 - `stats().shadow[id] = { fired, devices, bySeverity, wouldJoinIncident }`. `wouldJoinIncident` counts drafts that would have joined an open incident on that device had they been live.
 - A shadow draft never reaches an exporter unless the host subscribes to `shadow-anomaly`.
 - `exploit-probe-http`, `young-domain`, and `ttl-anomaly` are shadow. Their own state round-trips through `exportBaseline()` and `importBaseline()` when `shadow` selects them. The differential comparison ignores a shadow id that is missing on one side (D-24), so the live detectors' baseline stays the oracle.
+- Importing a baseline that contains shadow state into an engine with `shadow: false` does not throw. The bytes stay on the device and the detectors do not run. A later `exportBaseline()` omits those keys.
 
 **Threshold canaries.**
 
@@ -1136,7 +1137,7 @@ The engine reasons in 60-second windows. Three published blind spots (slow scan,
 - Exposed to detectors as `ctx.horizon(dev).last(hours)` and `.sum(field, hours)`. Read-only.
 - Rolled on window close using event time only. A gap longer than 24 h resets the ring and is not an alert.
 - Consumers: `slow-scan`, `multi-horizon-exfil` (B21). No live detector reads it in 3.1.
-- Option `horizons: false` (default `true` only when any B21 consumer is enabled).
+- Option `horizons: false` turns the ring off. `horizons: true` turns it on. When `horizons` is omitted, the ring is on only while `slow-scan` or `multi-horizon-exfil` is actually running. With `shadow: false` those two are not running, so the ring stays off (D-34).
 
 ## F4. Explainability
 
@@ -1186,7 +1187,7 @@ Incidents are per device. Kimwolf-style attacks are not: a proxy endpoint pivots
 
 ## F7. LAN communication graph
 
-- Option `graph: false` (default `true` when any B21 graph detector is enabled).
+- Option `graph: false` turns the graph off. `graph: true` turns it on. When `graph` is omitted, the graph is on only while `graph-new-bridge` or `graph-role-change` is actually running. With `shadow: false` those two are not running, so the graph stays off (D-34).
 - Nodes are devices. LAN edges are keyed `(src device, dst device, dstPort, proto)` with `{ firstTs, lastTs, flows }`. WAN edges are collapsed to domain family (or `/24` for IPs with no name), `{ firstTs, lastTs, bytesOut }`.
 - Caps: 32 LAN edges and 64 WAN families per device, LRU. About 6 KB per device worst case.
 - Learned flag per edge, so a detector can ask "was this edge present during learning?"

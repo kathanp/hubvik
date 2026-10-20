@@ -97,4 +97,4 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 
 ## Session note
 
-2026-10-19: Step 1.5 gate exited 0. Check 290/290. Coverage lines 97.71%, branches 86.04%, functions 97.83%. Defaults 7-day 67.86 KB/device, rich median 7.46 µs. `shadow: true` 7-day 74.39 KB/device, median 9.92 µs. 1,000-device median 6.92 µs. Demo score 100. `multi-horizon-exfil` was the only shadow detector over 3 KB/device in the 16-device sweep (4.58, then 3.88 after the typed-array pack). Tagged `v0.8.0` locally. Step 2 is next.
+2026-10-20: Pre-Step-2 alignment is done. Gate exited 0. Check 295/295. Coverage lines 97.70%, branches 86.04%, functions 97.83%. Defaults 7-day 68.13 KB/device, rich median 9.33 µs. `shadow: true` 7-day 74.52 KB/device, median 10.38 µs, recorded and not a gate. 1,000-device median 7.29 µs. Demo score 100. Pack-check compares unpacked bytes to 750 KB for core. Step 2 is not started.
