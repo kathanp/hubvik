@@ -32,6 +32,9 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 - [ ] 2h. Stryker on validate, baseline, incidents (recorded, not gated)
 - [ ] 2i. No `child_process` / `eval` / `new Function` / dynamic `require`; `npm audit --omit=dev` is 0
 - [ ] 2j. `docs/QUALITY.md`
+- [ ] 2k. Per-file size rule in `scripts/pack-check.mjs`, gated: no packed file over 60 KB; `src/data/` at most 200 KB. `engine.js` fails this until 2l
+- [ ] 2l. Split `engine.js` into feed, windows, learning, emit, state, persist. `engine.js` under 25 KB. One commit per module. `test/diff`, metamorphic suite, and the 1,000-device bench after each commit (median regression ≤ 5%). Public API snapshot unchanged
+- [ ] 2m. Split `validate.js` by event type (`flow`, `dns`, `tls`, `app`, `link`, `common`). Same checks as 2l
 
 ## Step 3 — WP-23
 
