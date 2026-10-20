@@ -44,12 +44,7 @@ const ATTACK = require('../data/attack-map.json');
 const pkg = require('../../package.json');
 
 const PKG = `${pkg.name}@${pkg.version}`;
-/** @type {Record<string, string[]>} */
-const ROOT_KEYS = {
-  'volume-spike': ['sigma', 'minBytes', 'peakFactor'],
-  'fan-out': ['minFanout', 'fanoutFactor'],
-  'new-destination': ['maxNewDstPerWindow'],
-};
+const stateMethods = require('./state');
 
 class Engine extends EventEmitter {
   /**
@@ -182,106 +177,6 @@ class Engine extends EventEmitter {
     this._graphOn = graphOn(this);
   }
 
-  /** @returns {any} */
-  _caps() {
-    return this.opts;
-  }
-
-  /**
-   * @param {any} det
-   */
-  _optionsFor(det) {
-    const options = { ...det.defaults };
-    const root = this.opts.raw;
-    for (const key of ROOT_KEYS[det.id] ?? []) {
-      if (this.opts.explicit.has(key)) options[key] = root[key];
-    }
-    const over = this.opts.detectors[det.id];
-    if (over) {
-      for (const [key, value] of Object.entries(over)) {
-        if (key === 'enabled' || key === 'mode' || key === 'canary') continue;
-        options[key] = value;
-      }
-    }
-    return options;
-  }
-
-  /**
-   * One string object per destination text, up to the existing destination cap.
-   * @param {string} value
-   * @returns {string}
-   */
-  _intern(value) {
-    const hit = this.names.get(value);
-    if (hit !== undefined) return hit;
-    if (this.names.size >= this.opts.maxDestinations) return value;
-    this.names.set(value, value);
-    return value;
-  }
-
-  /**
-   * @param {any} event
-   * @returns {void}
-   */
-  _internEvent(event) {
-    for (const key of ['dst', 'dstIp', 'dstName', 'qname', 'sni']) {
-      const value = event[key];
-      if (typeof value === 'string' && value.length > 0) event[key] = this._intern(value);
-    }
-  }
-
-  /**
-   * @param {string} id
-   * @returns {any}
-   */
-  _blank(id) {
-    return {
-      id,
-      mode: 'learning',
-      frozen: false,
-      seen: false,
-      learnStart: null,
-      lastTs: null,
-      peerGroup: null,
-      deviceClass: null,
-      open: null,
-      cursor: null,
-      sealedUntil: null,
-      states: new Map(),
-      suppress: new Map(),
-      allows: new Map(),
-    };
-  }
-
-  /**
-   * @param {any} det
-   */
-  _freshState(det) {
-    return typeof det.createState === 'function' ? det.createState(this._caps()) : {};
-  }
-
-  /**
-   * @param {any} device
-   * @param {any} det
-   */
-  _state(device, det) {
-    let state = device.states.get(det.id);
-    if (!state) {
-      state = this._freshState(det);
-      device.states.set(det.id, state);
-    }
-    return state;
-  }
-
-  /**
-   * @param {string} id
-   */
-  _requireDevice(id) {
-    const device = this.devices.get(id);
-    if (!device || !device.seen) throw new TypeError(`unknown device ${id}`);
-    return device;
-  }
-
   /**
    * Record one event. Synchronous. Listener failures become `warning` events.
    * @param {object} raw
@@ -305,7 +200,7 @@ class Engine extends EventEmitter {
       if (!event.dst) event.dst = event.dstName || event.dstIp;
       if (event.bytes == null) event.bytes = (event.bytesOut || 0) + (event.bytesIn || 0);
     }
-    this._internEvent(event);
+    /** @type {any} */ (this)._internEvent(event);
     this.eventsIn += 1;
     for (const warning of warnings) this._warn(warning.code, warning.message, event.device);
     if (this.startedAt == null) this.startedAt = event.ts;
@@ -563,8 +458,14 @@ class Engine extends EventEmitter {
       for (const device of this.devices.values()) {
         if (!device.seen || device.mode !== 'watching') continue;
         const ctx = this._ctx(device, false, at);
-        ctx.options = this._optionsFor(det);
-        this._take(device, det, det.tick(this._state(device, det), ctx), false, null);
+        ctx.options = /** @type {any} */ (this)._optionsFor(det);
+        this._take(
+          device,
+          det,
+          det.tick(/** @type {any} */ (this)._state(device, det), ctx),
+          false,
+          null,
+        );
       }
     }
     this._inputGap(at);
@@ -579,7 +480,10 @@ class Engine extends EventEmitter {
    */
   lock(deviceId) {
     this._releaseReorder(Infinity);
-    const list = deviceId == null ? [...this.devices.values()] : [this._requireDevice(deviceId)];
+    const list =
+      deviceId == null
+        ? [...this.devices.values()]
+        : [/** @type {any} */ (this)._requireDevice(deviceId)];
     for (const device of list) {
       if (device.mode === 'learning' && device.seen) {
         if (!this._quality(device).ready) {
@@ -597,13 +501,13 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   relearn(deviceId, opts = {}) {
-    const device = this._requireDevice(deviceId);
+    const device = /** @type {any} */ (this)._requireDevice(deviceId);
     const ids = opts.detectors ?? this.registry.map((det) => det.id);
     if (!Array.isArray(ids)) throw new TypeError('detectors must be an array');
     for (const id of ids) {
       const det = this.byId.get(id);
       if (!det) throw new TypeError(`unknown detector ${id}`);
-      device.states.set(id, this._freshState(det));
+      device.states.set(id, /** @type {any} */ (this)._freshState(det));
     }
     device.mode = 'learning';
     device.frozen = false;
@@ -625,11 +529,11 @@ class Engine extends EventEmitter {
     if (typeof value !== 'string' || value.length === 0 || value.length > this.opts.maxString) {
       throw new TypeError('allow value is invalid');
     }
-    const device = this._requireDevice(deviceId);
+    const device = /** @type {any} */ (this)._requireDevice(deviceId);
     let handled = false;
     for (const det of this.registry) {
       if (typeof det.allow !== 'function') continue;
-      if (det.allow(this._state(device, det), kind, value)) handled = true;
+      if (det.allow(/** @type {any} */ (this)._state(device, det), kind, value)) handled = true;
     }
     if (!handled) {
       let set = device.allows.get(kind);
@@ -651,7 +555,7 @@ class Engine extends EventEmitter {
    */
   suppress(deviceId, detectorId, opts = {}) {
     if (!this.byId.has(detectorId)) throw new TypeError(`unknown detector ${detectorId}`);
-    const device = this._requireDevice(deviceId);
+    const device = /** @type {any} */ (this)._requireDevice(deviceId);
     /** @type {{ untilTs?: number, match?: string }} */
     const entry = {};
     if (opts.untilTs != null) {
@@ -702,7 +606,7 @@ class Engine extends EventEmitter {
         this._warn('STATE_CAP', 'device cap reached', deviceId);
         return;
       }
-      device = this._blank(deviceId);
+      device = /** @type {any} */ (this)._blank(deviceId);
       this.devices.set(deviceId, device);
     }
     device.deviceClass = classId;
@@ -735,7 +639,7 @@ class Engine extends EventEmitter {
         this._warn('STATE_CAP', 'device cap reached', deviceId);
         return;
       }
-      device = this._blank(deviceId);
+      device = /** @type {any} */ (this)._blank(deviceId);
       this.devices.set(deviceId, device);
     }
     device.peerGroup = groupId;
@@ -798,7 +702,7 @@ class Engine extends EventEmitter {
         const stored = device.states.get(det.id);
         if (this._shadowBlocked(det)) continue;
         if (!stored && det.defaults && det.defaults.enabled === false) continue;
-        const state = stored ?? this._freshState(det);
+        const state = stored ?? /** @type {any} */ (this)._freshState(det);
         const exported = typeof det.exportState === 'function' ? det.exportState(state) : {};
         detectors[det.id] = { v: det.version, state: exported };
       }
@@ -833,8 +737,12 @@ class Engine extends EventEmitter {
       if (!det || typeof det.exportState !== 'function' || typeof det.importState !== 'function') {
         throw new Error('checkpoint live state is invalid');
       }
-      assertLiveShape(this._freshState(det), state);
-      det.importState(this._freshState(det), det.exportState(state), this._caps());
+      assertLiveShape(/** @type {any} */ (this)._freshState(det), state);
+      det.importState(
+        /** @type {any} */ (this)._freshState(det),
+        det.exportState(state),
+        /** @type {any} */ (this)._caps(),
+      );
     }
   }
 
@@ -1003,7 +911,7 @@ class Engine extends EventEmitter {
     const prepared = prepareImport(raw, {
       windowMs: this.opts.windowMs,
       registry: this.registry,
-      caps: this._caps(),
+      caps: /** @type {any} */ (this)._caps(),
       verify: opts.verify,
     });
     if (opts.merge === false) this.devices.clear();
@@ -1015,7 +923,7 @@ class Engine extends EventEmitter {
           this._stateCap(item.id, 0);
           continue;
         }
-        device = this._blank(item.id);
+        device = /** @type {any} */ (this)._blank(item.id);
       }
       device.states = item.states;
       device.peerGroup = item.peerGroup;
@@ -1252,7 +1160,7 @@ class Engine extends EventEmitter {
         this._stateCap(id, ts);
         return null;
       }
-      device = this._blank(id);
+      device = /** @type {any} */ (this)._blank(id);
       this.devices.set(id, device);
     }
     if (!device.seen) {
@@ -1408,8 +1316,12 @@ class Engine extends EventEmitter {
     try {
       for (const det of this.active) {
         if (typeof det.onWindowClose !== 'function') continue;
-        ctx.options = this._optionsFor(det);
-        const draft = det.onWindowClose(this._state(device, det), summary, ctx);
+        ctx.options = /** @type {any} */ (this)._optionsFor(det);
+        const draft = det.onWindowClose(
+          /** @type {any} */ (this)._state(device, det),
+          summary,
+          ctx,
+        );
         this._take(device, det, draft, learning, null);
         const canary = this._canaryOverrides(det);
         if (canary) {
@@ -1441,8 +1353,8 @@ class Engine extends EventEmitter {
     ctx.window = device.open;
     const list = this.byType[event.type] || [];
     for (const det of list) {
-      const state = this._state(device, det);
-      ctx.options = this._optionsFor(det);
+      const state = /** @type {any} */ (this)._state(device, det);
+      ctx.options = /** @type {any} */ (this)._optionsFor(det);
       if (learning && !det.hardRule) {
         if (typeof det.learn === 'function') {
           const noted = det.learn(state, event, ctx);
@@ -1478,7 +1390,7 @@ class Engine extends EventEmitter {
    * @returns {any}
    */
   _ctx(device, learning, ts) {
-    const engine = this;
+    const engine = /** @type {any} */ (this);
     return {
       learning,
       ts,
@@ -1623,7 +1535,7 @@ class Engine extends EventEmitter {
     if (!device.canary) device.canary = new Map();
     let state = device.canary.get(det.id);
     if (!state) {
-      state = this._freshState(det);
+      state = /** @type {any} */ (this)._freshState(det);
       device.canary.set(det.id, state);
     }
     return state;
@@ -1975,7 +1887,7 @@ class Engine extends EventEmitter {
       device.stormSent = false;
     }
     device.stormCount += 1;
-    const limit = this._optionsFor(det).maxPerMinute;
+    const limit = /** @type {any} */ (this)._optionsFor(det).maxPerMinute;
     if (device.stormCount <= limit) return false;
     if (!device.stormSent) {
       device.stormSent = true;
@@ -2003,8 +1915,8 @@ class Engine extends EventEmitter {
     if (!det || !status || !status.active) return;
     const ctx = this._ctx(device, learning, event.ts || 0);
     ctx.extra = extra;
-    ctx.options = this._optionsFor(det);
-    const state = device.states ? this._state(device, det) : {};
+    ctx.options = /** @type {any} */ (this)._optionsFor(det);
+    const state = device.states ? /** @type {any} */ (this)._state(device, det) : {};
     this._take(device, det, det.check(state, event, ctx), learning, event);
   }
 
@@ -2178,5 +2090,7 @@ function clamp01(value) {
 function createEngine(opts) {
   return new Engine(opts);
 }
+
+Object.assign(Engine.prototype, stateMethods);
 
 module.exports = { createEngine, Engine };
