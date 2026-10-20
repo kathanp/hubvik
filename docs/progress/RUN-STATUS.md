@@ -9,16 +9,16 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 - [x] 1a. WP-21 shadow detectors green (gate on this branch)
 - [x] 1b. WP-22 rule language (`loadRules`, sequences, examples, fuzz)
 - [x] 1c. `peer-divergence-federated` marked Rel 0.9 in SPEC
-- [ ] 1d. 0.8.0 bump, CHANGELOG, local tag `v0.8.0` (after step 1.5)
+- [x] 1d. 0.8.0 bump, CHANGELOG, local tag `v0.8.0` (after step 1.5)
 
 ## Step 1.5 — Memory and speed before adding more
 
-- [ ] 1.5a. Disable-one heap table for the 17 shadow detectors, and the gated 1,000-device median
-- [ ] 1.5b. `shadow` option, default false (D-34). Benign, hygiene, metamorphic, and shadow tests pass `shadow: true`. `test/diff` keeps the golden's setting
-- [ ] 1.5c. Gate defaults (7-day < 100 KB and 1,000-device median < 10 µs) and `shadow: true` 7-day < 100 KB
-- [ ] 1.5d. Representation fix for any shadow detector over 3 KB/device
+- [x] 1.5a. Disable-one heap table for the 17 shadow detectors, and the gated 1,000-device median
+- [x] 1.5b. `shadow` option, default false (D-34). Benign, hygiene, metamorphic, and shadow tests pass `shadow: true`. `test/diff` keeps the golden's setting
+- [x] 1.5c. Gate defaults (7-day < 100 KB and 1,000-device median < 10 µs) and `shadow: true` 7-day < 100 KB
+- [x] 1.5d. Representation fix for any shadow detector over 3 KB/device
 - [ ] 1.5e. Later detectors stay at or under 2 KB/device (checked when each is added)
-- [ ] 1.5f. 0.8.0 bump and local tag `v0.8.0` if the gate passes (same as 1d)
+- [x] 1.5f. 0.8.0 bump and local tag `v0.8.0` if the gate passes (same as 1d)
 
 ## Step 2 — Code quality (each check added to `npm run gate`)
 
@@ -97,4 +97,4 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 
 ## Session note
 
-2026-10-19: 1b gate exited 0. Check 289/289, duration 1251432 ms. Coverage lines 97.69%, branches 86.02%, functions 97.90%. Pack 186 files, 549167 bytes. spec-coverage 137 rows, 126 files, explains 56 of 126. Rules fuzz 87041 rejected. Bench median 6.75 µs, retained 12.04 KB/device. Rich bench median 11.17 µs, retained 87.36 KB/device. Demo score 100. Step 1.5 is next: shadow detectors default off.
+2026-10-19: Step 1.5 gate exited 0. Check 290/290. Coverage lines 97.71%, branches 86.04%, functions 97.83%. Defaults 7-day 67.86 KB/device, rich median 7.46 µs. `shadow: true` 7-day 74.39 KB/device, median 9.92 µs. 1,000-device median 6.92 µs. Demo score 100. `multi-horizon-exfil` was the only shadow detector over 3 KB/device in the 16-device sweep (4.58, then 3.88 after the typed-array pack). Tagged `v0.8.0` locally. Step 2 is next.

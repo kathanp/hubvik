@@ -659,3 +659,11 @@ Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
 Check 289/289, duration 1251432 ms. Coverage lines 97.69%, branches 86.02%, functions 97.90%, duration 1145845 ms. Pack-check: core 186 files, 549167 bytes unpacked. `src/engine/engine.js` is 68083 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 56550 accepted, 43450 rejected; checkpoint mutation 53652 accepted, 46348 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected. Bench median 6.75 µs, retained 12.04 KB/device, 1000 devices. Rich bench median 11.17 µs, retained 87.36 KB/device, 200 devices, 6,948,925 events. Under 100 KB.
 
 `loadRules` validates the whole document, then swaps the rule set. `npm run demo` printed the same incident, score 100.
+
+## WP-21.5 gate
+
+Date: 2026-10-19. `npm run gate` exited 0, then `npm run demo`.
+
+Check 290/290, duration 772726 ms. Coverage lines 97.71%, branches 86.04%, functions 97.83%, duration 799587 ms. Pack-check: core 186 files, 552355 bytes unpacked. `src/engine/engine.js` is 69008 bytes and stays exempt. `spec-coverage`: 137 rows, 126 detector files, core 0.7.0, explains 56 of 126, ok. Fuzz: feed 33401 rejected; baseline 100000 rejected; checkpoint 100000 rejected; baseline mutation 54731 accepted, 45269 rejected; checkpoint mutation 52243 accepted, 47757 rejected; stats 100000 rejected; nd 80018 rejected; feedback 96145 rejected; reorder restore 60129 rejected; rules 87041 rejected. Bench median 6.92 µs, retained 11.99 KB/device, 1000 devices. Rich bench (defaults) median 7.46 µs, retained 67.86 KB/device, 200 devices, 6,948,925 events. Shadow bench (`shadow: true`) median 9.92 µs, retained 74.39 KB/device. Both under 100 KB. The 1,000-device median is under 10 µs. The shadow median is recorded and not gated.
+
+`npm run demo` printed the same incident, score 100.

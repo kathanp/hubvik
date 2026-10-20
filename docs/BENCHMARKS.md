@@ -361,3 +361,15 @@ Events in the 7-day run: 6,948,925. Under 100 KB. The 1,000-device median is the
 | `wifi-deauth-flood`      |     -0.52 |
 
 Only `multi-horizon-exfil` is over 3 KB/device on this 16-device sweep. Its exported state is about 0.3 KB. The rest of the row is object overhead plus a fixed cost divided by 16 devices. After the typed-array pack, two baselines averaged 204.88 KB/device and two disabled runs averaged 201.00, so the row is 3.88 KB/device. Caps were not changed. Detector output was not changed.
+
+## WP-21.5 — shadow option, 2026-10-19
+
+`node --expose-gc bench/run.js` printed:
+
+| Line                                | median `feed()` |        retained |
+| ----------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries        |         6.92 µs | 11.99 KB/device |
+| 200 devices, 7 days, defaults       |         7.46 µs | 67.86 KB/device |
+| 200 devices, 7 days, `shadow: true` |         9.92 µs | 74.39 KB/device |
+
+Events in each 7-day run: 6,948,925. Both 7-day lines are under 100 KB. The 1,000-device median is under 10 µs. The `shadow: true` median is recorded and is not a gate. Defaults leave the horizon ring and the LAN graph off, because the detectors that turn them on are shadow. Caps were not changed.

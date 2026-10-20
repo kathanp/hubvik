@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.8.0
+
+Local release, not published. The 0.8 gate measured 67.86 KB retained per device on the 200-device 7-day bench with default options (rich median `feed()` 7.46 µs, 6,948,925 events). With `shadow: true` the same bench retained 74.39 KB per device (median 9.92 µs). The 1,000-device watching median was 6.92 µs, retained 11.99 KB per device. Check 290/290. Coverage lines 97.71%, branches 86.04%, functions 97.83%. Fuzz stayed clean. `npm run demo` scored the same incident at 100. Still a prototype, not validated on real traffic.
 
 `test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, except `src/engine/engine.js`, which is already over that line. `src/data/` must total at most 200 KB.
 
