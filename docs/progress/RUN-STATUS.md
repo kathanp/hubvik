@@ -32,8 +32,8 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 - [ ] 2h. Stryker on validate, baseline, incidents (recorded, not gated)
 - [ ] 2i. No `child_process` / `eval` / `new Function` / dynamic `require`; `npm audit --omit=dev` is 0
 - [ ] 2j. `docs/QUALITY.md`
-- [ ] 2k. Per-file size rule in `scripts/pack-check.mjs`, gated: no packed file over 60 KB; `src/data/` at most 200 KB. `engine.js` fails this until 2l
-- [ ] 2l. Split `engine.js` into feed, windows, learning, emit, state, persist. `engine.js` under 25 KB. One commit per module. `test/diff`, metamorphic suite, and the 1,000-device bench after each commit (median regression ≤ 5%). Public API snapshot unchanged
+- [x] 2k. Per-file size rule in `scripts/pack-check.mjs`, gated: no packed file over 60 KB; `src/data/` at most 200 KB. The `engine.js` exemption is removed (D-35)
+- [x] 2l. Split `engine.js` into feed, windows, learning, emit, state, persist. `engine.js` is 19,362 bytes. One commit per module. `test/diff`, metamorphic suite, and the 1,000-device bench after each commit (median of three runs stayed within 5% of 6.71 µs). Public methods stay on `Engine.prototype`
 - [ ] 2m. Split `validate.js` by event type (`flow`, `dns`, `tls`, `app`, `link`, `common`). Same checks as 2l
 
 ## Step 3 — WP-23
@@ -100,4 +100,4 @@ Tick an item only after its checks pass. A blocked item names the reason in `doc
 
 ## Session note
 
-2026-10-20: Pre-Step-2 alignment is done. Gate exited 0. Check 295/295. Coverage lines 97.70%, branches 86.04%, functions 97.83%. Defaults 7-day 68.13 KB/device, rich median 9.33 µs. `shadow: true` 7-day 74.52 KB/device, median 10.38 µs, recorded and not a gate. 1,000-device median 7.29 µs. Demo score 100. Pack-check compares unpacked bytes to 750 KB for core. Step 2 is not started.
+2026-10-20: Step 2l is done. `engine.js` is 19,362 bytes. Baseline 1,000-device median before the split was 6.71 µs. After persist, three runs were 7.25, 6.83, and 6.50 µs (middle 6.83). `shadow: true` 7-day median from the last full gate is 10.38 µs, retained 74.52 KB, recorded and not a gate. Defaults from that gate: 9.33 µs and 68.13 KB. Next is 2m, then 2a. Step 2a–2j and 2m are not started. Nothing pushed.

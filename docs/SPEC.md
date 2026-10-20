@@ -980,7 +980,7 @@ A test validates one anomaly and one incident against a vendored JSON copy of th
 
 Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs median `feed()` on a Raspberry Pi 4.** Measured by `bench/` in the repo every release.
 
-The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which was already over that line when the rule was added and is reported rather than split. `src/data/` must total at most 200 KB.
+The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` is also kept under 100 KB per device. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
@@ -1050,7 +1050,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @iotwarden/adapter-*, @iotwarden/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB, except `src/engine/engine.js`, which is reported until it is split. `src/data/` must total at most 200 KB.
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 ## C9. Versioning
 

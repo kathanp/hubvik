@@ -4,7 +4,7 @@
 
 Local release, not published. The 0.8 gate measured 67.86 KB retained per device on the 200-device 7-day bench with default options (rich median `feed()` 7.46 µs, 6,948,925 events). With `shadow: true` the same bench retained 74.39 KB per device (median 9.92 µs). The 1,000-device watching median was 6.92 µs, retained 11.99 KB per device. The alignment re-gate measured defaults at 9.33 µs and 68.13 KB, `shadow: true` at 10.38 µs and 74.52 KB, and a 1,000-device median of 7.29 µs. The shadow median is over 10 µs and is not a gate. Check 295/295. Coverage lines 97.70%, branches 86.04%, functions 97.83%. Fuzz stayed clean. `npm run demo` scored the same incident at 100. Still a prototype, not validated on real traffic.
 
-`test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, except `src/engine/engine.js`, which is already over that line. `src/data/` must total at most 200 KB.
+`test/diff` ignores `baseline.engine.pkg`, so a version bump does not edit the golden file. The unpacked core cap is 750 KB. A packed file over 60 KB fails the check, including `src/engine/engine.js` (D-35). `src/data/` must total at most 200 KB.
 
 Hourly horizon ring, and shadow detectors `slow-scan`, `jitter-beacon`, and `multi-horizon-exfil`. When the learned hourly deviation is 0, the exfil CUSUM limit is 1 byte (D-30).
 

@@ -16,8 +16,6 @@ const MAX_UNPACKED = 500 * 1024;
 const CORE_UNPACKED = 750 * 1024;
 const MAX_FILE = 60 * 1024;
 const MAX_DATA = 200 * 1024;
-/** Already over 60 KB when the rule was added. Reported, not split, until a later change. */
-const FILE_EXEMPT = new Set(['src/engine/engine.js']);
 const ALLOWED = new Set(['package.json', 'README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md']);
 const TOKEN = /npm_[A-Za-z0-9]{36}|ghp_|github_pat_/;
 const BANNED = ['TODO', 'FIXME', 'console.log'];
@@ -112,13 +110,8 @@ function checkWorkspace(workspace) {
         .replace(/^\.\//, '');
       const size = file.size || 0;
       if (filePath.startsWith('src/data/')) dataBytes += size;
-      if (size > MAX_FILE && !FILE_EXEMPT.has(filePath)) {
+      if (size > MAX_FILE) {
         fail(`${rel} ${filePath} is ${size} bytes, over 60 KB`);
-      }
-      if (size > MAX_FILE && FILE_EXEMPT.has(filePath)) {
-        console.log(
-          `pack-check: ${filePath} is ${size} bytes, over 60 KB; not split in this change`,
-        );
       }
     }
     if (dataBytes > MAX_DATA) {
