@@ -20,6 +20,7 @@ function createSender(opts) {
      * @param {object} anomaly
      */
     async send(anomaly) {
+      if (opts.alertsOnly && !isAlert(anomaly)) return null;
       const body = JSON.stringify(anomaly);
       /** @type {Record<string, string>} */
       const headers = { 'content-type': 'application/json' };
@@ -42,6 +43,19 @@ function createSender(opts) {
       throw error;
     },
   };
+}
+
+/**
+ * @param {any} row
+ */
+function isAlert(row) {
+  return (
+    row &&
+    (row.kind === 'incident' ||
+      row.kind === 'hard-rule' ||
+      row.kind === 'campaign' ||
+      row.kind === 'digest')
+  );
 }
 
 module.exports = { createSender };

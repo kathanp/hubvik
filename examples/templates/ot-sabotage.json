@@ -1,0 +1,13 @@
+{
+  "id": "ot-sabotage",
+  "steps": [
+    { "detector": "ot-recon" },
+    { "detector": "ot-write-new" },
+    { "detector": "ot-dangerous-op" }
+  ],
+  "within": "2h",
+  "by": "device",
+  "ordered": true,
+  "llrBonus": 2,
+  "attack": ["T0855"]
+}

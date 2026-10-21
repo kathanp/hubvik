@@ -1,6 +1,6 @@
 'use strict';
 
-const { explainThreshold } = require('./lib');
+const { explainThreshold, scratchBag } = require('./lib');
 
 const MAC_CAP = 5000;
 
@@ -75,12 +75,12 @@ const detector = {
  * @param {any} ctx
  */
 function shared(ctx) {
-  let bag = ctx.scratch.get('wifi-deauth-flood');
-  if (!bag) {
-    bag = { start: null, count: 0, byMac: new Map(), fired: false };
-    ctx.scratch.set('wifi-deauth-flood', bag);
-  }
-  return bag;
+  return scratchBag(ctx, 'wifi-deauth-flood', () => ({
+    start: null,
+    count: 0,
+    byMac: new Map(),
+    fired: false,
+  }));
 }
 
 module.exports = detector;

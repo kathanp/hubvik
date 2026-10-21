@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { isMulticast, isLinkLocal } = require('../engine/net');
 const { assertState } = require('./state');
 const { assertSafeKeys } = require('../engine/validate');
@@ -131,21 +133,28 @@ function skipDestination(ip) {
  */
 function readState(state) {
   assertSafeKeys(state, detector.id);
-  if (!Array.isArray(state.buckets)) throw new Error('buckets must be an array');
-  if (state.buckets.length > 3) throw new Error('array buckets exceeds cap');
-  if (!Array.isArray(state.alerted)) throw new Error('alerted must be an array');
-  if (state.alerted.length > 3) throw new Error('array alerted exceeds cap');
+  if (!Array.isArray(state.buckets))
+    throw new HubvikError('BUCKETS_MUST_BE_AN_ARRAY', 'buckets must be an array');
+  if (state.buckets.length > 3)
+    throw new HubvikError('ARRAY_BUCKETS_EXCEEDS_CAP', 'array buckets exceeds cap');
+  if (!Array.isArray(state.alerted))
+    throw new HubvikError('ALERTED_MUST_BE_AN_ARRAY', 'alerted must be an array');
+  if (state.alerted.length > 3)
+    throw new HubvikError('ARRAY_ALERTED_EXCEEDS_CAP', 'array alerted exceeds cap');
   if (!Number.isInteger(state.samples) || state.samples < 0) {
-    throw new Error('samples must be a non-negative integer');
+    throw new HubvikError(
+      'SAMPLES_MUST_BE_A_NON_NEGATIVE_INTEGER',
+      'samples must be a non-negative integer',
+    );
   }
   const buckets = new Set();
   for (const value of state.buckets) {
-    if (!BUCKETS.has(value)) throw new Error('bucket is invalid');
+    if (!BUCKETS.has(value)) throw new HubvikError('BUCKET_IS_INVALID', 'bucket is invalid');
     buckets.add(value);
   }
   const alerted = new Set();
   for (const value of state.alerted) {
-    if (!BUCKETS.has(value)) throw new Error('bucket is invalid');
+    if (!BUCKETS.has(value)) throw new HubvikError('BUCKET_IS_INVALID', 'bucket is invalid');
     alerted.add(value);
   }
   return { buckets, samples: state.samples, alerted };

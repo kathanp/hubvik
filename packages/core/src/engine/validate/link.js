@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { isIpv6, isMac } = require('../identity');
 const { requireFields } = require('./common');
 
@@ -53,11 +55,11 @@ function linkEvent(raw, type, ts, warnings) {
       warnings.push({ code: 'FIELD_DROPPED', message: 'dropped dhcp.iaid' });
   } else if (type === 'nd') {
     requireFields(raw, ['ip', 'mac', 'op'], 'nd');
-    if (!isIpv6(String(raw.ip))) throw new TypeError('nd.ip must be IPv6');
+    if (!isIpv6(String(raw.ip))) throw new HubvikError('ND_IP_MUST_BE_IPV6', 'nd.ip must be IPv6');
     const mac = String(raw.mac).toLowerCase();
-    if (!isMac(mac)) throw new TypeError('nd.mac is invalid');
+    if (!isMac(mac)) throw new HubvikError('ND_MAC_IS_INVALID', 'nd.mac is invalid');
     if (raw.op !== 'na' && raw.op !== 'ns' && raw.op !== 'rs' && raw.op !== 'ra') {
-      throw new TypeError('nd.op is invalid');
+      throw new HubvikError('ND_OP_IS_INVALID', 'nd.op is invalid');
     }
     event.ip = String(raw.ip);
     event.mac = mac;
@@ -66,8 +68,8 @@ function linkEvent(raw, type, ts, warnings) {
   } else if (type === 'wifi') {
     requireFields(raw, ['mac', 'op'], 'wifi');
     const mac = String(raw.mac).toLowerCase();
-    if (!isMac(mac)) throw new TypeError('wifi.mac is invalid');
-    if (!WIFI_OPS.has(raw.op)) throw new TypeError('wifi.op is invalid');
+    if (!isMac(mac)) throw new HubvikError('WIFI_MAC_IS_INVALID', 'wifi.mac is invalid');
+    if (!WIFI_OPS.has(raw.op)) throw new HubvikError('WIFI_OP_IS_INVALID', 'wifi.op is invalid');
     event.mac = mac;
     event.op = raw.op;
     if (typeof raw.bssid === 'string' && isMac(raw.bssid.toLowerCase())) {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { createHll, add, toJSON, fromJSON } = require('./stats/hll');
 
 const HOUR = 3600e3;
@@ -171,9 +173,10 @@ function exportHorizon(device) {
  * @param {any} raw
  */
 function importRow(raw) {
-  if (!raw || typeof raw !== 'object') throw new Error('checkpoint horizon is invalid');
+  if (!raw || typeof raw !== 'object')
+    throw new HubvikError('CHECKPOINT_HORIZON_IS_INVALID', 'checkpoint horizon is invalid');
   if (typeof raw.hour !== 'number' || typeof raw.bytesOut !== 'number') {
-    throw new Error('checkpoint horizon is invalid');
+    throw new HubvikError('CHECKPOINT_HORIZON_IS_INVALID', 'checkpoint horizon is invalid');
   }
   return {
     hour: raw.hour,
@@ -191,7 +194,7 @@ function importRow(raw) {
 function importHorizon(device, raw) {
   if (raw == null) return;
   if (!raw || typeof raw !== 'object' || !Array.isArray(raw.rows) || raw.rows.length > RING) {
-    throw new Error('checkpoint horizon is invalid');
+    throw new HubvikError('CHECKPOINT_HORIZON_IS_INVALID', 'checkpoint horizon is invalid');
   }
   device.horizon = {
     lastTs: typeof raw.lastTs === 'number' ? raw.lastTs : null,

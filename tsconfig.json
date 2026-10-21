@@ -12,5 +12,5 @@
     "types": ["node"],
     "lib": ["ES2023"]
   },
-  "include": ["packages/core/src/**/*.js", "packages/core/src/**/*.d.ts"]
+  "include": ["packages/core/src/**/*.js", "packages/core/src/**/*.d.ts", "test/types/**/*.ts"]
 }

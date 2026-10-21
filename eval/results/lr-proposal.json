@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "seed": true,
+  "note": "IoT-23 captures are not on disk, so this file keeps the seed table. A person re-runs eval/fit-lr.mjs after a labeled corpus exists.",
+  "detectors": {
+    "new-destination": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "new-domain-family": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "new-port": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "new-protocol": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "fan-out": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "horizontal-scan": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "vertical-scan": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "failed-connection-ratio": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "lan-lateral": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "volume-spike": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "volume-spike-hourly": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "upload-ratio-shift": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "packet-flood": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "egress-flood": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "reflection-participation": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "coap-amplification": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "wrong-time": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "went-silent": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "tier-silent": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "nxdomain-burst": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "resolver-bypass": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "dns-rebinding": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "private-answer-for-public-name": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "threat-intel-match": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "bogon-destination": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "inbound-from-wan": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "new-device": {
+      "llr": 2,
+      "hardRule": true
+    },
+    "policy-violation": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "adb-exposure": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "mqtt-new-broker": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "spam-relay": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "tftp-activity": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "posture-listening-risky": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "posture-wan-exposed": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "input-gap": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "clock-jump": {
+      "llr": 2,
+      "hardRule": true
+    },
+    "state-cap": {
+      "llr": 2,
+      "hardRule": true
+    },
+    "alert-storm": {
+      "llr": 2,
+      "hardRule": true
+    },
+    "class-violation": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "supply-chain-suspect": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "proxy-relay": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "proxy-sdk-traffic": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "blockchain-c2": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "direct-ip": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "new-asn": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "new-country": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "upnp-port-open": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "tor-or-proxy": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "lan-sweep": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "brute-force-out": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "brute-force-in": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "slow-exfil": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "protocol-mix-shift": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "connection-churn": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "new-beacon": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "long-connection": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "dga": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "dns-tunnel": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "arp-spoof": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "gratuitous-arp-flood": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "rogue-dhcp": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "identity-change": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "dhcp-starvation": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "rogue-ra": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "src-spoof": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "icmp-redirect": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "zone-violation": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "stream-to-new-destination": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "cryptomining": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "ot-wan-exposure": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "tunnel-service": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "vpn-protocol": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "icmp-tunnel": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ipv6-tunnel": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ntp-rogue": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "update-from-new-source": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "update-over-cleartext": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "post-update-drift": {
+      "llr": 3,
+      "hardRule": true
+    },
+    "posture-cleartext-auth": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "new-client-fingerprint": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "cert-change": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "sni-missing": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "tls-on-odd-port": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "cleartext-regression": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "browser-mimic": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "posture-weak-tls": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "proxy-backconnect": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "lan-via-proxy": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "p2p-pattern": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "credential-stuffing-out": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ad-fraud": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "quic-new": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "beacon-change": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "answer-drift": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "fast-flux": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ot-new-master": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "ot-write-new": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ot-dangerous-op": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "ot-value-out-of-range": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "ot-write-rate": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ot-recon": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ot-spoof": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "ot-error-burst": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "mqtt-wildcard-subscribe": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "mqtt-topic-new": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "mqtt-publish-rate": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "onvif-config-change": {
+      "llr": 4.2,
+      "hardRule": true
+    },
+    "peer-divergence": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "fleet-wave": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "exploit-probe-http": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "young-domain": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "ttl-anomaly": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "slow-scan": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "jitter-beacon": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "multi-horizon-exfil": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "graph-new-bridge": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "graph-role-change": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "exploit-then-download": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "ssh-brute-then-session": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "cloud-storage-exfil": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "nd-spoof": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "dhcpv6-rogue": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "wifi-deauth-flood": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "evil-twin": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "upnp-callstranger": {
+      "llr": 3.2,
+      "hardRule": false
+    },
+    "matter-new-controller": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "day-of-week-drift": {
+      "llr": 0.4,
+      "hardRule": false
+    },
+    "sni-ip-mismatch": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "mac-randomization-churn": {
+      "llr": 0.2,
+      "hardRule": false
+    },
+    "discovery-spoof": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "mud-violation": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "fleet-baseline-poisoning": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "ot-schedule-drift": {
+      "llr": 1,
+      "hardRule": false
+    },
+    "reverse-shell-shape": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "llmnr-nbns-poison": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "dns-answer-mismatch": {
+      "llr": 2,
+      "hardRule": false
+    },
+    "peer-divergence-federated": {
+      "llr": 2,
+      "hardRule": false
+    }
+  }
+}

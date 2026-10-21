@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { domainFamily } = require('../engine/net');
 const { explainMatch } = require('./lib');
 
@@ -102,9 +104,11 @@ const detector = {
     dev.fired = new Set();
     const fired = state && state.fired;
     if (fired == null) return;
-    if (!Array.isArray(fired) || fired.length > 5000) throw new Error('array fired exceeds cap');
+    if (!Array.isArray(fired) || fired.length > 5000)
+      throw new HubvikError('ARRAY_FIRED_EXCEEDS_CAP', 'array fired exceeds cap');
     for (const key of fired) {
-      if (typeof key !== 'string') throw new Error('fired must be strings');
+      if (typeof key !== 'string')
+        throw new HubvikError('FIRED_MUST_BE_STRINGS', 'fired must be strings');
       dev.fired.add(key);
     }
   },

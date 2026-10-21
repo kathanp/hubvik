@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const HOUR = 3600e3;
@@ -41,8 +43,9 @@ const detector = {
   importState(dev, state) {
     assertState(state, detector.id);
     if (state.samples != null && !Array.isArray(state.samples))
-      throw new Error('samples must be an array');
-    if (state.samples && state.samples.length > 168) throw new Error('array samples exceeds cap');
+      throw new HubvikError('SAMPLES_MUST_BE_AN_ARRAY', 'samples must be an array');
+    if (state.samples && state.samples.length > 168)
+      throw new HubvikError('ARRAY_SAMPLES_EXCEEDS_CAP', 'array samples exceeds cap');
     dev.samples = Array.isArray(state.samples) ? state.samples.map(Number) : [];
     dev.cusum = typeof state.cusum === 'number' ? state.cusum : 0;
     dev.fired = Boolean(state.fired);

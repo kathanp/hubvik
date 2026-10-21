@@ -10,6 +10,7 @@ const CEF = { critical: 10, high: 8, medium: 5, low: 3, info: 1 };
  * @param {{ host?: string, app?: string }} [opts]
  */
 function format(anomaly, opts = {}) {
+  if (opts.alertsOnly && !isAlert(anomaly)) return '';
   const severity = anomaly && PRI[anomaly.severity] != null ? anomaly.severity : 'info';
   const pri = 16 * 8 + PRI[severity];
   const ts = anomaly && typeof anomaly.ts === 'number' ? anomaly.ts : 0;
@@ -37,6 +38,19 @@ function sanitize(value) {
   return String(value)
     .replace(/[\r\n|]/g, ' ')
     .slice(0, 512);
+}
+
+/**
+ * @param {any} row
+ */
+function isAlert(row) {
+  return (
+    row &&
+    (row.kind === 'incident' ||
+      row.kind === 'hard-rule' ||
+      row.kind === 'campaign' ||
+      row.kind === 'digest')
+  );
 }
 
 module.exports = { format };

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { requireFields, normalizeName } = require('./common');
 
 /**
@@ -10,7 +12,7 @@ const { requireFields, normalizeName } = require('./common');
 function dnsEvent(raw, ts, warnings) {
   requireFields(raw, ['qname', 'qtype', 'rcode', 'resolver'], 'dns');
   const qname = normalizeName(raw.qname, 255);
-  if (!qname) throw new TypeError('dns qname is invalid');
+  if (!qname) throw new HubvikError('DNS_QNAME_IS_INVALID', 'dns qname is invalid');
   /** @type {Record<string, any>} */
   const event = {
     type: 'dns',

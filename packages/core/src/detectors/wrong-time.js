@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
 
@@ -95,24 +97,28 @@ const detector = {
  */
 function read(state, caps) {
   if (!state || typeof state !== 'object' || Array.isArray(state)) {
-    throw new Error('wrong-time state is invalid');
+    throw new HubvikError('WRONG_TIME_STATE_IS_INVALID', 'wrong-time state is invalid');
   }
   assertSafeKeys(state, 'wrong-time');
-  if (!Array.isArray(state.hours)) throw new Error('hours must be an array');
-  if (state.hours.length > 64) throw new Error('array hours exceeds cap');
+  if (!Array.isArray(state.hours))
+    throw new HubvikError('HOURS_MUST_BE_AN_ARRAY', 'hours must be an array');
+  if (state.hours.length > 64)
+    throw new HubvikError('ARRAY_HOURS_EXCEEDS_CAP', 'array hours exceeds cap');
   const hours = new Set();
   for (const hour of state.hours) {
     if (typeof hour !== 'number' || !Number.isFinite(hour))
-      throw new Error('hours must be numbers');
+      throw new HubvikError('HOURS_MUST_BE_NUMBERS', 'hours must be numbers');
     hours.add(hour);
   }
   const seen = new LruSet(caps.maxAlertKeys);
   const keys = state.seen ?? [];
-  if (!Array.isArray(keys)) throw new Error('seen must be an array');
-  if (keys.length > caps.maxAlertKeys) throw new Error('array seen exceeds cap');
+  if (!Array.isArray(keys)) throw new HubvikError('SEEN_MUST_BE_AN_ARRAY', 'seen must be an array');
+  if (keys.length > caps.maxAlertKeys)
+    throw new HubvikError('ARRAY_SEEN_EXCEEDS_CAP', 'array seen exceeds cap');
   for (const key of keys) {
-    if (typeof key !== 'string') throw new Error('seen must be strings');
-    if (key.length > caps.maxString) throw new Error('string too long');
+    if (typeof key !== 'string')
+      throw new HubvikError('SEEN_MUST_BE_STRINGS', 'seen must be strings');
+    if (key.length > caps.maxString) throw new HubvikError('STRING_TOO_LONG', 'string too long');
     seen.add(key);
   }
   return { hours, seen };

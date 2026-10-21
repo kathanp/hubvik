@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const HOUR = 3600e3;
 
 /**
@@ -91,14 +93,18 @@ const detector = {
 
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
-    if (!state || !Array.isArray(state.hours)) throw new Error('hours must be an array');
-    if (state.hours.length > 64) throw new Error('array hours exceeds cap');
+    if (!state || !Array.isArray(state.hours))
+      throw new HubvikError('HOURS_MUST_BE_AN_ARRAY', 'hours must be an array');
+    if (state.hours.length > 64)
+      throw new HubvikError('ARRAY_HOURS_EXCEEDS_CAP', 'array hours exceeds cap');
     dev.hours = new Set();
     for (const hour of state.hours) {
-      if (!Number.isInteger(hour) || hour < 0 || hour > 23) throw new Error('hours must be 0..23');
+      if (!Number.isInteger(hour) || hour < 0 || hour > 23)
+        throw new HubvikError('HOURS_MUST_BE_0_23', 'hours must be 0..23');
       dev.hours.add(hour);
     }
-    if (typeof state.maxGap !== 'number' || state.maxGap < 0) throw new Error('maxGap is invalid');
+    if (typeof state.maxGap !== 'number' || state.maxGap < 0)
+      throw new HubvikError('MAXGAP_IS_INVALID', 'maxGap is invalid');
     dev.maxGap = state.maxGap;
     dev.lastTs = typeof state.lastTs === 'number' ? state.lastTs : null;
     dev.fired = Boolean(state.fired);

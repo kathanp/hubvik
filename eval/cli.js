@@ -12,18 +12,25 @@ const {
   renderProposals,
   summaryLines,
   formatWilson,
+  fpBreakdown,
+  renderFpBreakdown,
 } = require('./protocol.js');
 const { runEvasion, renderEvasion } = require('./evasion/scenarios.js');
+const { runSweep } = require('./sweep.js');
 
 /**
  * `eval/run.mjs --dataset <name> --zeek-logs <dir>`.
  * Writes `eval/results/<dataset>.json` and `.md`. IoT-23 is the wired joiner.
+ * `--sweep <detector>.<param>=<from>:<to>:<step>` replays once per point instead.
+ * With `--sweep`, `--dataset` and `--zeek-logs` are optional. Missing logs use the
+ * synthetic fixture and label the result synthetic.
  * @param {string[]} argv
- * @param {{ outDir?: string }} [opts]
+ * @param {{ outDir?: string, cacheDir?: string, quiet?: boolean, evasionPath?: string }} [opts]
  * @returns {any}
  */
 function main(argv, opts = {}) {
   const args = parseArgs(argv);
+  if (args.sweep) return runSweep(args, opts);
   const loaded = loadDataset(args.dataset, args.zeekLogs);
   const result = evaluate(loaded.rows, { tiers: loaded.tiers, dataset: args.dataset });
   result.evasion = runEvasion();
@@ -35,6 +42,21 @@ function main(argv, opts = {}) {
   const evasionPath = opts.evasionPath || path.join(__dirname, 'results', 'evasion.md');
   fs.mkdirSync(path.dirname(evasionPath), { recursive: true });
   fs.writeFileSync(evasionPath, renderEvasion(result.evasion));
+  if (args.fpBreakdown) {
+    const report = fpBreakdown(loaded.rows, { tiers: loaded.tiers, dataset: args.dataset });
+    const breakdownDir = path.join(dir, args.dataset);
+    fs.mkdirSync(breakdownDir, { recursive: true });
+    const stored = { ...report };
+    delete stored.proposals;
+    fs.writeFileSync(
+      path.join(breakdownDir, 'fp-breakdown.json'),
+      `${JSON.stringify(stored, null, 2)}\n`,
+    );
+    fs.writeFileSync(path.join(breakdownDir, 'fp-breakdown.md'), renderFpBreakdown(stored));
+    if (!opts.quiet) {
+      for (const line of report.proposals) console.log(line);
+    }
+  }
   if (!opts.quiet) {
     for (const line of summaryLines(result)) console.log(line);
     if (args.labels) console.log(precisionLine(args.labels));
@@ -81,20 +103,42 @@ function loadDataset(dataset, zeekLogs) {
 
 /**
  * @param {string[]} argv
- * @returns {{ dataset: string, zeekLogs: string, labels?: string }}
+ * @returns {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown: boolean, sweep?: string, cost?: string }}
  */
 function parseArgs(argv) {
-  /** @type {{ dataset?: string, zeekLogs?: string, labels?: string }} */
+  /** @type {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown?: boolean, sweep?: string, cost?: string }} */
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--dataset') out.dataset = argv[(i += 1)];
     else if (arg === '--zeek-logs') out.zeekLogs = argv[(i += 1)];
     else if (arg === '--labels') out.labels = argv[(i += 1)];
+    else if (arg === '--fp-breakdown') out.fpBreakdown = true;
+    else if (arg === '--sweep') out.sweep = argv[(i += 1)];
+    else if (arg === '--cost') out.cost = argv[(i += 1)];
     else throw new TypeError(`unknown argument ${arg}`);
+    if (arg !== '--fp-breakdown' && argv[i] == null)
+      throw new TypeError(`missing value for ${arg}`);
+  }
+  if (out.cost && !out.sweep) throw new TypeError('--cost requires --sweep');
+  if (out.sweep) {
+    if (out.fpBreakdown) throw new TypeError('sweep does not take --fp-breakdown');
+    if (out.labels) throw new TypeError('sweep does not take --labels');
+    return {
+      dataset: out.dataset,
+      zeekLogs: out.zeekLogs,
+      sweep: out.sweep,
+      cost: out.cost,
+      fpBreakdown: false,
+    };
   }
   if (!out.dataset || !out.zeekLogs) throw new TypeError('need --dataset and --zeek-logs');
-  return { dataset: out.dataset, zeekLogs: out.zeekLogs, labels: out.labels };
+  return {
+    dataset: out.dataset,
+    zeekLogs: out.zeekLogs,
+    labels: out.labels,
+    fpBreakdown: out.fpBreakdown === true,
+  };
 }
 
 module.exports = { main, parseArgs };

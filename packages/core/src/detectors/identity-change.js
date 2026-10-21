@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const CAP = 5000;
@@ -103,21 +105,27 @@ const detector = {
     dev.macs = new Map();
     dev.allowed = new Set();
     if (state.macs != null) {
-      if (!Array.isArray(state.macs)) throw new Error('macs must be an array');
-      if (state.macs.length > CAP) throw new Error('array macs exceeds cap');
+      if (!Array.isArray(state.macs))
+        throw new HubvikError('MACS_MUST_BE_AN_ARRAY', 'macs must be an array');
+      if (state.macs.length > CAP)
+        throw new HubvikError('ARRAY_MACS_EXCEEDS_CAP', 'array macs exceeds cap');
       for (const pair of state.macs) {
-        if (!Array.isArray(pair) || pair.length !== 2) throw new Error('macs must be pairs');
+        if (!Array.isArray(pair) || pair.length !== 2)
+          throw new HubvikError('MACS_MUST_BE_PAIRS', 'macs must be pairs');
         if (typeof pair[0] !== 'string' || typeof pair[1] !== 'string') {
-          throw new Error('macs must be strings');
+          throw new HubvikError('MACS_MUST_BE_STRINGS', 'macs must be strings');
         }
         dev.macs.set(pair[0], pair[1]);
       }
     }
     if (state.allowed != null) {
-      if (!Array.isArray(state.allowed)) throw new Error('allowed must be an array');
-      if (state.allowed.length > CAP) throw new Error('array allowed exceeds cap');
+      if (!Array.isArray(state.allowed))
+        throw new HubvikError('ALLOWED_MUST_BE_AN_ARRAY', 'allowed must be an array');
+      if (state.allowed.length > CAP)
+        throw new HubvikError('ARRAY_ALLOWED_EXCEEDS_CAP', 'array allowed exceeds cap');
       for (const value of state.allowed) {
-        if (typeof value !== 'string') throw new Error('allowed must be strings');
+        if (typeof value !== 'string')
+          throw new HubvikError('ALLOWED_MUST_BE_STRINGS', 'allowed must be strings');
         dev.allowed.add(value);
       }
     }

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const FNV_OFFSET = 0x811c9dc5;
 const FNV_PRIME = 0x01000193;
 
@@ -61,12 +63,12 @@ function encodeTyped(view) {
  */
 function decodeTyped(text, length, Type, label) {
   if (typeof text !== 'string' || text.length === 0) {
-    throw new TypeError(`${label} must be base64`);
+    throw new HubvikError('MUST_BE_BASE64', `${label} must be base64`);
   }
   const bytes = Buffer.from(text, 'base64');
   const width = Type.BYTES_PER_ELEMENT;
   if (bytes.length !== length * width) {
-    throw new Error(`${label} length mismatch`);
+    throw new HubvikError('LENGTH_MISMATCH', `${label} length mismatch`);
   }
   const out = new Type(length);
   new Uint8Array(out.buffer, out.byteOffset, out.byteLength).set(bytes);

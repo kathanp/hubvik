@@ -14,6 +14,7 @@ const SEVERITY = {
  * @param {{ ocsfVersion?: string }} [opts]
  */
 function toFinding(record, opts = {}) {
+  if (opts.alertsOnly && !isAlert(record)) return null;
   const version = opts && opts.ocsfVersion ? String(opts.ocsfVersion) : '1.4.0';
   const update = Boolean(
     record &&
@@ -72,6 +73,19 @@ function toFinding(record, opts = {}) {
     finding.evidences = record.evidence.sample.map((item) => ({ data: item }));
   }
   return finding;
+}
+
+/**
+ * @param {any} row
+ */
+function isAlert(row) {
+  return (
+    row &&
+    (row.kind === 'incident' ||
+      row.kind === 'hard-rule' ||
+      row.kind === 'campaign' ||
+      row.kind === 'digest')
+  );
 }
 
 module.exports = { toFinding };

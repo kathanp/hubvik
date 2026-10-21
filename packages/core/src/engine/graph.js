@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { isGroupDst } = require('../detectors/lib');
 const { domainFamily, ipv4, inBlock } = require('./net');
 
@@ -201,12 +203,13 @@ function exportGraph(engine) {
 function importGraph(engine, raw) {
   if (raw == null) return;
   if (!raw || typeof raw !== 'object' || !Array.isArray(raw.lan) || !Array.isArray(raw.wan)) {
-    throw new Error('checkpoint graph is invalid');
+    throw new HubvikError('CHECKPOINT_GRAPH_IS_INVALID', 'checkpoint graph is invalid');
   }
-  if (raw.lan.length > engine.opts.maxDevices * LAN_CAP) throw new Error('array graph exceeds cap');
+  if (raw.lan.length > engine.opts.maxDevices * LAN_CAP)
+    throw new HubvikError('ARRAY_GRAPH_EXCEEDS_CAP', 'array graph exceeds cap');
   for (const edge of raw.lan) {
     if (!edge || typeof edge.src !== 'string' || typeof edge.dst !== 'string') {
-      throw new Error('checkpoint graph is invalid');
+      throw new HubvikError('CHECKPOINT_GRAPH_IS_INVALID', 'checkpoint graph is invalid');
     }
     const device = engine.devices.get(edge.src);
     if (!device) continue;
@@ -223,7 +226,7 @@ function importGraph(engine, raw) {
   }
   for (const edge of raw.wan) {
     if (!edge || typeof edge.src !== 'string' || typeof edge.family !== 'string') {
-      throw new Error('checkpoint graph is invalid');
+      throw new HubvikError('CHECKPOINT_GRAPH_IS_INVALID', 'checkpoint graph is invalid');
     }
     const device = engine.devices.get(edge.src);
     if (!device) continue;

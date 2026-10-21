@@ -241,7 +241,53 @@ The last column is yes when the row Rel is at or below this package version. A l
 | `matter-new-controller`     | 0.8 | high     | Low. Commissioning a new controller is rare and user-initiated                  | yes             |
 | `peer-divergence-federated` | 0.9 | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | no              |
 
+## B22. Shadow detectors (new rows for 1.1, spec 3.3)
+
+| ID                         | Rel | Severity | FP risk                                                                                                          | In this release |
+| -------------------------- | --- | -------- | ---------------------------------------------------------------------------------------------------------------- | --------------- |
+| `dhcp-route-injection`     | 1.1 | high     | Low. Enterprise networks that push 121 legitimately are absorbed by the learned set                              | no              |
+| `wpad-hijack`              | 1.1 | high     | Low. Most home and building networks never answer WPAD                                                           | no              |
+| `ra-flood`                 | 1.1 | high     | Low                                                                                                              | no              |
+| `karma-responder`          | 1.1 | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | no              |
+| `dictionary-dga`           | 1.1 | medium   | Medium per name (brand and marketing domains), low per burst because NXDOMAIN or low TTL is required             | no              |
+| `cname-cloak`              | 1.1 | medium   | Depends on the host's lists                                                                                      | no              |
+| `ja4-churn`                | 1.1 | high     | Low on single-stack IoT                                                                                          | no              |
+| `lan-first-seen-domain`    | 1.1 | low      | High alone; that is why it is `low` and capped                                                                   | no              |
+| `dormant-reactivation`     | 1.1 | high     | Medium: seasonal devices that update firmware on wake. A G3 `firmware-update` annotation removes it from scoring | no              |
+| `firmware-size-divergence` | 1.1 | high     | Low once peer groups are right (G10 helps)                                                                       | no              |
+| `stun-turn-relay`          | 1.1 | medium   | Medium: video doorbells use WebRTC. The baseline absorbs their relays                                            | no              |
+| `port-knock`               | 1.1 | high     | Low                                                                                                              | no              |
+| `bacnet-bbmd-write`        | 1.1 | critical | Very low                                                                                                         | no              |
+| `modbus-unit-sweep`        | 1.1 | high     | Low                                                                                                              | no              |
+| `mqtt-retained-command`    | 1.1 | high     | Low. Legitimate retained command topics are learned                                                              | no              |
+| `rtsp-new-viewer`          | 1.1 | high     | Low. NVRs and hubs are learned                                                                                   | no              |
+| `suppression-abuse`        | 1.1 | medium   | Medium after a large initial tuning session; that is why it is `medium`                                          | no              |
+| `multivariate-outlier`     | 1.1 | medium   | Medium. Shadow until evidence says otherwise                                                                     | no              |
+| `sequence-surprise`        | 1.1 | medium   | Medium                                                                                                           | no              |
+| `flow-shape-change`        | 1.1 | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | no              |
+
 ## Not yet implemented
+
+- `dhcp-route-injection` — Rel 1.1, not yet implemented
+- `wpad-hijack` — Rel 1.1, not yet implemented
+- `ra-flood` — Rel 1.1, not yet implemented
+- `karma-responder` — Rel 1.1, not yet implemented
+- `dictionary-dga` — Rel 1.1, not yet implemented
+- `cname-cloak` — Rel 1.1, not yet implemented
+- `ja4-churn` — Rel 1.1, not yet implemented
+- `lan-first-seen-domain` — Rel 1.1, not yet implemented
+- `dormant-reactivation` — Rel 1.1, not yet implemented
+- `firmware-size-divergence` — Rel 1.1, not yet implemented
+- `stun-turn-relay` — Rel 1.1, not yet implemented
+- `port-knock` — Rel 1.1, not yet implemented
+- `bacnet-bbmd-write` — Rel 1.1, not yet implemented
+- `modbus-unit-sweep` — Rel 1.1, not yet implemented
+- `mqtt-retained-command` — Rel 1.1, not yet implemented
+- `rtsp-new-viewer` — Rel 1.1, not yet implemented
+- `suppression-abuse` — Rel 1.1, not yet implemented
+- `multivariate-outlier` — Rel 1.1, not yet implemented
+- `sequence-surprise` — Rel 1.1, not yet implemented
+- `flow-shape-change` — Rel 1.1, not yet implemented
 
 ## Counts
 
@@ -267,4 +313,5 @@ The last column is yes when the row Rel is at or below this package version. A l
 | B19. Posture and device-class priors                                    | 5    |
 | B20. 2026 threat update (new rows for 0.5)                              | 2    |
 | B21. Shadow detectors (new rows for 0.8)                                | 15   |
-| Total                                                                   | 137  |
+| B22. Shadow detectors (new rows for 1.1, spec 3.3)                      | 20   |
+| Total                                                                   | 157  |

@@ -225,6 +225,9 @@ export interface Anomaly {
   schema: 1;
   fingerprint: string;
   dedupGroup?: string;
+  context?: { annotationId: string; kind: string }[];
+  llr?: number;
+  criticality?: 'low' | 'normal' | 'high' | 'safety';
   evidence?: {
     events: number;
     sample: Record<string, unknown>[];
@@ -243,6 +246,8 @@ export interface Incident {
   firstTs: number;
   lastTs: number;
   summary: string;
+  posterior?: number;
+  contributions?: { detector: string; llr: number; anomalyId: string }[];
 }
 
 export interface EngineOptions {
@@ -308,6 +313,16 @@ export interface EngineOptions {
   calibratedConfidence?: boolean;
   classSuggest?: boolean;
   responseHints?: boolean;
+  /** Default `additive`. `lr` scores incidents with the likelihood-ratio posterior. */
+  scoring?: 'additive' | 'lr';
+  /** Default false. When true, the engine also emits `alert`. */
+  alerts?: boolean;
+  /** Default false. Per-device baseline drift warnings. */
+  drift?: boolean;
+  /** Default false. Hash-chained log of operator actions. */
+  audit?: boolean;
+  /** Default false. Suggest peer groups. Never calls setPeerGroup. */
+  peerSuggest?: boolean;
   redact?:
     | {
         key: string | Buffer;
@@ -383,6 +398,7 @@ export interface EngineStats {
   >;
   canary: Record<string, { liveOnly: number; canaryOnly: number; both: number }>;
   identity: { rows: number; rekeyed: number; unresolved: number };
+  peerSuggestions?: { groupId: string; devices: string[]; meanJaccard: number }[];
   precision: Record<
     string,
     {
@@ -413,6 +429,23 @@ export class Engine extends EventEmitter {
   use(detector: Detector): void;
   loadIndicators(indicators: Indicator[]): void;
   loadRules(rules: object[]): void;
+  annotate(
+    target: string,
+    spec: {
+      kind: 'maintenance' | 'firmware-update' | 'user-action' | 'network-change';
+      fromTs: number;
+      untilTs: number;
+      detectors?: string[];
+      note?: string;
+      operator?: string;
+    },
+  ): string;
+  removeAnnotation(id: string): boolean;
+  annotations(query?: { device?: string; activeAt?: number }): object[];
+  setDeviceCriticality(device: string, level: 'low' | 'normal' | 'high' | 'safety'): void;
+  loadTemplates(list: object[]): void;
+  auditLog(opts?: { sinceSeq?: number }): object[];
+  verifyAudit(): { ok: boolean; brokenAt?: number };
   exportBaseline(opts?: {
     devices?: string[];
     createdAt?: number;
@@ -475,3 +508,8 @@ export class Engine extends EventEmitter {
 export function createEngine(opts?: EngineOptions): Engine;
 export function createShardedEngine(opts: EngineOptions & { shards: number; inline: true }): Engine;
 export const detectors: Record<string, Detector>;
+
+export class HubvikError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string, options?: ErrorOptions);
+}

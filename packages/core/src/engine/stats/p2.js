@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 const { encodeTyped, decodeTyped } = require('./hash');
 
@@ -10,7 +12,8 @@ const { encodeTyped, decodeTyped } = require('./hash');
  * @returns {{ p: number, count: number, markers: Float64Array, dn: Float64Array }}
  */
 function createP2(p) {
-  if (typeof p !== 'number' || !(p > 0) || !(p < 1)) throw new TypeError('p2.p is invalid');
+  if (typeof p !== 'number' || !(p > 0) || !(p < 1))
+    throw new HubvikError('P2_P_IS_INVALID', 'p2.p is invalid');
   return {
     p,
     count: 0,
@@ -104,20 +107,21 @@ function toJSON(stats) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('p2 state must be an object');
+    throw new HubvikError('P2_STATE_MUST_BE_AN_OBJECT', 'p2 state must be an object');
   }
   assertSafeKeys(raw, 'p2');
   const row = /** @type {any} */ (raw);
   if (typeof row.p !== 'number' || !(row.p > 0) || !(row.p < 1))
-    throw new TypeError('p2.p is invalid');
+    throw new HubvikError('P2_P_IS_INVALID', 'p2.p is invalid');
   if (typeof row.count !== 'number' || !Number.isInteger(row.count) || row.count < 0) {
-    throw new TypeError('p2.count is invalid');
+    throw new HubvikError('P2_COUNT_IS_INVALID', 'p2.count is invalid');
   }
   const markers = /** @type {Float64Array} */ (
     decodeTyped(row.markers, 10, Float64Array, 'p2.markers')
   );
   for (let i = 0; i < markers.length; i++) {
-    if (!Number.isFinite(markers[i])) throw new Error('p2.markers is invalid');
+    if (!Number.isFinite(markers[i]))
+      throw new HubvikError('P2_MARKERS_IS_INVALID', 'p2.markers is invalid');
   }
   return {
     p: row.p,

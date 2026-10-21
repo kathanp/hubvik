@@ -30,5 +30,18 @@
       "import": "./src/index.mjs",
       "require": "./src/lib.js"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kathanp/hubvik.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/kathanp/hubvik/issues"
+  },
+  "homepage": "https://github.com/kathanp/hubvik#readme",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
   }
 }

@@ -8,22 +8,24 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "node --expose-gc --test --test-reporter=spec \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"eval/test/**/*.test.js\"",
-    "coverage": "node --expose-gc --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=80 \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"eval/test/**/*.test.js\"",
+    "test": "node --expose-gc --test --test-reporter=spec \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"test/shard/**/*.test.js\" \"eval/test/**/*.test.js\"",
+    "coverage": "node --expose-gc --test --test-reporter=spec --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=80 \"packages/*/test/**/*.test.js\" \"test/replay/**/*.test.js\" \"test/diff/**/*.test.js\" \"test/shard/**/*.test.js\" \"eval/test/**/*.test.js\"",
     "lint": "eslint . && prettier --check .",
     "types": "tsc -p tsconfig.json --noEmit",
     "pack:check": "node scripts/pack-check.mjs",
     "check": "npm run lint && npm run types && npm run test",
     "gate": "node scripts/gate.mjs",
     "bench": "node --expose-gc bench/run.js",
-    "fuzz": "node fuzz/feed.fuzz.js && node fuzz/baseline.fuzz.js && node fuzz/checkpoint.fuzz.js && node fuzz/mutate.fuzz.js && node fuzz/stats.fuzz.js && node fuzz/partf.fuzz.js && node fuzz/rules.fuzz.js && node fuzz/rules-mutate.fuzz.js",
-    "demo": "node packages/core/examples/camera-botnet.js"
+    "fuzz": "node fuzz/feed.fuzz.js && node fuzz/baseline.fuzz.js && node fuzz/checkpoint.fuzz.js && node fuzz/mutate.fuzz.js && node fuzz/stats.fuzz.js && node fuzz/partf.fuzz.js && node fuzz/rules.fuzz.js && node fuzz/rules-mutate.fuzz.js && node fuzz/minhash.fuzz.js && node fuzz/audit.fuzz.js && node fuzz/templates.fuzz.js",
+    "demo": "node packages/core/examples/camera-botnet.js",
+    "knip": "knip"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
+    "knip": "^6.42.1",
     "prettier": "^3.9.10",
     "typescript": "^7.0.2"
   }

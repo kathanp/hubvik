@@ -1,7 +1,9 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
-const { explainChanged, explainThreshold } = require('./lib');
+const { explainChanged, explainThreshold, scratchBag } = require('./lib');
 
 const detector = {
   id: 'arp-spoof',
@@ -85,9 +87,11 @@ const detector = {
     dev.macIps = new Map();
     dev.fired = new Set();
     if (!Array.isArray(state.bindings)) return;
-    if (state.bindings.length > 5000) throw new Error('array bindings exceeds cap');
+    if (state.bindings.length > 5000)
+      throw new HubvikError('ARRAY_BINDINGS_EXCEEDS_CAP', 'array bindings exceeds cap');
     for (const pair of state.bindings) {
-      if (!Array.isArray(pair) || pair.length !== 2) throw new Error('bindings must be pairs');
+      if (!Array.isArray(pair) || pair.length !== 2)
+        throw new HubvikError('BINDINGS_MUST_BE_PAIRS', 'bindings must be pairs');
       dev.bindings.set(String(pair[0]), String(pair[1]));
     }
   },
@@ -103,12 +107,11 @@ const detector = {
  * @param {any} ctx
  */
 function shared(ctx) {
-  let bag = ctx.scratch.get('arp-spoof');
-  if (!bag) {
-    bag = { bindings: new Map(), macIps: new Map(), fired: new Set() };
-    ctx.scratch.set('arp-spoof', bag);
-  }
-  return bag;
+  return scratchBag(ctx, 'arp-spoof', () => ({
+    bindings: new Map(),
+    macIps: new Map(),
+    fired: new Set(),
+  }));
 }
 
 module.exports = detector;

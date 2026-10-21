@@ -15,6 +15,22 @@ function isGroupDst(ip) {
 }
 
 /**
+ * One scratch entry shared by every device on the engine.
+ * `create` runs only when the id is missing.
+ * @param {any} ctx
+ * @param {string} id
+ * @param {() => any} create
+ */
+function scratchBag(ctx, id, create) {
+  let bag = ctx.scratch.get(id);
+  if (!bag) {
+    bag = create();
+    ctx.scratch.set(id, bag);
+  }
+  return bag;
+}
+
+/**
  * @param {any} caps
  */
 function seenState(caps) {
@@ -155,6 +171,7 @@ function explainMatch(spec) {
 
 module.exports = {
   isGroupDst,
+  scratchBag,
   seenState,
   exportSeen,
   importSeen,

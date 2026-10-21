@@ -1,0 +1,95 @@
+{
+  "dataset": "synthetic",
+  "detector": "vertical-scan",
+  "param": "minPorts",
+  "from": 5,
+  "to": 30,
+  "step": 5,
+  "points": [
+    {
+      "value": 5,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "value": 10,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "value": 15,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "value": 20,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "value": 25,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    },
+    {
+      "value": 30,
+      "attackInstances": 25,
+      "detected": 20,
+      "detection": "20/25 = 80.0% (95% Wilson 60.9%–91.1%)",
+      "falsePositives": 0,
+      "benignDeviceDays": 3,
+      "fpPerDeviceDay": 0,
+      "fpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+      "precision": 1,
+      "recall": 0.8
+    }
+  ],
+  "fpRisesWithThreshold": false,
+  "flag": null,
+  "proposal": {
+    "detector": "vertical-scan",
+    "param": "minPorts",
+    "value": 15,
+    "expectedCost": 4,
+    "fp": 1,
+    "miss": 20,
+    "shippedDefault": 15,
+    "defaultUnchanged": true,
+    "text": "Proposal: vertical-scan.minPorts = 15. Expected cost 4 with fp=1, miss=20. The default is unchanged. Cost weights are the operator's choice."
+  }
+}

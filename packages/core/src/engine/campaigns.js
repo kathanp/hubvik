@@ -70,6 +70,9 @@ function noteCampaign(engine, device, anomaly, event) {
   campaign.lastTs = anomaly.ts;
   if (opened || rankOf(campaign.severity) > rankOf(before)) {
     engine.emit('campaign', payload(campaign));
+    if (typeof engine._considerAlert === 'function') {
+      engine._considerAlert({ id: campaign.devices[0] || '' }, campaign, null, 'campaign');
+    }
   }
 }
 

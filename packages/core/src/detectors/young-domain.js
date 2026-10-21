@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { exactHit } = require('../engine/indicators');
 const { domainFamily } = require('../engine/net');
 const { assertState } = require('./state');
@@ -119,21 +121,25 @@ function remember(families, family, ts) {
  * @returns {Map<string, number>}
  */
 function readFamilies(value) {
-  if (!Array.isArray(value)) throw new Error('families must be an array');
-  if (value.length > CAP) throw new Error('array families exceeds cap');
+  if (!Array.isArray(value))
+    throw new HubvikError('FAMILIES_MUST_BE_AN_ARRAY', 'families must be an array');
+  if (value.length > CAP)
+    throw new HubvikError('ARRAY_FAMILIES_EXCEEDS_CAP', 'array families exceeds cap');
   const families = new Map();
   for (const item of value) {
     if (!item || typeof item !== 'object' || Array.isArray(item)) {
-      throw new Error('families must be objects');
+      throw new HubvikError('FAMILIES_MUST_BE_OBJECTS', 'families must be objects');
     }
     assertSafeKeys(item, 'young-domain.families');
     if (typeof item.family !== 'string' || item.family.length === 0 || item.family.length > 255) {
-      throw new Error('families must be strings');
+      throw new HubvikError('FAMILIES_MUST_BE_STRINGS', 'families must be strings');
     }
-    if (!Number.isInteger(item.ts)) throw new Error('family time is invalid');
+    if (!Number.isInteger(item.ts))
+      throw new HubvikError('FAMILY_TIME_IS_INVALID', 'family time is invalid');
     families.set(item.family, item.ts);
   }
-  if (families.size > CAP) throw new Error('array families exceeds cap');
+  if (families.size > CAP)
+    throw new HubvikError('ARRAY_FAMILIES_EXCEEDS_CAP', 'array families exceeds cap');
   return families;
 }
 

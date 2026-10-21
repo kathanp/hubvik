@@ -94,15 +94,33 @@ function toRow(raw, parser) {
   if (events.length === 0) return null;
   const event = events[0];
   event.device = deviceOf(raw);
-  const malicious = label.toLowerCase() !== 'benign';
+  const excluded = excludedLabel(label, detailedLabel);
+  const malicious = !excluded && label.toLowerCase() !== 'benign';
   return {
     device: event.device,
     ts: event.ts,
     malicious,
+    excluded,
     label,
     detailedLabel,
     event,
   };
+}
+
+/**
+ * Q-16. `Background` and `No Label` are neither attacks nor benign time.
+ * @param {string} label
+ * @param {string} detailedLabel
+ * @returns {boolean}
+ */
+function excludedLabel(label, detailedLabel) {
+  for (const value of [label, detailedLabel]) {
+    const name = String(value || '')
+      .trim()
+      .toLowerCase();
+    if (name === 'background' || name === 'no label') return true;
+  }
+  return false;
 }
 
 module.exports = { loadIot23 };

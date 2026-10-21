@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
 
@@ -9,7 +11,7 @@ const { assertSafeKeys } = require('../engine/validate');
  */
 function assertState(state, id) {
   if (!state || typeof state !== 'object' || Array.isArray(state))
-    throw new Error(`${id} state is invalid`);
+    throw new HubvikError('STATE_IS_INVALID', `${id} state is invalid`);
   assertSafeKeys(state, id);
 }
 
@@ -22,11 +24,12 @@ function assertState(state, id) {
  */
 function readStrings(value, max, maxString, label) {
   if (value == null) return [];
-  if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
-  if (value.length > max) throw new Error(`array ${label} exceeds cap`);
+  if (!Array.isArray(value)) throw new HubvikError('MUST_BE_AN_ARRAY', `${label} must be an array`);
+  if (value.length > max) throw new HubvikError('ARRAY_EXCEEDS_CAP', `array ${label} exceeds cap`);
   for (const item of value) {
-    if (typeof item !== 'string') throw new Error(`${label} must be strings`);
-    if (item.length > maxString) throw new Error('string too long');
+    if (typeof item !== 'string')
+      throw new HubvikError('MUST_BE_STRINGS', `${label} must be strings`);
+    if (item.length > maxString) throw new HubvikError('STRING_TOO_LONG', 'string too long');
   }
   return itemList(value);
 }

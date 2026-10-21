@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 /**
  * Insertion-ordered set that forgets the oldest value past `max`.
  */
@@ -8,7 +10,8 @@ class LruSet {
    * @param {number} max
    */
   constructor(max) {
-    if (!Number.isInteger(max) || max < 1) throw new TypeError('cap must be a positive integer');
+    if (!Number.isInteger(max) || max < 1)
+      throw new HubvikError('CAP_MUST_BE_A_POSITIVE_INTEGER', 'cap must be a positive integer');
     this.max = max;
     /** @type {Map<string, number>} */
     this.map = new Map();
@@ -61,7 +64,8 @@ class SampleRing {
    * @param {number} max
    */
   constructor(max) {
-    if (!Number.isInteger(max) || max < 1) throw new TypeError('cap must be a positive integer');
+    if (!Number.isInteger(max) || max < 1)
+      throw new HubvikError('CAP_MUST_BE_A_POSITIVE_INTEGER', 'cap must be a positive integer');
     this.max = max;
     /** @type {Float64Array} */
     this.data = new Float64Array(0);

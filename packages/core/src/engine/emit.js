@@ -114,6 +114,10 @@ module.exports = {
    * @returns {any}
    */
   explain(anomalyId) {
+    if (this.opts.scoring === 'lr' && typeof this._incidentContributions === 'function') {
+      const contributions = this._incidentContributions(anomalyId);
+      if (contributions) return contributions;
+    }
     const id = String(anomalyId);
     const row = this._explain.get(id);
     if (!row) return null;
@@ -418,6 +422,11 @@ module.exports = {
         schema: 1,
         fingerprint,
       };
+      Object.defineProperty(anomaly, '_partgHard', {
+        value: det.hardRule === true,
+        enumerable: false,
+        configurable: true,
+      });
       if (event && event.observedAs) {
         /** @type {Record<string, unknown>} */ (anomaly.data).observedAs = event.observedAs;
       }
@@ -439,6 +448,8 @@ module.exports = {
         if (route === 'canary') this._rememberFp(device, det.id, fingerprint, 'canary');
         else this._noteShadow(device, det, anomaly);
         this._rememberExplain(anomaly, det, item);
+        if (typeof this._advanceTemplates === 'function') this._advanceTemplates(device, anomaly);
+        delete anomaly._partgHard;
         this.emit('shadow-anomaly', anomaly);
         continue;
       }
@@ -446,9 +457,19 @@ module.exports = {
       this.anomalyCount += 1;
       anomaly.id = String(this.seq);
       if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
+      if (
+        typeof this._tagAnnotation === 'function' &&
+        this._tagAnnotation(device, det, anomaly, item)
+      ) {
+        anomaly._skipScore = true;
+      }
+      if (typeof this._finishFirmware === 'function') this._finishFirmware(item.ts);
       noteIncident(this, device, anomaly);
+      if (typeof this._advanceTemplates === 'function') this._advanceTemplates(device, anomaly);
       noteCampaign(this, device, anomaly, event);
       this._rememberExplain(anomaly, det, item);
+      delete anomaly._partgHard;
+      delete anomaly._skipScore;
       rememberAnomaly(this, anomaly);
       noteThreat(this, device, det, anomaly);
       this.emit('anomaly', anomaly);

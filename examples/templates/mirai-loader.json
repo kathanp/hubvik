@@ -1,0 +1,13 @@
+{
+  "id": "mirai-loader",
+  "steps": [
+    { "detector": "exploit-probe-http", "minSeverity": "low" },
+    { "detector": "exploit-then-download" },
+    { "detector": "horizontal-scan" }
+  ],
+  "within": "30m",
+  "by": "device",
+  "ordered": true,
+  "llrBonus": 2,
+  "attack": ["T1190", "T1105", "T1046"]
+}

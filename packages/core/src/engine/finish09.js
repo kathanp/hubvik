@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { EventEmitter } = require('node:events');
 const { createHmac, createHash } = require('node:crypto');
 const { fnv1a32 } = require('./stats/hash');
@@ -30,12 +32,12 @@ const methods = {
     const device = blank(this, deviceId);
     if (!device) return;
     if (typeof zone !== 'string' || zone.length === 0 || zone.length > 64) {
-      throw new TypeError('time zone is invalid');
+      throw new HubvikError('TIME_ZONE_IS_INVALID', 'time zone is invalid');
     }
     try {
       Intl.DateTimeFormat('en-US', { timeZone: zone }).format(0);
     } catch {
-      throw new TypeError('time zone is invalid');
+      throw new HubvikError('TIME_ZONE_IS_INVALID', 'time zone is invalid');
     }
     device.timeZone = zone;
   },
@@ -54,44 +56,45 @@ const methods = {
       return;
     }
     if (!acl || typeof acl !== 'object' || Array.isArray(acl)) {
-      throw new TypeError('mud acl is invalid');
+      throw new HubvikError('MUD_ACL_IS_INVALID', 'mud acl is invalid');
     }
     if (!Array.isArray(acl.allows) || acl.allows.length > 64) {
-      throw new TypeError('mud allows is invalid');
+      throw new HubvikError('MUD_ALLOWS_IS_INVALID', 'mud allows is invalid');
     }
     /** @type {object[]} */
     const allows = [];
     for (const raw of acl.allows) {
       const row = /** @type {any} */ (raw);
       if (!row || typeof row !== 'object' || Array.isArray(row)) {
-        throw new TypeError('mud allow is invalid');
+        throw new HubvikError('MUD_ALLOW_IS_INVALID', 'mud allow is invalid');
       }
       for (const key of Object.keys(row)) {
-        if (FORBIDDEN_KEYS.has(key)) throw new TypeError('mud allow is invalid');
+        if (FORBIDDEN_KEYS.has(key))
+          throw new HubvikError('MUD_ALLOW_IS_INVALID', 'mud allow is invalid');
       }
       /** @type {Record<string, unknown>} */
       const allow = {};
       if (row.dstPort != null) {
         if (!Number.isInteger(row.dstPort) || row.dstPort < 0 || row.dstPort > 65535) {
-          throw new TypeError('mud dstPort is invalid');
+          throw new HubvikError('MUD_DSTPORT_IS_INVALID', 'mud dstPort is invalid');
         }
         allow.dstPort = row.dstPort;
       }
       if (row.proto != null) {
         if (typeof row.proto !== 'string' || row.proto.length > 16) {
-          throw new TypeError('mud proto is invalid');
+          throw new HubvikError('MUD_PROTO_IS_INVALID', 'mud proto is invalid');
         }
         allow.proto = row.proto;
       }
       if (row.domain != null) {
         if (typeof row.domain !== 'string' || row.domain.length > 255) {
-          throw new TypeError('mud domain is invalid');
+          throw new HubvikError('MUD_DOMAIN_IS_INVALID', 'mud domain is invalid');
         }
         allow.domain = row.domain.toLowerCase();
       }
       if (row.direction != null) {
         if (row.direction !== 'out' && row.direction !== 'in' && row.direction !== 'lan') {
-          throw new TypeError('mud direction is invalid');
+          throw new HubvikError('MUD_DIRECTION_IS_INVALID', 'mud direction is invalid');
         }
         allow.direction = row.direction;
       }
@@ -106,9 +109,11 @@ const methods = {
    * @param {{ sign?: string | Buffer }} [opts]
    */
   checkpointDelta(sinceSeq, opts = {}) {
-    if (!Number.isInteger(sinceSeq) || sinceSeq < 0) throw new TypeError('sinceSeq is invalid');
+    if (!Number.isInteger(sinceSeq) || sinceSeq < 0)
+      throw new HubvikError('SINCESEQ_IS_INVALID', 'sinceSeq is invalid');
     const from = this._deltaSeq || 0;
-    if (sinceSeq !== from) throw new Error('checkpoint delta is out of order');
+    if (sinceSeq !== from)
+      throw new HubvikError('CHECKPOINT_DELTA_IS_OUT_OF_ORDER', 'checkpoint delta is out of order');
     const full = this.checkpoint({ createdAt: 0 });
     /** @type {Record<string, unknown>} */
     const devices = Object.create(null);
@@ -128,6 +133,8 @@ const methods = {
       watermark: this.watermark,
       prevHash: this._deltaHash || '',
     };
+    if (full.annotations) body.annotations = full.annotations;
+    if (full.audit) body.audit = full.audit;
     body.hash = deltaHash(body, opts.sign);
     this._deltaSeq = body.toSeq;
     this._deltaHash = body.hash;
@@ -144,18 +151,25 @@ const methods = {
    */
   applyDelta(delta, opts = {}) {
     if (!delta || typeof delta !== 'object' || Array.isArray(delta)) {
-      throw new TypeError('checkpoint delta is invalid');
+      throw new HubvikError('CHECKPOINT_DELTA_IS_INVALID', 'checkpoint delta is invalid');
     }
     const from = this._deltaSeq || 0;
-    if (delta.fromSeq !== from) throw new Error('checkpoint delta is out of order');
+    if (delta.fromSeq !== from)
+      throw new HubvikError('CHECKPOINT_DELTA_IS_OUT_OF_ORDER', 'checkpoint delta is out of order');
     if ((delta.prevHash || '') !== (this._deltaHash || '')) {
-      throw new Error('checkpoint delta hash does not match');
+      throw new HubvikError(
+        'CHECKPOINT_DELTA_HASH_DOES_NOT_MATCH',
+        'checkpoint delta hash does not match',
+      );
     }
     const key = opts && opts.sign;
     const unsigned = { ...delta };
     delete unsigned.hash;
     if (deltaHash(unsigned, key) !== delta.hash) {
-      throw new Error('checkpoint delta hash does not match');
+      throw new HubvikError(
+        'CHECKPOINT_DELTA_HASH_DOES_NOT_MATCH',
+        'checkpoint delta hash does not match',
+      );
     }
     const removed = Array.isArray(delta.removed) ? delta.removed : [];
     for (const id of removed) this.devices.delete(id);
@@ -200,6 +214,8 @@ const methods = {
     this._deltaSeq = delta.toSeq;
     this.stateSeq = delta.toSeq;
     this._deltaHash = delta.hash;
+    if (typeof this._restorePartG === 'function') this._restorePartG(delta);
+    if (this.opts.audit) this._auditCall('applyDelta', '*', { toSeq: delta.toSeq });
   },
 
   /**
@@ -208,10 +224,10 @@ const methods = {
    */
   exportSummary(opts) {
     if (!opts || typeof opts.gatewayId !== 'string' || opts.gatewayId.length === 0) {
-      throw new TypeError('gatewayId is invalid');
+      throw new HubvikError('GATEWAYID_IS_INVALID', 'gatewayId is invalid');
     }
     if (typeof opts.key !== 'string' && !Buffer.isBuffer(opts.key)) {
-      throw new TypeError('summary key is invalid');
+      throw new HubvikError('SUMMARY_KEY_IS_INVALID', 'summary key is invalid');
     }
     /** @type {Map<string, { families: Set<string>, ports: Set<number> }>} */
     const groups = new Map();
@@ -249,21 +265,23 @@ const methods = {
    * @returns {void}
    */
   importPeerSummaries(list, opts = {}) {
-    if (!Array.isArray(list)) throw new TypeError('summaries must be an array');
-    if (list.length > SUMMARY_CAP) throw new Error('array summaries exceeds cap');
+    if (!Array.isArray(list))
+      throw new HubvikError('SUMMARIES_MUST_BE_AN_ARRAY', 'summaries must be an array');
+    if (list.length > SUMMARY_CAP)
+      throw new HubvikError('ARRAY_SUMMARIES_EXCEEDS_CAP', 'array summaries exceeds cap');
     /** @type {any[]} */
     const next = [];
     for (const row of list) {
       if (!row || typeof row !== 'object' || Array.isArray(row)) {
-        throw new TypeError('summary is invalid');
+        throw new HubvikError('SUMMARY_IS_INVALID', 'summary is invalid');
       }
       assertSafeKeys(row, 'summary');
       if (row.groups != null && !Array.isArray(row.groups)) {
-        throw new TypeError('summary groups are invalid');
+        throw new HubvikError('SUMMARY_GROUPS_ARE_INVALID', 'summary groups are invalid');
       }
       for (const group of row.groups || []) {
         if (!group || typeof group !== 'object' || Array.isArray(group)) {
-          throw new TypeError('summary group is invalid');
+          throw new HubvikError('SUMMARY_GROUP_IS_INVALID', 'summary group is invalid');
         }
         assertSafeKeys(group, 'summary.group');
       }
@@ -271,7 +289,8 @@ const methods = {
         const unsigned = { ...row };
         delete unsigned.sig;
         const mac = row.sig && row.sig.mac;
-        if (mac !== macOf(opts.verify, unsigned)) throw new Error('summary signature is invalid');
+        if (mac !== macOf(opts.verify, unsigned))
+          throw new HubvikError('SUMMARY_SIGNATURE_IS_INVALID', 'summary signature is invalid');
       }
       const age = (this.watermark || 0) - (row.ts || 0);
       if (this.watermark != null && age > WEEK) continue;
@@ -508,7 +527,7 @@ function noteFamilies(device, event) {
  */
 function blank(engine, deviceId) {
   if (typeof deviceId !== 'string' || deviceId.length === 0 || FORBIDDEN_KEYS.has(deviceId)) {
-    throw new TypeError('device id is invalid');
+    throw new HubvikError('DEVICE_ID_IS_INVALID', 'device id is invalid');
   }
   let device = engine.devices.get(deviceId);
   if (!device) {
@@ -637,11 +656,17 @@ function zonedClock(ts, zone) {
 function createShardedEngine(createEngine, raw) {
   const opts = raw || {};
   if (opts.inline !== true) {
-    throw new Error('worker shards wait for a Raspberry Pi 4 bench');
+    throw new HubvikError(
+      'WORKER_SHARDS_WAIT_FOR_A_RASPBERRY_PI_4_BENCH',
+      'worker shards wait for a Raspberry Pi 4 bench',
+    );
   }
   const shards = opts.shards;
   if (!Number.isInteger(shards) || shards < 1 || shards > 64) {
-    throw new TypeError('shards must be an integer from 1 to 64');
+    throw new HubvikError(
+      'SHARDS_MUST_BE_AN_INTEGER_FROM_1_TO_64',
+      'shards must be an integer from 1 to 64',
+    );
   }
   const rest = { ...opts };
   delete rest.shards;
@@ -652,10 +677,9 @@ function createShardedEngine(createEngine, raw) {
   return new Sharded(engines);
 }
 
-const T4 = new Set(['arp', 'dhcp', 'ra', 'discovery', 'nd', 'wifi']);
-
 /**
- * A device can learn flows on one shard and link-layer state on shard 0.
+ * A device's events, including link-layer events, stay on that device's shard.
+ * Export still merges a device that moved shards after setPeerGroup.
  * Keep the detector state that actually learned something.
  * @param {any} left
  * @param {any} right
@@ -733,12 +757,20 @@ class Sharded extends EventEmitter {
     this.deviceShard = new Map();
     /** @type {Map<string, number>} */
     this.groupShard = new Map();
+    const scratch = engines[0].scratch;
+    /** @type {any[]} */
+    const pending = [];
+    for (const engine of engines) {
+      engine.scratch = scratch;
+      engine._pendingLinks = pending;
+    }
     for (const engine of engines) {
       for (const name of [
         'anomaly',
         'shadow-anomaly',
         'warning',
         'incident',
+        'campaign',
         'learned',
         'device-new',
       ]) {
@@ -752,9 +784,44 @@ class Sharded extends EventEmitter {
    * @returns {void}
    */
   feed(event) {
-    const type = event && event.type ? event.type : 'summary';
-    const index = T4.has(type) ? 0 : this._shard(event && event.device);
-    this.engines[index].feed(event);
+    const engine = this._shardEngine(event && event.device);
+    engine.feed(event);
+    const links = engine._pendingLinks || [];
+    const campaigns = engine._campaigns || [];
+    const seq = engine._campaignSeq || 0;
+    for (const peer of this.engines) {
+      peer._pendingLinks = links;
+      peer._campaigns = campaigns;
+      peer._campaignSeq = seq;
+    }
+  }
+
+  /**
+   * Tag the device on the shard that will own its events.
+   * @param {string} deviceId
+   * @param {string} classId
+   * @returns {void}
+   */
+  setDeviceClass(deviceId, classId) {
+    this._shardEngine(deviceId).setDeviceClass(deviceId, classId);
+  }
+
+  /**
+   * Indicators are matched on whichever shard sees the event.
+   * @param {any[]} indicators
+   * @returns {void}
+   */
+  loadIndicators(indicators) {
+    for (const engine of this.engines) engine.loadIndicators(indicators);
+  }
+
+  /**
+   * Rules run on the shard that owns the device.
+   * @param {object[]} rules
+   * @returns {void}
+   */
+  loadRules(rules) {
+    for (const engine of this.engines) engine.loadRules(rules);
   }
 
   /**
@@ -762,7 +829,8 @@ class Sharded extends EventEmitter {
    * @returns {void}
    */
   feedBatch(events) {
-    if (!Array.isArray(events)) throw new TypeError('events must be an array');
+    if (!Array.isArray(events))
+      throw new HubvikError('EVENTS_MUST_BE_AN_ARRAY', 'events must be an array');
     for (const event of events) this.feed(event);
   }
 

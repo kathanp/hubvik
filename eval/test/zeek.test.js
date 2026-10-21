@@ -66,6 +66,29 @@ test('tab-separated and space-separated label columns both parse', () => {
   assert.strictEqual(gluedRows[1].detailedLabel, 'PartOfAHorizontalPortScan');
 });
 
+test('Background and No Label are excluded from attacks and from benign', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-q16-'));
+  const file = path.join(dir, 'conn.log');
+  fs.writeFileSync(
+    file,
+    `${HEADER}
+1.000\tC1\t10.0.0.8\t40000\t1.2.3.4\t80\ttcp\tT\tF\t-\tBackground\t-
+2.000\tC2\t10.0.0.8\t40000\t1.2.3.4\t80\ttcp\tT\tF\t-\tNo Label\t-
+3.000\tC3\t10.0.0.8\t40000\t1.2.3.4\t80\ttcp\tT\tF\t-\tBenign\t-
+4.000\tC4\t10.0.0.8\t40000\t1.2.3.4\t80\ttcp\tT\tF\t-\tMalicious\tC&C
+`,
+  );
+  const rows = loadIot23(file);
+  assert.strictEqual(rows[0].excluded, true);
+  assert.strictEqual(rows[0].malicious, false);
+  assert.strictEqual(rows[1].excluded, true);
+  assert.strictEqual(rows[1].malicious, false);
+  assert.strictEqual(rows[2].excluded, false);
+  assert.strictEqual(rows[2].malicious, false);
+  assert.strictEqual(rows[3].malicious, true);
+  assert.strictEqual(attackIntervals('10.0.0.8', rows).length, 1);
+});
+
 test('two malicious runs are one instance at 2 minutes and two at 10 minutes', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-gap-'));
   function write(name, secondTs) {

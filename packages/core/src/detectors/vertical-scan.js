@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 const { isGroupDst } = require('./lib');
 
@@ -58,7 +60,8 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
-    if (typeof state.max !== 'number' || state.max < 0) throw new Error('max must be a number');
+    if (typeof state.max !== 'number' || state.max < 0)
+      throw new HubvikError('MAX_MUST_BE_A_NUMBER', 'max must be a number');
     dev.max = state.max;
     dev.win = null;
   },

@@ -1,0 +1,42 @@
+{
+  "ignoreDependencies": ["hubvik"],
+  "rules": {
+    "exports": "off",
+    "nsExports": "off"
+  },
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/*.{js,mjs}",
+        "scripts/autopilot/guard.mjs",
+        "bench/*.js",
+        "fuzz/*.js",
+        "test/**/*.js",
+        "eval/**/*.js",
+        "examples/*.js"
+      ],
+      "project": [
+        "scripts/**/*.{js,mjs}",
+        "bench/**/*.js",
+        "fuzz/**/*.js",
+        "test/**/*.js",
+        "eval/**/*.js",
+        "examples/**/*.js"
+      ]
+    },
+    "packages/core": {
+      "entry": [
+        "src/index.js",
+        "src/index.mjs",
+        "src/detectors/*.js",
+        "test/**/*.js",
+        "examples/**/*.js"
+      ],
+      "project": ["src/**/*.js", "test/**/*.js", "examples/**/*.js"]
+    },
+    "packages/*": {
+      "entry": ["src/index.js", "src/index.mjs", "src/*.js", "test/**/*.js"],
+      "project": ["src/**/*.js", "test/**/*.js"]
+    }
+  }
+}

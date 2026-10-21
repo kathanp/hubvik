@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
 const { LruSet } = require('./caps');
@@ -21,6 +23,7 @@ const emitMethods = require('./emit');
 const persistMethods = require('./persist');
 const { learningMethods } = require('./learning');
 const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = require('./finish09');
+const { partgMethods } = require('./partg');
 
 class Engine extends EventEmitter {
   /**
@@ -69,7 +72,7 @@ class Engine extends EventEmitter {
     for (const value of Object.values(opts.detectors)) {
       if (value && value.canary != null) canaries += 1;
     }
-    if (canaries > 4) throw new Error('at most 4 canaries');
+    if (canaries > 4) throw new HubvikError('AT_MOST_4_CANARIES', 'at most 4 canaries');
     /** @type {Record<string, { fired: number, devices: Set<string>, bySeverity: Record<string, number>, wouldJoinIncident: number }>} */
     this._shadow = Object.create(null);
     /** @type {Record<string, { liveOnly: number, canaryOnly: number, both: number }>} */
@@ -110,7 +113,7 @@ class Engine extends EventEmitter {
    */
   _checkDetectorOptions(opts) {
     for (const id of Object.keys(opts.detectors)) {
-      if (!this.byId.has(id)) throw new TypeError(`unknown detector ${id}`);
+      if (!this.byId.has(id)) throw new HubvikError('UNKNOWN_DETECTOR', `unknown detector ${id}`);
     }
   }
 
@@ -120,7 +123,7 @@ class Engine extends EventEmitter {
     if (!Array.isArray(shadow)) return;
     for (const id of shadow) {
       if (id.startsWith('rule:')) continue;
-      if (!this.byId.has(id)) throw new TypeError(`unknown detector ${id}`);
+      if (!this.byId.has(id)) throw new HubvikError('UNKNOWN_DETECTOR', `unknown detector ${id}`);
     }
   }
 
@@ -166,9 +169,11 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   allow(deviceId, kind, value) {
-    if (!ALLOW_KINDS.includes(kind)) throw new TypeError('allow kind is invalid');
+    if (this.opts.audit) /** @type {any} */ (this)._auditCall('allow', deviceId, { kind, value });
+    if (!ALLOW_KINDS.includes(kind))
+      throw new HubvikError('ALLOW_KIND_IS_INVALID', 'allow kind is invalid');
     if (typeof value !== 'string' || value.length === 0 || value.length > this.opts.maxString) {
-      throw new TypeError('allow value is invalid');
+      throw new HubvikError('ALLOW_VALUE_IS_INVALID', 'allow value is invalid');
     }
     const device = /** @type {any} */ (this)._requireDevice(deviceId);
     let handled = false;
@@ -195,18 +200,22 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   suppress(deviceId, detectorId, opts = {}) {
-    if (!this.byId.has(detectorId)) throw new TypeError(`unknown detector ${detectorId}`);
+    if (this.opts.audit)
+      /** @type {any} */ (this)._auditCall('suppress', deviceId, { detectorId, opts });
+    if (!this.byId.has(detectorId))
+      throw new HubvikError('UNKNOWN_DETECTOR', `unknown detector ${detectorId}`);
     const device = /** @type {any} */ (this)._requireDevice(deviceId);
     /** @type {{ untilTs?: number, match?: string }} */
     const entry = {};
     if (opts.untilTs != null) {
       if (typeof opts.untilTs !== 'number' || !Number.isFinite(opts.untilTs)) {
-        throw new TypeError('untilTs is invalid');
+        throw new HubvikError('UNTILTS_IS_INVALID', 'untilTs is invalid');
       }
       entry.untilTs = opts.untilTs;
     }
     if (opts.match != null) {
-      if (typeof opts.match !== 'string') throw new TypeError('match is invalid');
+      if (typeof opts.match !== 'string')
+        throw new HubvikError('MATCH_IS_INVALID', 'match is invalid');
       entry.match = opts.match;
     }
     let list = device.suppress.get(detectorId);
@@ -224,8 +233,9 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   ack(anomalyId) {
+    if (this.opts.audit) /** @type {any} */ (this)._auditCall('ack', anomalyId, {});
     if (typeof anomalyId !== 'string' || anomalyId.length === 0)
-      throw new TypeError('anomaly id is invalid');
+      throw new HubvikError('ANOMALY_ID_IS_INVALID', 'anomaly id is invalid');
     this.acks.add(anomalyId);
     ackIncident(this, anomalyId);
   }
@@ -238,9 +248,9 @@ class Engine extends EventEmitter {
    */
   setDeviceClass(deviceId, classId) {
     if (typeof deviceId !== 'string' || deviceId.length === 0 || FORBIDDEN_KEYS.has(deviceId)) {
-      throw new TypeError('device id is invalid');
+      throw new HubvikError('DEVICE_ID_IS_INVALID', 'device id is invalid');
     }
-    if (!CLASSES[classId]) throw new TypeError('unknown device class');
+    if (!CLASSES[classId]) throw new HubvikError('UNKNOWN_DEVICE_CLASS', 'unknown device class');
     let device = this.devices.get(deviceId);
     if (!device) {
       if (this.devices.size >= this.opts.maxDevices) {
@@ -251,6 +261,8 @@ class Engine extends EventEmitter {
       this.devices.set(deviceId, device);
     }
     device.deviceClass = classId;
+    if (this.opts.audit)
+      /** @type {any} */ (this)._auditCall('setDeviceClass', deviceId, { classId });
   }
 
   /**
@@ -259,6 +271,7 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   forget(deviceId) {
+    if (this.opts.audit) /** @type {any} */ (this)._auditCall('forget', deviceId, {});
     this.devices.delete(deviceId);
     if (!this._removedSince) this._removedSince = [];
     this._removedSince.push(deviceId);
@@ -271,10 +284,10 @@ class Engine extends EventEmitter {
    */
   setPeerGroup(deviceId, groupId) {
     if (typeof deviceId !== 'string' || deviceId.length === 0 || FORBIDDEN_KEYS.has(deviceId)) {
-      throw new TypeError('device id is invalid');
+      throw new HubvikError('DEVICE_ID_IS_INVALID', 'device id is invalid');
     }
     if (groupId != null && (typeof groupId !== 'string' || groupId.length > this.opts.maxString)) {
-      throw new TypeError('peer group is invalid');
+      throw new HubvikError('PEER_GROUP_IS_INVALID', 'peer group is invalid');
     }
     let device = this.devices.get(deviceId);
     if (!device) {
@@ -286,6 +299,8 @@ class Engine extends EventEmitter {
       this.devices.set(deviceId, device);
     }
     device.peerGroup = groupId;
+    if (this.opts.audit)
+      /** @type {any} */ (this)._auditCall('setPeerGroup', deviceId, { groupId });
   }
 
   /**
@@ -296,7 +311,10 @@ class Engine extends EventEmitter {
   use(detector) {
     this._assertDetector(detector);
     if (this.byId.has(detector.id))
-      throw new TypeError(`detector ${detector.id} is already registered`);
+      throw new HubvikError(
+        'DETECTOR_IS_ALREADY_REGISTERED',
+        `detector ${detector.id} is already registered`,
+      );
     this.registry.push(detector);
     this.byId.set(detector.id, detector);
     this._rebuildActive();
@@ -308,11 +326,15 @@ class Engine extends EventEmitter {
    * @returns {void}
    */
   loadIndicators(list) {
-    if (!Array.isArray(list)) throw new TypeError('indicators must be an array');
-    if (list.length > this.opts.maxIndicators) throw new Error('array indicators exceeds cap');
+    if (!Array.isArray(list))
+      throw new HubvikError('INDICATORS_MUST_BE_AN_ARRAY', 'indicators must be an array');
+    if (list.length > this.opts.maxIndicators)
+      throw new HubvikError('ARRAY_INDICATORS_EXCEEDS_CAP', 'array indicators exceeds cap');
     const next = list.map((item) => validateIndicator(item));
     this.indicators = next;
     this.indicatorIndex = buildIndex(next);
+    if (this.opts.audit)
+      /** @type {any} */ (this)._auditCall('loadIndicators', '*', { count: next.length });
   }
 
   /**
@@ -326,6 +348,8 @@ class Engine extends EventEmitter {
     this.registry = ALL.map((det) => det).concat(compiled);
     this.byId = new Map(this.registry.map((det) => [det.id, det]));
     this._rebuildActive();
+    if (this.opts.audit)
+      /** @type {any} */ (this)._auditCall('loadRules', '*', { count: compiled.length });
   }
 
   /**
@@ -397,6 +421,8 @@ class Engine extends EventEmitter {
     );
     if (this.opts.budget) snap.shed = /** @type {any} */ (this)._shedIds();
     if (this.opts.classSuggest) snap.classSuggestions = classSuggestions(this);
+    if (this.opts.peerSuggest)
+      snap.peerSuggestions = /** @type {any} */ (this)._peerSuggestions || [];
     return snap;
   }
 
@@ -409,6 +435,7 @@ class Engine extends EventEmitter {
    */
   feedback(key, verdict, opts) {
     recordFeedback(this, key, verdict, opts);
+    if (this.opts.audit) /** @type {any} */ (this)._auditCall('feedback', key, { verdict });
   }
 
   /**
@@ -574,18 +601,18 @@ class Engine extends EventEmitter {
    */
   _assertDetector(detector) {
     if (!detector || typeof detector !== 'object')
-      throw new TypeError('detector must be an object');
+      throw new HubvikError('DETECTOR_MUST_BE_AN_OBJECT', 'detector must be an object');
     if (typeof detector.id !== 'string' || !/^(?:rule:)?[a-z0-9-]+$/.test(detector.id)) {
-      throw new TypeError('detector.id is invalid');
+      throw new HubvikError('DETECTOR_ID_IS_INVALID', 'detector.id is invalid');
     }
     if (!Number.isInteger(detector.version) || detector.version < 1) {
-      throw new TypeError('detector.version is invalid');
+      throw new HubvikError('DETECTOR_VERSION_IS_INVALID', 'detector.version is invalid');
     }
     if (!Array.isArray(detector.requires) || detector.requires.length === 0) {
-      throw new TypeError('detector.requires is invalid');
+      throw new HubvikError('DETECTOR_REQUIRES_IS_INVALID', 'detector.requires is invalid');
     }
     if (!detector.defaults || typeof detector.defaults !== 'object') {
-      throw new TypeError('detector.defaults is invalid');
+      throw new HubvikError('DETECTOR_DEFAULTS_IS_INVALID', 'detector.defaults is invalid');
     }
   }
 }
@@ -599,13 +626,14 @@ class Engine extends EventEmitter {
 function consumesOf(det) {
   const raw = det.meta && det.meta.consumes;
   if (raw == null) return EVENT_TYPES;
-  if (!Array.isArray(raw)) throw new TypeError(`${det.id} consumes must be an array`);
+  if (!Array.isArray(raw))
+    throw new HubvikError('CONSUMES_MUST_BE_AN_ARRAY', `${det.id} consumes must be an array`);
   /** @type {string[]} */
   const out = [];
   const seen = new Set();
   for (const type of raw) {
     if (typeof type !== 'string' || !EVENT_TYPE_SET.has(type)) {
-      throw new TypeError(`${det.id} consumes unknown event type`);
+      throw new HubvikError('CONSUMES_UNKNOWN_EVENT_TYPE', `${det.id} consumes unknown event type`);
     }
     if (seen.has(type)) continue;
     seen.add(type);
@@ -639,6 +667,7 @@ Object.assign(
   emitMethods,
   persistMethods,
   finishMethods,
+  partgMethods,
 );
 
 /**

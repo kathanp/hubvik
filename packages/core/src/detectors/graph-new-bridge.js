@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { zoneOf } = require('../engine/graph');
 const { explainNewMember } = require('./lib');
 
@@ -72,7 +74,8 @@ const detector = {
     dev.pairs = new Set();
     dev.fired = Boolean(state && state.fired);
     if (!state || !Array.isArray(state.pairs)) return;
-    if (state.pairs.length > 256) throw new Error('array pairs exceeds cap');
+    if (state.pairs.length > 256)
+      throw new HubvikError('ARRAY_PAIRS_EXCEEDS_CAP', 'array pairs exceeds cap');
     for (const pair of state.pairs) dev.pairs.add(String(pair));
   },
 };

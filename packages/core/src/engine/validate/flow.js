@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { normalizeName, requireFields, num } = require('./common');
 
 /**
@@ -48,7 +50,7 @@ function flowEvent(raw, ts, warnings) {
   );
   const direction = raw.direction;
   if (direction !== 'out' && direction !== 'in' && direction !== 'lan') {
-    throw new TypeError('flow direction is invalid');
+    throw new HubvikError('FLOW_DIRECTION_IS_INVALID', 'flow direction is invalid');
   }
   const proto = raw.proto;
   const protoOk =
@@ -58,7 +60,7 @@ function flowEvent(raw, ts, warnings) {
     proto === 'gre' ||
     proto === 'esp' ||
     (typeof proto === 'number' && proto >= 0);
-  if (!protoOk) throw new TypeError('flow proto is invalid');
+  if (!protoOk) throw new HubvikError('FLOW_PROTO_IS_INVALID', 'flow proto is invalid');
   /** @type {Record<string, any>} */
   const event = {
     type: 'flow',

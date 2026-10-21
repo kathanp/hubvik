@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { scratchBag } = require('./lib');
 
 const detector = {
   id: 'fleet-wave',
@@ -35,11 +36,7 @@ const detector = {
     const dst = ev.dst || ev.dstName || ev.qname;
     if (!dst || dev.seen.has(dst)) return;
     if (dev.seen.size < 5000) dev.seen.add(dst);
-    let waves = ctx.scratch.get('fleet-wave');
-    if (!waves) {
-      waves = new Map();
-      ctx.scratch.set('fleet-wave', waves);
-    }
+    const waves = scratchBag(ctx, 'fleet-wave', () => new Map());
     let row = waves.get(dst);
     if (!row || ev.ts - row.first > ctx.options.windowMs) {
       row = { first: ev.ts, devices: new Map(), fired: false };

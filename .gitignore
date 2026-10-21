@@ -2,11 +2,13 @@ node_modules/
 coverage/
 *.tgz
 eval/data/
+eval/.cache/
 .env*
 .npmrc
 .DS_Store
 
 .autopilot/
+.autopilot-report/
 .worktrees/
 
 # Local working notes. Kept on disk, not part of the public repo.

@@ -27,8 +27,9 @@ export default [
     },
   },
   {
-    files: ['packages/*/src/**/*.js'],
+    files: ['packages/*/src/**/*.js', 'packages/*/src/**/*.mjs'],
     rules: {
+      ...js.configs.recommended.rules,
       'no-console': 'error',
     },
   },

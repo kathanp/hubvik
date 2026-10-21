@@ -379,3 +379,51 @@ test('inline shards match a single engine, and workers are refused', () => {
   const sharded = run(createShardedEngine({ ...opts, shards: 4, inline: true }));
   assert.deepStrictEqual(sharded, single);
 });
+
+test('timezone, mud, and checkpoint delta reject bad input', () => {
+  const box = engine({ learnMs: 0 });
+  box.feed({ device: 'cam', dst: 'a.example', bytes: 1, ts: 1_000 });
+  box.setDeviceTimezone('missing', 'UTC');
+  assert.throws(() => box.setDeviceTimezone('cam', ''), /time zone/);
+  assert.throws(() => box.setDeviceTimezone('cam', 'z'.repeat(65)), /time zone/);
+  assert.throws(() => box.loadMud('cam', []), /mud acl/);
+  assert.throws(() => box.loadMud('cam', { allows: 'no' }), /allows/);
+  const tooMany = { allows: Array.from({ length: 65 }, () => ({ dstPort: 80 })) };
+  assert.throws(() => box.loadMud('cam', tooMany), /allows/);
+  assert.throws(() => box.loadMud('cam', { allows: [null] }), /allow/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ prototype: true }] }), /allow/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ dstPort: 70000 }] }), /dstPort/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ dstPort: true }] }), /dstPort/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ proto: 1 }] }), /proto/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ proto: 'x'.repeat(17) }] }), /proto/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ domain: 1 }] }), /domain/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ domain: 'a'.repeat(256) }] }), /domain/);
+  assert.throws(() => box.loadMud('cam', { allows: [{ direction: 'sideways' }] }), /direction/);
+  box.loadMud('cam', {
+    allows: [{ dstPort: 443, proto: 'tcp', domain: 'Example.COM', direction: 'out' }],
+  });
+  box.loadMud('cam', null);
+  assert.throws(() => box.checkpointDelta(-1), /sinceSeq/);
+  assert.throws(() => box.checkpointDelta(1), /out of order/);
+  assert.throws(() => box.applyDelta(null), /invalid/);
+  assert.throws(() => box.applyDelta([]), /invalid/);
+  assert.throws(() => box.applyDelta({ fromSeq: 1 }), /out of order/);
+});
+
+test('inline shards accept the shared engine calls and reject a bad shard count', () => {
+  assert.throws(() => createShardedEngine({ shards: 0, inline: true }), /shards/);
+  assert.throws(() => createShardedEngine({ shards: 1.5, inline: true }), /shards/);
+  const box = createShardedEngine({ learnMs: 0, tiers: ['T0'], shards: 2, inline: true });
+  assert.throws(() => box.feedBatch(null), /array/);
+  box.setDeviceClass('cam', 'camera');
+  box.loadIndicators([]);
+  box.loadRules([]);
+  box.setPeerGroup('cam', 'kitchen');
+  box.feedBatch([{ device: 'cam', dst: 'one.example', bytes: 10, ts: 1_000 }]);
+  box.lock('cam');
+  box.tick(60_000);
+  box.flush(60_000);
+  const baseline = box.exportBaseline({ createdAt: 1 });
+  assert.ok(baseline.devices.cam);
+  return box.drain();
+});

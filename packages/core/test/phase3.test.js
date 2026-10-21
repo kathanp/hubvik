@@ -415,3 +415,38 @@ test('media, mining, OT, cleartext downloads, and a drift incident', () => {
   quiet.ack(one[0].id);
   assert.ok(rolled.score < before);
 });
+
+test('a learned UPnP mapping does not fire, and a new one does', () => {
+  const engine = createEngine({ learnMs: 10_000, tiers: ['T0', 'T1'] });
+  engine.feed({
+    type: 'mapping',
+    device: 'd',
+    ts: 1000,
+    proto: 'upnp',
+    port: 80,
+    externalPort: 8080,
+  });
+  engine.lock('d');
+  /** @type {any[]} */
+  const found = [];
+  engine.on('anomaly', (row) => {
+    if (row.detector === 'upnp-port-open') found.push(row);
+  });
+  engine.feed({
+    type: 'mapping',
+    device: 'd',
+    ts: 20_000,
+    proto: 'upnp',
+    port: 80,
+    externalPort: 8080,
+  });
+  engine.feed({
+    type: 'mapping',
+    device: 'd',
+    ts: 21_000,
+    proto: 'upnp',
+    port: 81,
+  });
+  assert.strictEqual(found.length, 1);
+  assert.strictEqual(found[0].actual, 'upnp:81');
+});

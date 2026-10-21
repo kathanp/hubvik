@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const detector = {
@@ -56,9 +58,15 @@ const detector = {
   importState(dev, state) {
     assertState(state, detector.id);
     if (!Array.isArray(state.ranges))
-      throw new Error('ot-value-out-of-range ranges must be an array');
+      throw new HubvikError(
+        'OT_VALUE_OUT_OF_RANGE_RANGES_MUST_BE_AN_ARRAY',
+        'ot-value-out-of-range ranges must be an array',
+      );
     if (state.ranges.length > 5000)
-      throw new Error('array ot-value-out-of-range.ranges exceeds cap');
+      throw new HubvikError(
+        'ARRAY_OT_VALUE_OUT_OF_RANGE_RANGES_EXCEEDS_CAP',
+        'array ot-value-out-of-range.ranges exceeds cap',
+      );
     dev.ranges = new Map();
     dev.fired = new Set();
     for (const pair of state.ranges) {

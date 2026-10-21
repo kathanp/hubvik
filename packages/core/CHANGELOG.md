@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Docs
+
+- `docs/handoff/02-ENGINE.md`: baseline export is version 3, with version 2 and version 1 import. A bare `flush()` drains to the watermark. `multi-horizon-exfil` uses `p2.js` and `cusum.js`; `slow-scan` uses `hll.js` and `welford.js`.
+- `docs/handoff/03-DETECTORS.md`: title is core 0.8.0. The ten former "not implemented" rows are "Shipped as Rel 0.9 shadow".
+- `docs/handoff/04-HOW-TO-ADD.md`: next work points at SPEC 0.6.3.
+- `docs/progress/RUN-STATUS.md` step 2b names `HubvikError`.
+- `docs/progress/PHASES.md`: the 2026-10-16 name check is recorded as `iotwarden`, with a 2026-10-20 note for ADR 0001.
+
+`HubvikError` is the error thrown from `packages/core/src`. `code` is stable. `docs/ERRORS.md` lists every code.
+
+Inline `createShardedEngine` keeps each device's events, including link-layer events, on that device's shard. Shards share scratch and the campaign queues (D-37). `test/shard/equivalence.test.js` compares the anomaly multiset and the baseline with one engine.
+
+`eval/run.mjs --fp-breakdown` writes `eval/results/<dataset>/fp-breakdown.json` and `.md`. Proposal lines are printed and are not written into those files.
+
+`node scripts/numbers-check.mjs` is part of `npm run gate`.
+
+`npm run coverage` requires 95% lines and 85% branches. The working-tree run on 2026-10-20 was 97.39% lines and 85.38% branches, 368 tests, 0 failures. No file was excluded to reach that.
+
+`_optionsFor` keeps one options object per detector. It no longer allocates that object on every event. Anomalies are unchanged.
+
 The npm name is `hubvik`. Scoped packages are `@hubvik/*`. The CLI binary is `hubvik`. The 2026-10-16 name `iotwarden` is retired. Local only. Not a version bump and not a 0.9 gate. The Raspberry Pi 4 bench and the real-traffic 0.6 gate are still open.
 
 Default-off engine options: `budget`, `calibratedConfidence`, `classSuggest`, `responseHints`, `redact`. `setDeviceTimezone`, `loadMud`, `checkpointDelta`, `applyDelta`, `exportSummary`, `importPeerSummaries`, and inline-only `createShardedEngine`. Worker shards throw until a person measures a Raspberry Pi 4.

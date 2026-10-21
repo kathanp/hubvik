@@ -32,5 +32,17 @@
     "network",
     "edge"
   ],
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kathanp/hubvik.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/kathanp/hubvik/issues"
+  },
+  "homepage": "https://github.com/kathanp/hubvik#readme",
+  "publishConfig": {
+    "provenance": true
+  }
 }

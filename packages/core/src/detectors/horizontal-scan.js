@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const PORTS = require('../data/ports.json');
 const { assertState } = require('./state');
 const { isGroupDst, explainThreshold } = require('./lib');
@@ -101,13 +103,16 @@ const detector = {
   importState(dev, state) {
     assertState(state, detector.id);
     dev.max = new Map();
-    if (!Array.isArray(state.max)) throw new Error('max must be an array');
-    if (state.max.length > 512) throw new Error('array max exceeds cap');
+    if (!Array.isArray(state.max))
+      throw new HubvikError('MAX_MUST_BE_AN_ARRAY', 'max must be an array');
+    if (state.max.length > 512)
+      throw new HubvikError('ARRAY_MAX_EXCEEDS_CAP', 'array max exceeds cap');
     for (const pair of state.max) {
-      if (!Array.isArray(pair) || pair.length !== 2) throw new Error('max entries are invalid');
+      if (!Array.isArray(pair) || pair.length !== 2)
+        throw new HubvikError('MAX_ENTRIES_ARE_INVALID', 'max entries are invalid');
       const [port, count] = pair;
       if (!Number.isInteger(port) || typeof count !== 'number')
-        throw new Error('max entries are invalid');
+        throw new HubvikError('MAX_ENTRIES_ARE_INVALID', 'max entries are invalid');
       dev.max.set(port, count);
     }
     dev.win = null;

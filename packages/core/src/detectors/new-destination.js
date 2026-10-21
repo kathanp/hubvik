@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
 const { isGroupDst } = require('./lib');
@@ -112,7 +114,7 @@ const detector = {
  */
 function read(state, caps) {
   if (!state || typeof state !== 'object' || Array.isArray(state)) {
-    throw new Error('new-destination state is invalid');
+    throw new HubvikError('NEW_DESTINATION_STATE_IS_INVALID', 'new-destination state is invalid');
   }
   assertSafeKeys(state, 'new-destination');
   const dsts = readNames(state.dsts, caps.maxDestinations, caps.maxString, 'dsts');
@@ -132,11 +134,12 @@ function read(state, caps) {
  * @returns {string[]}
  */
 function readNames(value, max, maxString, label) {
-  if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
-  if (value.length > max) throw new Error(`array ${label} exceeds cap`);
+  if (!Array.isArray(value)) throw new HubvikError('MUST_BE_AN_ARRAY', `${label} must be an array`);
+  if (value.length > max) throw new HubvikError('ARRAY_EXCEEDS_CAP', `array ${label} exceeds cap`);
   for (const item of value) {
-    if (typeof item !== 'string') throw new Error(`${label} must be strings`);
-    if (item.length > maxString) throw new Error('string too long');
+    if (typeof item !== 'string')
+      throw new HubvikError('MUST_BE_STRINGS', `${label} must be strings`);
+    if (item.length > maxString) throw new HubvikError('STRING_TOO_LONG', 'string too long');
   }
   return value;
 }

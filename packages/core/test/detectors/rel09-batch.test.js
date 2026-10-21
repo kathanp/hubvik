@@ -6,13 +6,39 @@ const { createEngine, detectors } = require('../../src/index.js');
 
 /**
  * @param {string} id
- * @param {string[]} tiers
+ * @returns {Record<string, { enabled: boolean }>}
  */
-function box(id, tiers) {
+function offExcept(id) {
   /** @type {Record<string, { enabled: boolean }>} */
   const off = {};
   for (const other of Object.keys(detectors)) if (other !== id) off[other] = { enabled: false };
-  return createEngine({ shadow: true, learnMs: 0, tiers, detectors: off });
+  return off;
+}
+
+/**
+ * @param {string} id
+ * @param {string[]} tiers
+ */
+function box(id, tiers) {
+  return createEngine({ shadow: true, learnMs: 0, tiers, detectors: offExcept(id) });
+}
+
+/**
+ * @param {number} n
+ * @param {number} ts
+ */
+function llmnr(n, ts) {
+  return {
+    type: 'dns',
+    device: 'd',
+    ts,
+    qname: `name-${n}.local`,
+    qtype: 'A',
+    rcode: 'NOERROR',
+    resolver: '192.0.2.53',
+    port: 5355,
+    answers: [{ type: 'A', value: '192.0.2.10', ttl: 30 }],
+  };
 }
 
 /**
@@ -92,6 +118,19 @@ test('mud-violation stays quiet without an ACL and fires outside it', () => {
   engine.loadMud('d', { allows: [{ dstPort: 443, proto: 'tcp', direction: 'out' }] });
   engine.feed(flow({ ts: 2_000, dstPort: 23 }));
   assert.strictEqual(found.length, 1);
+  const named = box('mud-violation', ['T0', 'T1', 'T2']);
+  /** @type {any[]} */
+  const names = [];
+  named.on('shadow-anomaly', (row) => names.push(row));
+  named.loadMud('d', { allows: [{ domain: 'vendor.example', proto: 'tcp', direction: 'out' }] });
+  named.feed(flow({ ts: 3_000, dstName: 'cdn.vendor.example', dstPort: 443 }));
+  assert.strictEqual(names.length, 0);
+  named.feed(flow({ ts: 4_000, dstName: 'evil.test', dstPort: 443 }));
+  named.feed(flow({ ts: 5_000, dstName: 'evil.test', dstPort: 443 }));
+  assert.strictEqual(names.length, 1);
+  assert.ok(
+    detectors['mud-violation'].memoryEstimate({ fired: new Set(['198.51.100.10:443']) }) > 16,
+  );
 });
 
 test('dns-answer-mismatch needs the optional from field', () => {
@@ -130,4 +169,20 @@ test('llmnr-nbns-poison fires on an unlearned name at port 5355', () => {
     answers: [{ type: 'A', value: '192.0.2.10', ttl: 30 }],
   });
   assert.strictEqual(found.length, 1);
+  const learning = createEngine({
+    shadow: true,
+    learnMs: 60_000,
+    tiers: ['T0', 'T2'],
+    detectors: offExcept('llmnr-nbns-poison'),
+  });
+  for (let i = 0; i < 256; i++) learning.feed(llmnr(i, 1_000 + i));
+  learning.feed(llmnr(256, 2_000));
+  learning.lock('d');
+  /** @type {any[]} */
+  const later = [];
+  learning.on('shadow-anomaly', (row) => later.push(row));
+  learning.feed(llmnr(0, 70_000));
+  learning.feed(llmnr(256, 71_000));
+  assert.strictEqual(later.length, 1);
+  assert.match(later[0].actual, /name-256/);
 });

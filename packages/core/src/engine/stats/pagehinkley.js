@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 
 /**
@@ -10,13 +12,16 @@ const { assertSafeKeys } = require('../validate');
  */
 function createPageHinkley(opts) {
   if (!opts || typeof opts !== 'object')
-    throw new TypeError('pagehinkley options must be an object');
+    throw new HubvikError(
+      'PAGEHINKLEY_OPTIONS_MUST_BE_AN_OBJECT',
+      'pagehinkley options must be an object',
+    );
   assertSafeKeys(opts, 'pagehinkley');
   if (typeof opts.delta !== 'number' || !(opts.delta >= 0) || !Number.isFinite(opts.delta)) {
-    throw new TypeError('pagehinkley.delta is invalid');
+    throw new HubvikError('PAGEHINKLEY_DELTA_IS_INVALID', 'pagehinkley.delta is invalid');
   }
   if (typeof opts.lambda !== 'number' || !(opts.lambda > 0) || !Number.isFinite(opts.lambda)) {
-    throw new TypeError('pagehinkley.lambda is invalid');
+    throw new HubvikError('PAGEHINKLEY_LAMBDA_IS_INVALID', 'pagehinkley.lambda is invalid');
   }
   return {
     delta: opts.delta,
@@ -63,13 +68,16 @@ function toJSON(stats) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('pagehinkley state must be an object');
+    throw new HubvikError(
+      'PAGEHINKLEY_STATE_MUST_BE_AN_OBJECT',
+      'pagehinkley state must be an object',
+    );
   }
   assertSafeKeys(raw, 'pagehinkley');
   const row = /** @type {any} */ (raw);
   const stats = createPageHinkley({ delta: row.delta, lambda: row.lambda });
   if (typeof row.count !== 'number' || !Number.isInteger(row.count) || row.count < 0) {
-    throw new TypeError('pagehinkley.count is invalid');
+    throw new HubvikError('PAGEHINKLEY_COUNT_IS_INVALID', 'pagehinkley.count is invalid');
   }
   stats.count = row.count;
   stats.mean = finite(row.mean, 'pagehinkley.mean');
@@ -77,7 +85,8 @@ function fromJSON(raw) {
   stats.upMin = finite(row.upMin, 'pagehinkley.upMin');
   stats.down = finite(row.down, 'pagehinkley.down');
   stats.downMin = finite(row.downMin, 'pagehinkley.downMin');
-  if (typeof row.alarmed !== 'boolean') throw new TypeError('pagehinkley.alarmed is invalid');
+  if (typeof row.alarmed !== 'boolean')
+    throw new HubvikError('PAGEHINKLEY_ALARMED_IS_INVALID', 'pagehinkley.alarmed is invalid');
   stats.alarmed = row.alarmed;
   return stats;
 }
@@ -89,7 +98,7 @@ function fromJSON(raw) {
  */
 function finite(value, label) {
   if (typeof value !== 'number' || !Number.isFinite(value))
-    throw new TypeError(`${label} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${label} is invalid`);
   return value;
 }
 

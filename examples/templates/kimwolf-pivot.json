@@ -1,0 +1,13 @@
+{
+  "id": "kimwolf-pivot",
+  "steps": [
+    { "detector": "proxy-sdk-traffic" },
+    { "detector": "lan-via-proxy" },
+    { "detector": "adb-exposure" }
+  ],
+  "within": "60m",
+  "by": "campaign",
+  "ordered": true,
+  "llrBonus": 2,
+  "attack": ["T1090", "T1021"]
+}

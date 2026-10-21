@@ -173,6 +173,9 @@ function noteWatch(engine, device, event) {
       value,
       ts: event.ts,
     });
+    if (engine.opts.audit && typeof engine._auditCall === 'function') {
+      engine._auditCall('promote', device.id, { detector: id, value });
+    }
   }
 }
 

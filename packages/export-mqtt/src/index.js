@@ -5,7 +5,8 @@
  * @param {any} record
  * @returns {{ topic: string, payload: string }[]}
  */
-function toMessages(record) {
+function toMessages(record, opts = {}) {
+  if (opts && opts.alertsOnly && !isAlert(record)) return [];
   const row = record || {};
   const body = JSON.stringify({
     id: row.id || '',
@@ -37,6 +38,19 @@ function publishWith(publish, record) {
   const messages = toMessages(record);
   for (const message of messages) publish(message.topic, message.payload);
   return messages.length;
+}
+
+/**
+ * @param {any} row
+ */
+function isAlert(row) {
+  return (
+    row &&
+    (row.kind === 'incident' ||
+      row.kind === 'hard-rule' ||
+      row.kind === 'campaign' ||
+      row.kind === 'digest')
+  );
 }
 
 module.exports = { toMessages, publishWith };

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertSafeKeys } = require('./validate');
 
 const CAP = 10_000;
@@ -119,14 +121,18 @@ function noteNoisy(engine) {
  * @returns {void}
  */
 function recordFeedback(engine, key, verdict, opts) {
-  if (typeof key !== 'string' || key.length === 0) throw new TypeError('anomaly id is invalid');
-  if (!VERDICTS.has(verdict)) throw new TypeError('verdict is invalid');
+  if (typeof key !== 'string' || key.length === 0)
+    throw new HubvikError('ANOMALY_ID_IS_INVALID', 'anomaly id is invalid');
+  if (!VERDICTS.has(verdict)) throw new HubvikError('VERDICT_IS_INVALID', 'verdict is invalid');
   if (opts != null && (typeof opts !== 'object' || Array.isArray(opts))) {
-    throw new TypeError('feedback options must be an object');
+    throw new HubvikError(
+      'FEEDBACK_OPTIONS_MUST_BE_AN_OBJECT',
+      'feedback options must be an object',
+    );
   }
   if (opts) assertSafeKeys(opts, 'feedback');
   const meta = engine._anomalyById.get(key) || engine._anomalyByFp.get(key);
-  if (!meta) throw new TypeError('unknown anomaly');
+  if (!meta) throw new HubvikError('UNKNOWN_ANOMALY', 'unknown anomaly');
   /** @type {Record<string, unknown>} */
   const row = {
     fingerprint: meta.fingerprint,
@@ -141,13 +147,13 @@ function recordFeedback(engine, key, verdict, opts) {
       opts.operator.length === 0 ||
       opts.operator.length > 64
     ) {
-      throw new TypeError('operator is invalid');
+      throw new HubvikError('OPERATOR_IS_INVALID', 'operator is invalid');
     }
     row.operator = opts.operator;
   }
   if (opts && opts.note != null) {
     if (typeof opts.note !== 'string' || opts.note.length > 255) {
-      throw new TypeError('note is invalid');
+      throw new HubvikError('NOTE_IS_INVALID', 'note is invalid');
     }
     row.note = opts.note;
   }
@@ -184,11 +190,13 @@ function labelsOf(engine) {
  */
 function readFeedback(raw) {
   if (raw == null) return [];
-  if (!Array.isArray(raw)) throw new Error('checkpoint feedback is invalid');
-  if (raw.length > CAP) throw new Error('array feedback exceeds cap');
+  if (!Array.isArray(raw))
+    throw new HubvikError('CHECKPOINT_FEEDBACK_IS_INVALID', 'checkpoint feedback is invalid');
+  if (raw.length > CAP)
+    throw new HubvikError('ARRAY_FEEDBACK_EXCEEDS_CAP', 'array feedback exceeds cap');
   return raw.map((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) {
-      throw new Error('checkpoint feedback is invalid');
+      throw new HubvikError('CHECKPOINT_FEEDBACK_IS_INVALID', 'checkpoint feedback is invalid');
     }
     assertSafeKeys(row, 'feedback');
     if (
@@ -198,7 +206,7 @@ function readFeedback(raw) {
       typeof row.ts !== 'number' ||
       !VERDICTS.has(row.verdict)
     ) {
-      throw new Error('checkpoint feedback is invalid');
+      throw new HubvikError('CHECKPOINT_FEEDBACK_IS_INVALID', 'checkpoint feedback is invalid');
     }
     /** @type {Record<string, unknown>} */
     const out = {
@@ -209,11 +217,13 @@ function readFeedback(raw) {
       verdict: row.verdict,
     };
     if (row.operator != null) {
-      if (typeof row.operator !== 'string') throw new Error('checkpoint feedback is invalid');
+      if (typeof row.operator !== 'string')
+        throw new HubvikError('CHECKPOINT_FEEDBACK_IS_INVALID', 'checkpoint feedback is invalid');
       out.operator = row.operator;
     }
     if (row.note != null) {
-      if (typeof row.note !== 'string') throw new Error('checkpoint feedback is invalid');
+      if (typeof row.note !== 'string')
+        throw new HubvikError('CHECKPOINT_FEEDBACK_IS_INVALID', 'checkpoint feedback is invalid');
       out.note = row.note;
     }
     return out;

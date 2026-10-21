@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { domainFamily } = require('./net');
 const { median } = require('../detectors/lib');
 
@@ -241,6 +243,11 @@ const learningMethods = {
         this._enterWatch(device, device.learnStart ?? 0);
       }
     }
+    if (typeof this._suggestPeers === 'function') {
+      const ts = this.watermark || 0;
+      this._suggestPeers(ts);
+    }
+    if (this.opts.audit) this._auditCall('lock', deviceId || '*', {});
   },
 
   /**
@@ -253,10 +260,11 @@ const learningMethods = {
   relearn(deviceId, opts = {}) {
     const device = /** @type {any} */ (this)._requireDevice(deviceId);
     const ids = opts.detectors ?? this.registry.map((/** @type {any} */ det) => det.id);
-    if (!Array.isArray(ids)) throw new TypeError('detectors must be an array');
+    if (!Array.isArray(ids))
+      throw new HubvikError('DETECTORS_MUST_BE_AN_ARRAY', 'detectors must be an array');
     for (const id of ids) {
       const det = this.byId.get(id);
-      if (!det) throw new TypeError(`unknown detector ${id}`);
+      if (!det) throw new HubvikError('UNKNOWN_DETECTOR', `unknown detector ${id}`);
       device.states.set(id, /** @type {any} */ (this)._freshState(det));
     }
     device.mode = 'learning';
@@ -265,6 +273,7 @@ const learningMethods = {
     device.open = null;
     device.cursor = null;
     device.sealedUntil = null;
+    if (this.opts.audit) this._auditCall('relearn', deviceId, { detectors: ids });
   },
 
   /**

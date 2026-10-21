@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: prototype. It has not been validated on real traffic. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: `hubvik@0.8.0`, prototype. It has not been validated on real traffic. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
@@ -323,6 +323,12 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 | `createShardedEngine({ shards, inline: true })`               | Inline sharding only. Worker threads wait for a Raspberry Pi 4 bench (Q-10)                                                                          |
 | `exportSummary` / `importPeerSummaries`                       | Federation summaries for `peer-divergence-federated`. No device ids. Cap 1,000, stale after 7 days                                                   |
 | `responseHints: true`                                         | Adds `anomaly.response` text hints. `ot-*` detectors only ever get `review`                                                                          |
+| `scoring: 'lr'`                                               | Incident posterior from the seed likelihood-ratio table. Default `additive`                                                                          |
+| `alerts: true`                                                | Also emits `alert`. The anomaly stream is unchanged                                                                                                  |
+| `drift: true`                                                 | Daily drift series. Warning `BASELINE_DRIFT` or `incident.data.drift`. Never relearns                                                                |
+| `audit: true`                                                 | Hash-chained operator log in the checkpoint. `restore` warns `AUDIT_BROKEN` when the chain fails                                                     |
+| `peerSuggest: true`                                           | Suggests peer groups at `lock()`. Never calls `setPeerGroup`                                                                                         |
+| `annotate` / `loadTemplates` / `setDeviceCriticality`         | Maintenance windows, attack templates, and per-device alert thresholds. All default off                                                              |
 
 ## What this tree does not do yet
 

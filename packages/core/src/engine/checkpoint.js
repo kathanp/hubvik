@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertSafeKeys } = require('./validate');
 const { exportHorizon, importHorizon } = require('./horizon');
 const { LruSet, SampleRing } = require('./caps');
@@ -49,7 +51,8 @@ function revive(value) {
   if (!value || typeof value !== 'object') return value;
   if (typeof value.f64 === 'string' && Object.keys(value).length === 1) {
     const bytes = Buffer.from(value.f64, 'base64');
-    if (bytes.length % 8 !== 0) throw new Error('checkpoint state is invalid');
+    if (bytes.length % 8 !== 0)
+      throw new HubvikError('CHECKPOINT_STATE_IS_INVALID', 'checkpoint state is invalid');
     const out = new Float64Array(bytes.length / 8);
     new Uint8Array(out.buffer).set(bytes);
     return out;
@@ -84,7 +87,7 @@ function revive(value) {
     for (const item of value.values) ring.push(item);
     return ring;
   }
-  if (tagged) throw new Error('checkpoint state is invalid');
+  if (tagged) throw new HubvikError('CHECKPOINT_STATE_IS_INVALID', 'checkpoint state is invalid');
   /** @type {Record<string, unknown>} */
   const out = {};
   for (const key of keys) out[key] = revive(value[key]);
@@ -109,21 +112,22 @@ function plainScratch(scratch) {
  */
 function assertCheckpoint(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    throw new Error('unsupported checkpoint');
+    throw new HubvikError('UNSUPPORTED_CHECKPOINT', 'unsupported checkpoint');
   assertSafeKeys(raw, 'checkpoint');
   if (
     raw.watermark != null &&
     (typeof raw.watermark !== 'number' || !Number.isFinite(raw.watermark))
   ) {
-    throw new Error('checkpoint watermark is invalid');
+    throw new HubvikError('CHECKPOINT_WATERMARK_IS_INVALID', 'checkpoint watermark is invalid');
   }
   if (raw.scratch == null) return;
   if (typeof raw.scratch !== 'object' || Array.isArray(raw.scratch)) {
-    throw new Error('checkpoint scratch is invalid');
+    throw new HubvikError('CHECKPOINT_SCRATCH_IS_INVALID', 'checkpoint scratch is invalid');
   }
   assertSafeKeys(raw.scratch, 'scratch');
   for (const key of Object.keys(raw.scratch)) {
-    if (!KNOWN.has(key)) throw new Error(`unknown scratch table ${key}`);
+    if (!KNOWN.has(key))
+      throw new HubvikError('UNKNOWN_SCRATCH_TABLE', `unknown scratch table ${key}`);
   }
 }
 
@@ -135,58 +139,95 @@ function assertCheckpoint(raw) {
 function assertRevived(scratch) {
   const wave = scratch['fleet-wave'];
   if (wave != null) {
-    if (!(wave instanceof Map)) throw new Error('checkpoint scratch fleet-wave is invalid');
+    if (!(wave instanceof Map))
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_FLEET_WAVE_IS_INVALID',
+        'checkpoint scratch fleet-wave is invalid',
+      );
     for (const row of wave.values()) {
       if (!row || typeof row !== 'object' || Array.isArray(row)) {
-        throw new Error('checkpoint scratch fleet-wave is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_SCRATCH_FLEET_WAVE_IS_INVALID',
+          'checkpoint scratch fleet-wave is invalid',
+        );
       }
       if (!(row.devices instanceof Map) || typeof row.first !== 'number') {
-        throw new Error('checkpoint scratch fleet-wave is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_SCRATCH_FLEET_WAVE_IS_INVALID',
+          'checkpoint scratch fleet-wave is invalid',
+        );
       }
     }
   }
   const arp = scratch['arp-spoof'];
   if (arp != null) {
     if (typeof arp !== 'object' || !(arp.bindings instanceof Map) || !(arp.macIps instanceof Map)) {
-      throw new Error('checkpoint scratch arp-spoof is invalid');
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_ARP_SPOOF_IS_INVALID',
+        'checkpoint scratch arp-spoof is invalid',
+      );
     }
   }
   const learnedMacs = scratch['identity-change'];
   if (learnedMacs != null) {
     if (typeof learnedMacs !== 'object' || !(learnedMacs.macs instanceof Map)) {
-      throw new Error('checkpoint scratch identity-change is invalid');
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_IDENTITY_CHANGE_IS_INVALID',
+        'checkpoint scratch identity-change is invalid',
+      );
     }
   }
   const bindings = scratch.identity;
   if (bindings != null) {
-    if (!(bindings instanceof Map)) throw new Error('checkpoint scratch identity is invalid');
-    if (bindings.size > 50_000) throw new Error('array identity exceeds cap');
+    if (!(bindings instanceof Map))
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_IDENTITY_IS_INVALID',
+        'checkpoint scratch identity is invalid',
+      );
+    if (bindings.size > 50_000)
+      throw new HubvikError('ARRAY_IDENTITY_EXCEEDS_CAP', 'array identity exceeds cap');
     for (const row of bindings.values()) {
       if (!row || typeof row.mac !== 'string' || typeof row.lastTs !== 'number') {
-        throw new Error('checkpoint scratch identity is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_SCRATCH_IDENTITY_IS_INVALID',
+          'checkpoint scratch identity is invalid',
+        );
       }
       if (row.source !== 'dhcp' && row.source !== 'arp' && row.source !== 'nd') {
-        throw new Error('checkpoint scratch identity is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_SCRATCH_IDENTITY_IS_INVALID',
+          'checkpoint scratch identity is invalid',
+        );
       }
     }
   }
   const nd = scratch['nd-spoof'];
   if (nd != null) {
     if (typeof nd !== 'object' || !(nd.bindings instanceof Map)) {
-      throw new Error('checkpoint scratch nd-spoof is invalid');
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_ND_SPOOF_IS_INVALID',
+        'checkpoint scratch nd-spoof is invalid',
+      );
     }
-    if (nd.bindings.size > 5000) throw new Error('array bindings exceeds cap');
+    if (nd.bindings.size > 5000)
+      throw new HubvikError('ARRAY_BINDINGS_EXCEEDS_CAP', 'array bindings exceeds cap');
   }
   const wifi = scratch['wifi-deauth-flood'];
   if (wifi != null) {
     if (typeof wifi !== 'object' || !(wifi.byMac instanceof Map)) {
-      throw new Error('checkpoint scratch wifi-deauth-flood is invalid');
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_WIFI_DEAUTH_FLOOD_IS_INVALID',
+        'checkpoint scratch wifi-deauth-flood is invalid',
+      );
     }
   }
   const dhcp = scratch['dhcp-starvation'];
   if (dhcp != null) {
     if (typeof dhcp !== 'object' || !(dhcp.macs instanceof Set)) {
-      throw new Error('checkpoint scratch dhcp-starvation is invalid');
+      throw new HubvikError(
+        'CHECKPOINT_SCRATCH_DHCP_STARVATION_IS_INVALID',
+        'checkpoint scratch dhcp-starvation is invalid',
+      );
     }
   }
 }
@@ -264,7 +305,7 @@ function freezeStates(states) {
  */
 function thawStates(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new Error('checkpoint live state is invalid');
+    throw new HubvikError('CHECKPOINT_LIVE_STATE_IS_INVALID', 'checkpoint live state is invalid');
   }
   assertSafeKeys(raw, 'checkpoint live');
   const states = new Map();
@@ -288,21 +329,25 @@ function assertLiveShape(fresh, live) {
     fresh instanceof Set
   ) {
     if (live == null || live.constructor !== fresh.constructor) {
-      throw new Error('checkpoint live state is invalid');
+      throw new HubvikError('CHECKPOINT_LIVE_STATE_IS_INVALID', 'checkpoint live state is invalid');
     }
     return;
   }
   if (Array.isArray(fresh)) {
-    if (!Array.isArray(live)) throw new Error('checkpoint live state is invalid');
+    if (!Array.isArray(live))
+      throw new HubvikError('CHECKPOINT_LIVE_STATE_IS_INVALID', 'checkpoint live state is invalid');
     return;
   }
   if (fresh && typeof fresh === 'object') {
     if (!live || typeof live !== 'object' || Array.isArray(live)) {
-      throw new Error('checkpoint live state is invalid');
+      throw new HubvikError('CHECKPOINT_LIVE_STATE_IS_INVALID', 'checkpoint live state is invalid');
     }
     for (const key of Object.keys(fresh)) {
       if (!Object.prototype.hasOwnProperty.call(live, key)) {
-        throw new Error('checkpoint live state is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_LIVE_STATE_IS_INVALID',
+          'checkpoint live state is invalid',
+        );
       }
       assertLiveShape(fresh[key], live[key]);
     }

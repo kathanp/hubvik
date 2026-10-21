@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { TIER_SET, FORBIDDEN_KEYS, SEVERITY_NAMES, DEFAULTS } = require('../constants');
 const {
   assertSafeKey,
@@ -32,13 +34,14 @@ const { linkEvent } = require('./link');
  */
 function validateEvent(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('event must be an object');
+    throw new HubvikError('EVENT_MUST_BE_AN_OBJECT', 'event must be an object');
   }
   assertSafeKeys(raw, 'event');
   if (typeof raw.device !== 'string' || raw.device.length === 0 || raw.device.length > 255) {
-    throw new TypeError('event.device is required');
+    throw new HubvikError('EVENT_DEVICE_IS_REQUIRED', 'event.device is required');
   }
-  if (FORBIDDEN_KEYS.has(raw.device)) throw new TypeError('event.device is reserved');
+  if (FORBIDDEN_KEYS.has(raw.device))
+    throw new HubvikError('EVENT_DEVICE_IS_RESERVED', 'event.device is reserved');
   /** @type {{ code: string, message: string }[]} */
   const warnings = [];
   let ts;
@@ -49,7 +52,8 @@ function validateEvent(raw) {
   } else ts = raw.ts;
 
   const type = raw.type == null ? 'summary' : raw.type;
-  if (typeof type !== 'string') throw new TypeError('event.type is invalid');
+  if (typeof type !== 'string')
+    throw new HubvikError('EVENT_TYPE_IS_INVALID', 'event.type is invalid');
   if (type === 'summary') return { event: summaryEvent(raw, ts, warnings), warnings };
   if (type === 'flow') return { event: flowEvent(raw, ts, warnings), warnings };
   if (type === 'dns') return { event: dnsEvent(raw, ts, warnings), warnings };
@@ -67,7 +71,7 @@ function validateEvent(raw) {
   }
   if (type === 'mapping') return { event: mappingEvent(raw, ts), warnings };
   if (type === 'app') return { event: appEvent(raw, ts, warnings), warnings };
-  throw new TypeError(`unknown event type ${type}`);
+  throw new HubvikError('UNKNOWN_EVENT_TYPE', `unknown event type ${type}`);
 }
 
 /**
@@ -76,37 +80,52 @@ function validateEvent(raw) {
 function validateOptions(raw) {
   const input = raw ?? {};
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new TypeError('options must be an object');
+    throw new HubvikError('OPTIONS_MUST_BE_AN_OBJECT', 'options must be an object');
   }
   assertSafeKeys(input, 'options');
   const tiers = input.tiers == null ? DEFAULTS.tiers.slice() : input.tiers;
   if (!Array.isArray(tiers) || tiers.length === 0 || tiers.some((tier) => !TIER_SET.has(tier))) {
-    throw new TypeError('tiers must list one or more of T0..T5');
+    throw new HubvikError(
+      'TIERS_MUST_LIST_ONE_OR_MORE_OF_T0_T5',
+      'tiers must list one or more of T0..T5',
+    );
   }
   /** @type {Record<string, any>} */
   const detectors = {};
   if (input.detectors != null) {
     if (!input.detectors || typeof input.detectors !== 'object' || Array.isArray(input.detectors)) {
-      throw new TypeError('detectors must be an object');
+      throw new HubvikError('DETECTORS_MUST_BE_AN_OBJECT', 'detectors must be an object');
     }
     assertSafeKeys(input.detectors, 'detectors');
     for (const [id, value] of Object.entries(input.detectors)) {
       if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        throw new TypeError(`detectors.${id} must be an object`);
+        throw new HubvikError('DETECTORS_MUST_BE_AN_OBJECT_2', `detectors.${id} must be an object`);
       }
       assertSafeKeys(value, `detectors.${id}`);
       if (value.enabled != null && typeof value.enabled !== 'boolean') {
-        throw new TypeError(`detectors.${id}.enabled must be boolean`);
+        throw new HubvikError(
+          'DETECTORS_ENABLED_MUST_BE_BOOLEAN',
+          `detectors.${id}.enabled must be boolean`,
+        );
       }
       if (value.severity != null && !SEVERITY_NAMES.has(value.severity)) {
-        throw new TypeError(`detectors.${id}.severity is invalid`);
+        throw new HubvikError(
+          'DETECTORS_SEVERITY_IS_INVALID',
+          `detectors.${id}.severity is invalid`,
+        );
       }
       if (value.mode != null && value.mode !== 'live' && value.mode !== 'shadow') {
-        throw new TypeError(`detectors.${id}.mode must be live or shadow`);
+        throw new HubvikError(
+          'DETECTORS_MODE_MUST_BE_LIVE_OR_SHADOW',
+          `detectors.${id}.mode must be live or shadow`,
+        );
       }
       if (value.canary != null) {
         if (!value.canary || typeof value.canary !== 'object' || Array.isArray(value.canary)) {
-          throw new TypeError(`detectors.${id}.canary must be an object`);
+          throw new HubvikError(
+            'DETECTORS_CANARY_MUST_BE_AN_OBJECT',
+            `detectors.${id}.canary must be an object`,
+          );
         }
         assertSafeKeys(value.canary, `detectors.${id}.canary`);
       }
@@ -114,10 +133,10 @@ function validateOptions(raw) {
     }
   }
   if (input.hourOf != null && typeof input.hourOf !== 'function') {
-    throw new TypeError('hourOf must be a function');
+    throw new HubvikError('HOUROF_MUST_BE_A_FUNCTION', 'hourOf must be a function');
   }
   if (input.dayOf != null && typeof input.dayOf !== 'function') {
-    throw new TypeError('dayOf must be a function');
+    throw new HubvikError('DAYOF_MUST_BE_A_FUNCTION', 'dayOf must be a function');
   }
   return {
     learnMs: input.learnMs == null ? DEFAULTS.learnMs : num(input.learnMs, 'learnMs', { min: 0 }),
@@ -213,6 +232,11 @@ function validateOptions(raw) {
         : bool(input.calibratedConfidence, 'calibratedConfidence'),
     classSuggest: input.classSuggest == null ? false : bool(input.classSuggest, 'classSuggest'),
     responseHints: input.responseHints == null ? false : bool(input.responseHints, 'responseHints'),
+    scoring: parseScoring(input.scoring),
+    alerts: input.alerts == null ? false : bool(input.alerts, 'alerts'),
+    drift: input.drift == null ? false : bool(input.drift, 'drift'),
+    audit: input.audit == null ? false : bool(input.audit, 'audit'),
+    peerSuggest: input.peerSuggest == null ? false : bool(input.peerSuggest, 'peerSuggest'),
     redact: parseRedact(input.redact),
     incidentWindowMs:
       input.incidentWindowMs == null
@@ -229,23 +253,25 @@ function validateOptions(raw) {
  */
 function validateIndicator(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    throw new TypeError('indicator must be an object');
+    throw new HubvikError('INDICATOR_MUST_BE_AN_OBJECT', 'indicator must be an object');
   assertSafeKeys(raw, 'indicator');
   const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad', 'proxy-sdk', 'young-domain']);
   if (typeof raw.value !== 'string' || raw.value.length === 0 || raw.value.length > 255) {
-    throw new TypeError('indicator.value is invalid');
+    throw new HubvikError('INDICATOR_VALUE_IS_INVALID', 'indicator.value is invalid');
   }
-  if (!types.has(raw.type)) throw new TypeError('indicator.type is invalid');
+  if (!types.has(raw.type))
+    throw new HubvikError('INDICATOR_TYPE_IS_INVALID', 'indicator.type is invalid');
   if (typeof raw.source !== 'string' || raw.source.length === 0 || raw.source.length > 255) {
-    throw new TypeError('indicator.source is invalid');
+    throw new HubvikError('INDICATOR_SOURCE_IS_INVALID', 'indicator.source is invalid');
   }
   const confidence =
     raw.confidence == null ? 1 : num(raw.confidence, 'indicator.confidence', { max: 1 });
   let expiresTs = null;
   if (raw.expiresTs != null) expiresTs = num(raw.expiresTs, 'indicator.expiresTs');
-  if (raw.type === 'ip' && !normalizeIp(raw.value)) throw new TypeError('indicator ip is invalid');
+  if (raw.type === 'ip' && !normalizeIp(raw.value))
+    throw new HubvikError('INDICATOR_IP_IS_INVALID', 'indicator ip is invalid');
   if (raw.type === 'cidr' && !/^(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(raw.value)) {
-    throw new TypeError('indicator cidr is invalid');
+    throw new HubvikError('INDICATOR_CIDR_IS_INVALID', 'indicator cidr is invalid');
   }
   return { value: raw.value, type: raw.type, source: raw.source, confidence, expiresTs };
 }
@@ -257,11 +283,11 @@ function parseBudget(value) {
   if (value == null || value === false) return null;
   const input = value === true ? {} : value;
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new TypeError('budget must be an object');
+    throw new HubvikError('BUDGET_MUST_BE_AN_OBJECT', 'budget must be an object');
   }
   assertSafeKeys(input, 'budget');
   if (input.clock != null && typeof input.clock !== 'function') {
-    throw new TypeError('budget.clock must be a function');
+    throw new HubvikError('BUDGET_CLOCK_MUST_BE_A_FUNCTION', 'budget.clock must be a function');
   }
   return {
     perEventUs:
@@ -279,24 +305,37 @@ function parseBudget(value) {
 }
 
 /**
+ * @param {unknown} value
+ * @returns {'additive' | 'lr'}
+ */
+function parseScoring(value) {
+  if (value == null) return 'additive';
+  if (value === 'additive' || value === 'lr') return value;
+  throw new HubvikError('SCORING_IS_INVALID', 'scoring is invalid');
+}
+
+/**
  * @param {any} value
  */
 function parseRedact(value) {
   if (value == null || value === false) return null;
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new TypeError('redact must be an object');
+    throw new HubvikError('REDACT_MUST_BE_AN_OBJECT', 'redact must be an object');
   }
   assertSafeKeys(value, 'redact');
   if (typeof value.key !== 'string' && !Buffer.isBuffer(value.key)) {
-    throw new TypeError('redact.key is invalid');
+    throw new HubvikError('REDACT_KEY_IS_INVALID', 'redact.key is invalid');
   }
   const fields = Array.isArray(value.fields)
     ? value.fields
     : ['device', 'dst', 'qname', 'sni', 'srcIp', 'dstIp', 'mac'];
   if (fields.some((/** @type {unknown} */ field) => typeof field !== 'string'))
-    throw new TypeError('redact.fields is invalid');
+    throw new HubvikError('REDACT_FIELDS_IS_INVALID', 'redact.fields is invalid');
   if (value.redactMap != null && typeof value.redactMap !== 'function') {
-    throw new TypeError('redact.redactMap must be a function');
+    throw new HubvikError(
+      'REDACT_REDACTMAP_MUST_BE_A_FUNCTION',
+      'redact.redactMap must be a function',
+    );
   }
   return { key: value.key, fields, map: value.redactMap || null };
 }

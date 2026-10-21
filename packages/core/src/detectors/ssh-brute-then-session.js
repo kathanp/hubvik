@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { explainThreshold } = require('./lib');
 
 const CAP = 256;
@@ -75,7 +77,8 @@ const detector = {
   importState(dev, state) {
     dev.sources = new Map();
     if (!state || !Array.isArray(state.sources)) return;
-    if (state.sources.length > CAP) throw new Error('array sources exceeds cap');
+    if (state.sources.length > CAP)
+      throw new HubvikError('ARRAY_SOURCES_EXCEEDS_CAP', 'array sources exceeds cap');
     for (const pair of state.sources) {
       if (!Array.isArray(pair) || pair.length !== 2 || !pair[1]) continue;
       dev.sources.set(String(pair[0]), {

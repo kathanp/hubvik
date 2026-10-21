@@ -1,0 +1,13 @@
+{
+  "id": "staged-exfil",
+  "steps": [
+    { "detector": "long-connection" },
+    { "detector": "slow-exfil" },
+    { "detector": "cloud-storage-exfil" }
+  ],
+  "within": "24h",
+  "by": "device",
+  "ordered": true,
+  "llrBonus": 2,
+  "attack": ["T1048"]
+}

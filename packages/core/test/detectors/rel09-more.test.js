@@ -32,6 +32,33 @@ test('mac-randomization-churn reports five MACs for one fingerprint', () => {
   }
   assert.strictEqual(found.length, 1);
   assert.strictEqual(found[0].severity, 'info');
+  const det = detectors['mac-randomization-churn'];
+  const dev = det.createState();
+  det.importState(dev, {
+    prints: [
+      null,
+      { fingerprint: 1, macs: [] },
+      { fingerprint: 'ok', macs: [{ mac: 'a', ts: 1 }] },
+    ],
+  });
+  assert.strictEqual(dev.prints.size, 1);
+  assert.ok(det.memoryEstimate(dev) > 0);
+  const crowded = box('mac-randomization-churn', ['T0', 'T4']);
+  for (let i = 0; i < 257; i += 1) {
+    crowded.feed({
+      type: 'dhcp',
+      device: 'lan',
+      ts: 1_000 + i,
+      mac: 'aa:bb:cc:dd:ee:01',
+      msg: 'request',
+      fingerprint: `fp-${i}`,
+    });
+  }
+  const prints = crowded.exportBaseline({ createdAt: 1 }).devices.lan.detectors[
+    'mac-randomization-churn'
+  ].state.prints;
+  assert.strictEqual(prints.length, 256);
+  assert.ok(!prints.some((row) => row.fingerprint === 'fp-0'));
 });
 
 test('discovery-spoof fires when a second MAC claims a name', () => {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { requireFields, num, normalizeName } = require('./common');
 
 /**
@@ -62,7 +64,7 @@ const APP_PROTOS = new Set([
 function mappingEvent(raw, ts) {
   requireFields(raw, ['proto', 'port'], 'mapping');
   if (raw.proto !== 'upnp' && raw.proto !== 'nat-pmp' && raw.proto !== 'pcp') {
-    throw new TypeError('mapping proto is invalid');
+    throw new HubvikError('MAPPING_PROTO_IS_INVALID', 'mapping proto is invalid');
   }
   /** @type {Record<string, any>} */
   const event = {
@@ -86,8 +88,10 @@ function mappingEvent(raw, ts) {
  */
 function appEvent(raw, ts, warnings) {
   requireFields(raw, ['proto', 'role', 'peerIp', 'op'], 'app');
-  if (!APP_PROTOS.has(raw.proto)) throw new TypeError('app proto is invalid');
-  if (raw.role !== 'client' && raw.role !== 'server') throw new TypeError('app role is invalid');
+  if (!APP_PROTOS.has(raw.proto))
+    throw new HubvikError('APP_PROTO_IS_INVALID', 'app proto is invalid');
+  if (raw.role !== 'client' && raw.role !== 'server')
+    throw new HubvikError('APP_ROLE_IS_INVALID', 'app role is invalid');
   /** @type {Record<string, any>} */
   const event = {
     type: 'app',

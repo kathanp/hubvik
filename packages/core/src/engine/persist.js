@@ -1,9 +1,13 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertSafeKeys, validateEvent } = require('./validate');
 const { readFeedback, noteNoisy } = require('./feedback');
 const { prepareImport, attachMeta } = require('./baseline');
 const { exportGraph, importGraph } = require('./graph');
+const ann = require('./annotations');
+const auditLog = require('./audit');
 const {
   plainScratch,
   assertCheckpoint,
@@ -78,7 +82,10 @@ module.exports = {
     for (const [id, state] of states) {
       const det = this.byId.get(id);
       if (!det || typeof det.exportState !== 'function' || typeof det.importState !== 'function') {
-        throw new Error('checkpoint live state is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_LIVE_STATE_IS_INVALID',
+          'checkpoint live state is invalid',
+        );
       }
       assertLiveShape(/** @type {any} */ (this)._freshState(det), state);
       det.importState(
@@ -124,6 +131,17 @@ module.exports = {
         event: row.event,
       }));
     }
+    if (this._annBook) {
+      /** @type {any} */ (body).annotations = ann.toJSON(this._annBook);
+    }
+    if (this._audit) {
+      /** @type {any} */ (body).audit = auditLog.toJSON(this._audit);
+    }
+    if (this._templates) {
+      /** @type {any} */ (body).templates = this._templates.templates.map(
+        (/** @type {any} */ row) => row.id,
+      );
+    }
     if (this._feedback.length > 0) {
       /** @type {any} */ (body).feedback = this._feedback.map((/** @type {any} */ row) => ({
         ...row,
@@ -159,7 +177,11 @@ module.exports = {
         try {
           revived[key] = revive(cp.scratch[key]);
         } catch (err) {
-          throw new Error(`checkpoint scratch ${key} is invalid`, { cause: err });
+          throw new HubvikError(
+            'CHECKPOINT_SCRATCH_IS_INVALID_2',
+            `checkpoint scratch ${key} is invalid`,
+            { cause: err },
+          );
         }
       }
     }
@@ -190,6 +212,7 @@ module.exports = {
       this._reorderSeq = reorder.seq;
     }
     this._feedback = readFeedback(cp.feedback);
+    if (typeof this._restorePartG === 'function') this._restorePartG(cp);
     this._anomalyById = new Map();
     this._anomalyByFp = new Map();
     this._noisy = new Set();
@@ -205,9 +228,16 @@ module.exports = {
    */
   _readReorder(raw) {
     if (raw == null) return null;
-    if (!Array.isArray(raw)) throw new Error('checkpoint reorder buffer is invalid');
+    if (!Array.isArray(raw))
+      throw new HubvikError(
+        'CHECKPOINT_REORDER_BUFFER_IS_INVALID',
+        'checkpoint reorder buffer is invalid',
+      );
     if (raw.length > this.opts.maxBuffered) {
-      throw new Error('checkpoint reorder buffer exceeds cap');
+      throw new HubvikError(
+        'CHECKPOINT_REORDER_BUFFER_EXCEEDS_CAP',
+        'checkpoint reorder buffer exceeds cap',
+      );
     }
     /** @type {{ seq: number, event: any }[]} */
     const rows = [];
@@ -216,18 +246,30 @@ module.exports = {
     let prevSeq = 0;
     for (const item of raw) {
       if (!item || typeof item !== 'object' || Array.isArray(item)) {
-        throw new Error('checkpoint reorder buffer is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_REORDER_BUFFER_IS_INVALID',
+          'checkpoint reorder buffer is invalid',
+        );
       }
       assertSafeKeys(item, 'reorder');
       if (typeof item.seq !== 'number' || !Number.isInteger(item.seq) || item.seq < 1) {
-        throw new Error('checkpoint reorder buffer is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_REORDER_BUFFER_IS_INVALID',
+          'checkpoint reorder buffer is invalid',
+        );
       }
       if (!item.event || typeof item.event !== 'object' || Array.isArray(item.event)) {
-        throw new Error('checkpoint reorder buffer is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_REORDER_BUFFER_IS_INVALID',
+          'checkpoint reorder buffer is invalid',
+        );
       }
       const checked = validateEvent(item.event);
       if (checked.event.ts < prevTs || (checked.event.ts === prevTs && item.seq <= prevSeq)) {
-        throw new Error('checkpoint reorder buffer is invalid');
+        throw new HubvikError(
+          'CHECKPOINT_REORDER_BUFFER_IS_INVALID',
+          'checkpoint reorder buffer is invalid',
+        );
       }
       prevTs = checked.event.ts;
       prevSeq = item.seq;
@@ -290,5 +332,6 @@ module.exports = {
       device.cursor = null;
       this.devices.set(item.id, device);
     }
+    if (this.opts.audit) this._auditCall('importBaseline', '*', { devices: prepared.length });
   },
 };

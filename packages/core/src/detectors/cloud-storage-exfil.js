@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const PATTERNS = require('../data/storage.json');
 const { explainThreshold } = require('./lib');
 
@@ -54,7 +56,8 @@ const detector = {
   importState(dev, state) {
     dev.rows = new Map();
     if (!state || !Array.isArray(state.rows)) return;
-    if (state.rows.length > PATTERNS.length) throw new Error('array rows exceeds cap');
+    if (state.rows.length > PATTERNS.length)
+      throw new HubvikError('ARRAY_ROWS_EXCEEDS_CAP', 'array rows exceeds cap');
     for (const pair of state.rows) {
       if (!Array.isArray(pair) || pair.length !== 2 || !pair[1]) continue;
       dev.rows.set(String(pair[0]), {

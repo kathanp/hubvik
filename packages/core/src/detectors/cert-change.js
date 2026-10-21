@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const detector = {
@@ -54,9 +56,11 @@ const detector = {
     dev.issuers = new Map();
     dev.fired = new Set();
     if (!Array.isArray(state.issuers)) return;
-    if (state.issuers.length > 5000) throw new Error('array issuers exceeds cap');
+    if (state.issuers.length > 5000)
+      throw new HubvikError('ARRAY_ISSUERS_EXCEEDS_CAP', 'array issuers exceeds cap');
     for (const pair of state.issuers) {
-      if (!Array.isArray(pair) || pair.length !== 2) throw new Error('issuers must be pairs');
+      if (!Array.isArray(pair) || pair.length !== 2)
+        throw new HubvikError('ISSUERS_MUST_BE_PAIRS', 'issuers must be pairs');
       dev.issuers.set(String(pair[0]), String(pair[1]));
     }
   },

@@ -86,6 +86,10 @@ function payload(incident) {
  * @param {any} anomaly
  */
 function noteIncident(engine, device, anomaly) {
+  if (anomaly._skipScore) {
+    delete anomaly._skipScore;
+    return;
+  }
   const windowMs = engine.opts.incidentWindowMs;
   let incident = device.incident;
   if (!incident || anomaly.ts - incident.lastTs > windowMs) {
@@ -110,14 +114,32 @@ function noteIncident(engine, device, anomaly) {
   }
   const stage = /** @type {Record<string, string>} */ (STAGES)[anomaly.detector];
   if (stage) incident.stages.add(stage);
-  addWeight(incident, anomaly);
   incident.lastTs = anomaly.ts;
   incident.anomalyIds.push(anomaly.id);
   incident.detectors.push(anomaly.detector);
   if (incident.lines.length < 8) incident.lines.push(`${anomaly.detector}: ${anomaly.actual}`);
-  scoreOf(incident);
+  if (engine.opts.scoring === 'lr' && typeof engine._llrOf === 'function') {
+    const llr = engine._llrOf(anomaly);
+    engine._addLlr(incident, anomaly, llr);
+    engine._posterior(incident, anomaly.ts);
+  } else {
+    addWeight(incident, anomaly);
+    scoreOf(incident);
+  }
   anomaly.incidentId = incident.id;
-  engine.emit('incident', payload(incident));
+  const body = /** @type {any} */ (payload(incident));
+  if (engine.opts.scoring === 'lr') {
+    body.posterior = incident.posterior;
+    body.contributions = (incident.contrib || []).map((/** @type {any} */ row) => ({
+      detector: row.detector,
+      llr: row.llr,
+      anomalyId: row.anomalyId,
+    }));
+  }
+  engine.emit('incident', body);
+  if (typeof engine._considerAlert === 'function') {
+    engine._considerAlert(device, incident, anomaly, 'incident');
+  }
 }
 
 /**
@@ -129,11 +151,25 @@ function ackIncident(engine, anomalyId) {
   for (const device of engine.devices.values()) {
     const incident = device.incident;
     if (!incident || !incident.anomalyIds.includes(anomalyId)) continue;
-    incident.raw *= 0.5;
-    scoreOf(incident);
-    engine.emit('incident', payload(incident));
+    if (engine.opts.scoring === 'lr' && incident.contrib) {
+      for (const row of incident.contrib) row.llr *= 0.5;
+      if (typeof engine._posterior === 'function') engine._posterior(incident, incident.lastTs);
+    } else {
+      incident.raw *= 0.5;
+      scoreOf(incident);
+    }
+    const body = /** @type {any} */ (payload(incident));
+    if (engine.opts.scoring === 'lr') {
+      body.posterior = incident.posterior;
+      body.contributions = (incident.contrib || []).map((/** @type {any} */ row) => ({
+        detector: row.detector,
+        llr: row.llr,
+        anomalyId: row.anomalyId,
+      }));
+    }
+    engine.emit('incident', body);
     return;
   }
 }
 
-module.exports = { noteIncident, ackIncident };
+module.exports = { noteIncident, ackIncident, payload };

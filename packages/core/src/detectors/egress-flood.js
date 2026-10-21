@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { isPublic } = require('../engine/net');
 const { assertState } = require('./state');
 const { explainThreshold } = require('./lib');
@@ -105,12 +107,18 @@ const detector = {
     dev.learned = new Map();
     dev.cap = caps.maxDestinations;
     if (state.learned == null) return;
-    if (!Array.isArray(state.learned)) throw new Error('learned must be an array');
-    if (state.learned.length > caps.maxDestinations) throw new Error('array learned exceeds cap');
+    if (!Array.isArray(state.learned))
+      throw new HubvikError('LEARNED_MUST_BE_AN_ARRAY', 'learned must be an array');
+    if (state.learned.length > caps.maxDestinations)
+      throw new HubvikError('ARRAY_LEARNED_EXCEEDS_CAP', 'array learned exceeds cap');
     for (const pair of state.learned) {
-      if (!Array.isArray(pair) || pair.length !== 2) throw new Error('learned must be pairs');
+      if (!Array.isArray(pair) || pair.length !== 2)
+        throw new HubvikError('LEARNED_MUST_BE_PAIRS', 'learned must be pairs');
       if (typeof pair[0] !== 'string' || typeof pair[1] !== 'number') {
-        throw new Error('learned must be a destination and a count');
+        throw new HubvikError(
+          'LEARNED_MUST_BE_A_DESTINATION_AND_A_COUNT',
+          'learned must be a destination and a count',
+        );
       }
       dev.learned.set(pair[0], pair[1]);
     }

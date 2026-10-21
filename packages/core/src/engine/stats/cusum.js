@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 
 /**
@@ -10,17 +12,18 @@ const { assertSafeKeys } = require('../validate');
  * @returns {{ k: number, h: number, mean: number, high: number, low: number, alarmed: boolean }}
  */
 function createCusum(opts) {
-  if (!opts || typeof opts !== 'object') throw new TypeError('cusum options must be an object');
+  if (!opts || typeof opts !== 'object')
+    throw new HubvikError('CUSUM_OPTIONS_MUST_BE_AN_OBJECT', 'cusum options must be an object');
   assertSafeKeys(opts, 'cusum');
   if (typeof opts.k !== 'number' || !(opts.k >= 0) || !Number.isFinite(opts.k)) {
-    throw new TypeError('cusum.k is invalid');
+    throw new HubvikError('CUSUM_K_IS_INVALID', 'cusum.k is invalid');
   }
   if (typeof opts.h !== 'number' || !(opts.h > 0) || !Number.isFinite(opts.h)) {
-    throw new TypeError('cusum.h is invalid');
+    throw new HubvikError('CUSUM_H_IS_INVALID', 'cusum.h is invalid');
   }
   const mean = opts.mean == null ? 0 : opts.mean;
   if (typeof mean !== 'number' || !Number.isFinite(mean))
-    throw new TypeError('cusum.mean is invalid');
+    throw new HubvikError('CUSUM_MEAN_IS_INVALID', 'cusum.mean is invalid');
   return { k: opts.k, h: opts.h, mean, high: 0, low: 0, alarmed: false };
 }
 
@@ -58,15 +61,17 @@ function toJSON(stats) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('cusum state must be an object');
+    throw new HubvikError('CUSUM_STATE_MUST_BE_AN_OBJECT', 'cusum state must be an object');
   }
   assertSafeKeys(raw, 'cusum');
   const row = /** @type {any} */ (raw);
   const stats = createCusum({ k: row.k, h: row.h, mean: row.mean });
   stats.high = finite(row.high, 'cusum.high');
   stats.low = finite(row.low, 'cusum.low');
-  if (stats.high < 0 || stats.low < 0) throw new Error('cusum side is invalid');
-  if (typeof row.alarmed !== 'boolean') throw new TypeError('cusum.alarmed is invalid');
+  if (stats.high < 0 || stats.low < 0)
+    throw new HubvikError('CUSUM_SIDE_IS_INVALID', 'cusum side is invalid');
+  if (typeof row.alarmed !== 'boolean')
+    throw new HubvikError('CUSUM_ALARMED_IS_INVALID', 'cusum.alarmed is invalid');
   stats.alarmed = row.alarmed;
   return stats;
 }
@@ -78,7 +83,7 @@ function fromJSON(raw) {
  */
 function finite(value, label) {
   if (typeof value !== 'number' || !Number.isFinite(value))
-    throw new TypeError(`${label} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${label} is invalid`);
   return value;
 }
 

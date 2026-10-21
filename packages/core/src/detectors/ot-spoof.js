@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const detector = {
@@ -51,8 +53,13 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
-    if (!Array.isArray(state.owners)) throw new Error('ot-spoof owners must be an array');
-    if (state.owners.length > 5000) throw new Error('array ot-spoof.owners exceeds cap');
+    if (!Array.isArray(state.owners))
+      throw new HubvikError('OT_SPOOF_OWNERS_MUST_BE_AN_ARRAY', 'ot-spoof owners must be an array');
+    if (state.owners.length > 5000)
+      throw new HubvikError(
+        'ARRAY_OT_SPOOF_OWNERS_EXCEEDS_CAP',
+        'array ot-spoof.owners exceeds cap',
+      );
     dev.owners = new Map();
     dev.fired = new Set();
     for (const pair of state.owners) {

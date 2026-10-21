@@ -6,7 +6,8 @@ hubvik is a detector. It does not block, drop, or modify traffic.
 
 | Version | Supported                                   |
 | ------- | ------------------------------------------- |
-| 0.5.0   | Prototype. Not validated on real traffic.   |
+| 0.8.0   | Prototype. Not validated on real traffic.   |
+| 0.5.0   | Superseded by 0.8.0. Fixes are best-effort. |
 | 0.4.0   | Superseded by 0.5.0. Fixes are best-effort. |
 | 0.3.0   | Superseded by 0.4.0. Fixes are best-effort. |
 | 0.2.0   | Superseded by 0.3.0. Fixes are best-effort. |
@@ -15,10 +16,8 @@ hubvik is a detector. It does not block, drop, or modify traffic.
 
 ## Reporting a vulnerability
 
-Use GitHub private vulnerability reporting on the project repository once that repository exists. Do not open a public issue for a vulnerability.
-
-A dedicated disclosure email is not configured yet.
+Disclosure email: not set. Q-14 is still open, so this file has no address and a release check reports that as a blocker. Do not open a public issue for a vulnerability. Use GitHub private vulnerability reporting once the repository exists.
 
 ## Response
 
-We aim to acknowledge a report within 7 days and to publish a fix or a mitigation note within 90 days.
+Acknowledge within 5 business days (PROPOSED until a person accepts this response time). Publish a fix or a mitigation note within 90 days.

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 const { hash32, encodeTyped, decodeTyped } = require('./hash');
 
@@ -10,7 +12,8 @@ const { hash32, encodeTyped, decodeTyped } = require('./hash');
  */
 function createHll(opts = {}) {
   const p = opts.p == null ? 10 : opts.p;
-  if (!Number.isInteger(p) || p < 4 || p > 16) throw new TypeError('hll.p is invalid');
+  if (!Number.isInteger(p) || p < 4 || p > 16)
+    throw new HubvikError('HLL_P_IS_INVALID', 'hll.p is invalid');
   return { p, registers: new Uint8Array(1 << p) };
 }
 
@@ -36,7 +39,7 @@ function add(sketch, value) {
  */
 function merge(left, right) {
   if (left.p !== right.p || left.registers.length !== right.registers.length) {
-    throw new Error('hll precision mismatch');
+    throw new HubvikError('HLL_PRECISION_MISMATCH', 'hll precision mismatch');
   }
   const out = createHll({ p: left.p });
   for (let i = 0; i < out.registers.length; i++) {
@@ -77,11 +80,12 @@ function toJSON(sketch) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('hll state must be an object');
+    throw new HubvikError('HLL_STATE_MUST_BE_AN_OBJECT', 'hll state must be an object');
   }
   assertSafeKeys(raw, 'hll');
   const row = /** @type {any} */ (raw);
-  if (!Number.isInteger(row.p) || row.p < 4 || row.p > 16) throw new TypeError('hll.p is invalid');
+  if (!Number.isInteger(row.p) || row.p < 4 || row.p > 16)
+    throw new HubvikError('HLL_P_IS_INVALID', 'hll.p is invalid');
   const registers = /** @type {Uint8Array} */ (
     decodeTyped(row.registers, 1 << row.p, Uint8Array, 'hll.registers')
   );

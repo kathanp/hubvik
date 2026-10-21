@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { emptyStats, pushSample, statsOf } = require('../engine/math');
 const { readStreamState } = require('./samples');
 
@@ -83,13 +85,14 @@ const detector = {
   /** @param {any} dev @param {any} state @param {any} caps */
   importState(dev, state, caps) {
     if (!state || !Array.isArray(state.hours) || state.hours.length !== 24) {
-      throw new Error('hours must be 24 arrays');
+      throw new HubvikError('HOURS_MUST_BE_24_ARRAYS', 'hours must be 24 arrays');
     }
     const size = Math.max(8, Math.floor(caps.maxWindows / 24));
     dev.size = size;
     dev.hours = state.hours.map((/** @type {any} */ hour) => {
       if (Array.isArray(hour)) {
-        if (hour.length > size) throw new Error('array hours exceeds cap');
+        if (hour.length > size)
+          throw new HubvikError('ARRAY_HOURS_EXCEEDS_CAP', 'array hours exceeds cap');
         return readStreamState({ samples: hour }, size, detector.id);
       }
       return readStreamState(hour, size, detector.id);

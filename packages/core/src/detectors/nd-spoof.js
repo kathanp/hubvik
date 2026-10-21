@@ -1,6 +1,6 @@
 'use strict';
 
-const { explainChanged } = require('./lib');
+const { explainChanged, scratchBag } = require('./lib');
 
 const CAP = 5000;
 
@@ -82,12 +82,7 @@ function observe(ev, ctx, learning) {
  * @param {any} ctx
  */
 function shared(ctx) {
-  let bag = ctx.scratch.get('nd-spoof');
-  if (!bag) {
-    bag = { bindings: new Map(), fired: new Set() };
-    ctx.scratch.set('nd-spoof', bag);
-  }
-  return bag;
+  return scratchBag(ctx, 'nd-spoof', () => ({ bindings: new Map(), fired: new Set() }));
 }
 
 module.exports = detector;

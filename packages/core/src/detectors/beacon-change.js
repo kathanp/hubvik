@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { median, explainThreshold } = require('./lib');
 const { assertState } = require('./state');
 
@@ -38,8 +40,16 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
-    if (!Array.isArray(state.learned)) throw new Error('beacon-change learned must be an array');
-    if (state.learned.length > 5000) throw new Error('array beacon-change.learned exceeds cap');
+    if (!Array.isArray(state.learned))
+      throw new HubvikError(
+        'BEACON_CHANGE_LEARNED_MUST_BE_AN_ARRAY',
+        'beacon-change learned must be an array',
+      );
+    if (state.learned.length > 5000)
+      throw new HubvikError(
+        'ARRAY_BEACON_CHANGE_LEARNED_EXCEEDS_CAP',
+        'array beacon-change.learned exceeds cap',
+      );
     dev.learned = new Map();
     dev.tracks = new Map();
     for (const pair of state.learned) {

@@ -1,0 +1,9 @@
+{
+  "id": "dns-c2",
+  "steps": [{ "detector": "dga" }, { "detector": "new-beacon" }],
+  "within": "6h",
+  "by": "device",
+  "ordered": true,
+  "llrBonus": 1.5,
+  "attack": ["T1071"]
+}

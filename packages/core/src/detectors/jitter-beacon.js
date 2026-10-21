@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings } = require('./state');
 const { isGroupDst, explainThreshold } = require('./lib');
@@ -120,7 +122,8 @@ const detector = {
     }
     dev.tracks = new Map();
     if (!Array.isArray(state.tracks)) return;
-    if (state.tracks.length > CAP) throw new Error('array tracks exceeds cap');
+    if (state.tracks.length > CAP)
+      throw new HubvikError('ARRAY_TRACKS_EXCEEDS_CAP', 'array tracks exceeds cap');
     for (const pair of state.tracks) {
       if (!Array.isArray(pair) || pair.length !== 2) continue;
       const row = pair[1];

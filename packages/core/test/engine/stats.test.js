@@ -205,6 +205,34 @@ test('cusum and page-hinkley catch a seeded 1σ shift inside the documented boun
   assert.deepStrictEqual(pagehinkley.fromJSON(pagehinkley.toJSON(drift)), drift);
 });
 
+test('streaming stats reject a bad options object and a bad snapshot', () => {
+  assert.throws(() => cusum.createCusum(null), /object/);
+  assert.throws(() => cusum.createCusum({ k: -1, h: 5 }), /cusum\.k/);
+  assert.throws(() => cusum.createCusum({ k: 0.5, h: 0 }), /cusum\.h/);
+  assert.throws(() => cusum.createCusum({ k: 0.5, h: 5, mean: Number.NaN }), /mean/);
+  assert.throws(() => cusum.fromJSON(null), /object/);
+  assert.throws(
+    () => cusum.fromJSON({ k: 0.5, h: 5, mean: 0, high: -1, low: 0, alarmed: false }),
+    /side/,
+  );
+  assert.throws(
+    () => cusum.fromJSON({ k: 0.5, h: 5, mean: 0, high: 0, low: 0, alarmed: 1 }),
+    /alarmed/,
+  );
+  assert.throws(() => ewma.createEwma(null), /object/);
+  assert.throws(() => ewma.createEwma({ halfLife: 0 }), /halfLife/);
+  assert.throws(() => ewma.createEwma({ alpha: 0 }), /alpha/);
+  assert.throws(() => pagehinkley.createPageHinkley(null), /object/);
+  assert.throws(() => pagehinkley.createPageHinkley({ delta: -1, lambda: 8 }), /delta/);
+  assert.throws(() => pagehinkley.createPageHinkley({ delta: 0.5, lambda: 0 }), /lambda/);
+  assert.throws(() => welford.fromJSON(null), /object/);
+  assert.throws(() => welford.fromJSON({ count: 0, mean: 1, m2: 0 }), /empty/);
+  assert.throws(() => welford.fromJSON({ count: 1, mean: 0, m2: -1, min: 0, max: 0 }), /m2/);
+  assert.throws(() => welford.fromJSON({ count: 1, mean: 0, m2: 0, min: 2, max: 1 }), /min/);
+  const empty = welford.fromJSON({ count: 0, mean: 0, m2: 0 });
+  assert.strictEqual(empty.count, 0);
+});
+
 test('fnv-1a and fmix32 match fixed vectors', () => {
   assert.strictEqual(fnv1a32(''), 0x811c9dc5);
   assert.strictEqual(fnv1a32('a'), 0xe40c292c);

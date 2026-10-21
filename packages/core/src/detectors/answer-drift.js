@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertState } = require('./state');
 
 const detector = {
@@ -53,8 +55,16 @@ const detector = {
   /** @param {any} dev @param {any} state */
   importState(dev, state) {
     assertState(state, detector.id);
-    if (!Array.isArray(state.answers)) throw new Error('answer-drift answers must be an array');
-    if (state.answers.length > 5000) throw new Error('array answer-drift.answers exceeds cap');
+    if (!Array.isArray(state.answers))
+      throw new HubvikError(
+        'ANSWER_DRIFT_ANSWERS_MUST_BE_AN_ARRAY',
+        'answer-drift answers must be an array',
+      );
+    if (state.answers.length > 5000)
+      throw new HubvikError(
+        'ARRAY_ANSWER_DRIFT_ANSWERS_EXCEEDS_CAP',
+        'array answer-drift.answers exceeds cap',
+      );
     dev.answers = new Map();
     dev.fired = new Set();
     for (const pair of state.answers) {

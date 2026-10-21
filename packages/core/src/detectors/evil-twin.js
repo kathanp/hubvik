@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { explainNewMember } = require('./lib');
 
 const CAP = 32;
@@ -82,10 +84,12 @@ const detector = {
     dev.clients = new Set();
     dev.fired = Boolean(state && state.fired);
     if (!state || !Array.isArray(state.ssids)) return;
-    if (state.ssids.length > 256) throw new Error('array ssids exceeds cap');
+    if (state.ssids.length > 256)
+      throw new HubvikError('ARRAY_SSIDS_EXCEEDS_CAP', 'array ssids exceeds cap');
     for (const pair of state.ssids) {
       if (!Array.isArray(pair) || !Array.isArray(pair[1])) continue;
-      if (pair[1].length > CAP) throw new Error('array bssids exceeds cap');
+      if (pair[1].length > CAP)
+        throw new HubvikError('ARRAY_BSSIDS_EXCEEDS_CAP', 'array bssids exceeds cap');
       dev.ssids.set(String(pair[0]), new Set(pair[1].map(String)));
     }
     if (Array.isArray(state.clients)) {

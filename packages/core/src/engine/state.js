@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 /** @type {Record<string, string[]>} */
 const ROOT_KEYS = {
   'volume-spike': ['sigma', 'minBytes', 'peakFactor'],
@@ -26,6 +28,9 @@ module.exports = {
    * @param {any} det
    */
   _optionsFor(det) {
+    if (!this._optionCache) this._optionCache = new Map();
+    const cached = this._optionCache.get(det.id);
+    if (cached) return cached;
     const options = { ...det.defaults };
     const root = this.opts.raw;
     for (const key of ROOT_KEYS[det.id] ?? []) {
@@ -38,6 +43,7 @@ module.exports = {
         options[key] = value;
       }
     }
+    this._optionCache.set(det.id, options);
     return options;
   },
 
@@ -119,7 +125,7 @@ module.exports = {
    */
   _requireDevice(id) {
     const device = this.devices.get(id);
-    if (!device || !device.seen) throw new TypeError(`unknown device ${id}`);
+    if (!device || !device.seen) throw new HubvikError('UNKNOWN_DEVICE', `unknown device ${id}`);
     return device;
   },
 };

@@ -234,6 +234,101 @@ test('a learning prefix that contains a malicious label is marked poisoned', () 
   assert.match(md, /POISONED PREFIX/);
 });
 
+test('the markdown report covers the other section branches', () => {
+  const md = renderMarkdown({
+    dataset: 'ciciot2023',
+    tiers: ['T1', 'T2'],
+    learning: [
+      { device: 'cam', learningMs: 1000, short: true },
+      { device: 'plug', learningMs: 2000, short: false },
+    ],
+    learnEvents: 0,
+    maliciousLearnEvents: 0,
+    maliciousLearnShare: 0,
+    poisonedPrefix: false,
+    detection: 'n too small',
+    strictDetection: 'n too small',
+    falsePositives: 2,
+    benignDeviceDays: 1,
+    falsePositivesPerDeviceDay: 2,
+    excludedEvents: 3,
+    benignIntervalsWithFalsePositive: 'no rate',
+    calibrated: {
+      detection: 'n too small',
+      falsePositives: 0,
+      benignDeviceDays: 0,
+      falsePositivesPerDeviceDay: null,
+    },
+    byLabel: [
+      { detailedLabel: 'Flood', detection: 'n too small', strict: null },
+      { detailedLabel: 'Scan', detection: '1/1', strict: '1/1' },
+    ],
+    hits: [
+      {
+        device: 'cam',
+        detailedLabel: 'Flood',
+        start: 1,
+        end: 2,
+        timeToDetectMs: 5,
+        detectors: ['a'],
+      },
+    ],
+    misses: [{ device: 'plug', detailedLabel: 'Scan', start: 3, end: 4, flows: 2 }],
+    ablation: [
+      { detector: 'quiet', exercised: true, unique: 0, falsePositives: 4, zeroUnique: true },
+      { detector: 'loud', exercised: true, unique: 1, falsePositives: 0, zeroUnique: false },
+      { detector: 'idle', exercised: false },
+    ],
+    proposals: ['leave bogon-destination at its default'],
+    evasion: [
+      { id: 'slow-scan', detectors: ['slow-scan'], fired: true },
+      { id: 'split-flood', detectors: [], fired: false },
+    ],
+  });
+  assert.match(md, /UNVERIFIED/);
+  assert.match(md, /Excluded labels: 3 events/);
+  assert.match(md, /calibratedConfidence detection/);
+  assert.match(md, /no rate \(0 device-days\)/);
+  assert.match(md, /2 per benign device-day/);
+  assert.match(md, /Flood: n too small/);
+  assert.match(md, /Scan: 1\/1; strict 1\/1/);
+  assert.match(md, /time to detect 5 ms/);
+  assert.match(md, /quiet: 0 unique detections, 4 false positives, zero unique/);
+  assert.match(md, /- idle/);
+  assert.match(md, /leave bogon-destination/);
+  assert.match(md, /slow-scan: fired \(slow-scan\)/);
+  assert.match(md, /split-flood: no medium-or-above anomaly \(none\)/);
+  assert.match(md, /cam 1000 ms; plug 2000 ms/);
+});
+
+test('fp-breakdown writes counts and keeps proposals off the result files', () => {
+  const corpus = path.join(__dirname, '..', 'fixtures', 'conn.log.labeled');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hubvik-fp-'));
+  /** @type {string[]} */
+  const stdout = [];
+  const original = console.log;
+  console.log = (line) => stdout.push(String(line));
+  try {
+    main(['--dataset', 'iot23', '--zeek-logs', corpus, '--fp-breakdown'], {
+      outDir: dir,
+      evasionPath: path.join(dir, 'evasion.md'),
+    });
+  } finally {
+    console.log = original;
+  }
+  const json = JSON.parse(fs.readFileSync(path.join(dir, 'iot23', 'fp-breakdown.json'), 'utf8'));
+  assert.strictEqual(typeof json.falsePositives, 'number');
+  assert.ok(json.byDetector && json.byClass && json.byHour && json.topActual);
+  assert.strictEqual(Object.hasOwn(json, 'proposals'), false);
+  const md = fs.readFileSync(path.join(dir, 'iot23', 'fp-breakdown.md'), 'utf8');
+  assert.match(md, /By detector/);
+  assert.match(md, /By UTC hour/);
+  assert.doesNotMatch(md, /proposal:/);
+  for (const line of stdout) {
+    if (line.startsWith('proposal:')) assert.match(line, /move to info/);
+  }
+});
+
 test('the evasion suite builds the four C6.2 shapes and records what fired', () => {
   const scenarios = runEvasion();
   assert.deepStrictEqual(

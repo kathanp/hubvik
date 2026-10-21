@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { isGroupDst } = require('../detectors/lib');
 const { planClose } = require('./window');
 const { rollHorizon } = require('./horizon');
@@ -20,7 +22,7 @@ module.exports = {
   flush(now) {
     const explicit = arguments.length > 0 && now !== undefined;
     if (explicit && (typeof now !== 'number' || !Number.isFinite(now))) {
-      throw new TypeError('flush time is invalid');
+      throw new HubvikError('FLUSH_TIME_IS_INVALID', 'flush time is invalid');
     }
     if (!explicit) {
       this._releaseReorder(Infinity);
@@ -94,7 +96,8 @@ module.exports = {
     this._notePromotions();
     const at = now === undefined ? this.watermark : now;
     if (at == null) return;
-    if (typeof at !== 'number' || !Number.isFinite(at)) throw new TypeError('tick time is invalid');
+    if (typeof at !== 'number' || !Number.isFinite(at))
+      throw new HubvikError('TICK_TIME_IS_INVALID', 'tick time is invalid');
     this._releaseReorder(at);
     const det = this.byId.get('went-silent');
     const status = this.detectorStatus['went-silent'];

@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 
 /**
@@ -67,20 +69,21 @@ function toJSON(stats) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('welford state must be an object');
+    throw new HubvikError('WELFORD_STATE_MUST_BE_AN_OBJECT', 'welford state must be an object');
   }
   assertSafeKeys(raw, 'welford');
   const count = integer(/** @type {any} */ (raw).count, 'welford.count');
   const mean = finite(/** @type {any} */ (raw).mean, 'welford.mean');
   const m2 = finite(/** @type {any} */ (raw).m2, 'welford.m2');
-  if (m2 < 0) throw new Error('welford.m2 is invalid');
+  if (m2 < 0) throw new HubvikError('WELFORD_M2_IS_INVALID', 'welford.m2 is invalid');
   if (count === 0) {
-    if (mean !== 0 || m2 !== 0) throw new Error('welford empty state is invalid');
+    if (mean !== 0 || m2 !== 0)
+      throw new HubvikError('WELFORD_EMPTY_STATE_IS_INVALID', 'welford empty state is invalid');
     return createWelford();
   }
   const min = finite(/** @type {any} */ (raw).min, 'welford.min');
   const max = finite(/** @type {any} */ (raw).max, 'welford.max');
-  if (min > max) throw new Error('welford.min is above max');
+  if (min > max) throw new HubvikError('WELFORD_MIN_IS_ABOVE_MAX', 'welford.min is above max');
   return { count, mean, m2, min, max };
 }
 
@@ -91,7 +94,7 @@ function fromJSON(raw) {
  */
 function finite(value, label) {
   if (typeof value !== 'number' || !Number.isFinite(value))
-    throw new TypeError(`${label} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${label} is invalid`);
   return value;
 }
 
@@ -102,7 +105,7 @@ function finite(value, label) {
  */
 function integer(value, label) {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
-    throw new TypeError(`${label} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${label} is invalid`);
   }
   return value;
 }

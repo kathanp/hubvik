@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../../errors');
+
 const { assertSafeKeys } = require('../validate');
 const { hash32, encodeTyped, decodeTyped } = require('./hash');
 
@@ -57,7 +59,7 @@ function toJSON(sketch) {
  */
 function fromJSON(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError('cms state must be an object');
+    throw new HubvikError('CMS_STATE_MUST_BE_AN_OBJECT', 'cms state must be an object');
   }
   assertSafeKeys(raw, 'cms');
   const table = /** @type {Uint32Array} */ (

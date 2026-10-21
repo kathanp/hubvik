@@ -199,10 +199,30 @@ function exercised(det, tiers, types) {
 }
 
 /**
+ * Detector map for one replay. Absent unless a detector is disabled or overridden.
+ * @param {string | null} disabled
+ * @param {{ detectors?: Record<string, object> }} [extra]
+ * @returns {Record<string, object> | undefined}
+ */
+function detectorConfig(disabled, extra) {
+  const override = extra && extra.detectors;
+  if (!disabled && (override == null || typeof override !== 'object')) return undefined;
+  /** @type {Record<string, object>} */
+  const options = {};
+  if (override && typeof override === 'object') {
+    for (const [id, value] of Object.entries(override)) {
+      if (value && typeof value === 'object') options[id] = { ...value };
+    }
+  }
+  if (disabled) options[disabled] = { ...(options[disabled] || {}), enabled: false };
+  return options;
+}
+
+/**
  * @param {Map<string, any>} plans
  * @param {string[]} tiers
  * @param {string | null} disabled
- * @param {{ calibratedConfidence?: boolean }} [extra]
+ * @param {{ calibratedConfidence?: boolean, detectors?: Record<string, object> }} [extra]
  * @returns {any[]}
  */
 function replay(plans, tiers, disabled, extra) {
@@ -214,7 +234,7 @@ function replay(plans, tiers, disabled, extra) {
       tiers,
       evidence: false,
       calibratedConfidence: extra != null && extra.calibratedConfidence === true,
-      detectors: disabled ? { [disabled]: { enabled: false } } : undefined,
+      detectors: detectorConfig(disabled, extra),
     });
     engine.on('anomaly', (item) => {
       const det = detectors[item.detector];
@@ -223,6 +243,7 @@ function replay(plans, tiers, disabled, extra) {
         device: item.device,
         ts: item.ts,
         severity: item.severity,
+        actual: typeof item.actual === 'string' ? item.actual : '',
         stage: det && det.meta && det.meta.stage ? det.meta.stage : null,
         category: det && det.category ? det.category : null,
       });
@@ -301,22 +322,70 @@ function aboveGate(severity, count, deviceDays) {
  * @param {any[]} intervals
  * @returns {number}
  */
-function benignDeviceDays(plans, intervals) {
+function benignDeviceDays(plans, intervals, excluded = []) {
   let ms = 0;
   for (const [device, plan] of plans) {
     if (plan.rest.length === 0) continue;
     const start = plan.rest[0].ts;
     const end = plan.rest[plan.rest.length - 1].ts;
-    let span = Math.max(0, end - start);
-    for (const interval of intervals) {
-      if (interval.device !== device) continue;
-      const left = Math.max(interval.start, start);
-      const right = Math.min(interval.end, end);
-      if (right > left) span -= right - left;
-    }
-    ms += Math.max(0, span);
+    const span = Math.max(0, end - start);
+    const cuts = intervals.concat(excluded).filter((interval) => interval.device === device);
+    ms += Math.max(0, span - coveredMs(start, end, cuts));
   }
   return ms / DAY;
+}
+
+/**
+ * Milliseconds of [start, end] covered by the cuts. Overlaps are counted once.
+ * @param {number} start
+ * @param {number} end
+ * @param {{ start: number, end: number }[]} cuts
+ * @returns {number}
+ */
+function coveredMs(start, end, cuts) {
+  /** @type {[number, number][]} */
+  const points = [];
+  for (const cut of cuts) {
+    const left = Math.max(cut.start, start);
+    const right = Math.min(cut.end, end);
+    if (right > left) points.push([left, right]);
+  }
+  points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  let ms = 0;
+  let cursor = start;
+  for (const [left, right] of points) {
+    if (right <= cursor) continue;
+    const from = Math.max(left, cursor);
+    ms += right - from;
+    cursor = right;
+  }
+  return ms;
+}
+
+/**
+ * Runs of Q-16 excluded labels. A benign or attack row ends the run.
+ * @param {string} device
+ * @param {any[]} rest
+ * @returns {{ device: string, start: number, end: number }[]}
+ */
+function excludedIntervals(device, rest) {
+  /** @type {{ device: string, start: number, end: number }[]} */
+  const out = [];
+  /** @type {{ device: string, start: number, end: number } | null} */
+  let prev = null;
+  for (const row of rest) {
+    if (!row.excluded) {
+      prev = null;
+      continue;
+    }
+    if (prev && row.ts - prev.end < MERGE_MS) {
+      prev.end = row.ts;
+      continue;
+    }
+    prev = { device, start: row.ts, end: row.ts };
+    out.push(prev);
+  }
+  return out;
 }
 
 /**
@@ -333,7 +402,7 @@ function benignIntervals(plans, intervals) {
     /** @type {{ device: string, start: number, end: number } | null} */
     let open = null;
     for (const row of plan.rest) {
-      if (row.malicious) {
+      if (row.malicious || row.excluded) {
         if (open) out.push(open);
         open = null;
         continue;
@@ -352,6 +421,87 @@ function benignIntervals(plans, intervals) {
 }
 
 /**
+ * UTC device-days in the post-lock benign span. Attack and excluded time is removed.
+ * @param {Map<string, any>} plans
+ * @param {any[]} intervals
+ * @param {any[]} excluded
+ * @returns {Set<string>}
+ */
+function benignDayKeys(plans, intervals, excluded) {
+  /** @type {Set<string>} */
+  const keys = new Set();
+  for (const [device, plan] of plans) {
+    if (plan.rest.length === 0) continue;
+    const start = plan.rest[0].ts;
+    const end = plan.rest[plan.rest.length - 1].ts;
+    const cuts = intervals.concat(excluded).filter((interval) => interval.device === device);
+    const first = Math.floor(start / DAY);
+    const last = Math.floor(end / DAY);
+    for (let day = first; day <= last; day += 1) {
+      const left = Math.max(start, day * DAY);
+      const right = Math.min(end, (day + 1) * DAY);
+      if (right <= left) continue;
+      if (right - left - coveredMs(left, right, cuts) > 0) keys.add(`${device}|${day}`);
+    }
+  }
+  return keys;
+}
+
+/**
+ * One replay with an optional detector override. No ablation and no second calibrated pass,
+ * so a sweep can score a point without changing what `evaluate` returns.
+ * @param {any[]} rows
+ * @param {{ tiers: string[], detectors?: Record<string, object> }} opts
+ * @returns {any}
+ */
+function operatingPoint(rows, opts) {
+  const tiers = opts.tiers.slice();
+  /** @type {Map<string, any>} */
+  const plans = new Map();
+  /** @type {any[]} */
+  const intervals = [];
+  /** @type {any[]} */
+  const excluded = [];
+  for (const [device, list] of byDevice(rows)) {
+    const plan = planDevice(list);
+    plans.set(device, plan);
+    for (const interval of attackIntervals(device, plan.rest)) intervals.push(interval);
+    for (const interval of excludedIntervals(device, plan.rest)) excluded.push(interval);
+  }
+  const extra = opts.detectors ? { detectors: opts.detectors } : undefined;
+  const scored = afterLock(replay(plans, tiers, null, extra), plans);
+  const instances = intervals.map((interval) => ({
+    ...interval,
+    detected: hitsFor(interval, scored).length > 0,
+  }));
+  const detected = instances.filter((interval) => interval.detected).length;
+  const outside = (item) =>
+    !intervals.some((interval) => inDetectionWindow(interval, item)) &&
+    !excluded.some((interval) => inDetectionWindow(interval, item));
+  const fpItems = scored.filter((item) => counts(item.severity) && outside(item));
+  const days = benignDeviceDays(plans, intervals, excluded);
+  const trials = benignDayKeys(plans, intervals, excluded);
+  /** @type {Set<string>} */
+  const fpKeys = new Set();
+  for (const item of fpItems) fpKeys.add(`${item.device}|${Math.floor(item.ts / DAY)}`);
+  let fpDays = 0;
+  for (const key of fpKeys) if (trials.has(key)) fpDays += 1;
+  const tp = detected;
+  const fp = fpItems.length;
+  return {
+    attackInstances: instances.length,
+    detected,
+    detection: formatWilson(detected, instances.length),
+    falsePositives: fp,
+    benignDeviceDays: days,
+    fpPerDeviceDay: days > 0 ? fp / days : null,
+    fpPerDeviceDayWilson: trials.size === 0 ? 'no rate' : formatWilson(fpDays, trials.size),
+    precision: tp + fp === 0 ? null : tp / (tp + fp),
+    recall: instances.length === 0 ? null : tp / instances.length,
+  };
+}
+
+/**
  * @param {any[]} rows
  * @param {{ tiers: string[], dataset?: string }} opts
  * @returns {any}
@@ -362,12 +512,15 @@ function evaluate(rows, opts) {
   /** @type {any[]} */
   const intervals = [];
   /** @type {any[]} */
+  const excluded = [];
+  /** @type {any[]} */
   const learning = [];
   for (const [device, list] of byDevice(rows)) {
     const plan = planDevice(list);
     plans.set(device, plan);
     learning.push({ device, learningMs: plan.learningMs, short: plan.short });
     for (const interval of attackIntervals(device, plan.rest)) intervals.push(interval);
+    for (const interval of excludedIntervals(device, plan.rest)) excluded.push(interval);
   }
   const scored = afterLock(replay(plans, tiers, null), plans);
   const instances = intervals.map((interval) => {
@@ -385,11 +538,11 @@ function evaluate(rows, opts) {
     };
   });
   const benign = benignIntervals(plans, intervals);
-  const fpItems = scored.filter(
-    (item) =>
-      counts(item.severity) && !intervals.some((interval) => inDetectionWindow(interval, item)),
-  );
-  const days = benignDeviceDays(plans, intervals);
+  const outside = (item) =>
+    !intervals.some((interval) => inDetectionWindow(interval, item)) &&
+    !excluded.some((interval) => inDetectionWindow(interval, item));
+  const fpItems = scored.filter((item) => counts(item.severity) && outside(item));
+  const days = benignDeviceDays(plans, intervals, excluded);
   const benignHit = benign.filter((interval) =>
     fpItems.some(
       (item) =>
@@ -414,9 +567,9 @@ function evaluate(rows, opts) {
     (interval) => hitsFor(interval, calibratedScored).length > 0,
   ).length;
   const calibratedFp = calibratedScored.filter(
-    (item) =>
-      counts(item.severity) && !intervals.some((interval) => inDetectionWindow(interval, item)),
+    (item) => counts(item.severity) && outside(item),
   ).length;
+  const excludedEvents = rows.reduce((count, row) => count + (row.excluded ? 1 : 0), 0);
   const byLabel = typeRates(instances);
   /** @type {Set<string>} */
   const types = new Set();
@@ -468,6 +621,7 @@ function evaluate(rows, opts) {
     maliciousLearnEvents,
     maliciousLearnShare,
     poisonedPrefix: maliciousLearnShare > 0,
+    ...(excludedEvents > 0 ? { excludedEvents } : {}),
     attackInstances: instances.length,
     detected,
     detection: formatRate(detected, instances.length, 'attack instances'),
@@ -636,6 +790,12 @@ function renderMarkdown(result) {
     '',
     `False positives: ${result.falsePositives} anomalies at medium or above, ${result.benignDeviceDays} benign device-days, ${result.falsePositivesPerDeviceDay == null ? 'no rate (0 device-days)' : `${result.falsePositivesPerDeviceDay} per benign device-day`}.`,
     '',
+    ...(result.excludedEvents
+      ? [
+          `Excluded labels: ${result.excludedEvents} events (Background, No Label). They are in neither the detection count nor the benign device-days.`,
+          '',
+        ]
+      : []),
     `Benign intervals with a false positive: ${result.benignIntervalsWithFalsePositive}`,
     '',
     ...(result.calibrated
@@ -707,6 +867,129 @@ function renderMarkdown(result) {
   return lines.join('\n');
 }
 
+/**
+ * False positives at medium or above, outside every attack interval.
+ * Hours are UTC. Device class is "unknown" when the row does not say.
+ * Proposals are returned for the caller to print. They are not a default change.
+ * @param {any[]} rows
+ * @param {{ tiers: string[], dataset?: string }} opts
+ */
+function fpBreakdown(rows, opts) {
+  const tiers = opts.tiers.slice();
+  const plans = new Map();
+  /** @type {any[]} */
+  const intervals = [];
+  /** @type {any[]} */
+  const excluded = [];
+  /** @type {Map<string, string>} */
+  const classOf = new Map();
+  for (const [device, list] of byDevice(rows)) {
+    const plan = planDevice(list);
+    plans.set(device, plan);
+    for (const interval of attackIntervals(device, plan.rest)) intervals.push(interval);
+    for (const interval of excludedIntervals(device, plan.rest)) excluded.push(interval);
+    for (const row of list) {
+      const cls = row.deviceClass || row.class;
+      if (typeof cls === 'string' && cls.length > 0) classOf.set(device, cls);
+    }
+  }
+  const scored = afterLock(replay(plans, tiers, null), plans);
+  const fpItems = scored.filter(
+    (item) =>
+      counts(item.severity) &&
+      !intervals.some((interval) => inDetectionWindow(interval, item)) &&
+      !excluded.some((interval) => inDetectionWindow(interval, item)),
+  );
+  /** @type {Record<string, number>} */
+  const byDetector = {};
+  /** @type {Record<string, number>} */
+  const byClass = {};
+  /** @type {Record<string, number>} */
+  const byHour = {};
+  /** @type {Map<string, Map<string, number>>} */
+  const actuals = new Map();
+  for (const item of fpItems) {
+    byDetector[item.detector] = (byDetector[item.detector] || 0) + 1;
+    const cls = classOf.get(item.device) || 'unknown';
+    byClass[cls] = (byClass[cls] || 0) + 1;
+    const hour = String(new Date(item.ts).getUTCHours());
+    byHour[hour] = (byHour[hour] || 0) + 1;
+    const per = actuals.get(item.detector) || new Map();
+    const actual = item.actual || '';
+    per.set(actual, (per.get(actual) || 0) + 1);
+    actuals.set(item.detector, per);
+  }
+  /** @type {Record<string, { actual: string, count: number }[]>} */
+  const topActual = {};
+  for (const [detector, per] of actuals) {
+    topActual[detector] = [...per.entries()]
+      .map(([actual, count]) => ({ actual, count }))
+      .sort((a, b) => b.count - a.count || (a.actual < b.actual ? -1 : a.actual > b.actual ? 1 : 0))
+      .slice(0, 10);
+  }
+  const total = fpItems.length;
+  /** @type {string[]} */
+  const proposals = [];
+  for (const [detector, count] of Object.entries(byDetector).sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  )) {
+    if (total > 0 && count / total > 0.1) {
+      proposals.push(
+        `proposal: ${detector} contributes ${count}/${total} benign false positives. Candidate: move to info. A person approves before any default changes.`,
+      );
+    }
+  }
+  return {
+    dataset: opts.dataset || null,
+    falsePositives: total,
+    byDetector,
+    byClass,
+    byHour,
+    topActual,
+    proposals,
+  };
+}
+
+/**
+ * @param {ReturnType<typeof fpBreakdown>} report
+ * @returns {string}
+ */
+function renderFpBreakdown(report) {
+  const lines = [
+    `# ${report.dataset || 'dataset'} false-positive breakdown`,
+    '',
+    `False positives at medium or above: ${report.falsePositives}. Hours are UTC.`,
+    '',
+    '## By detector',
+    '',
+  ];
+  const detectors = Object.entries(report.byDetector).sort(
+    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+  );
+  if (detectors.length === 0) lines.push('None.', '');
+  for (const [id, count] of detectors) lines.push(`- ${id}: ${count}`);
+  if (detectors.length > 0) lines.push('');
+  lines.push('## By device class', '');
+  const classes = Object.entries(report.byClass).sort((a, b) => a[0].localeCompare(b[0]));
+  if (classes.length === 0) lines.push('None.', '');
+  for (const [id, count] of classes) lines.push(`- ${id}: ${count}`);
+  if (classes.length > 0) lines.push('');
+  lines.push('## By UTC hour', '');
+  const hours = Object.entries(report.byHour).sort((a, b) => Number(a[0]) - Number(b[0]));
+  if (hours.length === 0) lines.push('None.', '');
+  for (const [hour, count] of hours) lines.push(`- ${hour}: ${count}`);
+  if (hours.length > 0) lines.push('');
+  lines.push('## Top actual strings', '');
+  const names = Object.keys(report.topActual).sort();
+  if (names.length === 0) lines.push('None.', '');
+  for (const id of names) {
+    lines.push(`### ${id}`, '');
+    for (const row of report.topActual[id]) lines.push(`- ${row.count} ${row.actual}`);
+    lines.push('');
+  }
+  return `${lines.join('\n')}\n`;
+}
+
 module.exports = {
   DAY,
   GRACE_MS,
@@ -723,4 +1006,7 @@ module.exports = {
   formatWilson,
   renderProposals,
   renderMarkdown,
+  fpBreakdown,
+  renderFpBreakdown,
+  operatingPoint,
 };

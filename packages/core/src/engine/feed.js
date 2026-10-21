@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { validateEvent } = require('./validate');
 const { windowStart } = require('./window');
 const { noteIdentity, rekeyIdentity } = require('./identity');
@@ -223,7 +225,8 @@ module.exports = {
    * @returns {void}
    */
   feedBatch(events) {
-    if (!Array.isArray(events)) throw new TypeError('events must be an array');
+    if (!Array.isArray(events))
+      throw new HubvikError('EVENTS_MUST_BE_AN_ARRAY', 'events must be an array');
     const copy = events.slice().sort((a, b) => (a && a.ts ? a.ts : 0) - (b && b.ts ? b.ts : 0));
     for (const event of copy) this.feed(event);
   },
@@ -236,6 +239,8 @@ module.exports = {
   _run(device, event) {
     if (this._horizonOn) noteHorizon(device, event);
     if (this._graphOn) noteGraph(this, device, event);
+    if (typeof this._notePeer === 'function') this._notePeer(device, event);
+    if (typeof this._noteDrift === 'function') this._noteDrift(device, event);
     const learning = device.mode === 'learning';
     const ctx = this._ctx(device, learning, event.ts);
     ctx.window = device.open;

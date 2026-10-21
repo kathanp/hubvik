@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { assertSafeKeys } = require('./validate');
 const { ipv4, inBlock } = require('./net');
 const { createHll, add, count, toJSON, fromJSON } = require('./stats/hll');
@@ -50,14 +52,17 @@ const SEVERITIES = new Set(['info', 'low', 'medium', 'high', 'critical']);
  * @returns {any[]}
  */
 function compileRules(input, windowMs) {
-  if (!Array.isArray(input)) throw new TypeError('rules must be an array');
-  if (input.length > RULE_CAP) throw new Error('array rules exceeds cap');
+  if (!Array.isArray(input))
+    throw new HubvikError('RULES_MUST_BE_AN_ARRAY', 'rules must be an array');
+  if (input.length > RULE_CAP)
+    throw new HubvikError('ARRAY_RULES_EXCEEDS_CAP', 'array rules exceeds cap');
   const seen = new Set();
   /** @type {any[]} */
   const out = [];
   for (let i = 0; i < input.length; i += 1) {
     const spec = normalizeRule(input[i], i, windowMs);
-    if (seen.has(spec.id)) throw new TypeError(`rules[${i}].id is duplicated`);
+    if (seen.has(spec.id))
+      throw new HubvikError('RULES_ID_IS_DUPLICATED', `rules[${i}].id is duplicated`);
     seen.add(spec.id);
     out.push(compileDetector(spec));
   }
@@ -72,18 +77,20 @@ function compileRules(input, windowMs) {
 function normalizeRule(raw, index, windowMs) {
   const path = `rules[${index}]`;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    throw new TypeError(`${path} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
   assertSafeKeys(raw, path);
   const rule = /** @type {any} */ (raw);
   if (typeof rule.id !== 'string' || !/^[a-z0-9-]+$/.test(rule.id)) {
-    throw new TypeError(`${path}.id is invalid`);
+    throw new HubvikError('ID_IS_INVALID', `${path}.id is invalid`);
   }
   const mode = rule.mode == null ? 'shadow' : rule.mode;
-  if (mode !== 'shadow' && mode !== 'live') throw new TypeError(`${path}.mode is invalid`);
-  if (!SEVERITIES.has(rule.severity)) throw new TypeError(`${path}.severity is invalid`);
+  if (mode !== 'shadow' && mode !== 'live')
+    throw new HubvikError('MODE_IS_INVALID', `${path}.mode is invalid`);
+  if (!SEVERITIES.has(rule.severity))
+    throw new HubvikError('SEVERITY_IS_INVALID', `${path}.severity is invalid`);
   const category = rule.category == null ? 'policy' : rule.category;
   if (typeof category !== 'string' || category.length === 0 || category.length > 32) {
-    throw new TypeError(`${path}.category is invalid`);
+    throw new HubvikError('CATEGORY_IS_INVALID', `${path}.category is invalid`);
   }
   const sequence =
     rule.sequence == null ? null : normalizeSequence(rule.sequence, rule, path, windowMs);
@@ -117,7 +124,7 @@ function normalizeRule(raw, index, windowMs) {
  */
 function requireType(value, path) {
   if (typeof value !== 'string' || !Object.prototype.hasOwnProperty.call(TIER_OF, value)) {
-    throw new TypeError(`${path} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
   }
   return value;
 }
@@ -129,11 +136,11 @@ function requireType(value, path) {
  */
 function normalizeWindow(value, path, engineWindow) {
   if (typeof value !== 'string' || !Object.prototype.hasOwnProperty.call(WINDOWS, value)) {
-    throw new TypeError(`${path} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
   }
   const ms = WINDOWS[/** @type {keyof typeof WINDOWS} */ (value)];
   if (engineWindow <= 0 || ms % engineWindow !== 0)
-    throw new TypeError(`${path} is not a multiple of windowMs`);
+    throw new HubvikError('IS_NOT_A_MULTIPLE_OF_WINDOWMS', `${path} is not a multiple of windowMs`);
   return ms;
 }
 
@@ -145,10 +152,11 @@ function normalizeWindow(value, path, engineWindow) {
  */
 function normalizeSequence(steps, rule, path, windowMs) {
   if (!Array.isArray(steps) || steps.length < 2 || steps.length > STEP_CAP) {
-    throw new TypeError(`${path}.sequence is invalid`);
+    throw new HubvikError('SEQUENCE_IS_INVALID', `${path}.sequence is invalid`);
   }
   const by = rule.by == null ? 'device' : rule.by;
-  if (by !== 'device' && by !== 'srcIp') throw new TypeError(`${path}.by is invalid`);
+  if (by !== 'device' && by !== 'srcIp')
+    throw new HubvikError('BY_IS_INVALID', `${path}.by is invalid`);
   const within = normalizeWindow(rule.within, `${path}.within`, windowMs);
   /** @type {string[]} */
   const consumes = [];
@@ -157,7 +165,7 @@ function normalizeSequence(steps, rule, path, windowMs) {
   const compiled = steps.map((step, index) => {
     const stepPath = `${path}.sequence[${index}]`;
     if (!step || typeof step !== 'object' || Array.isArray(step))
-      throw new TypeError(`${stepPath} is invalid`);
+      throw new HubvikError('IS_INVALID_2', `${stepPath} is invalid`);
     assertSafeKeys(step, stepPath);
     const row = /** @type {any} */ (step);
     const on = requireType(row.on, `${stepPath}.on`);
@@ -176,25 +184,27 @@ function normalizeSequence(steps, rule, path, windowMs) {
 function normalizeWhere(where, path) {
   if (where == null) return [];
   if (!where || typeof where !== 'object' || Array.isArray(where))
-    throw new TypeError(`${path} is invalid`);
+    throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
   assertSafeKeys(where, path);
   /** @type {{ field: string, baseline: boolean, ops: { op: string, value: any }[] }[]} */
   const fields = [];
   for (const [field, pred] of Object.entries(where)) {
-    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(field)) throw new TypeError(`${path}.${field} is invalid`);
+    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(field))
+      throw new HubvikError('IS_INVALID_3', `${path}.${field} is invalid`);
     if (!pred || typeof pred !== 'object' || Array.isArray(pred))
-      throw new TypeError(`${path}.${field} is invalid`);
+      throw new HubvikError('IS_INVALID_3', `${path}.${field} is invalid`);
     assertSafeKeys(pred, `${path}.${field}`);
     /** @type {{ op: string, value: any }[]} */
     const ops = [];
     let baseline = false;
     for (const [op, value] of Object.entries(pred)) {
       if (op === 'baseline') {
-        if (value !== true) throw new TypeError(`${path}.${field}.baseline is invalid`);
+        if (value !== true)
+          throw new HubvikError('BASELINE_IS_INVALID', `${path}.${field}.baseline is invalid`);
         baseline = true;
         continue;
       }
-      if (!OPS.has(op)) throw new TypeError(`${path}.${field}.${op} is invalid`);
+      if (!OPS.has(op)) throw new HubvikError('IS_INVALID_4', `${path}.${field}.${op} is invalid`);
       ops.push({ op, value: normalizeOperand(op, value, `${path}.${field}.${op}`) });
     }
     fields.push({ field, baseline, ops });
@@ -210,22 +220,22 @@ function normalizeWhere(where, path) {
 function normalizeOperand(op, value, path) {
   if (op === 'in' || op === 'nin') {
     if (!Array.isArray(value) || value.length === 0 || value.length > VALUE_CAP)
-      throw new TypeError(`${path} is invalid`);
+      throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
     return value.map((item) => scalar(item, path));
   }
   if (op === 'cidr') {
     if (typeof value !== 'string' || value.length > VALUE_CAP)
-      throw new TypeError(`${path} is invalid`);
+      throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
     const slash = value.indexOf('/');
     const ip = ipv4(value.slice(0, slash));
     const bits = Number(value.slice(slash + 1));
     if (ip == null || !Number.isInteger(bits) || bits < 0 || bits > 32)
-      throw new TypeError(`${path} is invalid`);
+      throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
     return { base: ip, bits };
   }
   if (op === 'prefix' || op === 'suffix' || op === 'contains') {
     if (typeof value !== 'string' || value.length === 0 || value.length > VALUE_CAP) {
-      throw new TypeError(`${path} is invalid`);
+      throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
     }
     return value;
   }
@@ -238,12 +248,12 @@ function normalizeOperand(op, value, path) {
  */
 function scalar(value, path) {
   if (typeof value === 'string') {
-    if (value.length > 255) throw new TypeError(`${path} is invalid`);
+    if (value.length > 255) throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
     return value;
   }
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'boolean') return value;
-  throw new TypeError(`${path} is invalid`);
+  throw new HubvikError('IS_INVALID_2', `${path} is invalid`);
 }
 
 /**
@@ -253,10 +263,10 @@ function scalar(value, path) {
 function normalizeGroupBy(groupBy, path) {
   const list = groupBy == null ? ['device'] : groupBy;
   if (!Array.isArray(list) || list.length === 0 || list.length > 4)
-    throw new TypeError(`${path}.groupBy is invalid`);
+    throw new HubvikError('GROUPBY_IS_INVALID', `${path}.groupBy is invalid`);
   return list.map((field) => {
     if (typeof field !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(field)) {
-      throw new TypeError(`${path}.groupBy is invalid`);
+      throw new HubvikError('GROUPBY_IS_INVALID', `${path}.groupBy is invalid`);
     }
     return field;
   });
@@ -269,17 +279,19 @@ function normalizeGroupBy(groupBy, path) {
 function normalizeAgg(agg, path) {
   if (agg == null) return [];
   if (!agg || typeof agg !== 'object' || Array.isArray(agg))
-    throw new TypeError(`${path}.agg is invalid`);
+    throw new HubvikError('AGG_IS_INVALID', `${path}.agg is invalid`);
   assertSafeKeys(agg, `${path}.agg`);
   /** @type {{ name: string, kind: string, field: string | null }[]} */
   const out = [];
   for (const [name, spec] of Object.entries(agg)) {
-    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(name)) throw new TypeError(`${path}.agg.${name} is invalid`);
+    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(name))
+      throw new HubvikError('AGG_IS_INVALID_2', `${path}.agg.${name} is invalid`);
     if (spec === 'count') out.push({ name, kind: 'count', field: null });
     else if (spec && typeof spec === 'object' && !Array.isArray(spec)) {
       assertSafeKeys(spec, `${path}.agg.${name}`);
       const keys = Object.keys(spec);
-      if (keys.length !== 1) throw new TypeError(`${path}.agg.${name} is invalid`);
+      if (keys.length !== 1)
+        throw new HubvikError('AGG_IS_INVALID_2', `${path}.agg.${name} is invalid`);
       const kind = keys[0];
       if (
         kind !== 'count' &&
@@ -288,17 +300,17 @@ function normalizeAgg(agg, path) {
         kind !== 'min' &&
         kind !== 'distinct'
       ) {
-        throw new TypeError(`${path}.agg.${name} is invalid`);
+        throw new HubvikError('AGG_IS_INVALID_2', `${path}.agg.${name} is invalid`);
       }
       const field = kind === 'count' ? null : spec[kind];
       if (
         kind !== 'count' &&
         (typeof field !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(field))
       ) {
-        throw new TypeError(`${path}.agg.${name} is invalid`);
+        throw new HubvikError('AGG_IS_INVALID_2', `${path}.agg.${name} is invalid`);
       }
       out.push({ name, kind, field });
-    } else throw new TypeError(`${path}.agg.${name} is invalid`);
+    } else throw new HubvikError('AGG_IS_INVALID_2', `${path}.agg.${name} is invalid`);
   }
   return out;
 }
@@ -310,21 +322,21 @@ function normalizeAgg(agg, path) {
 function normalizeWhen(when, path) {
   if (when == null) return [];
   if (!when || typeof when !== 'object' || Array.isArray(when))
-    throw new TypeError(`${path}.when is invalid`);
+    throw new HubvikError('WHEN_IS_INVALID', `${path}.when is invalid`);
   assertSafeKeys(when, `${path}.when`);
   /** @type {{ name: string, op: string, value: number }[]} */
   const out = [];
   for (const [name, pred] of Object.entries(when)) {
     if (!pred || typeof pred !== 'object' || Array.isArray(pred))
-      throw new TypeError(`${path}.when.${name} is invalid`);
+      throw new HubvikError('WHEN_IS_INVALID_2', `${path}.when.${name} is invalid`);
     assertSafeKeys(pred, `${path}.when.${name}`);
     const keys = Object.keys(pred);
     if (keys.length !== 1 || !['gt', 'gte', 'lt', 'lte', 'eq'].includes(keys[0])) {
-      throw new TypeError(`${path}.when.${name} is invalid`);
+      throw new HubvikError('WHEN_IS_INVALID_2', `${path}.when.${name} is invalid`);
     }
     const value = pred[keys[0]];
     if (typeof value !== 'number' || !Number.isFinite(value))
-      throw new TypeError(`${path}.when.${name} is invalid`);
+      throw new HubvikError('WHEN_IS_INVALID_2', `${path}.when.${name} is invalid`);
     out.push({ name, op: keys[0], value });
   }
   return out;
@@ -643,7 +655,7 @@ function importRuleState(dev, state) {
   if (!state || typeof state !== 'object') return;
   if (state.groups != null) {
     if (!Array.isArray(state.groups) || state.groups.length > GROUP_CAP) {
-      throw new Error('array groups exceeds cap');
+      throw new HubvikError('ARRAY_GROUPS_EXCEEDS_CAP', 'array groups exceeds cap');
     }
     for (const pair of state.groups) {
       if (Array.isArray(pair) && pair.length === 2 && pair[1])
@@ -652,7 +664,7 @@ function importRuleState(dev, state) {
   }
   if (state.partials != null) {
     if (!Array.isArray(state.partials) || state.partials.length > PARTIAL_CAP) {
-      throw new Error('array partials exceeds cap');
+      throw new HubvikError('ARRAY_PARTIALS_EXCEEDS_CAP', 'array partials exceeds cap');
     }
     dev.partials = state.partials.slice();
   }

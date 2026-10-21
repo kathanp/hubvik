@@ -1,5 +1,7 @@
 'use strict';
 
+const { HubvikError } = require('../errors');
+
 const { createHmac, timingSafeEqual } = require('node:crypto');
 const { assertSafeKeys } = require('./validate');
 const { CLASSES } = require('./classes');
@@ -42,13 +44,13 @@ function assertSignature(raw, key) {
     typeof mac !== 'string' ||
     !/^[0-9a-f]{64}$/i.test(mac)
   ) {
-    throw new Error('baseline signature mismatch');
+    throw new HubvikError('BASELINE_SIGNATURE_MISMATCH', 'baseline signature mismatch');
   }
   const expected = createHmac('sha256', key).update(canonical(raw)).digest('hex');
   const left = Buffer.from(expected, 'hex');
   const right = Buffer.from(mac, 'hex');
   if (left.length !== right.length || !timingSafeEqual(left, right)) {
-    throw new Error('baseline signature mismatch');
+    throw new HubvikError('BASELINE_SIGNATURE_MISMATCH', 'baseline signature mismatch');
   }
 }
 
@@ -69,16 +71,18 @@ function attachMeta(body, meta) {
  */
 function prepareImport(raw, ctx) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    throw new Error('unsupported baseline');
+    throw new HubvikError('UNSUPPORTED_BASELINE', 'unsupported baseline');
   assertSafeKeys(raw, 'baseline');
   const modern = raw.version === 2 || raw.version === 3;
-  if (raw.version !== 1 && !modern) throw new Error('unsupported baseline');
+  if (raw.version !== 1 && !modern)
+    throw new HubvikError('UNSUPPORTED_BASELINE', 'unsupported baseline');
   assertSignature(raw, ctx.verify);
   if (modern) {
-    if (!raw.engine || raw.engine.windowMs !== ctx.windowMs) throw new Error('windowMs mismatch');
+    if (!raw.engine || raw.engine.windowMs !== ctx.windowMs)
+      throw new HubvikError('WINDOWMS_MISMATCH', 'windowMs mismatch');
   }
   if (!raw.devices || typeof raw.devices !== 'object' || Array.isArray(raw.devices)) {
-    throw new Error('baseline devices are invalid');
+    throw new HubvikError('BASELINE_DEVICES_ARE_INVALID', 'baseline devices are invalid');
   }
   assertSafeKeys(raw.devices, 'devices');
   const byId = new Map(ctx.registry.map((det) => [det.id, det]));
@@ -86,26 +90,29 @@ function prepareImport(raw, ctx) {
   const prepared = [];
   for (const id of Object.keys(raw.devices)) {
     if (FORBIDDEN_KEYS.has(id) || id.length === 0 || id.length > ctx.caps.maxString) {
-      throw new Error('string too long');
+      throw new HubvikError('STRING_TOO_LONG', 'string too long');
     }
     const record = raw.devices[id];
     if (!record || typeof record !== 'object' || Array.isArray(record)) {
-      throw new Error('baseline device is invalid');
+      throw new HubvikError('BASELINE_DEVICE_IS_INVALID', 'baseline device is invalid');
     }
     assertSafeKeys(record, id);
     const blocks = raw.version === 1 ? upgradeV1(record) : record.detectors;
     if (!blocks || typeof blocks !== 'object' || Array.isArray(blocks)) {
-      throw new Error('baseline detectors are invalid');
+      throw new HubvikError('BASELINE_DETECTORS_ARE_INVALID', 'baseline detectors are invalid');
     }
     assertSafeKeys(blocks, `${id}.detectors`);
     /** @type {Map<string, object>} */
     const states = new Map();
     for (const detId of Object.keys(blocks)) {
       const det = byId.get(detId);
-      if (!det) throw new Error(`unknown detector ${detId}`);
+      if (!det) throw new HubvikError('UNKNOWN_DETECTOR', `unknown detector ${detId}`);
       const block = blocks[detId];
       if (!block || typeof block !== 'object' || block.v !== det.version) {
-        throw new Error(`detector state version mismatch for ${detId}`);
+        throw new HubvikError(
+          'DETECTOR_STATE_VERSION_MISMATCH_FOR',
+          `detector state version mismatch for ${detId}`,
+        );
       }
       assertSafeKeys(block, detId);
       const dev = det.createState(ctx.caps);
@@ -115,14 +122,14 @@ function prepareImport(raw, ctx) {
     let peerGroup = null;
     if (modern && record.peerGroup != null) {
       if (typeof record.peerGroup !== 'string' || record.peerGroup.length > ctx.caps.maxString) {
-        throw new Error('string too long');
+        throw new HubvikError('STRING_TOO_LONG', 'string too long');
       }
       peerGroup = record.peerGroup;
     }
     let deviceClass = null;
     if (modern && record.deviceClass != null) {
       if (typeof record.deviceClass !== 'string' || !CLASSES[record.deviceClass]) {
-        throw new Error('device class is invalid');
+        throw new HubvikError('DEVICE_CLASS_IS_INVALID', 'device class is invalid');
       }
       deviceClass = record.deviceClass;
     }
