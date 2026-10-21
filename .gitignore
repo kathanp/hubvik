@@ -6,8 +6,12 @@ eval/data/
 .npmrc
 .DS_Store
 
+.autopilot/
+.worktrees/
+
 # Local working notes. Kept on disk, not part of the public repo.
-docs/SPEC.md
+# docs/SPEC.md is tracked. scripts/spec-coverage.mjs reads it, and a clean
+# clone has no other copy (D25).
 docs/AUTOPILOT*.md
 docs/guard.mjs
 docs/handoff/
