@@ -22,6 +22,11 @@ const detector = {
   hardRule: false,
   defaults: { severity: 'high' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return clientOf(ev) != null;
+  },
+
   createState() {
     return { clients: new Set(), fired: new Map() };
   },

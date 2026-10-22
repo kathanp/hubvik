@@ -12,6 +12,11 @@ const detector = {
   category: 'identity',
   defaults: { enabled: true, severity: 'info' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'dhcp' && typeof ev.fingerprint === 'string' && typeof ev.mac === 'string';
+  },
+
   createState() {
     return { prints: new Map(), fired: new Set() };
   },

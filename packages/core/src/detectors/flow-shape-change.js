@@ -55,6 +55,11 @@ const detector = {
   hardRule: false,
   defaults: { severity: 'high' },
 
+  /** @param {any} _ev @param {any} ctx */
+  prepare(_ev, ctx) {
+    return ctx.flowShape === true;
+  },
+
   createState() {
     return { families: new Map(), recent: [], fired: false };
   },

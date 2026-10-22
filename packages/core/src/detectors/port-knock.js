@@ -23,6 +23,11 @@ const detector = {
   hardRule: false,
   defaults: { severity: 'high' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && ev.direction === 'in' && isPublic(ev.srcIp);
+  },
+
   createState() {
     return { sources: new Map(), seen: new LruSet(CAP) };
   },

@@ -20,6 +20,12 @@ const detector = {
   hardRule: false,
   defaults: { enabled: true, severity: 'high' },
 
+  /** @param {any} _ev @param {any} ctx */
+  prepare(_ev, ctx) {
+    const zones = ctx.zones || [];
+    return zones.length > 0 && Boolean(ctx.lanEdges);
+  },
+
   createState() {
     return { pairs: new Set(), fired: false };
   },

@@ -34,6 +34,11 @@ const detector = {
   hardRule: false,
   defaults: { severity: 'medium' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && relay(ev);
+  },
+
   createState() {
     return { hosts: new Set(), bytes: new Map(), fired: false };
   },

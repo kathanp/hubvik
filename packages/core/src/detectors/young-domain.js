@@ -29,6 +29,18 @@ const detector = {
   hardRule: false,
   defaults: { enabled: true, severity: 'medium' },
 
+  /**
+   * @param {any} ev
+   * @param {any} ctx
+   */
+  prepare(ev, ctx) {
+    return (
+      ev.type === 'dns' &&
+      typeof ev.qname === 'string' &&
+      Boolean(youngHit(ctx.indicatorIndex, ev.qname, ev.ts))
+    );
+  },
+
   createState() {
     return { families: new Map() };
   },

@@ -25,6 +25,18 @@ const detector = {
   hardRule: false,
   defaults: { enabled: true, severity: 'critical', minShort: 10 },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return Boolean(
+      ev &&
+      ev.type === 'flow' &&
+      ev.direction === 'in' &&
+      ev.proto === 'tcp' &&
+      PORTS.has(ev.dstPort) &&
+      typeof ev.srcIp === 'string',
+    );
+  },
+
   createState() {
     return { sources: new Map() };
   },

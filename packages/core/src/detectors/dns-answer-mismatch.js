@@ -10,6 +10,11 @@ const detector = {
   category: 'dns',
   defaults: { enabled: true, severity: 'high' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'dns' && typeof ev.from === 'string' && ev.from !== ev.resolver;
+  },
+
   createState() {
     return { fired: new Set() };
   },

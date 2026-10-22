@@ -12,6 +12,11 @@ const detector = {
   category: 'identity',
   defaults: { enabled: true, severity: 'high' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return answer(ev);
+  },
+
   createState() {
     return { owned: new Set(), fired: new Set() };
   },

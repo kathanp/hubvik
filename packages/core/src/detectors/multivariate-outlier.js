@@ -106,6 +106,16 @@ const detector = {
   hardRule: false,
   defaults: { severity: 'medium' },
 
+  /** @param {any} _ev @param {any} ctx */
+  prepare(_ev, ctx) {
+    return ctx.outlier === true;
+  },
+
+  /** @param {any} ctx */
+  prepareWindow(ctx) {
+    return ctx.outlier === true;
+  },
+
   createState() {
     return { feat: blank(), streak: 0 };
   },

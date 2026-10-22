@@ -269,6 +269,7 @@ module.exports = {
     try {
       for (const det of this.active) {
         if (typeof det.onWindowClose !== 'function') continue;
+        if (typeof det.prepareWindow === 'function' && !det.prepareWindow(ctx)) continue;
         ctx.options = /** @type {any} */ (this)._optionsFor(det);
         const draft = det.onWindowClose(
           /** @type {any} */ (this)._state(device, det),

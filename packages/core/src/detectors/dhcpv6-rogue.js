@@ -17,6 +17,11 @@ const detector = {
   hardRule: false,
   defaults: { enabled: true, severity: 'critical' },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return v6(ev);
+  },
+
   createState() {
     return { server: null, fired: new Set() };
   },

@@ -10,6 +10,11 @@ const detector = {
   category: 'policy',
   defaults: { enabled: true, severity: 'high' },
 
+  /** @param {any} ev @param {any} ctx */
+  prepare(ev, ctx) {
+    return ev.type === 'flow' && typeof ctx.mud === 'function' && Boolean(ctx.mud());
+  },
+
   createState() {
     return { fired: new Set() };
   },

@@ -23,6 +23,12 @@ const detector = {
   hardRule: false,
   defaults: { enabled: true, severity: 'high', minBytes: TEN_MB, factor: 5 },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    const name = nameOf(ev);
+    return Boolean(name && matchStorage(name));
+  },
+
   createState() {
     return { rows: new Map() };
   },
