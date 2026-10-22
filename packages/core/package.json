@@ -1,6 +1,6 @@
 {
   "name": "hubvik",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "Per-device network anomaly detection for IoT gateways, smart-home hubs, building-management servers and small appliances. Learns each device's normal behavior and reports deviations. Offline, zero dependencies.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

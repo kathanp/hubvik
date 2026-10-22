@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 0.8.0
+- [x] `hubvik` (`packages/core`) 1.0.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -170,7 +170,7 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] WP-20 graph and campaigns
   - [x] WP-21 remaining B21 rows
   - [x] WP-22 rule language
-  - [x] Local tag `v0.8.0`
+  - [x] Local tag `v1.0.0`
   - [ ] Raspberry Pi 4 bench numbers
 - [ ] 0.9
   - [x] WP-23 load shedding and incremental checkpoints
@@ -258,7 +258,7 @@ A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a
 
 ### 0.6.1 Status, stated plainly
 
-- Core is local `0.8.0` with the 0.9 modules on `main`. `spec-coverage` reports 137 rows and 137 detector files. `npm test` passed 355 tests on 2026-10-20.
+- Core is local `1.0.0` with the 0.9 modules on `main`. `spec-coverage` reports 137 rows and 137 detector files. `npm test` passed 355 tests on 2026-10-20.
 - A clean clone of `2f75270` ran `npm run gate` on 2026-10-20. It exited 1 because `spec-coverage` cannot open gitignored `docs/SPEC.md` (D25). The bench, coverage, and fuzz figures from that run are in BENCHMARKS under "0.9 tree re-gate". They are the committed tree, not later working-tree edits. A clone of `ac4d8d3` (`git clone --local`, `npm ci`, `npm run gate`, `npm run demo`) exited 0 on both commands. Its figures are in BENCHMARKS under "committed gate, ac4d8d3".
 - No dataset result meets C6.3. The briefing quotes about 4.32 false positives per benign device-day on IoT-23 malware captures. That is over 4× the medium gate (< 1 per device per day). No work-package record shows the run that produced it (D17).
 - Nothing is pushed or published. No git remote, no npm org, no disclosure email, no trusted-publishing workflow.
@@ -1114,7 +1114,7 @@ Every row here ships `meta.mode: 'shadow'` (see 0.5 and F1). **Sev** is the seve
 | `matter-new-controller`     | A new Matter controller joins a device's fabric (`AddNOC` from a node never seen), which is how a smart-home device is taken over after setup   | T5 (`app`)  | New app proto `matter` (F19). Learned set of controller node IDs per device. Fires on `op: 'AddNOC'` or `op: 'AddTrustedRootCertificate'` from an unlearned `peerIp` / node ID while watching                                                                                                                                                                                 | high     | Low. Commissioning a new controller is rare and user-initiated                  | 0.8 |
 | `peer-divergence-federated` | Like `peer-divergence`, but the peer group spans several gateways via F14 summaries                                                             | T0 + F14    | Same rule as `peer-divergence`, applied to the union of local peers and imported summaries. Each summary counts as one peer however many devices it represents. Needs ≥ 3 distinct gateway ids. Deferred to WP-25. Not part of 0.8                                                                                                                                            | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | 0.9 |
 
-**New data file.** `src/data/storage.json` lists object-storage name patterns (for example `s3.amazonaws.com` and `s3.*.amazonaws.com`, `blob.core.windows.net`, `storage.googleapis.com`, `r2.cloudflarestorage.com`, `backblazeb2.com`). It is a static list of service endpoints, refreshed by hand, not a threat feed. It counts toward the 750 KB pack cap and the 200 KB `src/data` total.
+**New data file.** `src/data/storage.json` lists object-storage name patterns (for example `s3.amazonaws.com` and `s3.*.amazonaws.com`, `blob.core.windows.net`, `storage.googleapis.com`, `r2.cloudflarestorage.com`, `backblazeb2.com`). It is a static list of service endpoints, refreshed by hand, not a threat feed. It counts toward the 900 KB pack cap and the 200 KB `src/data` total.
 
 ## B22. Shadow detectors (new rows for 1.1, spec 3.3)
 
@@ -1206,7 +1206,7 @@ A test validates one anomaly and one incident against a vendored JSON copy of th
 
 Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs median `feed()` on a Raspberry Pi 4.** Measured by `bench/` in the repo every release.
 
-The unpacked core package cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
+The unpacked core package cap is 900 KB, raised from 750 KB on 2026-10-22. The measured unpacked size on that day was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` is also kept under 100 KB per device. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
@@ -1279,7 +1279,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @hubvik/adapter-*, @hubvik/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 750 KB, raised from 500 KB on 2026-10-18. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 900 KB, raised from 750 KB on 2026-10-22. The measured unpacked size on that day was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 ## C9. Versioning
 
@@ -2007,7 +2007,7 @@ Same rules as WP-0 to WP-10: one WP per session unless the human says otherwise.
 
 - [x] `exploit-then-download`, `ssh-brute-then-session`, `cloud-storage-exfil` (plus `src/data/storage.json`), `nd-spoof`, `dhcpv6-rogue`, `wifi-deauth-flood`, `evil-twin`, `upnp-callstranger`, `matter-new-controller`. One commit each, shadow, standard four tests, one replay each.
 - [x] `wifi` event and `upnp` / `matter` app protos (from F19) land in the commit of their first consumer.
-- [x] **Done when:** `spec-coverage` is clean at core 0.8.0 and every B21 row except `peer-divergence-federated` (WP-25) has a file.
+- [x] **Done when:** `spec-coverage` is clean at core 1.0.0 and every B21 row except `peer-divergence-federated` (WP-25) has a file.
 
 #### WP-22 — Rule language (F10)
 

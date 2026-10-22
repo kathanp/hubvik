@@ -2,7 +2,7 @@
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **0.8.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 0.9 modules are in this tree (load shedding, incremental checkpoints, federation, the extra adapters, and the CLI) and are not a 0.9 release: core is still 0.8.0, and `npm run gate` has not been re-run since they landed. Nothing in this repo is published to npm.
+Status: **1.0.0 prototype — not published, not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 1.0.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. Nothing in this repo is published to npm.
 
 How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is [`docs/DETECTORS.md`](docs/DETECTORS.md).
 
