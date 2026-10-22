@@ -132,13 +132,58 @@ function advance(book, anomaly) {
     }
     const step0 = template.steps[0];
     if (matchesStep(step0, anomaly)) {
-      if (open.length >= MAX_PARTIAL) open.shift();
-      open.push({ index: 0, ids: [anomaly.id], ts: anomaly.ts, shadow: Boolean(anomaly.shadow) });
+      if (partialCount(book, template.id) >= MAX_PARTIAL) dropOldest(book, template.id);
+      open = book.partials.get(key) || open;
+      open.push({
+        index: 0,
+        ids: [anomaly.id],
+        ts: anomaly.ts,
+        shadow: Boolean(anomaly.shadow),
+        seen: [0],
+      });
     }
     /** @type {any[]} */
     const next = [];
     for (const partial of open) {
       if (anomaly.ts - partial.ts > template.within) continue;
+      if (template.ordered === false) {
+        const used = new Set(partial.seen || [partial.index]);
+        let hit = -1;
+        if (!partial.ids.includes(anomaly.id)) {
+          for (let step = 0; step < template.steps.length; step += 1) {
+            if (used.has(step)) continue;
+            if (matchesStep(template.steps[step], anomaly)) {
+              hit = step;
+              break;
+            }
+          }
+        }
+        if (hit < 0) {
+          next.push(partial);
+          continue;
+        }
+        const ids = partial.ids.concat(anomaly.id);
+        const seen = [...used, hit];
+        if (seen.length === template.steps.length) {
+          matches.push({
+            templateId: template.id,
+            device: anomaly.device,
+            anomalyIds: ids,
+            ts: anomaly.ts,
+            shadow: partial.shadow || Boolean(anomaly.shadow),
+            llrBonus: template.llrBonus,
+          });
+        } else {
+          next.push({
+            index: hit,
+            ids,
+            ts: partial.ts,
+            shadow: partial.shadow || Boolean(anomaly.shadow),
+            seen,
+          });
+        }
+        continue;
+      }
       const want = template.steps[partial.index + 1];
       if (!want || !matchesStep(want, anomaly) || partial.ids.includes(anomaly.id)) {
         next.push(partial);
@@ -169,8 +214,39 @@ function advance(book, anomaly) {
 }
 
 /**
+ * Open partials are capped per template, not per device.
+ * @param {{ partials: Map<string, any[]> }} book
+ * @param {string} templateId
+ * @returns {number}
+ */
+function partialCount(book, templateId) {
+  const prefix = `${templateId}\0`;
+  let count = 0;
+  for (const [key, list] of book.partials) {
+    if (String(key).startsWith(prefix)) count += list.length;
+  }
+  return count;
+}
+
+/**
+ * @param {{ partials: Map<string, any[]> }} book
+ * @param {string} templateId
+ * @returns {void}
+ */
+function dropOldest(book, templateId) {
+  const prefix = `${templateId}\0`;
+  for (const [key, list] of book.partials) {
+    if (!String(key).startsWith(prefix) || list.length === 0) continue;
+    list.shift();
+    if (list.length === 0) book.partials.delete(key);
+    return;
+  }
+}
+
+/**
  * @param {{ any: string[], minSeverity: string | null }} step
  * @param {{ detector: string, severity?: string }} anomaly
+ * @returns {boolean}
  */
 function matchesStep(step, anomaly) {
   if (!step.any.includes(anomaly.detector)) return false;

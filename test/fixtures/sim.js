@@ -59,6 +59,19 @@ function simulate(opts) {
     : events;
   if (opts.ipv6 === true) addIpv6(spec, out, origin, opts.days);
   if (opts.ipv6 === true || opts.wifi === true) out.sort((a, b) => a.ts - b.ts);
+  if (opts.rich === true) {
+    const firmwareAt = origin + DAY + 12 * H;
+    Object.defineProperty(out, 'firmwareUpdate', {
+      enumerable: false,
+      value: {
+        target: spec.device,
+        kind: 'firmware-update',
+        fromTs: firmwareAt - H,
+        untilTs: firmwareAt + H,
+        note: 'vendor firmware',
+      },
+    });
+  }
   return out;
 }
 

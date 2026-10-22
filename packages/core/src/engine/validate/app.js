@@ -109,7 +109,37 @@ function appEvent(raw, ts, warnings) {
     warnings.push({ code: 'FIELD_DROPPED', message: 'dropped app.value' });
   if (raw.result === 'ok' || raw.result === 'error' || raw.result === 'reject')
     event.result = raw.result;
+  const flags = appFlags(raw.flags, warnings);
+  if (flags) event.flags = flags;
+  if (raw.unitId == null) {
+    /* optional */
+  } else if (Number.isInteger(raw.unitId) && raw.unitId >= 0 && raw.unitId <= 255) {
+    event.unitId = raw.unitId;
+  } else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped app.unitId' });
   return event;
+}
+
+/**
+ * @param {unknown} value
+ * @param {{ code: string, message: string }[]} warnings
+ * @returns {string[] | null}
+ */
+function appFlags(value, warnings) {
+  if (value == null) return null;
+  if (!Array.isArray(value) || value.length > 8) {
+    warnings.push({ code: 'FIELD_DROPPED', message: 'dropped app.flags' });
+    return null;
+  }
+  /** @type {string[]} */
+  const out = [];
+  for (const item of value) {
+    if (typeof item !== 'string' || item.length === 0 || item.length > 16) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped app.flags' });
+      return null;
+    }
+    out.push(item);
+  }
+  return out;
 }
 
 module.exports = { httpEvent, mappingEvent, appEvent };

@@ -1,6 +1,6 @@
 {
   "id": "dns-c2",
-  "steps": [{ "detector": "dga" }, { "detector": "new-beacon" }],
+  "steps": [{ "any": ["dga", "nxdomain-burst"] }, { "any": ["new-beacon", "jitter-beacon"] }],
   "within": "6h",
   "by": "device",
   "ordered": true,

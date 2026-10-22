@@ -274,6 +274,7 @@ module.exports = {
   parseSweep,
   parseCost,
   runSweep,
+  loadSweepDataset,
   fpRisesWithThreshold,
   assertSweepPath,
 };

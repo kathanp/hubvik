@@ -6,7 +6,8 @@ const annotations = require('./annotations');
 const audit = require('./audit');
 const drift = require('./drift');
 const { domainFamily } = require('./net');
-const { add, createMinHash, jaccard } = require('./stats/minhash');
+const { add, bands, createMinHash, jaccard } = require('./stats/minhash');
+const { createWelford, push: pushWelford } = require('./stats/welford');
 const { payload: incidentPayload } = require('./incidents');
 const { advance, compile, createBook } = require('./templates');
 const LR = require('../data/lr.json');
@@ -40,7 +41,7 @@ const partgMethods = {
         target === '*' ? null : target,
       );
     }
-    this._auditCall('annotate', target, spec);
+    this._auditCall('annotate', target, spec, spec && spec.operator);
     return id;
   },
 
@@ -119,16 +120,42 @@ const partgMethods = {
    * @param {string} kind
    * @param {string} target
    * @param {any} args
+   * @param {string} [operator]
    * @returns {void}
    */
-  _auditCall(kind, target, args) {
+  _auditCall(kind, target, args, operator) {
     if (!this.opts.audit) return;
     if (!this._audit) this._audit = audit.createAuditLog();
+    /** @type {{ key?: string }} */
+    const opts = {};
+    if (typeof this._auditKey === 'string') {
+      if (this._audit.records.length === 0 || this._audit.key === this._auditKey) {
+        opts.key = this._auditKey;
+      }
+    }
     audit.append(
       this._audit,
-      { ts: this.watermark || 0, kind, operator: null, target: String(target), args },
-      {},
+      {
+        ts: this.watermark || 0,
+        kind,
+        operator: typeof operator === 'string' ? operator : null,
+        target: String(target),
+        args,
+      },
+      opts,
     );
+    if (!this._abuse) this._abuse = [];
+    const row = args && typeof args === 'object' ? /** @type {any} */ (args) : {};
+    this._abuse.push({
+      ts: this.watermark || 0,
+      kind,
+      operator: typeof operator === 'string' ? operator : null,
+      target: String(target),
+      detectorId: typeof row.detectorId === 'string' ? row.detectorId : null,
+      fromTs: typeof row.fromTs === 'number' ? row.fromTs : null,
+      untilTs: typeof row.untilTs === 'number' ? row.untilTs : null,
+    });
+    if (this._abuse.length > 256) this._abuse.shift();
   },
 
   /**
@@ -282,7 +309,10 @@ const partgMethods = {
       if (value >= bar) fire = true;
       severity = incident.severity;
     }
-    if (anomaly && anomaly.detector === 'went-silent' && level === 'safety') severity = 'high';
+    if (anomaly && anomaly.detector === 'went-silent' && level === 'safety') {
+      fire = true;
+      severity = 'high';
+    }
     if (!fire) return;
     this._emitAlert(
       device.id,
@@ -325,8 +355,16 @@ const partgMethods = {
     }
     const hard = anomaly && anomaly._partgHard === true;
     const critical = severity === 'critical';
+    const templateAlert = kind === 'template';
     const prev = state.last.get(refId);
-    if (prev && ts - prev.ts < 6 * 3600000 && rankOf(severity) <= rankOf(prev.severity)) return;
+    if (
+      !templateAlert &&
+      prev &&
+      ts - prev.ts < 6 * 3600000 &&
+      rankOf(severity) <= rankOf(prev.severity)
+    ) {
+      return;
+    }
     state.last.set(refId, { ts, severity });
     /** @type {any} */
     const alert = {
@@ -342,14 +380,32 @@ const partgMethods = {
     if (incident && typeof incident.posterior === 'number') alert.posterior = incident.posterior;
     if (incident && typeof incident.score === 'number') alert.score = incident.score;
     if (kind === 'template' && this._lastTemplateId) alert.template = this._lastTemplateId;
-    state.count += 1;
-    if (state.count > 3 && !hard && !critical) {
+    if (!templateAlert) state.count += 1;
+    if (!templateAlert && state.count > 3 && !hard && !critical) {
       state.digest.push(alert);
       this._alertState.set(deviceId, state);
       return;
     }
     this._alertState.set(deviceId, state);
     this.emit('alert', alert);
+  },
+
+  /**
+   * Fold a pending digest when the watermark crosses a UTC day and no later alert arrives.
+   * @this {any}
+   * @param {number} ts
+   * @returns {void}
+   */
+  _closeAlertDays(ts) {
+    if (!this.opts.alerts || !this._alertState) return;
+    const day = Math.floor(ts / DAY);
+    for (const [deviceId, state] of this._alertState) {
+      if (state.day == null || state.day === day || state.digest.length === 0) continue;
+      this.emit('alert', digestOf(deviceId, state));
+      state.day = day;
+      state.count = 0;
+      state.digest = [];
+    }
   },
 
   /**
@@ -367,6 +423,7 @@ const partgMethods = {
       id: anomaly.id,
       severity: anomaly.severity,
       shadow: anomaly.shadow === true,
+      campaignId: device._campaignId,
     });
     for (const match of matches) {
       if (match.shadow) {
@@ -400,9 +457,16 @@ const partgMethods = {
   _restorePartG(raw) {
     if (!raw || typeof raw !== 'object') return;
     if (raw.annotations != null) this._annBook = annotations.fromJSON(raw.annotations);
+    if (raw.criticality && typeof raw.criticality === 'object' && !Array.isArray(raw.criticality)) {
+      this._criticality = new Map();
+      for (const [id, level] of Object.entries(raw.criticality)) {
+        if (LEVELS.has(level)) this._criticality.set(id, level);
+      }
+    }
     if (raw.audit != null) {
       this._audit = audit.createAuditLog();
       audit.fromJSON(this._audit, raw.audit);
+      if (typeof this._audit.key === 'string') this._auditKey = this._audit.key;
       const check = audit.verifyAudit(this._audit);
       if (!check.ok) {
         this._warn('AUDIT_BROKEN', 'audit chain does not verify', null, {
@@ -452,18 +516,25 @@ const partgMethods = {
       this._peerDay = day;
     }
     if (device.mode !== 'learning') return;
-    if (!device._peer) device._peer = createMinHash();
+    /** @type {string[]} */
+    const tokens = [];
     if (event.type === 'dns' && event.qname) {
       const family = domainFamily(String(event.qname));
-      if (family) add(device._peer, family);
+      if (family) tokens.push(family);
     }
-    if (event.type === 'flow' && event.dstName) {
-      const family = domainFamily(String(event.dstName));
-      if (family) add(device._peer, family);
+    const named = event.dstName || event.qname || event.dst;
+    if (typeof named === 'string' && /[a-z]/i.test(named)) {
+      const family = domainFamily(named);
+      if (family) tokens.push(family);
+      const full = named.toLowerCase();
+      if (full !== family && full.includes('.')) tokens.push(full);
     }
     if (event.type === 'flow' && typeof event.dstPort === 'number') {
-      add(device._peer, `port:${event.dstPort}`);
+      tokens.push(`port:${event.dstPort}`);
     }
+    if (tokens.length === 0) return;
+    if (!device._peer) device._peer = createMinHash();
+    for (const token of tokens) add(device._peer, token);
   },
 
   /**
@@ -476,7 +547,8 @@ const partgMethods = {
     /** @type {{ id: string, sig: { sig: Uint32Array } }[]} */
     const rows = [];
     for (const device of this.devices.values()) {
-      if (device._peer) rows.push({ id: device.id, sig: device._peer });
+      if (device._peer && signatureUsed(device._peer))
+        rows.push({ id: device.id, sig: device._peer });
     }
     const parent = rows.map((_, i) => i);
     const find = (/** @type {number} */ i) => {
@@ -484,9 +556,30 @@ const partgMethods = {
       while (parent[x] !== x) x = parent[x];
       return x;
     };
+    /** @type {Map<string, number[]>} */
+    const buckets = new Map();
     for (let i = 0; i < rows.length; i += 1) {
-      for (let j = i + 1; j < rows.length; j += 1) {
-        if (jaccard(rows[i].sig, rows[j].sig) >= 0.6) parent[find(j)] = find(i);
+      const parts = bands(rows[i].sig);
+      for (let band = 0; band < parts.length; band += 1) {
+        const slice = parts[band];
+        const key = `${band}:${Buffer.from(slice.buffer, slice.byteOffset, slice.byteLength).toString('hex')}`;
+        const list = buckets.get(key) || [];
+        list.push(i);
+        buckets.set(key, list);
+      }
+    }
+    /** @type {Set<string>} */
+    const seen = new Set();
+    for (const list of buckets.values()) {
+      for (let a = 0; a < list.length; a += 1) {
+        for (let b = a + 1; b < list.length; b += 1) {
+          const i = list[a];
+          const j = list[b];
+          const pair = i < j ? `${i}:${j}` : `${j}:${i}`;
+          if (seen.has(pair)) continue;
+          seen.add(pair);
+          if (jaccard(rows[i].sig, rows[j].sig) >= 0.6) parent[find(j)] = find(i);
+        }
       }
     }
     /** @type {Map<number, string[]>} */
@@ -534,34 +627,67 @@ const partgMethods = {
    * @returns {void}
    */
   _noteDrift(device, event) {
-    if (!this.opts.drift || device.mode !== 'watching') return;
+    if (!this.opts.drift) return;
     const day = Math.floor(event.ts / DAY);
+    if (device._driftFrozen && device._driftLastDay != null && day <= device._driftLastDay) return;
     if (!device._drift) device._drift = drift.createDrift(device.id);
-    if (!device._driftDay)
+    if (!device._driftWelford) {
+      device._driftWelford = {
+        families: createWelford(),
+        bytesOut: createWelford(),
+        ports: createWelford(),
+        hours: createWelford(),
+      };
+    }
+    if (!device._driftDay) {
       device._driftDay = { day, families: new Set(), ports: new Set(), bytes: 0, hours: new Set() };
+    }
     if (device._driftDay.day !== day) {
-      this._flushDrift(device);
+      this._flushDrift(device, device.mode === 'watching' && device._driftFrozen === true);
       device._driftDay = { day, families: new Set(), ports: new Set(), bytes: 0, hours: new Set() };
     }
     const bag = device._driftDay;
-    if (event.dstName) {
-      const family = domainFamily(String(event.dstName));
+    const named = event.dstName || event.dst;
+    if (typeof named === 'string' && /[a-z]/i.test(named)) {
+      const family = domainFamily(named);
       if (family) bag.families.add(family);
     }
     if (typeof event.dstPort === 'number') bag.ports.add(event.dstPort);
     if (typeof event.bytesOut === 'number') bag.bytes += event.bytesOut;
+    else if (typeof event.bytes === 'number' && event.direction !== 'in') bag.bytes += event.bytes;
     bag.hours.add(Math.floor(event.ts / 3600000) % 24);
+  },
+
+  /**
+   * Commit the open learning day and freeze σ from that Welford.
+   * @this {any}
+   * @param {any} device
+   * @returns {void}
+   */
+  _freezeDrift(device) {
+    if (!this.opts.drift || device._driftFrozen) return;
+    if (device._driftDay) this._flushDrift(device, false);
+    const learned = device._driftWelford;
+    device._driftSigma = {
+      families: sigmaOf(learned && learned.families),
+      bytesOut: sigmaOf(learned && learned.bytesOut),
+      ports: sigmaOf(learned && learned.ports),
+      hours: sigmaOf(learned && learned.hours),
+    };
+    device._driftLastDay = device._driftDay ? device._driftDay.day : -1;
+    device._driftDay = null;
+    device._driftFrozen = true;
   },
 
   /**
    * @this {any}
    * @param {any} device
+   * @param {boolean} warn
    * @returns {void}
    */
-  _flushDrift(device) {
+  _flushDrift(device, warn) {
     const bag = device._driftDay;
     if (!bag || !device._drift) return;
-    const sigma = device._driftSigma || 1;
     const samples = [
       ['families', bag.families.size],
       ['bytesOut', Math.log1p(bag.bytes)],
@@ -569,24 +695,37 @@ const partgMethods = {
       ['hours', bag.hours.size],
     ];
     for (const [series, value] of samples) {
+      const learned = device._driftWelford && device._driftWelford[series];
+      if (!device._driftFrozen && learned) pushWelford(learned, value);
+      const sigma = device._driftFrozen ? device._driftSigma[series] || 0 : sigmaOf(learned);
       const hit = drift.observe(device._drift, series, value, bag.day, sigma);
-      if (!hit) continue;
+      if (!warn || !hit) continue;
       const recentHigh =
-        device.incident &&
-        device.incident.severity &&
-        rankOf(device.incident.severity) >= RANK.high;
-      if (recentHigh) {
+        typeof device._driftHighTs === 'number' && bag.day * DAY - device._driftHighTs < 7 * DAY;
+      if (recentHigh && device.incident) {
         if (!device.incident.data) device.incident.data = {};
         device.incident.data.drift = { series, direction: hit.direction };
+        const body = /** @type {any} */ (incidentPayload(device.incident));
+        if (this.opts.scoring === 'lr') {
+          body.posterior = device.incident.posterior;
+          body.contributions = (device.incident.contrib || []).map((/** @type {any} */ row) => ({
+            detector: row.detector,
+            llr: row.llr,
+            anomalyId: row.anomalyId,
+          }));
+        }
+        this.emit('incident', body);
       } else {
+        const fired = device._driftDets ? [...device._driftDets].sort() : [];
         this._warn('BASELINE_DRIFT', 'baseline drift', device.id, {
           series,
           direction: hit.direction,
           sinceTs: bag.day * DAY,
-          detectors: [],
+          detectors: fired,
         });
       }
     }
+    if (device._driftDets) device._driftDets.clear();
   },
 };
 
@@ -623,6 +762,29 @@ function digestOf(deviceId, state) {
     anomalyIds: ids,
     ts: (state.day + 1) * DAY - 1,
   };
+}
+
+/**
+ * Sample standard deviation. Zero until two positive-variance learning days exist.
+ * @param {{ count: number, m2: number } | null | undefined} stats
+ * @returns {number}
+ */
+function sigmaOf(stats) {
+  if (!stats || stats.count < 2 || !(stats.m2 > 0)) return 0;
+  return Math.sqrt(stats.m2 / (stats.count - 1));
+}
+
+/**
+ * A signature that never received a token is all 0xffffffff and must not cluster.
+ * @param {{ sig: Uint32Array }} state
+ * @returns {boolean}
+ */
+function signatureUsed(state) {
+  const sig = state.sig;
+  for (let i = 0; i < sig.length; i += 1) {
+    if (sig[i] !== 0xffffffff) return true;
+  }
+  return false;
 }
 
 module.exports = { partgMethods, PRIOR, ADD, POST };

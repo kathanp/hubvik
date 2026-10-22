@@ -15,6 +15,12 @@ const KNOWN = new Set([
   'fleet-wave',
   'nd-spoof',
   'wifi-deauth-flood',
+  'dhcp-route-injection',
+  'wpad-hijack',
+  'ra-flood',
+  'karma-responder',
+  'lan-bloom',
+  'model:outlier',
 ]);
 
 /**
@@ -25,6 +31,16 @@ function plain(value) {
   if (value instanceof Float64Array) {
     return {
       f64: Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64'),
+    };
+  }
+  if (value instanceof Uint32Array) {
+    return {
+      u32: Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64'),
+    };
+  }
+  if (value instanceof Uint8Array) {
+    return {
+      u8: Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64'),
     };
   }
   if (value instanceof LruSet) return { lru: value.max, values: value.toArray() };
@@ -56,6 +72,17 @@ function revive(value) {
     const out = new Float64Array(bytes.length / 8);
     new Uint8Array(out.buffer).set(bytes);
     return out;
+  }
+  if (typeof value.u32 === 'string' && Object.keys(value).length === 1) {
+    const bytes = Buffer.from(value.u32, 'base64');
+    if (bytes.length % 4 !== 0)
+      throw new HubvikError('CHECKPOINT_STATE_IS_INVALID', 'checkpoint state is invalid');
+    const out = new Uint32Array(bytes.length / 4);
+    new Uint8Array(out.buffer).set(bytes);
+    return out;
+  }
+  if (typeof value.u8 === 'string' && Object.keys(value).length === 1) {
+    return Uint8Array.from(Buffer.from(value.u8, 'base64'));
   }
   const keys = Object.keys(value);
   const tagged = keys.some(

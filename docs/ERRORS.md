@@ -1444,6 +1444,36 @@ Fix: change the value that failed the check and call the method again. The libra
 Cause: 'zone is invalid'.
 Fix: change the value that failed the check and call the method again. The library does not modify traffic.
 
+## WIFI_SSID_IS_REQUIRED
+
+Cause: 'wifi ssid is required'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## BLOOM_STATE_MUST_BE_AN_OBJECT
+
+Cause: 'bloom state must be an object'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## BLOOM_TOKEN_MUST_BE_A_STRING
+
+Cause: 'bloom token must be a string'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## HSTREE_POINT_IS_INVALID
+
+Cause: 'hstree point is invalid'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## HSTREE_SEED_IS_INVALID
+
+Cause: 'hstree seed is invalid'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## HSTREE_STATE_MUST_BE_AN_OBJECT
+
+Cause: 'hstree state must be an object'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
 ## MINHASH_STATE_MUST_BE_AN_OBJECT
 
 Cause: 'minhash state must be an object'.

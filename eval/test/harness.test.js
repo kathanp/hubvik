@@ -198,6 +198,12 @@ test('the synthetic corpus matches the committed golden report', () => {
   assert.match(goldenMd, /n too small/);
   assert.match(goldenMd, /time to detect/);
   assert.match(goldenMd, /per benign device-day/);
+  const anomalyFp = goldenMd.split('\n').find((line) => line.startsWith('False positives:'));
+  const alertFp = goldenMd.split('\n').find((line) => line.startsWith('Alert false positives:'));
+  assert.match(anomalyFp, /anomalies at medium or above/);
+  assert.match(anomalyFp, /95% Wilson/);
+  assert.match(alertFp, /alerts at medium or above/);
+  assert.match(alertFp, /95% Wilson/);
   assert.match(goldenMd, /## Ablation/);
   assert.ok(result.attackInstances >= 20);
   assert.strictEqual(result.benignDeviceDays, 3);

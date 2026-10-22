@@ -268,26 +268,7 @@ The last column is yes when the row Rel is at or below this package version. A l
 
 ## Not yet implemented
 
-- `dhcp-route-injection` — Rel 1.1, not yet implemented
-- `wpad-hijack` — Rel 1.1, not yet implemented
-- `ra-flood` — Rel 1.1, not yet implemented
-- `karma-responder` — Rel 1.1, not yet implemented
 - `dictionary-dga` — Rel 1.1, not yet implemented
-- `cname-cloak` — Rel 1.1, not yet implemented
-- `ja4-churn` — Rel 1.1, not yet implemented
-- `lan-first-seen-domain` — Rel 1.1, not yet implemented
-- `dormant-reactivation` — Rel 1.1, not yet implemented
-- `firmware-size-divergence` — Rel 1.1, not yet implemented
-- `stun-turn-relay` — Rel 1.1, not yet implemented
-- `port-knock` — Rel 1.1, not yet implemented
-- `bacnet-bbmd-write` — Rel 1.1, not yet implemented
-- `modbus-unit-sweep` — Rel 1.1, not yet implemented
-- `mqtt-retained-command` — Rel 1.1, not yet implemented
-- `rtsp-new-viewer` — Rel 1.1, not yet implemented
-- `suppression-abuse` — Rel 1.1, not yet implemented
-- `multivariate-outlier` — Rel 1.1, not yet implemented
-- `sequence-surprise` — Rel 1.1, not yet implemented
-- `flow-shape-change` — Rel 1.1, not yet implemented
 
 ## Counts
 

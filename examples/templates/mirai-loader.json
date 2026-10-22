@@ -1,9 +1,9 @@
 {
   "id": "mirai-loader",
   "steps": [
-    { "detector": "exploit-probe-http", "minSeverity": "low" },
-    { "detector": "exploit-then-download" },
-    { "detector": "horizontal-scan" }
+    { "any": ["inbound-from-wan", "exploit-probe-http"], "minSeverity": "low" },
+    { "any": ["exploit-then-download", "update-from-new-source"] },
+    { "any": ["horizontal-scan", "brute-force-out"] }
   ],
   "within": "30m",
   "by": "device",

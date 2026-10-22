@@ -283,6 +283,7 @@ const learningMethods = {
    */
   _enterWatch(device, ts) {
     if (device.mode === 'watching') return;
+    if (typeof this._freezeDrift === 'function') this._freezeDrift(device);
     device.mode = 'watching';
     device.frozen = true;
     this.emit('learned', { device: device.id, ts });

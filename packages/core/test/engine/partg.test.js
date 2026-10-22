@@ -162,7 +162,7 @@ test('peer suggestion does not call setPeerGroup', () => {
   const engine = createEngine({ peerSuggest: true });
   const warnings = [];
   engine.on('warning', (row) => warnings.push(row.code));
-  for (const id of ['a', 'b', 'c']) engine.feed(summary(1000, id, '1.1.1.1'));
+  for (const id of ['a', 'b', 'c']) engine.feed(summary(1000, id, 'cdn.example.com'));
   engine.lock();
   const stats = engine.stats();
   assert.ok(stats.peerSuggestions.length >= 1);

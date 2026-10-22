@@ -1,7 +1,10 @@
 {
   "version": 1,
   "seed": true,
-  "note": "IoT-23 captures are not on disk, so this file keeps the seed table. A person re-runs eval/fit-lr.mjs after a labeled corpus exists.",
+  "dataset": "synthetic",
+  "attackInstances": 25,
+  "benignDeviceDays": 3,
+  "note": "Synthetic corpus has 25 attack instances and 3 benign device-days. The fit needs at least 20 and 50, so this file keeps the seed table. IoT-23 captures are not on disk.",
   "detectors": {
     "new-destination": {
       "llr": 1,

@@ -98,8 +98,8 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] IEEE DataPort ARP joiner
   - [x] CICIoMT2024 joiner
   - [ ] 0.6 gate in C10
-  - [ ] Threshold sweep and PR curves (G7, 3.3)
-  - [ ] Adaptive adversary suite (G8, 3.3)
+  - [x] Threshold sweep and PR curves (G7, 3.3)
+  - [x] Adaptive adversary suite (G8, 3.3)
 
 ### Phases
 
@@ -107,7 +107,7 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] Workspace, lint, types, and pack check
   - [x] Six prototype tests
   - [x] Camera demo
-  - [ ] Git remote
+  - [x] Git remote
   - [ ] npm publish
 - [x] Phase 1 — 0.1.0
   - [x] `new-destination`
@@ -182,17 +182,17 @@ These are not new features. They are places where the shipped behavior cannot do
   - [ ] Raspberry Pi 4 bench numbers
 - [ ] 0.10 (spec 3.3, before the 0.6 gate: no new detector row)
   - [ ] WP-39 threshold sweep and adaptive adversary (G7, G8)
-  - [ ] WP-40 context annotations (G3)
-  - [ ] WP-41 likelihood-ratio fusion and the `alert` event (G1, G2)
-  - [ ] WP-42 baseline drift monitor (G4)
-  - [ ] WP-43 tamper-evident audit log (G9)
-  - [ ] WP-44 asset criticality (G13)
-  - [ ] WP-45 attack-chain templates (G12)
-  - [ ] WP-46 peer-group suggestion (G10)
+  - [x] WP-40 context annotations (G3)
+  - [x] WP-41 likelihood-ratio fusion and the `alert` event (G1, G2)
+  - [x] WP-42 baseline drift monitor (G4)
+  - [x] WP-43 tamper-evident audit log (G9)
+  - [x] WP-44 asset criticality (G13)
+  - [x] WP-45 attack-chain templates (G12)
+  - [x] WP-46 peer-group suggestion (G10)
 - [ ] 1.1 (spec 3.3, after the 0.6 gate only)
-  - [ ] WP-47 Bloom filter primitive and half-space trees (G0, G5)
-  - [ ] WP-48 behavior sequence model (G6)
-  - [ ] WP-49 flow-shape fingerprints (G11)
+  - [x] WP-47 Bloom filter primitive and half-space trees (G0, G5)
+  - [x] WP-48 behavior sequence model (G6)
+  - [x] WP-49 flow-shape fingerprints (G11)
   - [ ] WP-50 B22 link-layer and DNS rows
   - [ ] WP-51 B22 OT, application and integrity rows
 - [ ] 1.0
@@ -1240,7 +1240,7 @@ No public dataset found covers BADBOX/Kimwolf-style proxyware or BACnet/Modbus w
 - [x] `lock()`, then replay the rest including attacks, with all tiers the source provides.
 - [x] **Detection** = at least one anomaly at `medium` or above on the attacking device inside the labeled attack interval plus 5 minutes. **Time to detect** = first such anomaly minus attack start.
 - [x] **False positives** = anomalies at `medium` or above on benign intervals, divided by benign device-days.
-- [ ] **3.3: two levels.** Every result file reports false positives at the anomaly level (above) and, when `alerts: true`, at the alert level (G2), each with its Wilson interval. C6.3 is judged at the anomaly level until a person decides otherwise (Q-20).
+- [x] **3.3: two levels.** Every result file reports false positives at the anomaly level (above) and, when `alerts: true`, at the alert level (G2), each with its Wilson interval. C6.3 is judged at the anomaly level until a person decides otherwise (Q-20).
 - [x] Report every rate with its count and a 95 % Wilson interval. A rate from fewer than 20 attack instances is printed as "n too small", not as a percentage.
 - [x] **Ablation.** For each detector, recompute detection with it disabled. A detector with zero unique detections and a false-positive rate above its C6.3 gate gets a spec change proposal: default `enabled: false` or severity `info`. The harness writes the proposal; the human decides.
   - [ ] The human has decided a proposal
@@ -2162,71 +2162,71 @@ Every WP in this group also keeps `test/diff/` byte-identical with its option of
 
 #### WP-39 — Measurement first: sweeps and the adaptive adversary (G7, G8). Blocks WP-40 to WP-46.
 
-- [ ] `eval/run.mjs --sweep` and `--cost`, the `eval/.cache/` parsed-event cache, and the monotonicity flag.
-- [ ] `eval/adversary/` generator with the four goals, and `eval/results/adversary.md`.
+- [x] `eval/run.mjs --sweep` and `--cost`, the `eval/.cache/` parsed-event cache, and the monotonicity flag.
+- [x] `eval/adversary/` generator with the four goals, and `eval/results/adversary.md`.
 - [ ] `eval/adversary-holdout/` parameters committed in their own commit, with a different seed and magnitudes, before any detector work that cites them.
 - **Done when:** the G7 done-when holds and `adversary.md` lists each goal as reached or not reached, measured.
 
 #### WP-40 — Context annotations (G3)
 
-- [ ] `annotate`, `removeAnnotation`, `annotations`, the never-affected list, `RELEARN_SUGGESTED`, `ANNOTATION_ABUSE`, caps with a test that hits each one, checkpoint support.
-- [ ] Simulator: every rich profile gets one host-declared `firmware-update` annotation around its 30 MB download.
+- [x] `annotate`, `removeAnnotation`, `annotations`, the never-affected list, `RELEARN_SUGGESTED`, `ANNOTATION_ABUSE`, caps with a test that hits each one, checkpoint support.
+- [x] Simulator: every rich profile gets one host-declared `firmware-update` annotation around its 30 MB download.
 - **Done when:** the G3 done-when holds and both benign matrices pass with and without annotations.
 
 #### WP-41 — Likelihood-ratio fusion and the `alert` event (G1, G2, G14)
 
-- [ ] `scoring: 'lr'`, `src/data/lr.json` seed table, correlation control, `posterior` and `contributions`, `eval/fit-lr.mjs` writing proposals only.
-- [ ] `alerts: true`, `alert` event, re-alert hold, digest, `alertsOnly` in every exporter.
-- [ ] The G14 non-interference relation in the metamorphic suite.
-- [ ] `eval/results/fp-reduction.md`: IoT-23 (or the synthetic corpus, labeled synthetic, until a person runs the dataset) at the anomaly and alert levels, additive versus `'lr'`, with and without WP-40 annotations.
+- [x] `scoring: 'lr'`, `src/data/lr.json` seed table, correlation control, `posterior` and `contributions`, `eval/fit-lr.mjs` writing proposals only.
+- [x] `alerts: true`, `alert` event, re-alert hold, digest, `alertsOnly` in every exporter.
+- [x] The G14 non-interference relation in the metamorphic suite.
+- [x] `eval/results/fp-reduction.md`: IoT-23 (or the synthetic corpus, labeled synthetic, until a person runs the dataset) at the anomaly and alert levels, additive versus `'lr'`, with and without WP-40 annotations.
 - **Done when:** the G1 and G2 done-whens hold and `fp-reduction.md` exists with both levels. If `'lr'` does not beat additive, that is recorded as measured, and the default stays additive.
 
 #### WP-42 — Baseline drift monitor (G4)
 
-- [ ] Four daily series, Page–Hinkley from F2, `BASELINE_DRIFT`, `data.drift` on open incidents.
+- [x] Four daily series, Page–Hinkley from F2, `BASELINE_DRIFT`, `data.drift` on open incidents.
 - **Done when:** the G4 done-when holds.
 
 #### WP-43 — Tamper-evident audit log (G9)
 
-- [ ] Option `audit`, record format, hash chain with optional HMAC, eviction anchor, `auditLog`, `verifyAudit`, `AUDIT_BROKEN`, checkpoint and delta support, fuzz target `fuzz/audit.fuzz.js` (100,000 seeded inputs).
+- [x] Option `audit`, record format, hash chain with optional HMAC, eviction anchor, `auditLog`, `verifyAudit`, `AUDIT_BROKEN`, checkpoint and delta support, fuzz target `fuzz/audit.fuzz.js` (100,000 seeded inputs).
 - **Done when:** the G9 done-when holds and the fuzz run is clean.
 
 #### WP-44 — Asset criticality (G13)
 
-- [ ] `setDeviceCriticality`, per-level thresholds in G2, the `safety` response-hint rule, `went-silent` at `high` for `safety`.
+- [x] `setDeviceCriticality`, per-level thresholds in G2, the `safety` response-hint rule, `went-silent` at `high` for `safety`.
 - **Done when:** a test proves that criticality changes which incidents alert and changes nothing in the anomaly stream.
 
 #### WP-45 — Attack-chain templates (G12)
 
-- [ ] `loadTemplates`, validation, compilation onto F10 sequences, `template-match`, `llrBonus`, shadow matches, `examples/templates/` with five templates, one replay per template, fuzz target `fuzz/templates.fuzz.js` (100,000 seeded inputs).
+- [x] `loadTemplates`, validation, compilation onto F10 sequences, `template-match`, `llrBonus`, shadow matches, `examples/templates/` with five templates, one replay per template, fuzz target `fuzz/templates.fuzz.js` (100,000 seeded inputs).
 - **Done when:** the G12 done-when holds and the fuzz run is clean.
 
 #### WP-46 — Peer-group suggestion (G0 MinHash, G10)
 
-- [ ] `minhash.js` with its accuracy test and fuzz target, then `peerSuggest`, LSH banding, union-find, `stats().peerSuggestions`, `PEER_GROUP_SUGGESTED`.
+- [x] `minhash.js` with its accuracy test and fuzz target, then `peerSuggest`, LSH banding, union-find, `stats().peerSuggestions`, `PEER_GROUP_SUGGESTED`.
 - **Done when:** the G10 done-when holds.
 
 #### WP-47 — Bloom filter, half-space trees, and two B22 rows (G0, G5). Group C: needs C10 row 0.6.
 
-- [ ] `bloom.js` and `hstree.js` with their accuracy tests and fuzz targets.
-- [ ] Option `outlier`, per-class models, `model:outlier` baseline key, then `multivariate-outlier` (shadow).
-- [ ] `lan-first-seen-domain` (shadow) on two rotating Bloom filters.
+- [x] `bloom.js` and `hstree.js` with their accuracy tests and fuzz targets.
+- [x] Option `outlier`, per-class models, `model:outlier` baseline key, then `multivariate-outlier` (shadow).
+- [x] `lan-first-seen-domain` (shadow) on two rotating Bloom filters.
 - **Done when:** both rows have the standard four tests and zero `shadow-anomaly` at medium or above on the all-tier benign matrix, and the engine-wide model memory is on its BENCHMARKS line.
 
 #### WP-48 — Behavior sequence model (G6). Group C.
 
-- [ ] Fixed 72-token vocabulary, transition counts, `model:sequence`, then `sequence-surprise` (shadow).
+- [x] Fixed 72-token vocabulary, transition counts, `model:sequence`, then `sequence-surprise` (shadow).
 - **Done when:** the row has the standard four tests and a holdout replay of a staged attack that no single detector flags at medium.
 
 #### WP-49 — First-packet flow shape (G11). Group C.
 
-- [ ] `flow.splt` validation, histograms, Jensen–Shannon comparison, `model:flow-shape`, then `flow-shape-change` (shadow). `hubvik doctor` reports when no event carries `splt`.
+- [x] `flow.splt` validation, histograms, Jensen–Shannon comparison, `model:flow-shape`, then `flow-shape-change` (shadow). `hubvik doctor` reports when no event carries `splt`.
 - **Done when:** the row has the standard four tests, and a replay where a camera's TLS client is swapped under ECH (no SNI change visible) fires it.
 
 #### WP-50 — B22 link-layer, DNS and TLS rows. Group C.
 
 - [ ] `dhcp-route-injection`, `wpad-hijack`, `ra-flood`, `karma-responder`, `dictionary-dga` (plus `src/data/words.json` once Q-23 is answered), `cname-cloak` (plus indicator type `tracker`), `ja4-churn`. One commit each, shadow, standard four tests, one replay each, ATT&CK ids added.
-- [ ] A2.1b fields land in the commit of their first consumer.
+- [x] A2.1b fields land in the commit of their first consumer.
 - **Done when:** `spec-coverage` is clean at core 1.1.0 for these rows.
 
 #### WP-51 — B22 behavior, fleet, OT, application and integrity rows. Group C.

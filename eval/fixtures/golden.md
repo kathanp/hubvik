@@ -16,7 +16,9 @@ Detection: 20/25 = 80.0% (95% Wilson 60.9%–91.1%)
 
 Strict detection: 19/25 = 76.0% (95% Wilson 56.6%–88.5%)
 
-False positives: 0 anomalies at medium or above, 3 benign device-days, 0 per benign device-day.
+False positives: 0 anomalies at medium or above, 3 benign device-days, 0 per benign device-day (0/5 = 0.0% (95% Wilson 0.0%–43.4%)).
+
+Alert false positives: 0 alerts at medium or above, 3 benign device-days, 0 per benign device-day (0/5 = 0.0% (95% Wilson 0.0%–43.4%)).
 
 Benign intervals with a false positive: n too small (0 detected, 5 benign intervals)
 

@@ -38,8 +38,12 @@ test('adversary.md names four goals measured by an engine run', () => {
   assert.ok(result.families.length > 0);
   assert.ok(result.hours.length > 0);
   assert.equal(typeof result.ja4, 'string');
-  assert.match(text, /alerts: not measured, G2 option not on/);
+  assert.match(text, /alerts: measured on the attack engine with alerts true/);
   assert.match(text, /white-box blind spot/);
+  assert.strictEqual(
+    fs.readFileSync(path.join(ROOT, 'eval', 'results', 'adversary.md'), 'utf8'),
+    text,
+  );
   const names = [
     'exfiltrate 500 MB in 7 days',
     'scan 1,000 LAN or WAN hosts in 7 days',
@@ -53,7 +57,9 @@ test('adversary.md names four goals measured by an engine run', () => {
   for (const goal of result.goals) {
     assert.strictEqual(goal.measured, true);
     assert.strictEqual(typeof goal.reached, 'boolean');
+    assert.strictEqual(typeof goal.alerts, 'number');
     assert.ok(Array.isArray(goal.anomalies));
+    assert.ok(Array.isArray(goal.alertKinds));
     const line = text.split('\n').find((row) => row.startsWith(`- ${goal.name}:`));
     assert.ok(line);
     if (goal.reached) assert.match(line, /: reached\b/);

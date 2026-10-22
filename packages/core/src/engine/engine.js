@@ -519,6 +519,11 @@ class Engine extends EventEmitter {
       zones: engine.opts.zones,
       browserJa4: engine.opts.browserJa4,
       peerGroup: device.peerGroup,
+      outlier: engine.opts.outlier === true,
+      sequence: engine.opts.sequence === true,
+      flowShape: engine.opts.flowShape === true,
+      abuseFacts: engine._abuse || [],
+      deviceCount: engine.devices.size,
       scratch: engine.scratch,
       peers() {
         const group = device.peerGroup;

@@ -135,6 +135,7 @@ const methods = {
     };
     if (full.annotations) body.annotations = full.annotations;
     if (full.audit) body.audit = full.audit;
+    if (full.criticality) body.criticality = full.criticality;
     body.hash = deltaHash(body, opts.sign);
     this._deltaSeq = body.toSeq;
     this._deltaHash = body.hash;
@@ -492,8 +493,11 @@ const methods = {
         HINTS
       )[det.id];
       if (Array.isArray(rows)) {
+        const safety =
+          this._criticality && this._criticality.get(String(anomaly.device)) === 'safety';
+        const reviewOnly = String(det.id).startsWith('ot-') || safety === true;
         const hints = rows
-          .filter((row) => !String(det.id).startsWith('ot-') || row.action === 'review')
+          .filter((row) => !reviewOnly || row.action === 'review')
           .map((row) => ({
             action: row.action,
             target: String(anomaly.device),

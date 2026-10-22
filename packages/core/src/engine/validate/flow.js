@@ -98,7 +98,51 @@ function flowEvent(raw, ts, warnings) {
     if (name) event.dstName = name;
     else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.dstName' });
   }
+  const splt = flowSplt(raw.splt, warnings);
+  if (splt) event.splt = splt;
   return event;
+}
+
+/**
+ * @param {unknown} value
+ * @param {{ code: string, message: string }[]} warnings
+ * @returns {{ len: number[], iat: number[] } | null}
+ */
+function flowSplt(value, warnings) {
+  if (value == null) return null;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.splt' });
+    return null;
+  }
+  const row = /** @type {any} */ (value);
+  if (
+    !Array.isArray(row.len) ||
+    !Array.isArray(row.iat) ||
+    row.len.length > 10 ||
+    row.iat.length > 10
+  ) {
+    warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.splt' });
+    return null;
+  }
+  /** @type {number[]} */
+  const len = [];
+  /** @type {number[]} */
+  const iat = [];
+  for (const item of row.len) {
+    if (!Number.isInteger(item) || item < -65535 || item > 65535) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.splt' });
+      return null;
+    }
+    len.push(item);
+  }
+  for (const item of row.iat) {
+    if (!Number.isInteger(item) || item < 0 || item > 600000) {
+      warnings.push({ code: 'FIELD_DROPPED', message: 'dropped flow.splt' });
+      return null;
+    }
+    iat.push(item);
+  }
+  return { len, iat };
 }
 
 module.exports = { summaryEvent, flowEvent };

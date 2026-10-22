@@ -54,6 +54,7 @@ test('doctor counts clock disorder and inactive detectors', () => {
     },
   );
   assert.strictEqual(report.clockDisorder, 1);
+  assert.strictEqual(report.noSplt, true);
   assert.strictEqual(report.reorderMs5000WouldAbsorb, 0);
   assert.strictEqual(report.malformed, 1);
   assert.deepStrictEqual(report.inactive, [{ id: 'fan-out', reason: 'disabled by configuration' }]);

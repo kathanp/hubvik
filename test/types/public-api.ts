@@ -13,7 +13,13 @@ import {
   type Incident,
 } from 'hubvik';
 
-const engine: Engine = createEngine({ learnMs: 0, tiers: ['T0'] });
+const engine: Engine = createEngine({
+  learnMs: 0,
+  tiers: ['T0'],
+  outlier: false,
+  sequence: false,
+  flowShape: false,
+});
 engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 1 });
 engine.feedBatch([{ device: 'd', dst: 'b.example', bytes: 1, ts: 2 }]);
 engine.flush(3);
@@ -27,7 +33,7 @@ engine.forget('d');
 engine.setPeerGroup('d', 'g');
 engine.setDeviceClass('d', 'camera');
 engine.use(detectors['new-destination']);
-engine.loadIndicators([]);
+engine.loadIndicators([{ value: 'tracker.test', type: 'tracker', source: 'test', confidence: 1 }]);
 engine.loadRules([]);
 engine.annotate('d', { kind: 'maintenance', fromTs: 1, untilTs: 2 });
 engine.removeAnnotation('a1');

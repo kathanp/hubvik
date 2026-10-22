@@ -102,6 +102,8 @@ module.exports = {
    * @param {{ devices?: string[], createdAt?: number, sign?: string | Buffer }} [opts]
    */
   checkpoint(opts = {}) {
+    if (typeof opts.sign === 'string') this._auditKey = opts.sign;
+    else if (Buffer.isBuffer(opts.sign)) this._auditKey = opts.sign.toString('hex');
     const baseline = /** @type {any} */ (
       this.exportBaseline({
         devices: opts.devices,
@@ -136,6 +138,9 @@ module.exports = {
     }
     if (this._audit) {
       /** @type {any} */ (body).audit = auditLog.toJSON(this._audit);
+    }
+    if (this._criticality && this._criticality.size > 0) {
+      /** @type {any} */ (body).criticality = Object.fromEntries(this._criticality);
     }
     if (this._templates) {
       /** @type {any} */ (body).templates = this._templates.templates.map(

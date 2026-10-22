@@ -1,0 +1,43 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: setup node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: install
+        run: npm ci
+      - name: gate
+        run: npm run gate
+      - name: publish changed public packages
+        run: |
+          set -euo pipefail
+          for dir in packages/*; do
+            private=$(node -p "require('./$dir/package.json').private === true")
+            if [ "$private" = "false" ]; then
+              version=$(node -p "require('./$dir/package.json').version")
+              # Q-19. Versions below 1.0.0 use the next dist-tag. 1.0.0 and later use latest.
+              case "$version" in
+                0.*) tag=next ;;
+                *) tag=latest ;;
+              esac
+              npm publish --provenance --tag "$tag" --workspace "$dir"
+            fi
+          done

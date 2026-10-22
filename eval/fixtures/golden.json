@@ -449,6 +449,10 @@
   "falsePositives": 0,
   "benignDeviceDays": 3,
   "falsePositivesPerDeviceDay": 0,
+  "falsePositivesPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
+  "alertFalsePositives": 0,
+  "alertFpPerDeviceDay": 0,
+  "alertFpPerDeviceDayWilson": "0/5 = 0.0% (95% Wilson 0.0%–43.4%)",
   "benignIntervals": 5,
   "benignIntervalsWithFalsePositive": "n too small (0 detected, 5 benign intervals)",
   "ablation": [

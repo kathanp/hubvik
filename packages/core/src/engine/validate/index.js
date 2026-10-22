@@ -237,6 +237,9 @@ function validateOptions(raw) {
     drift: input.drift == null ? false : bool(input.drift, 'drift'),
     audit: input.audit == null ? false : bool(input.audit, 'audit'),
     peerSuggest: input.peerSuggest == null ? false : bool(input.peerSuggest, 'peerSuggest'),
+    outlier: input.outlier == null ? false : bool(input.outlier, 'outlier'),
+    sequence: input.sequence == null ? false : bool(input.sequence, 'sequence'),
+    flowShape: input.flowShape == null ? false : bool(input.flowShape, 'flowShape'),
     redact: parseRedact(input.redact),
     incidentWindowMs:
       input.incidentWindowMs == null
@@ -255,7 +258,17 @@ function validateIndicator(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new HubvikError('INDICATOR_MUST_BE_AN_OBJECT', 'indicator must be an object');
   assertSafeKeys(raw, 'indicator');
-  const types = new Set(['ip', 'cidr', 'domain', 'ja4', 'tor', 'ad', 'proxy-sdk', 'young-domain']);
+  const types = new Set([
+    'ip',
+    'cidr',
+    'domain',
+    'ja4',
+    'tor',
+    'ad',
+    'tracker',
+    'proxy-sdk',
+    'young-domain',
+  ]);
   if (typeof raw.value !== 'string' || raw.value.length === 0 || raw.value.length > 255) {
     throw new HubvikError('INDICATOR_VALUE_IS_INVALID', 'indicator.value is invalid');
   }

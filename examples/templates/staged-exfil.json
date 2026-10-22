@@ -1,9 +1,8 @@
 {
   "id": "staged-exfil",
   "steps": [
-    { "detector": "long-connection" },
-    { "detector": "slow-exfil" },
-    { "detector": "cloud-storage-exfil" }
+    { "any": ["long-connection", "reverse-shell-shape"] },
+    { "any": ["slow-exfil", "multi-horizon-exfil", "cloud-storage-exfil"] }
   ],
   "within": "24h",
   "by": "device",

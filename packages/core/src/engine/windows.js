@@ -98,6 +98,7 @@ module.exports = {
     if (at == null) return;
     if (typeof at !== 'number' || !Number.isFinite(at))
       throw new HubvikError('TICK_TIME_IS_INVALID', 'tick time is invalid');
+    if (typeof this._closeAlertDays === 'function') this._closeAlertDays(at);
     this._releaseReorder(at);
     const det = this.byId.get('went-silent');
     const status = this.detectorStatus['went-silent'];

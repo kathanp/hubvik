@@ -16,7 +16,7 @@
     "check": "npm run lint && npm run types && npm run test",
     "gate": "node scripts/gate.mjs",
     "bench": "node --expose-gc bench/run.js",
-    "fuzz": "node fuzz/feed.fuzz.js && node fuzz/baseline.fuzz.js && node fuzz/checkpoint.fuzz.js && node fuzz/mutate.fuzz.js && node fuzz/stats.fuzz.js && node fuzz/partf.fuzz.js && node fuzz/rules.fuzz.js && node fuzz/rules-mutate.fuzz.js && node fuzz/minhash.fuzz.js && node fuzz/audit.fuzz.js && node fuzz/templates.fuzz.js",
+    "fuzz": "node fuzz/feed.fuzz.js && node fuzz/baseline.fuzz.js && node fuzz/checkpoint.fuzz.js && node fuzz/mutate.fuzz.js && node fuzz/stats.fuzz.js && node fuzz/partf.fuzz.js && node fuzz/rules.fuzz.js && node fuzz/rules-mutate.fuzz.js && node fuzz/minhash.fuzz.js && node fuzz/bloom.fuzz.js && node fuzz/hstree.fuzz.js && node fuzz/audit.fuzz.js && node fuzz/templates.fuzz.js",
     "demo": "node packages/core/examples/camera-botnet.js",
     "knip": "knip"
   },

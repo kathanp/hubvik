@@ -32,7 +32,11 @@ function main(argv, opts = {}) {
   const args = parseArgs(argv);
   if (args.sweep) return runSweep(args, opts);
   const loaded = loadDataset(args.dataset, args.zeekLogs);
-  const result = evaluate(loaded.rows, { tiers: loaded.tiers, dataset: args.dataset });
+  const result = evaluate(loaded.rows, {
+    tiers: loaded.tiers,
+    dataset: args.dataset,
+    alerts: true,
+  });
   result.evasion = runEvasion();
   const dir = opts.outDir || path.join(__dirname, 'results');
   fs.mkdirSync(dir, { recursive: true });

@@ -1,9 +1,9 @@
 {
   "id": "kimwolf-pivot",
   "steps": [
-    { "detector": "proxy-sdk-traffic" },
-    { "detector": "lan-via-proxy" },
-    { "detector": "adb-exposure" }
+    { "any": ["proxy-sdk-traffic", "proxy-backconnect"] },
+    { "any": ["lan-via-proxy"] },
+    { "any": ["adb-exposure"] }
   ],
   "within": "60m",
   "by": "campaign",

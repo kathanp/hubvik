@@ -409,7 +409,7 @@ module.exports = {
       /** @type {Record<string, unknown>} */
       const anomaly = {
         id: '',
-        device: device.id,
+        device: typeof item.device === 'string' ? item.device : device.id,
         detector: det.id,
         category: item.category || det.category,
         severity: item.severity,
@@ -441,6 +441,12 @@ module.exports = {
         anomaly.attack = /** @type {Record<string, string[]>} */ (ATTACK)[det.id].slice();
       }
       this._decorateAnomaly(anomaly, det, item);
+      if (this.opts.drift) {
+        if (item.severity === 'high' || item.severity === 'critical')
+          device._driftHighTs = anomaly.ts;
+        if (!device._driftDets) device._driftDets = new Set();
+        if (device._driftDets.size < 32) device._driftDets.add(det.id);
+      }
       if (shadow) {
         this.shadowSeq += 1;
         anomaly.id = `s${this.shadowSeq}`;
@@ -563,14 +569,14 @@ module.exports = {
    * @param {string} code
    * @param {string} message
    * @param {string} [device]
-   * @param {{ reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number }} [extra]
+   * @param {{ reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number, series?: string, direction?: string, sinceTs?: number, detectors?: string[], groupId?: string, devices?: string[], brokenAt?: number }} [extra]
    */
   _warn(code, message, device, extra) {
     this.warningCount += 1;
     if (this._emittingWarning) return;
     this._emittingWarning = true;
     try {
-      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number }} */
+      /** @type {{ code: string, message: string, device?: string, reason?: string, ts?: number, detector?: string, value?: string, shed?: string[], perEventUs?: number, series?: string, direction?: string, sinceTs?: number, detectors?: string[], groupId?: string, devices?: string[], brokenAt?: number }} */
       const warning = { code, message };
       if (device) warning.device = device;
       if (extra && extra.reason) warning.reason = extra.reason;
@@ -579,6 +585,13 @@ module.exports = {
       if (extra && extra.value != null) warning.value = extra.value;
       if (extra && extra.shed) warning.shed = extra.shed;
       if (extra && extra.perEventUs != null) warning.perEventUs = extra.perEventUs;
+      if (extra && extra.series) warning.series = extra.series;
+      if (extra && extra.direction) warning.direction = extra.direction;
+      if (extra && typeof extra.sinceTs === 'number') warning.sinceTs = extra.sinceTs;
+      if (extra && extra.detectors) warning.detectors = extra.detectors;
+      if (extra && extra.groupId) warning.groupId = extra.groupId;
+      if (extra && extra.devices) warning.devices = extra.devices;
+      if (extra && typeof extra.brokenAt === 'number') warning.brokenAt = extra.brokenAt;
       this.emit('warning', warning);
     } finally {
       this._emittingWarning = false;

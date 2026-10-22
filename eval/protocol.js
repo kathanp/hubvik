@@ -222,20 +222,34 @@ function detectorConfig(disabled, extra) {
  * @param {Map<string, any>} plans
  * @param {string[]} tiers
  * @param {string | null} disabled
- * @param {{ calibratedConfidence?: boolean, detectors?: Record<string, object> }} [extra]
+ * @param {{ calibratedConfidence?: boolean, detectors?: Record<string, object>, alerts?: boolean, scoring?: string, alertSink?: any[], annotate?: boolean }} [extra]
  * @returns {any[]}
  */
 function replay(plans, tiers, disabled, extra) {
   /** @type {any[]} */
   const anomalies = [];
   for (const [device, plan] of plans) {
-    const engine = createEngine({
+    /** @type {any} */
+    const opts = {
       learnMs: plan.learn.length === 0 ? 0 : 1e14,
       tiers,
       evidence: false,
       calibratedConfidence: extra != null && extra.calibratedConfidence === true,
       detectors: detectorConfig(disabled, extra),
-    });
+    };
+    if (extra && extra.alerts === true) opts.alerts = true;
+    if (extra && extra.scoring === 'lr') opts.scoring = 'lr';
+    const engine = createEngine(opts);
+    if (extra && extra.alertSink) {
+      engine.on('alert', (item) => {
+        extra.alertSink.push({
+          device: item.device,
+          ts: item.ts,
+          severity: item.severity,
+          kind: item.kind,
+        });
+      });
+    }
     engine.on('anomaly', (item) => {
       const det = detectors[item.detector];
       anomalies.push({
@@ -250,6 +264,15 @@ function replay(plans, tiers, disabled, extra) {
     });
     for (const row of plan.learn) engine.feed(row.event);
     if (plan.learn.length > 0) engine.lock(device);
+    if (extra && extra.annotate === true) {
+      const from = lockTs(plan);
+      engine.annotate(device, {
+        kind: 'maintenance',
+        fromTs: from,
+        untilTs: from + 6 * 3600000,
+        note: 'measured window',
+      });
+    }
     const last = plan.rest[plan.rest.length - 1] || plan.learn[plan.learn.length - 1];
     for (const row of plan.rest) engine.feed(row.event);
     if (last) engine.flush(last.ts + 60_000);
@@ -451,7 +474,7 @@ function benignDayKeys(plans, intervals, excluded) {
  * One replay with an optional detector override. No ablation and no second calibrated pass,
  * so a sweep can score a point without changing what `evaluate` returns.
  * @param {any[]} rows
- * @param {{ tiers: string[], detectors?: Record<string, object> }} opts
+ * @param {{ tiers: string[], detectors?: Record<string, object>, alerts?: boolean, scoring?: string, annotate?: boolean }} opts
  * @returns {any}
  */
 function operatingPoint(rows, opts) {
@@ -468,7 +491,15 @@ function operatingPoint(rows, opts) {
     for (const interval of attackIntervals(device, plan.rest)) intervals.push(interval);
     for (const interval of excludedIntervals(device, plan.rest)) excluded.push(interval);
   }
-  const extra = opts.detectors ? { detectors: opts.detectors } : undefined;
+  /** @type {any[]} */
+  const alertSink = [];
+  /** @type {any} */
+  const extra = {};
+  if (opts.detectors) extra.detectors = opts.detectors;
+  if (opts.alerts === true) extra.alerts = true;
+  if (opts.scoring === 'lr') extra.scoring = 'lr';
+  if (opts.annotate === true) extra.annotate = true;
+  if (opts.alerts === true) extra.alertSink = alertSink;
   const scored = afterLock(replay(plans, tiers, null, extra), plans);
   const instances = intervals.map((interval) => ({
     ...interval,
@@ -480,30 +511,78 @@ function operatingPoint(rows, opts) {
     !excluded.some((interval) => inDetectionWindow(interval, item));
   const fpItems = scored.filter((item) => counts(item.severity) && outside(item));
   const days = benignDeviceDays(plans, intervals, excluded);
-  const trials = benignDayKeys(plans, intervals, excluded);
-  /** @type {Set<string>} */
-  const fpKeys = new Set();
-  for (const item of fpItems) fpKeys.add(`${item.device}|${Math.floor(item.ts / DAY)}`);
-  let fpDays = 0;
-  for (const key of fpKeys) if (trials.has(key)) fpDays += 1;
   const tp = detected;
   const fp = fpItems.length;
-  return {
+  /** @type {any} */
+  const point = {
     attackInstances: instances.length,
     detected,
     detection: formatWilson(detected, instances.length),
     falsePositives: fp,
     benignDeviceDays: days,
     fpPerDeviceDay: days > 0 ? fp / days : null,
-    fpPerDeviceDayWilson: trials.size === 0 ? 'no rate' : formatWilson(fpDays, trials.size),
+    fpPerDeviceDayWilson: dayHitWilson(fpItems, plans, intervals, excluded),
     precision: tp + fp === 0 ? null : tp / (tp + fp),
     recall: instances.length === 0 ? null : tp / instances.length,
+  };
+  if (opts.alerts === true) {
+    const alerts = afterLock(alertSink, plans);
+    const alertFp = alerts.filter((item) => counts(item.severity) && outside(item));
+    point.alertFalsePositives = alertFp.length;
+    point.alertFpPerDeviceDay = days > 0 ? alertFp.length / days : null;
+    point.alertFpPerDeviceDayWilson = dayHitWilson(alertFp, plans, intervals, excluded);
+  }
+  return point;
+}
+
+/**
+ * 95% Wilson interval for benign UTC device-days that contain a counted item.
+ * The trial count is the number of device-days with leftover benign time.
+ * @param {any[]} items
+ * @param {Map<string, any>} plans
+ * @param {any[]} intervals
+ * @param {any[]} excluded
+ * @returns {string}
+ */
+function dayHitWilson(items, plans, intervals, excluded) {
+  const trials = benignDayKeys(plans, intervals, excluded);
+  /** @type {Set<string>} */
+  const keys = new Set();
+  for (const item of items) keys.add(`${item.device}|${Math.floor(item.ts / DAY)}`);
+  let hits = 0;
+  for (const key of keys) if (trials.has(key)) hits += 1;
+  return trials.size === 0 ? 'no rate' : formatWilson(hits, trials.size);
+}
+
+/**
+ * Alert-level false positives from one `alerts: true` replay. Anomaly scoring
+ * stays on the earlier replay.
+ * @param {Map<string, any>} plans
+ * @param {string[]} tiers
+ * @param {(item: any) => boolean} outside
+ * @param {number} days
+ * @param {any[]} intervals
+ * @param {any[]} excluded
+ * @returns {{ alertFalsePositives: number, alertFpPerDeviceDay: number | null, alertFpPerDeviceDayWilson: string }}
+ */
+function alertFalsePositives(plans, tiers, outside, days, intervals, excluded) {
+  /** @type {any[]} */
+  const alertSink = [];
+  replay(plans, tiers, null, { alerts: true, alertSink });
+  const alerts = afterLock(alertSink, plans);
+  const alertFp = alerts.filter((item) => counts(item.severity) && outside(item));
+  return {
+    alertFalsePositives: alertFp.length,
+    alertFpPerDeviceDay: days > 0 ? alertFp.length / days : null,
+    alertFpPerDeviceDayWilson: dayHitWilson(alertFp, plans, intervals, excluded),
   };
 }
 
 /**
+ * Anomaly detection ignores `alerts`. When `alerts` is true, a second replay
+ * scores alert-level false positives and does not change the anomaly counts.
  * @param {any[]} rows
- * @param {{ tiers: string[], dataset?: string }} opts
+ * @param {{ tiers: string[], dataset?: string, alerts?: boolean }} opts
  * @returns {any}
  */
 function evaluate(rows, opts) {
@@ -570,6 +649,11 @@ function evaluate(rows, opts) {
     (item) => counts(item.severity) && outside(item),
   ).length;
   const excludedEvents = rows.reduce((count, row) => count + (row.excluded ? 1 : 0), 0);
+  const fpWilson = dayHitWilson(fpItems, plans, intervals, excluded);
+  const alertLevel =
+    opts.alerts === true
+      ? alertFalsePositives(plans, tiers, outside, days, intervals, excluded)
+      : null;
   const byLabel = typeRates(instances);
   /** @type {Set<string>} */
   const types = new Set();
@@ -637,6 +721,8 @@ function evaluate(rows, opts) {
     falsePositives: fpItems.length,
     benignDeviceDays: days,
     falsePositivesPerDeviceDay: days > 0 ? fpItems.length / days : null,
+    falsePositivesPerDeviceDayWilson: fpWilson,
+    ...(alertLevel || {}),
     benignIntervals: benign.length,
     benignIntervalsWithFalsePositive: formatRate(benignHit, benign.length, 'benign intervals'),
     ablation,
@@ -756,6 +842,22 @@ function learningHeader(result) {
 }
 
 /**
+ * One false-positive rate, with its Wilson interval when the result has one.
+ * @param {string} title
+ * @param {number} count
+ * @param {string} noun
+ * @param {number} days
+ * @param {number | null} perDay
+ * @param {string} [wilson]
+ * @returns {string}
+ */
+function falsePositiveLine(title, count, noun, days, perDay, wilson) {
+  const rate = perDay == null ? 'no rate (0 device-days)' : `${perDay} per benign device-day`;
+  const interval = wilson ? ` (${wilson})` : '';
+  return `${title}: ${count} ${noun} at medium or above, ${days} benign device-days, ${rate}${interval}.`;
+}
+
+/**
  * @param {any} result
  * @returns {string}
  */
@@ -788,8 +890,28 @@ function renderMarkdown(result) {
     '',
     `Strict detection: ${result.strictDetection == null ? 'no rate' : result.strictDetection}`,
     '',
-    `False positives: ${result.falsePositives} anomalies at medium or above, ${result.benignDeviceDays} benign device-days, ${result.falsePositivesPerDeviceDay == null ? 'no rate (0 device-days)' : `${result.falsePositivesPerDeviceDay} per benign device-day`}.`,
+    falsePositiveLine(
+      'False positives',
+      result.falsePositives,
+      'anomalies',
+      result.benignDeviceDays,
+      result.falsePositivesPerDeviceDay,
+      result.falsePositivesPerDeviceDayWilson,
+    ),
     '',
+    ...(result.alertFalsePositives == null
+      ? []
+      : [
+          falsePositiveLine(
+            'Alert false positives',
+            result.alertFalsePositives,
+            'alerts',
+            result.benignDeviceDays,
+            result.alertFpPerDeviceDay,
+            result.alertFpPerDeviceDayWilson,
+          ),
+          '',
+        ]),
     ...(result.excludedEvents
       ? [
           `Excluded labels: ${result.excludedEvents} events (Background, No Label). They are in neither the detection count nor the benign device-days.`,

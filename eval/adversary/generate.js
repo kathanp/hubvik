@@ -493,12 +493,17 @@ function counts(severity) {
 function runGoal(params, baseline, kind, name) {
   const envelope = readEnvelope(baseline, params);
   const attack = shape(params, envelope, kind);
-  const engine = createEngine(engineOptions());
+  const engine = createEngine({ ...engineOptions(), alerts: true });
   engine.importBaseline(baseline, { merge: false });
   /** @type {string[]} */
   const anomalies = [];
+  /** @type {string[]} */
+  const alerts = [];
   engine.on('anomaly', (item) => {
     if (counts(item.severity)) anomalies.push(item.detector);
+  });
+  engine.on('alert', (item) => {
+    alerts.push(`${item.kind}:${item.severity}`);
   });
   const start = attack.events.length > 0 ? attack.events[0].ts : 0;
   for (const event of attack.events) engine.feed(event);
@@ -506,7 +511,7 @@ function runGoal(params, baseline, kind, name) {
     engine.flush(attack.events[attack.events.length - 1].ts + 60_000);
   }
   const during = anomalies;
-  const reached = attack.achieved && during.length === 0;
+  const reached = attack.achieved && during.length === 0 && alerts.length === 0;
   return {
     id: kind,
     name,
@@ -514,6 +519,8 @@ function runGoal(params, baseline, kind, name) {
     achieved: attack.achieved,
     detail: attack.detail,
     anomalies: [...new Set(during)],
+    alerts: alerts.length,
+    alertKinds: [...new Set(alerts)],
     measured: true,
     start,
   };
@@ -568,7 +575,7 @@ function renderAdversary(report, params) {
     '',
     'No threshold was tuned. Detector defaults were not changed.',
     '',
-    'alerts: not measured, G2 option not on',
+    'alerts: measured on the attack engine with alerts true. A goal is reached only when the attack lands and that run emits no alert and no anomaly at medium or above.',
     '',
     '## Goals',
     '',
@@ -576,7 +583,9 @@ function renderAdversary(report, params) {
   for (const goal of report.goals) {
     const status = goal.reached ? 'reached (white-box blind spot)' : 'not reached';
     const extra = goal.anomalies.length > 0 ? ` (${goal.anomalies.join(', ')})` : '';
-    lines.push(`- ${goal.name}: ${status}${extra}`);
+    const kinds =
+      goal.alertKinds && goal.alertKinds.length > 0 ? ` [${goal.alertKinds.join(', ')}]` : '';
+    lines.push(`- ${goal.name}: ${status}${extra}; alerts ${goal.alerts}${kinds}`);
   }
   lines.push('');
   lines.push('Reached goals are published as white-box blind spots.');

@@ -201,7 +201,7 @@ export interface PolicyRule {
 
 export interface Indicator {
   value: string;
-  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad' | 'proxy-sdk' | 'young-domain';
+  type: 'ip' | 'cidr' | 'domain' | 'ja4' | 'tor' | 'ad' | 'tracker' | 'proxy-sdk' | 'young-domain';
   source: string;
   confidence?: number;
   expiresTs?: number | null;
@@ -323,6 +323,12 @@ export interface EngineOptions {
   audit?: boolean;
   /** Default false. Suggest peer groups. Never calls setPeerGroup. */
   peerSuggest?: boolean;
+  /** Default false. Per-class half-space-tree model. */
+  outlier?: boolean;
+  /** Default false. Per-device behavior sequence model. */
+  sequence?: boolean;
+  /** Default false. First-packet flow-shape histograms. */
+  flowShape?: boolean;
   redact?:
     | {
         key: string | Buffer;

@@ -328,12 +328,15 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 | `drift: true`                                                 | Daily drift series. Warning `BASELINE_DRIFT` or `incident.data.drift`. Never relearns                                                                |
 | `audit: true`                                                 | Hash-chained operator log in the checkpoint. `restore` warns `AUDIT_BROKEN` when the chain fails                                                     |
 | `peerSuggest: true`                                           | Suggests peer groups at `lock()`. Never calls `setPeerGroup`                                                                                         |
+| `outlier: true`                                               | Per-class half-space-tree model. `multivariate-outlier` stays shadow                                                                                 |
+| `sequence: true`                                              | Per-device transition model. `sequence-surprise` stays shadow                                                                                        |
+| `flowShape: true`                                             | First-packet histograms. `flow-shape-change` stays shadow. `hubvik doctor` sets `noSplt` when no event carries `splt`                                |
 | `annotate` / `loadTemplates` / `setDeviceCriticality`         | Maintenance windows, attack templates, and per-device alert thresholds. All default off                                                              |
 
 ## What this tree does not do yet
 
 `checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
-Every spec row has a detector file. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
+`dictionary-dga` has no detector file until Q-23 names the word list. The other B22 rows are shadow files on core 0.8.0. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
 
-With default options the bench meets both budgets on x86: under 10 µs median `feed()` at 1,000 devices and under 100 KB per device on the 7-day line. A Raspberry Pi 4 has not been measured. Nothing in this tree has been measured on a public dataset. Do not treat the roadmap's dataset names as results.
+With default options the bench meets both budgets on x86: under 10 µs median `feed()` at 1,000 devices and under 100 KB per device on the 7-day line. A Raspberry Pi 4 has not been measured. IoT-23 result files are `eval/results/iot23-malware/` and `eval/results/iot23-honeypot/`. Copy figures from those files. Do not treat the roadmap's dataset names as results.

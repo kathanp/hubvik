@@ -100,6 +100,7 @@ function doctor(eventsJsonl, opts) {
   let malformed = 0;
   let clockDisorder = 0;
   let reorderMs5000WouldAbsorb = 0;
+  let spltEvents = 0;
   let high = null;
   for (const line of String(eventsJsonl).split('\n')) {
     if (!line.trim()) continue;
@@ -115,6 +116,7 @@ function doctor(eventsJsonl, opts) {
       malformed += 1;
       continue;
     }
+    if (event.splt && typeof event.splt === 'object') spltEvents += 1;
     if (typeof event.ts === 'number' && high != null && event.ts < high) {
       clockDisorder += 1;
       if (high - event.ts <= 5000) reorderMs5000WouldAbsorb += 1;
@@ -140,6 +142,7 @@ function doctor(eventsJsonl, opts) {
     fieldDropped,
     clockDisorder,
     reorderMs5000WouldAbsorb,
+    noSplt: spltEvents === 0,
   };
 }
 

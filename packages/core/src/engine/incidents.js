@@ -66,7 +66,7 @@ function scoreOf(incident) {
  * @param {any} incident
  */
 function payload(incident) {
-  return {
+  const body = {
     id: incident.id,
     device: incident.device,
     stages: [...incident.stages],
@@ -77,6 +77,10 @@ function payload(incident) {
     lastTs: incident.lastTs,
     summary: `${incident.device} ${incident.lines.join(', then ')}`,
   };
+  if (incident.data && incident.data.drift) {
+    /** @type {any} */ (body).data = { drift: incident.data.drift };
+  }
+  return body;
 }
 
 /**

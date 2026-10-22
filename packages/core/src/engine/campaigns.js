@@ -68,6 +68,9 @@ function noteCampaign(engine, device, anomaly, event) {
   );
   score(campaign);
   campaign.lastTs = anomaly.ts;
+  device._campaignId = campaign.id;
+  const peer = engine.devices.get(links[0].from);
+  if (peer) peer._campaignId = campaign.id;
   if (opened || rankOf(campaign.severity) > rankOf(before)) {
     engine.emit('campaign', payload(campaign));
     if (typeof engine._considerAlert === 'function') {
