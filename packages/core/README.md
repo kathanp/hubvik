@@ -4,7 +4,7 @@ Per-device network anomaly detection for **IoT gateways, smart-home hubs, buildi
 
 Every IoT device talks through a gateway. hubvik runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: 1.0.0 prototype. Not for production. Not validated on real traffic. The package is not published. The 1.0.0 notes are in `CHANGELOG.md`. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open.
+> Status: 1.0.0 prototype. Not for production. Not validated on real traffic. Published as `hubvik@1.0.0`. The 1.0.0 notes are in `CHANGELOG.md`. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open.
 
 ## Install
 
