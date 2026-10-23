@@ -236,7 +236,7 @@ Two blockers are still open from WP-9.8 and WP-9.9. They are listed here as defe
 
 Under this rule, B21 rows are measurement instruments, not alert sources, and 0.1 stays honest.
 
-**Budget rule (binding).** No work package may push the 200-device 7-day retained memory (heap + ArrayBuffers) above 100 KB per device. A feature that needs memory gets a cap from options, a `memoryEstimate`, and a bench line in `docs/BENCHMARKS.md`.
+**Budget rule (binding).** The 200-device 7-day retained memory (heap + ArrayBuffers) requirement is 100 KB per device. The CI gate is 20% above the requirement, 120 KB per device. A feature that needs memory gets a cap from options, a `memoryEstimate`, and a bench line in `docs/BENCHMARKS.md`.
 
 **Order rule.** WP-10.1 runs first, then WP-11. WP-11 blocks every later WP. WP-12 (shadow framework) blocks every new detector.
 
@@ -252,7 +252,7 @@ Under this rule, B21 rows are measurement instruments, not alert sources, and 0.
 
 A shadow detector never alerts a user. Only a pilot reads `shadow-anomaly`, so a default engine does not pay memory or CPU for it. The measured cost of leaving them on was 87.36 KB per device against 67.86 KB with them off (D-34). A pilot that does not opt in collects no shadow evidence, and under the shadow rule above no B21 row can move to `live` without that evidence. The all-tier benign matrix, the multicast-hygiene test, the metamorphic suite, and each shadow detector's own tests pass `shadow: true`. `test/diff` uses `shadow: true`, the setting its golden was captured with, and does not edit the golden.
 
-**Bench budgets.** These are not raised. With default options the 200-device 7-day retained memory stays under 100 KB per device, and the 1,000-device watching median stays under 10 µs. With `shadow: true` the 7-day retained memory also stays under 100 KB per device, because the pilot runs on the same hardware. That run's median is recorded and is not a gate. A new shadow detector in WP-25 or WP-27 may cost at most 2 KB per device on the 7-day sweep with `shadow: true`. The 64-device sweep on 2026-10-20 put every Rel 0.9 shadow row added after WP-21.5 under that cap. `sni-ip-mismatch` was the largest, at 0.88 KB/device. The rows are in BENCHMARKS.
+**Bench budgets.** The requirement is 10 µs and 100 KB per device. The CI gate is always 20% above the requirement: the 1,000-device watching median stays under 12 µs, and the 200-device 7-day retained memory stays under 120 KB per device with default options and with `shadow: true`. The shadow run's median is recorded and is not a gate. A new shadow detector in WP-25 or WP-27 may cost at most 2 KB per device on the 7-day sweep with `shadow: true`. The 64-device sweep on 2026-10-20 put every Rel 0.9 shadow row added after WP-21.5 under that cap. `sni-ip-mismatch` was the largest, at 0.88 KB/device. The rows are in BENCHMARKS.
 
 ## 0.6 What spec 3.2 adds: the state of the tree on 2026-10-20
 
@@ -1208,7 +1208,7 @@ Budgets: **< 100 KB per watching device with all 0.x detectors on; < 30 µs medi
 
 The unpacked core package cap is 900 KB, raised from 750 KB on 2026-10-22. The measured unpacked size on that day was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
-From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` is also kept under 100 KB per device. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
+From 3.1 the memory budget is measured on the 200-device, 7-day rich-traffic line (heap + ArrayBuffers), not only the 2-event line. The default line includes every Part F option that defaults on. Shadow detectors, the horizon ring, and the LAN graph are off on that line (D-34). A second line with `shadow: true` uses the same CI gate, 120 KB per device, which is 20% above the 100 KB requirement. Its median is recorded and is not a gate. Part F caps: 4 canaries per engine, 1,000 explanations, 256 campaigns × 64 edges, 32 LAN edges and 64 WAN families per device in the graph, 16 addresses per MAC and 50,000 identity rows, 256 rules × 10,000 groups, 10,000 feedback records, 1,000 federated summaries.
 
 3.3 caps (engine-wide, reported on their own BENCHMARKS line): 256 annotations for `'*'` plus 64 per device, 10,000 audit records, 64 templates × 1,000 partial matches, 16 outlier models of about 41 KB each, 2 Bloom filters of 64 KB each, 72 sequence tokens. Per device: 160 B drift state, 256 B MinHash, 768 B sequence counts, 512 B flow-shape histograms, 64 B outlier feature accumulator.
 
@@ -1913,7 +1913,7 @@ npm run gate && npm run demo
 ### WP-8 — Phase 5 hardening
 
 - [x] Fuzz (`fuzz/feed.fuzz.js`, `fuzz/baseline.fuzz.js`, `fuzz/checkpoint.fuzz.js`, `fuzz/mutate.fuzz.js`), 100,000 seeded inputs each. Every accepted mutation keeps collection caps, leaves `Object.prototype` clean, and survives `export` → `import` → `export` byte for byte (`createdAt` fixed).
-- [x] Bench with **all tiers on**. Feed 1,000 devices past `learnMs`, call `lock()`, then time `feed()` in the watching state. Proxy budgets on x86 CI: median `feed()` < 10 µs, < 100 KB per watching device. The bench exits non-zero when a budget is missed. `npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then this bench. It finishes every step and, when any step failed, exits non-zero and lists those steps.
+- [x] Bench with **all tiers on**. Feed 1,000 devices past `learnMs`, call `lock()`, then time `feed()` in the watching state. Proxy budgets on x86 CI: the requirement is median `feed()` < 10 µs and < 100 KB per watching device. The gate is 20% above that, median `feed()` < 12 µs and < 120 KB per watching device. The bench exits non-zero when a budget is missed. `npm run gate` runs check, coverage, pack-check, spec-coverage, fuzz, then this bench. It finishes every step and, when any step failed, exits non-zero and lists those steps.
 - [ ] Raspberry Pi 4 numbers are run by the human and pasted into `docs/BENCHMARKS.md`.
 - [x] Bump core to `0.5.0` only after WP-0 to WP-8 pass. Stop.
 

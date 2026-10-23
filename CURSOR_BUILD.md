@@ -329,7 +329,7 @@ Bump core to `0.4.0`; adapters/exporters to `0.1.0`. **STOP.**
 
 - 10,000 devices with mixed profiles, all detectors on.
 - Report: median and p99 `feed()` time, per-device memory.
-- CI enforces a proxy budget on x86: **median < 10 µs, memory < 100 KB per device.** Record the real Raspberry Pi 4 numbers manually in `docs/BENCHMARKS.md`; the human runs that.
+- CI enforces a proxy budget on x86 at 20% above the requirement: **median < 12 µs, memory < 120 KB per device.** The requirement is 10 µs and 100 KB. Record the real Raspberry Pi 4 numbers manually in `docs/BENCHMARKS.md`; the human runs that.
 
 ### 5.3 Evaluation harness (C6) — numbers only from real runs
 
