@@ -133,6 +133,7 @@ class Engine extends EventEmitter {
     this.active = [];
     /** @type {Record<string, any[]>} */
     this.byType = Object.create(null);
+    this.preparedType = Object.create(null);
     for (const type of EVENT_TYPES) this.byType[type] = [];
     /** @type {Record<string, { active: boolean, reason: string | null }>} */
     this.detectorStatus = Object.create(null);
@@ -155,7 +156,11 @@ class Engine extends EventEmitter {
       this.detectorStatus[det.id] = status;
       if (!status.active) continue;
       this.active.push(det);
-      for (const type of consumes) this.byType[type].push(det);
+      const prepares = typeof det.prepare === 'function';
+      for (const type of consumes) {
+        this.byType[type].push(det);
+        if (prepares) this.preparedType[type] = true;
+      }
     }
     this._horizonOn = horizonOn(this);
     this._graphOn = graphOn(this);

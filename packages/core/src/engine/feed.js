@@ -245,8 +245,9 @@ module.exports = {
     const ctx = this._ctx(device, learning, event.ts);
     ctx.window = device.open;
     const list = this.byType[event.type] || [];
+    const gated = this.preparedType[event.type] === true;
     for (const det of list) {
-      if (typeof det.prepare === 'function' && !det.prepare(event, ctx)) continue;
+      if (gated && det.prepare && !det.prepare(event, ctx)) continue;
       if (this._sheds(det)) {
         if (learning && !this._shedLearn && !det.hardRule && typeof det.learn === 'function') {
           det.learn(/** @type {any} */ (this)._state(device, det), event, ctx);
