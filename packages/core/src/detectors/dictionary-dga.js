@@ -112,7 +112,9 @@ function joined(ev) {
  */
 function lowTtl(ev) {
   if (!Array.isArray(ev.answers) || ev.answers.length === 0) return false;
-  return ev.answers.some((answer) => typeof answer.ttl === 'number' && answer.ttl <= 300);
+  return ev.answers.some(
+    /** @param {any} answer */ (answer) => typeof answer.ttl === 'number' && answer.ttl <= 300,
+  );
 }
 
 /**
