@@ -13,3 +13,4 @@ eval/results/evasion.md
 test/diff/golden.json
 api/*.api.json
 packages/cli/test/kimwolf.snapshot.html
+packages/core/src/data/words.json

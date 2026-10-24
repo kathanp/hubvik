@@ -6,7 +6,7 @@ The new behavior is the alert gate and five shadow detectors. They report only.
 
 `fdr` stays off. With `fdr: true`, a live anomaly is marked `discover`, `defer`, or `bypass`, and an alert waits until the discovered weight reaches the same bar as today. The incident score still counts every anomaly. `src/engine/stats/hawkes.js` is the bounded Hawkes intensity.
 
-Shadow rows, on only when `shadow` selects them: `graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, and `mqtt-will-takeover`.
+Shadow rows, on only when `shadow` selects them: `graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, and `mqtt-will-takeover`. `dictionary-dga` is in this version too. `src/data/words.json` is 2,000 words of 3–5 letters taken from the public-domain system word list.
 
 `npm run check` is not the gate. `npm run gate` has to pass on the tree that gets pushed. Check does not compare the API snapshot, so a types change can go red on GitHub while check is green.
 

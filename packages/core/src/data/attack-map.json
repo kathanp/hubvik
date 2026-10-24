@@ -33,6 +33,7 @@
   "karma-responder": ["T1557"],
   "cname-cloak": ["T1090"],
   "ja4-churn": ["T1027"],
+  "dictionary-dga": ["T1568.002"],
   "lan-first-seen-domain": ["T1071"],
   "doh-bypass": ["T1071.004"],
   "spectral-beacon": ["T1071"],

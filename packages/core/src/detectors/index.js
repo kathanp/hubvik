@@ -145,6 +145,7 @@ const ALL = [
   require('./karma-responder'),
   require('./cname-cloak'),
   require('./ja4-churn'),
+  require('./dictionary-dga'),
   require('./lan-first-seen-domain'),
   require('./dormant-reactivation'),
   require('./firmware-size-divergence'),
