@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@1.0.0`, prototype. It is not published and it has not been validated on real traffic. The registry still has `hubvik@0.8.0`. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: package `hubvik@1.3.1`, prototype. It is not published and it has not been validated on real traffic. The registry still has `hubvik@0.8.0`. Do not publish detection rates that this repository did not measure.
 
 ## Install
 

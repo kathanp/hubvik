@@ -1,8 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.3.1
 
-Spec 3.4, aimed at 1.2.0. `fdr` defaults off. With `fdr: true`, live anomalies get `data.fdr` of `discover`, `defer`, or `bypass`, and an `alert` waits until the discovered weight reaches the same bar as today. The incident score still counts every anomaly. `src/engine/stats/hawkes.js` is the bounded Hawkes intensity. Shadow rows, on only when `shadow` selects them: `graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, and `mqtt-will-takeover`. D-86 through D-94 stay proposed. The 0.6 gate is still open. The package version stays 1.0.0.
+The new behavior is the alert gate and five shadow detectors. They report only.
+
+`fdr` stays off. With `fdr: true`, a live anomaly is marked `discover`, `defer`, or `bypass`, and an alert waits until the discovered weight reaches the same bar as today. The incident score still counts every anomaly. `src/engine/stats/hawkes.js` is the bounded Hawkes intensity.
+
+Shadow rows, on only when `shadow` selects them: `graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, and `mqtt-will-takeover`.
+
+`npm run check` is not the gate. `npm run gate` has to pass on the tree that gets pushed. Check does not compare the API snapshot, so a types change can go red on GitHub while check is green.
+
+D-86 through D-94 stay proposed. The 0.6 false-positive gate is still open. Not published.
 
 ## 1.0.0
 
