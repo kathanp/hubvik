@@ -2,7 +2,7 @@
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **1.3.1 prototype — not published, not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 1.3.1 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. Nothing in this repo is published to npm. The registry still has `hubvik@0.8.0`.
+Status: **1.4.0 prototype — not published, not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 1.4.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. Nothing in this repo is published to npm. The registry still has `hubvik@0.8.0`.
 
 How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is [`docs/DETECTORS.md`](docs/DETECTORS.md).
 
@@ -41,18 +41,19 @@ npm run demo
 
 ## Options
 
-| Option               | Default  | Meaning                                              |
-| -------------------- | -------- | ---------------------------------------------------- |
-| `learnMs`            | 7 days   | Learning period per device, from its first event     |
-| `windowMs`           | 60 s     | Traffic window size                                  |
-| `sigma`              | 4        | Volume spike sensitivity                             |
-| `minFanout`          | 10       | Never flag fan-out below this many hosts per window  |
-| `minBytes`           | 1 MB     | Never flag volume below this per window              |
-| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window             |
-| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed   |
-| `fanoutFactor`       | 3        | Fan-out limit is at least this times the learned max |
-| `peakFactor`         | 2        | Volume limit is at least this times the learned max  |
-| `tiers`              | `['T0']` | Event tiers the host is sending                      |
+| Option               | Default  | Meaning                                                      |
+| -------------------- | -------- | ------------------------------------------------------------ |
+| `learnMs`            | 7 days   | Learning period per device, from its first event             |
+| `windowMs`           | 60 s     | Traffic window size                                          |
+| `sigma`              | 4        | Volume spike sensitivity                                     |
+| `minFanout`          | 10       | Never flag fan-out below this many hosts per window          |
+| `minBytes`           | 1 MB     | Never flag volume below this per window                      |
+| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window                     |
+| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed           |
+| `fanoutFactor`       | 3        | Fan-out limit is at least this times the learned max         |
+| `peakFactor`         | 2        | Volume limit is at least this times the learned max          |
+| `tiers`              | `['T0']` | Event tiers the host is sending                              |
+| `correlate`          | `false`  | Copy a DNS or TLS name onto a later flow with the same `uid` |
 
 ## Limits
 

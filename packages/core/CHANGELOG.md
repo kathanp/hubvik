@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0
+
+`correlate` defaults off. With `correlate: true`, a DNS query name or a TLS SNI is stored under the event's `uid` and copied onto a later flow that has the same `uid` and no `dstName`. The table holds 4,096 ids and drops a name after 120 seconds. A DNS name replaces an earlier TLS name. A second DNS name does not replace the first. The checkpoint stores the table. A default engine ignores it. A bad table throws `CHECKPOINT_CORRELATE_IS_INVALID`.
+
+`@hubvik/adapter-zeek` 0.2.0 reads `conn_state`, `local_orig`, `local_resp`, and `uid`. Inbound flows count the device's bytes, not the initiator's. `@hubvik/adapter-suricata-eve` 0.2.0 does the same from `flow.state`, address locality, and `flow_id`. A Zeek conn log can now drive `port-knock`. A Zeek or Suricata DNS line plus the matching flow can drive `cloud-storage-exfil` when `correlate` is on. With `correlate` off, the anomaly stream is unchanged.
+
+D-95 through D-98 stay proposed. The 0.6 false-positive gate is still open. Not published.
+
 ## 1.3.1
 
 The new behavior is the alert gate and five shadow detectors. They report only.

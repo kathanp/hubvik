@@ -1,5 +1,7 @@
 'use strict';
 
+const { tcpOutcome, flowSide, stamp, dnsAnswers, appExtras } = require('./fields');
+
 const LOGS = new Set([
   'conn',
   'dns',
@@ -70,22 +72,29 @@ function build(log, row, deviceFor, now) {
  */
 function flow(row, id, ts, deviceFor) {
   if (!id.orig_h || !id.resp_h) return null;
-  return {
+  const src = String(id.orig_h);
+  const dst = String(id.resp_h);
+  const side = flowSide(row, src, dst);
+  /** @type {Record<string, any>} */
+  const event = {
     type: 'flow',
-    device: deviceFor(String(id.orig_h)),
+    device: deviceFor(side.deviceIp),
     ts,
-    srcIp: String(id.orig_h),
+    srcIp: src,
     srcPort: Number(id.orig_p) || 0,
-    dstIp: String(id.resp_h),
+    dstIp: dst,
     dstPort: Number(id.resp_p) || 0,
     proto: String(row.proto || 'tcp').toLowerCase(),
-    direction: 'out',
-    bytesOut: Number(row.orig_bytes) || 0,
-    bytesIn: Number(row.resp_bytes) || 0,
-    pktsOut: Number(row.orig_pkts) || 0,
-    pktsIn: Number(row.resp_pkts) || 0,
+    direction: side.direction,
+    bytesOut: side.inbound ? Number(row.resp_bytes) || 0 : Number(row.orig_bytes) || 0,
+    bytesIn: side.inbound ? Number(row.orig_bytes) || 0 : Number(row.resp_bytes) || 0,
+    pktsOut: side.inbound ? Number(row.resp_pkts) || 0 : Number(row.orig_pkts) || 0,
+    pktsIn: side.inbound ? Number(row.orig_pkts) || 0 : Number(row.resp_pkts) || 0,
     durationMs: Math.round((Number(row.duration) || 0) * 1000),
   };
+  const outcome = tcpOutcome(row.proto, row.conn_state);
+  if (outcome) event.tcpOutcome = outcome;
+  return stamp(event, row);
 }
 
 /**
@@ -96,19 +105,19 @@ function flow(row, id, ts, deviceFor) {
  */
 function dns(row, id, ts, deviceFor) {
   if (!row.query) return null;
-  const answers = Array.isArray(row.answers)
-    ? row.answers.map((value) => ({ type: 'A', value: String(value), ttl: Number(row.TTLs) || 0 }))
-    : [];
-  return {
-    type: 'dns',
-    device: deviceFor(String(id.orig_h || '0.0.0.0')),
-    ts,
-    qname: String(row.query),
-    qtype: String(row.qtype_name || 'A'),
-    rcode: String(row.rcode_name || 'NOERROR'),
-    resolver: String(id.resp_h || 'gateway'),
-    answers,
-  };
+  return stamp(
+    {
+      type: 'dns',
+      device: deviceFor(String(id.orig_h || '0.0.0.0')),
+      ts,
+      qname: String(row.query),
+      qtype: String(row.qtype_name || 'A'),
+      rcode: String(row.rcode_name || 'NOERROR'),
+      resolver: String(id.resp_h || 'gateway'),
+      answers: dnsAnswers(row),
+    },
+    row,
+  );
 }
 
 /**
@@ -131,7 +140,7 @@ function tls(row, id, ts, deviceFor) {
   if (row.ja4) event.ja4 = String(row.ja4);
   if (row.version) event.version = String(row.version);
   if (row.issuer) event.cert = { issuer: String(row.issuer) };
-  return event;
+  return stamp(event, row);
 }
 
 /**
@@ -219,7 +228,9 @@ function application(log, row, id, ts, deviceFor) {
     op: mapped.op,
   };
   if (mapped.target) event.target = mapped.target;
-  return event;
+  if (mapped.unitId != null) event.unitId = mapped.unitId;
+  if (mapped.flags) event.flags = mapped.flags;
+  return stamp(event, row);
 }
 
 /**
@@ -227,19 +238,23 @@ function application(log, row, id, ts, deviceFor) {
  * @param {any} row
  */
 function appOp(log, row) {
-  if (log === 'modbus')
-    return { proto: 'modbus', op: String(row.func || 'read'), target: text(row.address) };
+  const extra = appExtras(log, row);
+  if (log === 'modbus') {
+    return { proto: 'modbus', op: String(row.func || 'read'), target: text(row.address), ...extra };
+  }
   if (log === 'dnp3')
     return { proto: 'dnp3', op: String(row.fc_request || row.function || 'read') };
   if (log === 'bacnet')
     return { proto: 'bacnet', op: String(row.service || row.pdu_service || 'read') };
   if (log === 's7comm') return { proto: 's7', op: String(row.function || row.rosctr || 'read') };
   if (log === 'enip') return { proto: 'enip', op: String(row.command || 'read') };
-  if (log === 'mqtt_connect') return { proto: 'mqtt', op: 'CONNECT' };
+  if (log === 'mqtt_connect') return { proto: 'mqtt', op: 'CONNECT', ...extra };
   if (log === 'mqtt_subscribe') {
     return { proto: 'mqtt', op: 'SUBSCRIBE', target: text(row.topic || first(row.topics)) };
   }
-  if (log === 'mqtt_publish') return { proto: 'mqtt', op: 'PUBLISH', target: text(row.topic) };
+  if (log === 'mqtt_publish') {
+    return { proto: 'mqtt', op: 'PUBLISH', target: text(row.topic), ...extra };
+  }
   return null;
 }
 

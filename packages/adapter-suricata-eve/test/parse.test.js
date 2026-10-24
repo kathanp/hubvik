@@ -20,6 +20,7 @@ test('parses flow, dns, tls, http, and alert lines', () => {
   );
   assert.strictEqual(flow.type, 'flow');
   assert.strictEqual(flow.bytesOut, 100);
+  assert.strictEqual(flow.direction, 'out');
 
   const [dns] = parser.write(
     JSON.stringify({
@@ -86,4 +87,58 @@ test('http.direction is in when the device is dest_ip', () => {
   );
   assert.strictEqual(page.direction, 'in');
   assert.strictEqual(page.device, '10.0.0.8');
+});
+
+test('flow_id, tcp outcome, inbound bytes, and dns ttl are kept', () => {
+  const parser = createParser({ now: () => 1000 });
+  const [inbound] = parser.write(
+    JSON.stringify({
+      event_type: 'flow',
+      flow_id: 42,
+      src_ip: '8.8.8.8',
+      src_port: 9,
+      dest_ip: '10.0.0.8',
+      dest_port: 22,
+      proto: 'TCP',
+      flow: { bytes_toserver: 40, bytes_toclient: 7, state: 'new', pkts_toclient: 0 },
+    }),
+  );
+  assert.strictEqual(inbound.direction, 'in');
+  assert.strictEqual(inbound.device, '10.0.0.8');
+  assert.strictEqual(inbound.bytesOut, 7);
+  assert.strictEqual(inbound.bytesIn, 40);
+  assert.strictEqual(inbound.tcpOutcome, 'no-response');
+  assert.strictEqual(inbound.uid, '42');
+
+  const [lane] = parser.write(
+    JSON.stringify({
+      event_type: 'flow',
+      src_ip: '10.0.0.8',
+      dest_ip: '10.0.0.9',
+      dest_port: 80,
+      proto: 'TCP',
+      flow: { state: 'established', age: 1.5 },
+      tcp: { rst: true },
+    }),
+  );
+  assert.strictEqual(lane.direction, 'lan');
+  assert.strictEqual(lane.tcpOutcome, 'reset');
+  assert.strictEqual(lane.durationMs, 1500);
+
+  const [query] = parser.write(
+    JSON.stringify({
+      event_type: 'dns',
+      flow_id: 42,
+      src_ip: '10.0.0.8',
+      dest_ip: '10.0.0.1',
+      dns: {
+        rrname: 's3.amazonaws.com',
+        type: 'A',
+        rcode: 'NOERROR',
+        answers: [{ rdata: '1.2.3.4', rrtype: 'A', ttl: 60 }],
+      },
+    }),
+  );
+  assert.strictEqual(query.uid, '42');
+  assert.strictEqual(query.answers[0].ttl, 60);
 });

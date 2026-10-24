@@ -7,6 +7,7 @@ const { readFeedback, noteNoisy } = require('./feedback');
 const { prepareImport, attachMeta } = require('./baseline');
 const { exportGraph, importGraph } = require('./graph');
 const { toJSON: fdrToJSON } = require('./stats/alphainvest');
+const { toJSON: correlateToJSON, fromJSON: correlateFromJSON } = require('./correlate');
 const ann = require('./annotations');
 const auditLog = require('./audit');
 const {
@@ -140,6 +141,9 @@ module.exports = {
     if (this._audit) {
       /** @type {any} */ (body).audit = auditLog.toJSON(this._audit);
     }
+    if (this.opts.correlate && this._correlate && this._correlate.size > 0) {
+      /** @type {any} */ (body).correlate = correlateToJSON(this._correlate);
+    }
     if (this._fdr && this._fdr.size > 0) {
       /** @type {Record<string, any>} */
       const fdr = {};
@@ -225,6 +229,9 @@ module.exports = {
     }
     this._feedback = readFeedback(cp.feedback);
     if (typeof this._restorePartG === 'function') this._restorePartG(cp);
+    if (this.opts.correlate && cp.correlate != null) {
+      this._correlate = correlateFromJSON(cp.correlate);
+    }
     this._anomalyById = new Map();
     this._anomalyByFp = new Map();
     this._noisy = new Set();

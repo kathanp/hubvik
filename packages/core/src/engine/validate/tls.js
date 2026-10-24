@@ -1,6 +1,6 @@
 'use strict';
 
-const { requireFields, num, normalizeName } = require('./common');
+const { requireFields, num, normalizeName, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -52,6 +52,7 @@ function tlsEvent(raw, ts, warnings) {
     }
     event.cert = cert;
   }
+  copyUid(raw, event, warnings);
   return event;
 }
 

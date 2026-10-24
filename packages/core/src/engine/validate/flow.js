@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../../errors');
 
-const { normalizeName, requireFields, num } = require('./common');
+const { normalizeName, requireFields, num, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -100,6 +100,7 @@ function flowEvent(raw, ts, warnings) {
   }
   const splt = flowSplt(raw.splt, warnings);
   if (splt) event.splt = splt;
+  copyUid(raw, event, warnings);
   return event;
 }
 

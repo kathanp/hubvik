@@ -1499,6 +1499,11 @@ Fix: change the value that failed the check and call the method again. The libra
 Cause: 'criticality is invalid'.
 Fix: change the value that failed the check and call the method again. The library does not modify traffic.
 
+## CHECKPOINT_CORRELATE_IS_INVALID
+
+Cause: 'checkpoint correlate is invalid'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
 ## CHECKPOINT_FDR_IS_INVALID
 
 Cause: 'checkpoint fdr is invalid'.

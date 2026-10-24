@@ -26,4 +26,5 @@ Source of truth: `docs/SPEC.md`. Build order is Part E of that file, or `docs/AU
 - Validate all external input (events, options, baselines, indicators). Reject `__proto__`, `constructor`, `prototype` keys.
 - Small commits, conventional messages: `feat(detector): horizontal-scan`, `fix(engine): flush closes only ended windows`.
 - After every task, `npm run gate` must be green before a commit is pushed. `npm run check` is lint, types, and tests. It is not the gate.
+- When that gate exits 0 on the release tree, commit `release: x.y.z` on `release/<x.y.z>`, push that branch and tag `v<x.y.z>`, and merge into main after the GitHub workflows are green. Do not ask. Do not run `npm publish` or `npm login`.
 - When the spec is ambiguous or seems wrong: stop, write the question in `docs/QUESTIONS.md`, and ask. Do not guess silently.
