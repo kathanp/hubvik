@@ -1,10 +1,10 @@
 # AUTOPILOT — full-cycle run playbook
 
-Local only (`.gitignore`), never pushed. One run produces one version. The master reads this file, then `docs/RULES.md`, `CONTRIBUTING.md`, and `docs/SPEC.md`. All of them apply in full. The master chooses the next `x.y.z` and starts the run. The human's act in a normal version is the publish approval.
+Local only (`.gitignore`), never pushed. One run produces one version. The master reads this file, then `docs/RULES.md`, `CONTRIBUTING.md`, and `docs/SPEC.md`. All of them apply in full. The master chooses the next `x.y.z` and starts the run.
 
 **Next version.** Read `packages/core/package.json` and the unfinished spec. A fix to behavior that is already specified is a patch. A large new behavior that does not change an existing call is a minor version. A change to a public method, a removed method, or a default that changes which anomalies fire is a major version. The aim of every version is a large improvement: the strongest behavior the catalog does not already report.
 
-**Cycle:** spec → design → tests → code → review → gate → docs → one local commit `release: x.y.z` → one push → GitHub push checks and the GitHub publish workflow both green → then merge into main. The human's only click is the approval on the npm website, if npm asks for one. The master never runs `npm publish` or `npm login`.
+**Cycle:** spec → design → tests → code → review → gate → docs → one local commit `release: x.y.z` → one push of the release branch and the tag → GitHub Actions runs `npm publish` → merge into main. If the npm website then shows the version as staged, the person clicks Approve there. That click is not a step in this playbook. Do not stop the run to ask for it. Do not run `npm publish` or `npm login` in the terminal.
 
 **Principle:** every rule a script can check is checked by `scripts/autopilot/guard.mjs`. Prose is the fallback only when no check is possible. A green guard is required at every step that names one.
 
@@ -29,8 +29,8 @@ Workers never push. A per-step push is not allowed. The master pushes only at st
 
 | Role         | Max at once                                                | Owns                                                                                            | Never does                                                                           |
 | ------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Human        | —                                                          | Publish approval, and accepting each `[PROPOSED D-n]`                                           | —                                                                                    |
-| Master       | 1                                                          | Version choice, plan, cards, merges, shared files, the release commit, the step 10 push and tag | Write detector code or tests; run `--approve-spec`; run `npm publish` or `npm login` |
+| Human        | —                                                          | The Approve button on the npm website, after the workflow has published                        | —                                                                                    |
+| Master       | 1                                                          | Version choice, plan, cards, merges, shared files, the release commit, the step 10 push and tag | Write detector code or tests; run `npm publish` or `npm login` in the terminal               |
 | Spec agent   | 3 per open question, plus 1 market subagent per version    | Its reply to the master, in memory                                                              | Write any file                                                                       |
 | Design agent | 3 per task (smallest, lowest memory, largest new behavior) | Its reply to the master, in memory                                                              | Write any file; introduce a number                                                   |
 | Test agent   | 1 per independent task                                     | Test paths in its card, plus the code stub                                                      | Edit `src/` beyond the stub, an existing assertion, a golden file                    |
@@ -190,16 +190,11 @@ This installs the hook, snapshots the protected files, creates `run/<name>` from
      Each replies to the master with options, numbers, and risks. Nothing is written to a file. One lane is enough when the choice does not change which alerts fire.
      A fourth subagent lists behaviors current gateway products report that this catalog does not. The master adds one only when the gateway can see it from events the library already accepts, the library reports and does not block, and the behavior has a cap.
 3. The master writes the large version into `docs/SPEC.md`. A number already approved stays. Every new or changed number is marked `[PROPOSED D-n]`. Each choice is logged in `docs/DECISIONS.md` as `D-n | <task> | decision | reason | PROPOSED`.
-4. The master builds the dependency graph (engine dependencies and shared files) into RUN_STATE. When every number is already approved and the spec has no `[PROPOSED` mark, the master does not stop for another approval. When any `[PROPOSED D-n]` mark exists, the master sets PHASE `approval` and waits.
-5. **Only when a `[PROPOSED D-n]` mark exists.** The human accepts, edits, or deletes each one, then runs:
-   ```
-   node scripts/autopilot/guard.mjs --approve-spec --run <name>
-   ```
-   It refuses while any `[PROPOSED` mark remains, needs a terminal, and asks for the word APPROVE. The master never runs this command. The run does not shrink to a small edit while it waits.
+4. The master builds the dependency graph (engine dependencies and shared files) into RUN_STATE. A `[PROPOSED D-n]` mark stays in the spec. It does not pause the run, and the master does not ask for approval in chat.
 
-The SPEC and DECISIONS edits are committed on `run/<name>` as `docs(spec): #0 run <name> decisions` once the spec is approved, before any worktree is created. Workers branch from `run/<name>`, so they must see the approved SPEC. A later re-approval amends that commit with `--fixup` and autosquash.
+The SPEC and DECISIONS edits are committed on `run/<name>` as `docs(spec): #0 run <name> decisions` before any worktree is created. Workers branch from `run/<name>`, so they must see that SPEC.
 
-From approval on, **the SPEC is frozen.** Every later guard step checks its hash. A needed SPEC change mid-run stops the build lanes, goes back through this step, and needs a new approval when it adds a `[PROPOSED D-n]` mark.
+From here, **the SPEC is frozen** for the rest of the run. Every later guard step checks its hash. A needed SPEC change mid-run stops the build lanes and goes back through this step. A new `[PROPOSED D-n]` mark does not ask for approval in chat.
 
 ### Step 2 — Design
 
@@ -361,18 +356,18 @@ node scripts/autopilot/guard.mjs --squash --run <name> --version <x.y.z>
 
 It refuses unless the tree is clean, `run/<name>` sits on top of main, the history, protected files, and SPEC approval all pass, and core's version is x.y.z. It then creates `release/<x.y.z>` from main with one commit `release: x.y.z` (body: the task subjects), checks the tree equals `run/<name>`, and runs `--verify-release`. Nothing is pushed.
 
-### Step 10 — Publish approval
+### Step 10 — Push the tag so GitHub publishes
 
 ```
 node scripts/autopilot/guard.mjs --release-check --version <x.y.z>
 ```
 
-It lists blockers (missing `repository` / `bugs` / `homepage`, no disclosure email in `SECURITY.md`, no `origin` remote, no trusted-publishing workflow, tag already exists) and the manual checks it cannot do (trademark search, npm org). A blocker here stops the push. When the check is clean, the master does the GitHub steps below. The master never runs `npm publish` or `npm login`.
+It lists blockers (missing `repository` / `bugs` / `homepage`, no disclosure email in `SECURITY.md`, no `origin` remote, no trusted-publishing workflow, tag already exists) and the manual checks it cannot do (trademark search, npm org). A missing file or a red `npm run gate` stops the push. The npm website Approve button does not. The master does not run `npm publish` or `npm login` in the terminal.
 
 The local `release: x.y.z` commit already exists from step 9. Nothing has been pushed yet.
 
 1. One push only. It sends `release/<x.y.z>` and the tag `v<x.y.z>` together. There is no second push.
-2. Wait. The GitHub push workflow and the GitHub publish workflow must both be green. The human's only click is on the npm website, if npm asks for approval during that publish.
+2. The tag starts the GitHub publish workflow, which runs `npm publish`. Cursor does not wait. If npm shows the version as staged, the person clicks Approve on the npm website.
 3. Merge into main only after both are green. Use **"Create a merge commit"** (the branch is already one commit; a GitHub squash changes the hash and breaks `--cleanup`). Then fast-forward local main.
 4. Do not merge while either GitHub workflow is red or still running. Do not push a fix to make one of them green.
 
@@ -453,5 +448,5 @@ Demo: <stages printed in the incident>
 Thresholds/defaults changed: <none | list, before → after>
 Decisions approved: <D-n list>
 Release blockers: <none | list from --release-check>
-Next action for human: <click the publish approval | accept the PROPOSED marks | one line>
+Next action for human: <the npm website Approve button, after the workflow publishes | one line>
 ```

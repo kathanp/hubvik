@@ -353,7 +353,7 @@ An agent asked to start a B23 row while C10 row 0.6 is unticked writes the reque
 
 ### 0.9.2 Numbers
 
-D-86 to D-94 are `[PROPOSED]`. No code may treat them as approved. The implementation that is in the tree uses these values so the tests have a fixed target. A release commit waits until the marks are gone.
+D-86 to D-94 are `[PROPOSED]`. The implementation that is in the tree uses these values so the tests have a fixed target. Those marks do not stop a release. The Approve button on the npm website is not a step in Cursor.
 
 - **Budget.** H1 state is one number and a 64-entry ring per device that has had a live anomaly since UTC midnight. H2, when a future row uses it, is at most 32 timestamps per tracked series and must stay inside the 2 KB shadow cap. Neither may raise the 1,000-device watching median by more than 0.5 µs with the option left off (D-85). With `fdr: true` the median is recorded and is not a new gate.
 - **Success metric.** Not a new detector count. The metric is alerts per benign device-day against anomalies per benign device-day, on the same capture, with `fdr: false` and `fdr: true`. WP-31 still owns the C6.3 gate. H1 does not tune a detector.
@@ -2405,7 +2405,7 @@ Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 
 
 ### Questions to put in `docs/QUESTIONS.md` before WP-28 starts
 
-- [ ] **Q-14** Disclosure email for `SECURITY.md`? (Same as open question 1.) Until answered, WP-36 leaves the field as a blocker.
+- [ ] **Q-14** Disclosure email for `SECURITY.md`? (Same as open question 1.) Open. It does not stop the GitHub publish workflow. The npm website Approve button is not a Cursor step.
 - [x] **Q-15** GitHub owner for the repository: personal (`kathanp/hubvik`) or an organization? `github.com/hubvik` is taken (ADR 0001). Resolved: personal `kathanp/hubvik` (D-38).
 - [x] **Q-16** IoT-23 labels `Background` and `No Label`: benign or excluded? (Same as open question 3.) Blocks WP-31's FP rate, because it changes the benign denominator. Spec default: excluded from both numerator and denominator, and counted in a separate line. Resolved: excluded (D-39). The published rate was not re-run.
 - [x] **Q-17** If WP-28 finds headroom under 20 KB, convert the two ratio rings to Welford (moves the golden, a person approves) or accept the cost? Not triggered. Headroom stayed above 20 KB.
