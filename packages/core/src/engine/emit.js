@@ -4,6 +4,7 @@ const { createHash } = require('node:crypto');
 const { rememberAnomaly } = require('./feedback');
 const { noteThreat } = require('./promote');
 const { noteCampaign } = require('./campaigns');
+const { spread } = require('./contagion');
 const { noteIncident } = require('./incidents');
 const ATTACK = require('../data/attack-map.json');
 
@@ -462,6 +463,7 @@ module.exports = {
       this.seq += 1;
       this.anomalyCount += 1;
       anomaly.id = String(this.seq);
+      if (this.opts.fdr) this._fdrPush(device, anomaly);
       if (this._canaryOverrides(det)) this._rememberFp(device, det.id, fingerprint, 'live');
       if (
         typeof this._tagAnnotation === 'function' &&
@@ -479,6 +481,7 @@ module.exports = {
       rememberAnomaly(this, anomaly);
       noteThreat(this, device, det, anomaly);
       this.emit('anomaly', anomaly);
+      spread(this, device, anomaly);
       if (
         learning &&
         (det.id === 'proxy-relay' || det.id === 'blockchain-c2' || det.id === 'class-violation')

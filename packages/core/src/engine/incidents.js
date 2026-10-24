@@ -16,6 +16,22 @@ function weightOf(anomaly) {
 }
 
 /**
+ * Alert weight counts discovered and bypassed anomalies only. The emitted
+ * incident score still uses every anomaly.
+ * @param {any} engine
+ * @param {any} incident
+ * @param {any} anomaly
+ * @returns {void}
+ */
+function noteFdr(engine, incident, anomaly) {
+  if (!engine.opts.fdr) return;
+  const verdict = anomaly.data && anomaly.data.fdr;
+  if (verdict === 'discover' || verdict === 'bypass') {
+    incident.fdrRaw = (incident.fdrRaw || 0) + weightOf(anomaly);
+  }
+}
+
+/**
  * @param {any} incident
  * @param {number} elapsed
  */
@@ -130,6 +146,7 @@ function noteIncident(engine, device, anomaly) {
     addWeight(incident, anomaly);
     scoreOf(incident);
   }
+  noteFdr(engine, incident, anomaly);
   anomaly.incidentId = incident.id;
   const body = /** @type {any} */ (payload(incident));
   if (engine.opts.scoring === 'lr') {

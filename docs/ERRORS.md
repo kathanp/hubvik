@@ -1498,3 +1498,13 @@ Fix: change the value that failed the check and call the method again. The libra
 
 Cause: 'criticality is invalid'.
 Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## CHECKPOINT_FDR_IS_INVALID
+
+Cause: 'checkpoint fdr is invalid'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.
+
+## HAWKES_STATE_IS_INVALID
+
+Cause: 'hawkes state is invalid'.
+Fix: change the value that failed the check and call the method again. The library does not modify traffic.

@@ -331,6 +331,7 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 | `outlier: true`                                               | Per-class half-space-tree model. `multivariate-outlier` stays shadow                                                                                 |
 | `sequence: true`                                              | Per-device transition model. `sequence-surprise` stays shadow                                                                                        |
 | `flowShape: true`                                             | First-packet histograms. `flow-shape-change` stays shadow. `hubvik doctor` sets `noSplt` when no event carries `splt`                                |
+| `fdr: true`                                                   | Alpha-investing on live anomalies. `alert` uses discovered weight only. Each anomaly gets `data.fdr`. Default false, so the stream is unchanged      |
 | `annotate` / `loadTemplates` / `setDeviceCriticality`         | Maintenance windows, attack templates, and per-device alert thresholds. All default off                                                              |
 
 ## What this tree does not do yet

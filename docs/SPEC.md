@@ -1,18 +1,18 @@
-# hubvik — Package Specification (v3.3, evidence, FP reduction, advanced engine)
+# hubvik — Package Specification (v3.4, sequential evidence and contagion)
 
-|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                        |
-| Spec version | 3.3 draft, 2026-10-21. Adds 0.8 (rule for 3.3), A2.1b (optional fields), B22 (shadow detectors, Rel 1.1, gated on 0.6), Part G (FP reduction and advanced engine, G0–G14), WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
-| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Spec version | 3.4 draft, 2026-10-23. Adds 0.9 (rule for 3.4), Part H (alpha-investing alerts and a bounded Hawkes intensity, H1–H2), B23 (shadow rows for 1.2, gated on 0.6), WP-52 to WP-58 and Q-26 to Q-28. D-86 to D-94 are `[PROPOSED]`. 3.3 (2026-10-21) added 0.8, A2.1b, B22, Part G, WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
+| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-**Start here (3.3).** Read 0.6, 0.7 and 0.8 first. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds and in what order it may be built. WP-28 to WP-38 still come first. The 3.3 work packages are WP-39 to WP-51 in Part E. Part G specifies them.
+**Start here (3.4).** Read 0.6, 0.7, 0.8 and 0.9 first. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
 
-**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Appendix B lists the sources behind every threat claim in this file.
+**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Appendix B lists the sources behind every threat claim in this file.
 
 **Rule for the coding agent.** When a run is started with `AUTOPILOT.md`, that playbook decides how the work is split, tested, and committed, and this file decides what the behavior is (0.7). Without AUTOPILOT, work only from Part E, one work package at a time, in order. A work package is done when its Definition of Done and the gate pass. Then stop and wait for the human. If this spec and the code disagree and Part 0 does not already say which one wins, write the question in `docs/QUESTIONS.md` and stop.
 
@@ -195,6 +195,10 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] WP-49 flow-shape fingerprints (G11)
   - [ ] WP-50 B22 link-layer and DNS rows
   - [ ] WP-51 B22 OT, application and integrity rows
+- [ ] 1.2 (spec 3.4)
+  - [x] WP-52 alpha-investing alert gate (H1)
+  - [x] WP-53 Hawkes primitive only (H2)
+  - [x] WP-54 to WP-58 B23 rows (code landed 2026-10-23 while the 0.6 gate is still open; rows stay shadow)
 - [ ] 1.0
   - [x] MUD input
   - [ ] API freeze
@@ -302,7 +306,7 @@ WP-28 runs first and blocks everything else, because every later WP compares aga
 1. **Every number a task needs is written here before code.** It goes in the detector row or in a "Defaults shipped in x.y" table. A card's `defaults` must be findable in the SPEC lines its `spec` anchors select (`guard.mjs --verify-spec`).
 2. **New or changed numbers carry a PROPOSED D-n mark** until a person approves them. `guard.mjs --approve-spec` refuses while any mark remains. The mark is removed when the person accepts the number, and `docs/DECISIONS.md` records `D-n` as APPROVED.
 3. **Headings are stable anchors.** Do not rename a `###` heading that a card may cite. Add a new heading instead.
-4. **Dated records are append-only.** `docs/progress/*`, `docs/DECISIONS.md`, and ADRs get new entries; old entries are never rewritten, including for a rename. A rename is a new ADR and a new entry.
+4. **Dated records are append-only.** `docs/DECISIONS.md` and ADRs get new entries; old entries are never rewritten, including for a rename. A rename is a new ADR and a new entry.
 5. **No run record.** How many agents ran, which agent did what, and how long it took are never written to this file or to any tracked file (AUTOPILOT 1a). This file records behavior, numbers, and decisions only.
 6. **One version, one commit.** A version's work lands on `main` as one `release: x.y.z` commit through a PR merge (AUTOPILOT Phases 9–10). This file's C10 row for that version is updated in the same commit.
 7. **A person approves, pushes, merges, tags, and publishes.** No work package in Part E asks an agent to do any of those.
@@ -331,6 +335,32 @@ An agent that is asked to start any group C item while C10 row 0.6 is unticked w
 ### 0.8.3 Order rule (3.3)
 
 WP-39 (measurement) runs first in 3.3, because every group A proposal is judged with it. WP-40 to WP-46 follow in order; WP-41 needs WP-40 because annotations change what scoring sees. WP-47 to WP-51 are blocked until C10 row 0.6 is ticked. None of WP-39 to WP-51 may start before WP-28 is green.
+
+## 0.9 What spec 3.4 adds, and the rule that governs it (2026-10-23)
+
+3.4 does not relax 0.1 or 0.8. Core is `1.0.0`. The 0.6 gate is open. The IoT-23 medium false-positive rate is still about 4.32 per benign device-day (D18). The B22 files are in the tree except `dictionary-dga` (Q-23). Adding another live detector does not fix that rate.
+
+The next version is **1.2.0**. It is a minor bump: new options, no change to an existing call, and every new option defaults off so the anomalies that fire today stay the same. C10 row 1.1 stays the B22 release. 1.2 does not replace it.
+
+### 0.9.1 Two groups
+
+| Group                      | Sections                               | May start                            | Why                                                                        |
+| -------------------------- | -------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
+| **A. Sequential evidence** | H1, H2 (the primitive only)            | Now. WP-28 is green. No detector row | Serves D18 on the alert path. Does not change a detector threshold         |
+| **C. New signal sources**  | B23, including the detector face of H2 | Only after C10 row 0.6 is ticked     | Rule 0.1. Every row ships `mode: 'shadow'` and follows the 0.5 shadow rule |
+
+An agent asked to start a B23 row while C10 row 0.6 is unticked writes the request in `docs/QUESTIONS.md` and stops.
+
+### 0.9.2 Numbers
+
+D-86 to D-94 are `[PROPOSED]`. No code may treat them as approved. The implementation that is in the tree uses these values so the tests have a fixed target. A release commit waits until the marks are gone.
+
+- **Budget.** H1 state is one number and a 64-entry ring per device that has had a live anomaly since UTC midnight. H2, when a future row uses it, is at most 32 timestamps per tracked series and must stay inside the 2 KB shadow cap. Neither may raise the 1,000-device watching median by more than 0.5 µs with the option left off (D-85). With `fdr: true` the median is recorded and is not a new gate.
+- **Success metric.** Not a new detector count. The metric is alerts per benign device-day against anomalies per benign device-day, on the same capture, with `fdr: false` and `fdr: true`. WP-31 still owns the C6.3 gate. H1 does not tune a detector.
+
+### 0.9.3 Order
+
+WP-52 (H1) and WP-53 (H2 primitive) may run before the 0.6 gate. WP-54 to WP-58 wait.
 
 ---
 
@@ -1151,6 +1181,26 @@ Every row here ships `meta.mode: 'shadow'` (see 0.5 and F1). **Sev** is the seve
 
 **Hard rules.** None of these rows is a hard rule while in shadow. A promotion decision may propose hard-rule status for `bacnet-bbmd-write` and `port-knock`; that is a separate D-n.
 
+## B23. Shadow detectors (new rows for 1.2, spec 3.4)
+
+**Gate.** No row in this section may be built before C10 row 0.6 is ticked (0.9.1). Every row ships `meta.mode: 'shadow'` and follows the 0.5 shadow rule. Each row is a behavior no current row reports, and each one is visible from an event the engine already accepts. None of them blocks traffic. Each costs at most 2 KB per device on the 7-day `shadow: true` sweep (D-91 `[PROPOSED]`).
+
+| ID                     | Catches                                                                                                                                                                | Needs                            | Method                                                                                                                                                                                                                                                                         | Sev  | FP risk                                                             | Rel |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---- | ------------------------------------------------------------------- | --- |
+| `graph-contagion`      | A stage spreads across LAN neighbors. Distinct from `fleet-wave` (one new destination, many devices) and from `campaign` (one story on the devices that already fired) | T1 + F7 graph                    | Shadow. H2 intensity on the device's LAN neighbors' anomaly times for the same stage. `mu = 0.02`, `alpha = 0.8`, half-life 10 min, ring 32, fires at intensity ≥ 3 with at least 2 neighbor events in the ring (D-90 `[PROPOSED]`). Cap 8 stages per device                   | high | Medium when the graph is dense. No graph means no alert             | 1.2 |
+| `doh-bypass`           | DNS over HTTPS to a public resolver the device never learned. `resolver-bypass` reads ports 53 and 853 only                                                            | T3 (`tls.sni` or `flow.dstName`) | Shadow. While watching, port 443 and a name equal to, or a subdomain of, one suffix in the H3 list, and that suffix was not learned. Once per suffix per 24 h. No list loaded means no alert (Q-26)                                                                            | high | Low once the device's own DoH resolver is in the baseline           | 1.2 |
+| `spectral-beacon`      | A low-amplitude period that `new-beacon` (MAD) and `jitter-beacon` (histogram) both miss                                                                               | T1                               | Shadow. Per non-baseline `dstIp`, 64 inter-arrival lags, cap 32 destinations, LRU. Fire when one lag in 30 s–6 h holds ≥ 0.35 of the normalized autocorrelation, with ≥ 24 gaps, and neither beacon detector fired for that destination in the same window (D-92 `[PROPOSED]`) | high | Medium: NTP and push keepalives. Baseline destinations are excluded | 1.2 |
+| `modbus-address-sweep` | A client walks register or object addresses behind one unit. Distinct from `modbus-unit-sweep`, which walks unit ids                                                   | T5 (`app.target`)                | Shadow. One client, one server, one window, ≥ 24 distinct `target` values, learned maximum for that pair ≤ 4 (D-93 `[PROPOSED]`)                                                                                                                                               | high | Low                                                                 | 1.2 |
+| `mqtt-will-takeover`   | A CONNECT whose will publishes a command to a topic the client was never learned on. The will runs when the session drops                                              | T5                               | Shadow. `op` `CONNECT`, `flags` includes `will`, topic segment `cmd`, `command`, `set`, `ota`, `config` or `firmware`, client not in the learned publisher set for that topic prefix. Cap 64 clients (D-94 `[PROPOSED]`)                                                       | high | Low. Legitimate will topics are learned                             | 1.2 |
+
+**ATT&CK for B23** (added in the row's commit, not before): `graph-contagion` T1021, `doh-bypass` T1071.004, `spectral-beacon` T1071, `modbus-address-sweep` T0846 (ICS), `mqtt-will-takeover` T0855 (ICS).
+
+**H3 name list, not a feed.** The DoH suffixes are a fixed list of resolver names: `dns.google`, `dns.cloudflare.com`, `mozilla.cloudflare-dns.com`, `dns.quad9.net`, `doh.opendns.com`. Q-26 picks the list. The row waits for that answer. The list is at most 1 KB inside `src/data/`.
+
+**Hard rules.** None of these rows is a hard rule while in shadow.
+
+D-92, D-93 and D-94 exist only for the rows above. They stay `[PROPOSED]` and they are not implemented while 0.6 is open.
+
 ---
 
 # PART C — SCORING, OPERATIONS, EVALUATION
@@ -1304,6 +1354,7 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.0**  | MUD input, API freeze, security review, B21 promotions decided from eval and pilot labels                                                                                                                                                               | 0.6 gate met; 30-day pilot on ≥ 1 home and ≥ 1 building with FP per device-day published; one minor release with no API change                                                                                          | [ ]                                                                                                                                                    |
 | **1.x**  | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Numeric defaults are now in Part B            | Shipped as Rel 0.9 shadow. Each still needs a benign all-tier run + an eval or replay result before going live                                                                                                          | [ ]                                                                                                                                                    |
 | **1.1**  | WP-47 to WP-51 (spec 3.3 group C): Bloom filter, half-space trees, sequence model, flow-shape fingerprints, every B22 row in shadow                                                                                                                     | C10 row 0.6 ticked. Every B22 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix, ≤ 2 KB per device on the 7-day `shadow: true` sweep. No B22 row is live | [ ]                                                                                                                                                    |
+| **1.2**  | WP-52 and WP-53 (spec 3.4 group A): alpha-investing alerts, Hawkes primitive. B23 rows only after this row's gate and after C10 row 0.6                                                                                                                 | `fdr` default off; `test/diff/` byte-identical with `fdr` off; H1 and H2 tests in Part H; D-86 to D-94 approved; no B23 file until C10 row 0.6 is ticked                                                                | [ ]                                                                                                                                                    |
 
 ---
 
@@ -1809,6 +1860,67 @@ A metamorphic relation is added to F18: **Part G non-interference.** With every 
 
 ---
 
+# PART H — SEQUENTIAL EVIDENCE AND CONTAGION (spec 3.4)
+
+Part H is engine work. It adds no detector row. B23 is the detector face and it waits for the 0.6 gate (0.9.1). The F0 constraints apply: zero dependencies, no `Date.now()` or `Math.random()` in a decision, validation before mutation, and a cap with a test that hits it. `fdr` defaults off. With it off, the anomaly stream, the incident score, and `exportBaseline()` stay byte-identical to 1.0.0.
+
+## H1. Alpha-investing on the alert path (serves D18)
+
+Foster and Stine, 2008, constant relative bet. This is a wealth rule for which alerts are eligible. It is not a measured false-discovery rate on IoT-23. WP-31 still measures that rate. The procedure does not drop, block, or rewrite traffic. It does not change a detector threshold.
+
+**Option.** `createEngine({ fdr: false })`. Default `false` (D-86 `[PROPOSED]`). `true` runs the rule below. Any other value throws `MUST_BE_A_BOOLEAN`.
+
+**Wealth.** Stored in thousandths so the arithmetic is exact. `wealth0 = 100` (0.10). Payout on a discovery is `40` (0.04). The bet is `phi = floor(wealth / 2)`. Wealth never exceeds 100 and never goes below 0 (D-86 `[PROPOSED]`).
+
+**p-weights**, in the same thousandths (D-87 `[PROPOSED]`). These are ranks, not calibrated probabilities.
+
+| Severity                                                  | Weight |
+| --------------------------------------------------------- | ------ |
+| high                                                      | 20     |
+| medium                                                    | 50     |
+| low                                                       | 150    |
+| info                                                      | 400    |
+| critical                                                  | bypass |
+| hard rule (`meta` hard rule, not "fired during learning") | bypass |
+
+**Step.** For each live anomaly, in time order, per device:
+
+1. If `floor(ts / 86400000)` is a new UTC day, set wealth to 100 and clear the ring.
+2. A bypass returns `data.fdr = 'bypass'` and does not change wealth or the ring.
+3. Otherwise let `p` be the weight. If `phi > 0` and `p <= phi`, the verdict is `discover` and wealth becomes `min(100, wealth - phi + 40)`. Otherwise the verdict is `defer` and wealth becomes `max(0, wealth - phi)`.
+4. Push `{ id, verdict }` onto the ring. The ring cap is 64. The oldest entry is dropped and its wealth is not refunded (D-88 `[PROPOSED]`).
+
+The first medium (`p = 50`, `phi = 50`) is `discover` and leaves wealth at 90. The next medium (`phi = 45`) is `defer` and leaves wealth at 45. The one after that is `defer` and leaves wealth at 23. A later high (`p = 20`, `phi = 11`) is `defer` because `20 <= 11` is false. A high on a fresh book (`phi = 50`) is `discover`. A new UTC day starts again at wealth 100.
+
+**What changes when `fdr` is true.**
+
+- Each live anomaly gets `data.fdr` of `discover`, `defer`, or `bypass`. Shadow anomalies are not tested and gain no field.
+- The incident score is unchanged. It still sums every anomaly.
+- `incident.fdrRaw` is the sum of `severityWeight × confidence` for anomalies in that incident whose verdict is `discover` or `bypass`. It does not decay.
+- An `alert` from an incident is held while `round(min(100, fdrRaw))` is under the same bar G2 uses for the additive score (70 at `normal`, and the G13 bars for the other levels) (D-89 `[PROPOSED]`).
+- A critical anomaly, a hard rule, a `campaign` alert, and `went-silent` on a device whose criticality is `safety` are not held.
+- `checkpoint()` stores the book under `fdr` when it is non-empty. `restore` rejects a malformed book with `CHECKPOINT_FDR_IS_INVALID` and rejects `__proto__`, `constructor`, and `prototype`. `applyDelta` does not carry the book; a delta leaves the in-memory book as it was.
+
+**Done when.** The numeric walk above is a passing test. The ring test hits 64. A forbidden key is rejected. With `fdr: false`, no anomaly has `data.fdr`, the checkpoint has no `fdr` key, and the same four `new-destination` events produce an `alert`. With `fdr: true`, those four are `discover`, `defer`, `defer`, `defer`, and no `alert` is emitted. A checkpoint after the first discovery makes the next medium `defer` on the restored engine.
+
+## H2. Bounded Hawkes intensity (primitive only)
+
+A self-exciting intensity used by `graph-contagion` (WP-54). Shipping the primitive is not itself a detector row.
+
+**State.** `{ times: number[] }`, cap 32, oldest dropped (D-90 `[PROPOSED]`).
+
+**Intensity** at time `ts`, from times already stored:
+
+`0.02 + 0.8 × Σ exp(−ln(2) × (ts − t) / 600000)` for each stored `t <= ts`.
+
+**Threshold.** `excited` is true when the intensity is ≥ 3. Four events one second apart cross it. One event does not. `toJSON` / `fromJSON` round-trip. A bad snapshot throws `HAWKES_STATE_IS_INVALID`. A forbidden key throws `FORBIDDEN_KEY_AT`.
+
+## H3. DoH suffix list
+
+Named in B23. Not loaded, and not a file, until Q-26 is answered and the 0.6 gate is ticked.
+
+---
+
 # PART D — DELIBERATELY NOT INCLUDED
 
 | Idea                                                                | Why not                                                                                                                                                                                                                                                                                                              |
@@ -1828,6 +1940,8 @@ A metamorphic relation is added to F18: **Part G non-interference.** With every 
 | Annotations from the event stream (3.3)                             | Only the API sets annotations. A log line must never be able to switch scoring off.                                                                                                                                                                                                                                  |
 | Isolation forests, autoencoders or other batch models in core (3.3) | G5 half-space trees are the only multivariate model allowed in core: streaming, bounded, deterministic and explainable. Anything heavier belongs in the separate `@hubvik/ml` package described above.                                                                                                               |
 | Fitting or tuning on evasion and adversary suites (3.3)             | `eval/evasion/`, `eval/evasion-holdout/` and `eval/adversary/` measure blind spots. Tuning against them would hide the blind spots they exist to show.                                                                                                                                                               |
+| Automatic wealth changes to a detector threshold (3.4)              | H1 changes which `alert` events are eligible. It does not change a detector default. A gateway that retunes a threshold from wealth can be trained by an attacker                                                                                                                                                    |
+| Building B23 before the 0.6 gate (3.4)                              | Rule 0.1. The H2 primitive may ship. The detector face may not                                                                                                                                                                                                                                                       |
 
 ---
 
@@ -2234,6 +2348,52 @@ Every WP in this group also keeps `test/diff/` byte-identical with its option of
 - [ ] `dormant-reactivation`, `firmware-size-divergence`, `stun-turn-relay`, `port-knock`, `bacnet-bbmd-write`, `modbus-unit-sweep`, `mqtt-retained-command`, `rtsp-new-viewer`, `suppression-abuse` (needs WP-43). One commit each, shadow, standard four tests, one replay each.
 - **Done when:** `spec-coverage` is clean at core 1.1.0 and every B22 row has a file.
 
+### Work packages for spec 3.4 (WP-52 to WP-58)
+
+Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 0.6 is open. On 2026-10-23 the human ordered WP-54 to WP-58 written while that gate and Q-26 stay open. The rows stay `shadow`, and D-86 to D-94 stay `[PROPOSED]` until a person accepts them. A release commit still waits for the marks to be removed.
+
+#### WP-52 — Alpha-investing alert gate (H1). Group A.
+
+- [x] `src/engine/stats/alphainvest.js`, option `fdr`, `data.fdr`, `incident.fdrRaw`, checkpoint key `fdr`, the H1 done-when tests.
+- [x] `index.d.ts`, `docs/DEVELOPERS.md`, `docs/ERRORS.md` for `CHECKPOINT_FDR_IS_INVALID`.
+- **Done when:** the H1 done-when holds and `fdr: false` leaves `test/diff/` byte-identical.
+
+#### WP-53 — Hawkes primitive (H2). Group A. No detector.
+
+- [x] `src/engine/stats/hawkes.js` and the H2 tests. `graph-contagion` is the detector that imports it.
+- **Done when:** the H2 done-when holds.
+
+#### WP-54 — `graph-contagion` (B23). Group C: needs C10 row 0.6.
+
+- [x] Shadow row on H2 and the F7 graph. Standard four tests, one replay, ATT&CK id, ≤ 2 KB per device.
+- **Done when:** the row's file exists and `spec-coverage` accepts it at core 1.2.0.
+
+#### WP-55 — `doh-bypass` (B23). Group C. Also needs Q-26.
+
+- [x] Suffix list from H3, then the shadow row. Q-26 is still open. Standard four tests, one replay.
+- **Done when:** Q-26 is answered and the row's file exists.
+
+#### WP-56 — `spectral-beacon` (B23). Group C.
+
+- [x] Shadow row. Standard four tests. A case where `new-beacon` and `jitter-beacon` stay silent and this row fires.
+- **Done when:** the row's file exists.
+
+#### WP-57 — `modbus-address-sweep` (B23). Group C.
+
+- [x] Shadow row. Standard four tests, one replay. It stays silent on a unit-id sweep that fires `modbus-unit-sweep`.
+- **Done when:** the row's file exists.
+
+#### WP-58 — `mqtt-will-takeover` (B23). Group C.
+
+- [x] Shadow row. Standard four tests, one replay. It stays silent on a retained publish that fires `mqtt-retained-command`.
+- **Done when:** the row's file exists and every B23 row has a file.
+
+### Questions to put in `docs/QUESTIONS.md` before WP-52 starts
+
+- [ ] **Q-26** Is the H3 DoH suffix list (`dns.google`, `dns.cloudflare.com`, `mozilla.cloudflare-dns.com`, `dns.quad9.net`, `doh.opendns.com`) acceptable as a fixed name list, not a feed? Open. Blocks only `doh-bypass`.
+- [ ] **Q-27** H1 holds alerts when `fdr` is on and does not change detector thresholds. Accept D-86 to D-89 as the starting wealth, weights, ring, and alert rule? Open. The tree already uses them so the tests have one target.
+- [ ] **Q-28** H2 constants in D-90, and the B23 caps in D-91 to D-94: accept as starting values, with no B23 file until the 0.6 gate? Open.
+
 ### Questions to put in `docs/QUESTIONS.md` before WP-39 starts
 
 - [x] **Q-20** Should the C6.3 gates be judged at the anomaly level (today) or the alert level (G2) once `alerts: true` exists? (Spec default: anomaly level until the 30-day pilot; alert-level numbers are published next to them.) Resolved 2026-10-21: anomaly level until the 30-day pilot.
@@ -2300,6 +2460,10 @@ Every WP in this group also keeps `test/diff/` byte-identical with its option of
 | Bloom filters with two hash functions                                              | A. Kirsch and M. Mitzenmacher, "Less Hashing, Same Performance: Building a Better Bloom Filter", ESA 2006                                                                                                                                      |
 | MQTT retained messages are delivered to every new subscriber                       | OASIS MQTT Version 3.1.1, section 3.3.1.3 (RETAIN)                                                                                                                                                                                             |
 | BACnet BBMD broadcast distribution table and foreign-device registration           | ASHRAE Standard 135, Annex J (BACnet/IP)                                                                                                                                                                                                       |
+| Alpha-investing, the wealth rule in H1                                             | D. P. Foster and R. A. Stine, "α-investing: a procedure for sequential control of expected false discoveries", Journal of the Royal Statistical Society B, 2008                                                                                |
+| Hawkes intensity, the primitive in H2                                              | A. G. Hawkes, "Spectra of some self-exciting and mutually exciting point processes", Biometrika, 1971                                                                                                                                          |
+| DNS over HTTPS on port 443, which `resolver-bypass` does not read                  | RFC 8484, "DNS Queries over HTTPS (DoH)"                                                                                                                                                                                                       |
+| MQTT will messages are published by the server when the session ends               | OASIS MQTT Version 3.1.1, section 3.1.2.5 (Will Flag)                                                                                                                                                                                          |
 
 The ten rows above were added on 2026-10-21 for spec 3.3. They were not re-fetched that day. A person checks each one before WP-47 starts.
 

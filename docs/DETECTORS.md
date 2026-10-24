@@ -266,6 +266,16 @@ The last column is yes when the row Rel is at or below this package version. A l
 | `sequence-surprise`        | 1.1 | medium   | Medium                                                                                                           | no              |
 | `flow-shape-change`        | 1.1 | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | no              |
 
+## B23. Shadow detectors (new rows for 1.2, spec 3.4)
+
+| ID                     | Rel | Severity | FP risk                                                             | In this release |
+| ---------------------- | --- | -------- | ------------------------------------------------------------------- | --------------- |
+| `graph-contagion`      | 1.2 | high     | Medium when the graph is dense. No graph means no alert             | no              |
+| `doh-bypass`           | 1.2 | high     | Low once the device's own DoH resolver is in the baseline           | no              |
+| `spectral-beacon`      | 1.2 | high     | Medium: NTP and push keepalives. Baseline destinations are excluded | no              |
+| `modbus-address-sweep` | 1.2 | high     | Low                                                                 | no              |
+| `mqtt-will-takeover`   | 1.2 | high     | Low. Legitimate will topics are learned                             | no              |
+
 ## Not yet implemented
 
 - `dictionary-dga` — Rel 1.1, not yet implemented
@@ -295,4 +305,5 @@ The last column is yes when the row Rel is at or below this package version. A l
 | B20. 2026 threat update (new rows for 0.5)                              | 2    |
 | B21. Shadow detectors (new rows for 0.8)                                | 15   |
 | B22. Shadow detectors (new rows for 1.1, spec 3.3)                      | 20   |
-| Total                                                                   | 157  |
+| B23. Shadow detectors (new rows for 1.2, spec 3.4)                      | 5    |
+| Total                                                                   | 162  |

@@ -240,6 +240,7 @@ function validateOptions(raw) {
     outlier: input.outlier == null ? false : bool(input.outlier, 'outlier'),
     sequence: input.sequence == null ? false : bool(input.sequence, 'sequence'),
     flowShape: input.flowShape == null ? false : bool(input.flowShape, 'flowShape'),
+    fdr: input.fdr == null ? false : bool(input.fdr, 'fdr'),
     redact: parseRedact(input.redact),
     incidentWindowMs:
       input.incidentWindowMs == null

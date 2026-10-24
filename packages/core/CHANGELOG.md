@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+Spec 3.4, aimed at 1.2.0. `fdr` defaults off. With `fdr: true`, live anomalies get `data.fdr` of `discover`, `defer`, or `bypass`, and an `alert` waits until the discovered weight reaches the same bar as today. The incident score still counts every anomaly. `src/engine/stats/hawkes.js` is the bounded Hawkes intensity. Shadow rows, on only when `shadow` selects them: `graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, and `mqtt-will-takeover`. D-86 through D-94 stay proposed. The 0.6 gate is still open. The package version stays 1.0.0.
+
 ## 1.0.0
 
 Package version `1.0.0`. Not published. The unpacked core cap is 900 KB. `npm run pack:check` measured 824522 bytes, which is over the old 750 KB cap. `npm run check` on branch `spec-3.3-b22` exited 0 on 2026-10-22: 492 tests, lint, and `tsc`. The same day's `npm run gate` passed coverage, spec-coverage, numbers-check, no-dynamic, knip, detector-lint, publint, fuzz, and bench. It failed on pack-check and the API snapshot; both are fixed in this version. Shadow detectors allocate state only for an event that can change that state, so ignored traffic does not keep an empty map. The CI bench gate is 12 µs and 120 KB per device, 20% above the 10 µs and 100 KB requirement. Node 26 measured 10.61 µs and, before the empty-state skip, 113.86 KB per device. Still a prototype, not validated on real traffic. Open: the 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, the 30-day pilot, Q-14, and Q-23.

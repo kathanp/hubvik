@@ -19,6 +19,7 @@ const engine: Engine = createEngine({
   outlier: false,
   sequence: false,
   flowShape: false,
+  fdr: false,
 });
 engine.feed({ device: 'd', dst: 'a.example', bytes: 1, ts: 1 });
 engine.feedBatch([{ device: 'd', dst: 'b.example', bytes: 1, ts: 2 }]);

@@ -158,6 +158,11 @@ const ALL = [
   require('./multivariate-outlier'),
   require('./sequence-surprise'),
   require('./flow-shape-change'),
+  require('./doh-bypass'),
+  require('./spectral-beacon'),
+  require('./modbus-address-sweep'),
+  require('./mqtt-will-takeover'),
+  require('./graph-contagion'),
 ];
 
 /** @type {Record<string, any>} */

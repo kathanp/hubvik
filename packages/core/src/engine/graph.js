@@ -15,7 +15,7 @@ const WAN_CAP = 64;
 function graphOn(engine) {
   if (engine.opts.graph === false) return false;
   if (engine.opts.graph === true) return true;
-  return ['graph-new-bridge', 'graph-role-change'].some((id) => {
+  return ['graph-new-bridge', 'graph-role-change', 'graph-contagion'].some((id) => {
     const status = engine.detectorStatus[id];
     return status && status.active;
   });

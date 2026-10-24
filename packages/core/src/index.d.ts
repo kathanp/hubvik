@@ -329,6 +329,11 @@ export interface EngineOptions {
   sequence?: boolean;
   /** Default false. First-packet flow-shape histograms. */
   flowShape?: boolean;
+  /**
+   * Default false. Alpha-investing on live anomalies. Holds `alert` when the
+   * discovered weight is under the bar. Adds `data.fdr` only while true.
+   */
+  fdr?: boolean;
   redact?:
     | {
         key: string | Buffer;

@@ -11,6 +11,7 @@ const hll = require('../../src/engine/stats/hll');
 const cms = require('../../src/engine/stats/cms');
 const cusum = require('../../src/engine/stats/cusum');
 const pagehinkley = require('../../src/engine/stats/pagehinkley');
+const hawkes = require('../../src/engine/stats/hawkes');
 const { fnv1a32, fmix32, hash32 } = require('../../src/engine/stats/hash');
 
 /**
@@ -245,4 +246,27 @@ test('fnv-1a and fmix32 match fixed vectors', () => {
   assert.strictEqual(hash32('a'), 0x1a80b1b3);
   assert.strictEqual(hash32('foobar'), 0x0c0da6dc);
   assert.strictEqual(hash32('iotwarden'), 0xafa41fad);
+});
+
+test('hawkes intensity crosses 3 after four close events and stays under after one', () => {
+  const one = hawkes.createHawkes();
+  hawkes.observe(one, 0);
+  assert.ok(hawkes.intensity(one, 0) < hawkes.THRESHOLD);
+  assert.strictEqual(hawkes.excited(one, 0), false);
+  const burst = hawkes.createHawkes();
+  for (let i = 0; i < 4; i += 1) hawkes.observe(burst, i * 1000);
+  assert.ok(hawkes.intensity(burst, 3000) >= hawkes.THRESHOLD);
+  assert.strictEqual(hawkes.excited(burst, 3000), true);
+  for (let i = 4; i < hawkes.CAP + 4; i += 1) hawkes.observe(burst, i * 1000);
+  assert.strictEqual(burst.times.length, hawkes.CAP);
+  assert.deepStrictEqual(hawkes.fromJSON(hawkes.toJSON(burst)), burst);
+  assert.throws(
+    () => hawkes.fromJSON(null),
+    (err) => err.code === 'HAWKES_STATE_IS_INVALID',
+  );
+  const poisoned = { times: [0], constructor: 1 };
+  assert.throws(
+    () => hawkes.fromJSON(poisoned),
+    (err) => err.code === 'FORBIDDEN_KEY_AT',
+  );
 });

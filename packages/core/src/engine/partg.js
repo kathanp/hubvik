@@ -2,10 +2,16 @@
 
 const { HubvikError } = require('../errors');
 
+const { assertSafeKeys } = require('./validate');
 const annotations = require('./annotations');
 const audit = require('./audit');
 const drift = require('./drift');
 const { domainFamily } = require('./net');
+const {
+  createBook: createFdrBook,
+  fromJSON: fdrFromJSON,
+  push: fdrPush,
+} = require('./stats/alphainvest');
 const { add, bands, createMinHash, jaccard } = require('./stats/minhash');
 const { createWelford, push: pushWelford } = require('./stats/welford');
 const { payload: incidentPayload } = require('./incidents');
@@ -309,6 +315,7 @@ const partgMethods = {
       if (value >= bar) fire = true;
       severity = incident.severity;
     }
+    if (fdrBlocks(this, incident, anomaly, kind, hard)) fire = false;
     if (anomaly && anomaly.detector === 'went-silent' && level === 'safety') {
       fire = true;
       severity = 'high';
@@ -454,6 +461,35 @@ const partgMethods = {
    * @param {any} raw
    * @returns {void}
    */
+  /**
+   * Record one live anomaly in the device's alpha-investing book.
+   * @this {any}
+   * @param {any} device
+   * @param {any} anomaly
+   * @returns {void}
+   */
+  _fdrPush(device, anomaly) {
+    if (!this._fdr) this._fdr = new Map();
+    let book = this._fdr.get(device.id);
+    if (!book) {
+      book = createFdrBook();
+      this._fdr.set(device.id, book);
+    }
+    const verdict = fdrPush(book, {
+      id: anomaly.id,
+      severity: anomaly.severity,
+      hardRule: anomaly._partgHard === true,
+      ts: anomaly.ts,
+    });
+    if (!anomaly.data || typeof anomaly.data !== 'object') anomaly.data = {};
+    anomaly.data.fdr = verdict;
+  },
+
+  /**
+   * @this {any}
+   * @param {any} raw
+   * @returns {void}
+   */
   _restorePartG(raw) {
     if (!raw || typeof raw !== 'object') return;
     if (raw.annotations != null) this._annBook = annotations.fromJSON(raw.annotations);
@@ -463,6 +499,7 @@ const partgMethods = {
         if (LEVELS.has(level)) this._criticality.set(id, level);
       }
     }
+    if (raw.fdr != null) this._fdr = readFdr(raw.fdr);
     if (raw.audit != null) {
       this._audit = audit.createAuditLog();
       audit.fromJSON(this._audit, raw.audit);
@@ -743,6 +780,53 @@ function rankOf(name) {
  */
 function stageOf(anomaly) {
   return anomaly.category || 'none';
+}
+
+/**
+ * @param {string} deviceId
+ * @param {{ digest: any[], day: number }} state
+ */
+/**
+ * Hold an alert when discovered weight is under the bar. Critical anomalies,
+ * hard rules, safety silence, and campaigns stay eligible.
+ * @param {any} engine
+ * @param {any} incident
+ * @param {any} anomaly
+ * @param {string} kind
+ * @param {boolean} hard
+ * @returns {boolean}
+ */
+function fdrBlocks(engine, incident, anomaly, kind, hard) {
+  if (!engine.opts.fdr || hard || kind === 'campaign') return false;
+  if (anomaly && anomaly.severity === 'critical') return false;
+  if (!incident) return !anomaly || anomaly.data.fdr === 'defer';
+  const level = (engine._criticality && engine._criticality.get(incident.device)) || 'normal';
+  const bar = ADD[/** @type {keyof typeof ADD} */ (level)];
+  const discovered = Math.round(Math.min(100, incident.fdrRaw || 0));
+  return discovered < bar;
+}
+
+/**
+ * @param {unknown} raw
+ * @returns {Map<string, { wealth: number, day: number | null, decisions: { id: string, verdict: string }[] }>}
+ */
+function readFdr(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new HubvikError('CHECKPOINT_FDR_IS_INVALID', 'checkpoint fdr is invalid');
+  }
+  assertSafeKeys(raw, 'checkpoint.fdr');
+  const books = new Map();
+  const entries = Object.entries(raw);
+  if (entries.length > 10000) {
+    throw new HubvikError('CHECKPOINT_FDR_IS_INVALID', 'checkpoint fdr is invalid');
+  }
+  for (const [id, book] of entries) {
+    if (id.length === 0 || id.length > 255) {
+      throw new HubvikError('CHECKPOINT_FDR_IS_INVALID', 'checkpoint fdr is invalid');
+    }
+    books.set(id, fdrFromJSON(book));
+  }
+  return books;
 }
 
 /**

@@ -6,6 +6,7 @@ const { assertSafeKeys, validateEvent } = require('./validate');
 const { readFeedback, noteNoisy } = require('./feedback');
 const { prepareImport, attachMeta } = require('./baseline');
 const { exportGraph, importGraph } = require('./graph');
+const { toJSON: fdrToJSON } = require('./stats/alphainvest');
 const ann = require('./annotations');
 const auditLog = require('./audit');
 const {
@@ -138,6 +139,12 @@ module.exports = {
     }
     if (this._audit) {
       /** @type {any} */ (body).audit = auditLog.toJSON(this._audit);
+    }
+    if (this._fdr && this._fdr.size > 0) {
+      /** @type {Record<string, any>} */
+      const fdr = {};
+      for (const [id, book] of this._fdr) fdr[id] = fdrToJSON(book);
+      /** @type {any} */ (body).fdr = fdr;
     }
     if (this._criticality && this._criticality.size > 0) {
       /** @type {any} */ (body).criticality = Object.fromEntries(this._criticality);
