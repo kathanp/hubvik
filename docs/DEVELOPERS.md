@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@1.5.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@1.4.0` until the 1.5.0 tag is published. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: package `hubvik@1.6.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@1.4.0` until the 1.6.0 tag is published. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
@@ -339,6 +339,6 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 `checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
-`dictionary-dga` is a shadow detector. The B22 and B23 rows stay shadow. The package version is 1.4.0. Their notes are in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
+`dictionary-dga` is a shadow detector. The B22, B23, and B24 rows stay shadow. The package version is 1.6.0. Their notes are in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built. B24 is `dispersed-flood`, `txt-channel`, `inbound-lateral`, and `short-lived-cert`.
 
 With default options the bench gate on x86 is 12 µs median `feed()` at 1,000 devices and 120 KB per device on the 7-day line. That gate is 20% above the 10 µs and 100 KB requirement. A Raspberry Pi 4 has not been measured. IoT-23 result files are `eval/results/iot23-malware/` and `eval/results/iot23-honeypot/`. Copy figures from those files. Do not treat the roadmap's dataset names as results.

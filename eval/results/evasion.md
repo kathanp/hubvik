@@ -13,7 +13,7 @@ Malicious-label share inside the learning prefix: 0.
 - slow-scan: blind spot (none)
 - beacon-jitter-40: blind spot (none)
 - exfil-0.9-limit: fired (multi-horizon-exfil)
-- flood-10-destinations: fired (egress-flood)
+- flood-10-destinations: fired (egress-flood, dispersed-flood)
 
 Shadow rows measured on this suite. A miss stays a blind spot. The holdout is separate.
 

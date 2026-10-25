@@ -111,6 +111,7 @@ export interface TlsCert {
   subject?: string;
   sha256?: string;
   selfSigned?: boolean;
+  notBefore?: number;
   notAfter?: number;
 }
 

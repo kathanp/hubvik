@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0
+
+Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is unchanged. The library still only reports.
+
+`dispersed-flood` reports a device that sends a one-way burst to at least eight public destinations in one window, each under the per-destination floors of `egress-flood`, when the window total reaches 8,000 packets or 8,000,000 bytes. `txt-channel` reports 12 or more TXT or NULL queries for one name whose leftmost label is 20 to 40 characters, which is the range `dns-tunnel` does not treat as a long label. `inbound-lateral` reports three or more new LAN peers within 300,000 ms of a public inbound session that reached `established`. `short-lived-cert` reports a TLS certificate whose lifetime is greater than 0 and at most 48 hours on a name the device did not learn.
+
+`tls.cert.notBefore` is kept when it is a finite number. Any other value is dropped, and the rest of the certificate stays.
+
+D-102 through D-106 stay proposed. The 0.6 false-positive gate is still open.
+
 ## 1.5.0
 
 `@hubvik/adapter-conntrack` 0.3.0 reads the TCP state and the reply counters on a `conntrack -L` line. With no `direction` function, a private address chooses outbound, inbound, or LAN. `bytesOut` is the device's bytes. `SYN_SENT` is `no-response` and `ESTABLISHED` is `established`. A list of three silent inbound ports and one established session fires shadow `port-knock`. An explicit `direction` function is unchanged. The core anomaly stream is unchanged. No new detector row.

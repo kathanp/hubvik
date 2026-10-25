@@ -67,5 +67,9 @@
   "ot-new-master": ["T0867"],
   "onvif-config-change": ["T1562"],
   "exploit-probe-http": ["T1190"],
-  "young-domain": ["T1583"]
+  "young-domain": ["T1583"],
+  "dispersed-flood": ["T1498"],
+  "txt-channel": ["T1071.004"],
+  "inbound-lateral": ["T1021"],
+  "short-lived-cert": ["T1588.004"]
 }

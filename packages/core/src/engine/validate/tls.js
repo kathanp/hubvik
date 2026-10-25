@@ -47,6 +47,9 @@ function tlsEvent(raw, ts, warnings) {
     if (typeof raw.cert.subject === 'string') cert.subject = raw.cert.subject.slice(0, 255);
     if (typeof raw.cert.sha256 === 'string') cert.sha256 = raw.cert.sha256.slice(0, 64);
     if (typeof raw.cert.selfSigned === 'boolean') cert.selfSigned = raw.cert.selfSigned;
+    if (typeof raw.cert.notBefore === 'number' && Number.isFinite(raw.cert.notBefore)) {
+      cert.notBefore = raw.cert.notBefore;
+    }
     if (typeof raw.cert.notAfter === 'number' && Number.isFinite(raw.cert.notAfter)) {
       cert.notAfter = raw.cert.notAfter;
     }

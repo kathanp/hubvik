@@ -164,6 +164,10 @@ const ALL = [
   require('./modbus-address-sweep'),
   require('./mqtt-will-takeover'),
   require('./graph-contagion'),
+  require('./dispersed-flood'),
+  require('./txt-channel'),
+  require('./inbound-lateral'),
+  require('./short-lived-cert'),
 ];
 
 /** @type {Record<string, any>} */
