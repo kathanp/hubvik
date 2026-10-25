@@ -4,6 +4,8 @@ Local only (`.gitignore`), never pushed. One run produces one version. The maste
 
 **Next version.** Read `packages/core/package.json` and the unfinished spec. A fix to behavior that is already specified is a patch. A large new behavior that does not change an existing call is a minor version. A change to a public method, a removed method, or a default that changes which anomalies fire is a major version. The aim of every version is a large improvement: the strongest behavior the catalog does not already report.
 
+**Size of the cycle.** The feature list is the catalog in the spec. There is no separate features file. When a cycle adds a feature or changes one that is already there, the upgrade is large. A small edit to one detector is not a version. The same cycle improves every package under `packages/` that is not already at the level of that version: `core`, `cli`, every adapter, every export, and `respond-nftables`. Each of those changes is real behavior, written in the spec first, report-only, with tests written before the code. The version number still follows the rules above.
+
 **Cycle:** spec → design → tests → code → review → gate → docs → one local commit `release: x.y.z` → one push of the release branch and the tag → GitHub Actions runs `npm publish` → merge into main. If the npm website then shows the version as staged, the person clicks Approve there. That click is not a step in this playbook. Do not stop the run to ask for it. Do not run `npm publish` or `npm login` in the terminal.
 
 **Principle:** every rule a script can check is checked by `scripts/autopilot/guard.mjs`. Prose is the fallback only when no check is possible. A green guard is required at every step that names one.
@@ -11,6 +13,8 @@ Local only (`.gitignore`), never pushed. One run produces one version. The maste
 **Order is fixed:** tests are written from the SPEC before any code exists. Tests written after the code describe the code, so a wrong threshold passes them.
 
 **The gate is `npm run gate`.** `npm run check` is lint, types, and tests. It does not run the API snapshot, the pack check, fuzz, or the bench. A green `npm run check` is not a reason to push. Before any push, `npm run gate` has to exit 0 on that same tree. Step 6's fast check does not replace step 7.
+
+**Green means continue.** A local `npm run gate` that exits 0 is the signal to commit `release: x.y.z`, push `release/<x.y.z>` and tag `v<x.y.z>`, and merge into main once GitHub is green. Do not stop to ask. Do not run `npm publish` or `npm login`. The workflow publishes. The npm Approve button, if the version is staged, is clicked on the npm website and is not a stop in this run.
 
 ---
 

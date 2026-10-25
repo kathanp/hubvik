@@ -14,17 +14,79 @@ jobs:
   publish:
     name: publish
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # No registry-url. It writes an empty _authToken, and npm then never
+      # requests the trusted-publishing token. The registry answers 404.
       - name: setup node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
-          registry-url: https://registry.npmjs.org
       - name: install
         run: npm ci
+      - name: no static npm credential
+        run: |
+          set -euo pipefail
+          node <<'EOF'
+          'use strict';
+          const { execSync } = require('node:child_process');
+          const out = execSync('npm config list', { encoding: 'utf8' });
+          if (/_auth(?:Token)?\s*=/.test(out)) {
+            console.error('an npm credential is configured; trusted publishing will not run');
+            process.exit(1);
+          }
+          console.log('no npm credential configured');
+          EOF
+      - name: hubvik trusted publisher
+        run: |
+          set -euo pipefail
+          node <<'EOF'
+          'use strict';
+          async function main() {
+            const reqUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+            const reqTok = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+            if (!reqUrl || !reqTok) {
+              console.error('GitHub did not grant id-token: write, so npm cannot log in.');
+              process.exit(1);
+            }
+            const url = new URL(reqUrl);
+            url.searchParams.set('audience', 'npm:registry.npmjs.org');
+            const idRes = await fetch(url, {
+              headers: { Authorization: 'Bearer ' + reqTok, Accept: 'application/json' },
+            });
+            const idJson = await idRes.json().catch(() => ({}));
+            if (!idRes.ok || !idJson.value) {
+              console.error('GitHub refused the identity token: HTTP ' + idRes.status);
+              process.exit(1);
+            }
+            const ex = await fetch(
+              'https://registry.npmjs.org/-/npm/v1/oidc/token/exchange/package/hubvik',
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: 'Bearer ' + idJson.value,
+                  Accept: 'application/json',
+                },
+              },
+            );
+            const body = await ex.json().catch(() => ({}));
+            if (!ex.ok || !body.token) {
+              const msg = body && (body.message || body.error) ? body.message || body.error : 'no token';
+              console.error('npm rejected the GitHub identity for hubvik: HTTP ' + ex.status + ' ' + msg);
+              process.exit(1);
+            }
+            console.log('npm accepted the GitHub identity for hubvik');
+          }
+          main().catch((err) => {
+            console.error(err && err.message ? err.message : 'trusted publisher check failed');
+            process.exit(1);
+          });
+          EOF
       - name: gate
         run: npm run gate
       - name: publish changed public packages
@@ -43,13 +105,24 @@ jobs:
               0.*) tag=next ;;
               *) tag=latest ;;
             esac
+            name=$(node -p "require('./$dir/package.json').name")
+            # A package that has never been published cannot use trusted publishing.
+            # The first publish of that package is manual. It must not fail hubvik.
+            if ! view=$(npm view "$name" version 2>&1); then
+              if printf '%s\n' "$view" | grep -q 'E404'; then
+                echo "skip $name: not on npm yet"
+                return 0
+              fi
+              echo "publish failed: $dir"
+              printf '%s\n' "$view" | grep -E 'npm error code|npm error ' || true
+              fail=1
+              return 0
+            fi
             if ! npm publish --provenance --tag "$tag" --workspace "$dir"; then
               echo "publish failed: $dir"
               fail=1
             fi
           }
-          # The unscoped package is already on npm. Scoped names are not, and a
-          # 404 on the first alphabetical package must not skip hubvik.
           publish_one packages/core
           for dir in packages/*; do
             if [ "$dir" = "packages/core" ]; then

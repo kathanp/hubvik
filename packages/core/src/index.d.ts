@@ -36,6 +36,8 @@ export interface FlowEvent {
   pktsIn?: number;
   durationMs?: number;
   tcpOutcome?: 'established' | 'rejected' | 'no-response' | 'reset';
+  /** Sensor connection id. With `correlate: true`, a stored DNS or TLS name is copied here. */
+  uid?: string;
   icmpType?: number;
   ttl?: number;
   dstName?: string;
@@ -58,6 +60,8 @@ export interface DnsEvent {
   rcode?: string;
   resolver?: string;
   answers?: DnsAnswer[];
+  /** Sensor connection id shared with the flow this query belongs to. */
+  uid?: string;
 }
 
 export interface DhcpEvent {
@@ -121,6 +125,8 @@ export interface TlsEvent {
   version?: string;
   alpn?: string[];
   cert?: TlsCert;
+  /** Sensor connection id shared with the flow this handshake belongs to. */
+  uid?: string;
 }
 
 export interface HttpEvent {
@@ -334,6 +340,11 @@ export interface EngineOptions {
    * discovered weight is under the bar. Adds `data.fdr` only while true.
    */
   fdr?: boolean;
+  /**
+   * Default false. Join DNS and TLS names onto a later flow that carries the
+   * same `uid`. The anomaly stream is unchanged while this is false.
+   */
+  correlate?: boolean;
   redact?:
     | {
         key: string | Buffer;

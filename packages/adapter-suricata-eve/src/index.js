@@ -56,22 +56,27 @@ function build(row, deviceFor, now) {
 function flow(row, ts, src, dst, deviceFor) {
   if (!src || !dst) return null;
   const stats = row.flow && typeof row.flow === 'object' ? row.flow : {};
-  return {
+  const side = flowSide(src, dst);
+  /** @type {Record<string, any>} */
+  const event = {
     type: 'flow',
-    device: deviceFor(src),
+    device: deviceFor(side.deviceIp),
     ts,
     srcIp: src,
     srcPort: Number(row.src_port) || 0,
     dstIp: dst,
     dstPort: Number(row.dest_port) || 0,
     proto: String(row.proto || 'TCP').toLowerCase(),
-    direction: 'out',
-    bytesOut: Number(stats.bytes_toserver) || 0,
-    bytesIn: Number(stats.bytes_toclient) || 0,
-    pktsOut: Number(stats.pkts_toserver) || 0,
-    pktsIn: Number(stats.pkts_toclient) || 0,
-    durationMs: 0,
+    direction: side.direction,
+    bytesOut: side.inbound ? Number(stats.bytes_toclient) || 0 : Number(stats.bytes_toserver) || 0,
+    bytesIn: side.inbound ? Number(stats.bytes_toserver) || 0 : Number(stats.bytes_toclient) || 0,
+    pktsOut: side.inbound ? Number(stats.pkts_toclient) || 0 : Number(stats.pkts_toserver) || 0,
+    pktsIn: side.inbound ? Number(stats.pkts_toserver) || 0 : Number(stats.pkts_toclient) || 0,
+    durationMs: Math.round((Number(stats.age) || 0) * 1000),
   };
+  const outcome = tcpOutcome(row, stats);
+  if (outcome) event.tcpOutcome = outcome;
+  return stamp(event, row);
 }
 
 /**
@@ -91,19 +96,26 @@ function dns(row, ts, src, dst, deviceFor) {
   if (Array.isArray(record.answers)) {
     for (const item of record.answers) {
       if (item && item.rdata)
-        answers.push({ type: String(item.rrtype || 'A'), value: String(item.rdata), ttl: 0 });
+        answers.push({
+          type: String(item.rrtype || 'A'),
+          value: String(item.rdata),
+          ttl: Number(item.ttl) || 0,
+        });
     }
   }
-  return {
-    type: 'dns',
-    device: deviceFor(src || '0.0.0.0'),
-    ts,
-    qname: String(qname),
-    qtype: String(record.type || 'A'),
-    rcode: String(record.rcode || 'NOERROR'),
-    resolver: dst || 'gateway',
-    answers,
-  };
+  return stamp(
+    {
+      type: 'dns',
+      device: deviceFor(src || '0.0.0.0'),
+      ts,
+      qname: String(qname),
+      qtype: String(record.type || 'A'),
+      rcode: String(record.rcode || 'NOERROR'),
+      resolver: dst || 'gateway',
+      answers,
+    },
+    row,
+  );
 }
 
 /**
@@ -127,7 +139,7 @@ function tls(row, ts, src, dst, deviceFor) {
   if (record.sni) event.sni = String(record.sni);
   if (record.ja4) event.ja4 = String(record.ja4);
   if (record.version) event.version = String(record.version);
-  return event;
+  return stamp(event, row);
 }
 
 /**
@@ -189,6 +201,55 @@ function isLocalAddress(ip) {
   }
   const lower = ip.toLowerCase();
   return lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd');
+}
+
+/**
+ * @param {any} row
+ * @param {number} ts
+ * @param {string} src
+ * @param {string} dst
+ * @param {(ip: string) => string} deviceFor
+ */
+/**
+ * Public source to a local device is inbound. Both local is LAN. Otherwise outbound.
+ * @param {string} src
+ * @param {string} dst
+ * @returns {{ deviceIp: string, direction: 'out' | 'in' | 'lan', inbound: boolean }}
+ */
+function flowSide(src, dst) {
+  const srcLocal = isLocalAddress(src);
+  const dstLocal = isLocalAddress(dst);
+  if (srcLocal && dstLocal) return { deviceIp: src, direction: 'lan', inbound: false };
+  if (dstLocal && !srcLocal) return { deviceIp: dst, direction: 'in', inbound: true };
+  return { deviceIp: src || dst, direction: 'out', inbound: false };
+}
+
+/**
+ * @param {any} row
+ * @param {any} stats
+ * @returns {'established' | 'reset' | 'no-response' | undefined}
+ */
+function tcpOutcome(row, stats) {
+  if (String(row.proto || '').toLowerCase() !== 'tcp') return undefined;
+  const tcp = row.tcp && typeof row.tcp === 'object' ? row.tcp : {};
+  if (tcp.rst === true) return 'reset';
+  const state = String(stats.state || '');
+  if (state === 'established' || state === 'closed') return 'established';
+  if (state === 'new' && (Number(stats.pkts_toclient) || 0) === 0) return 'no-response';
+  return undefined;
+}
+
+/**
+ * Suricata `flow_id` is the join key for `correlate`.
+ * @param {Record<string, any>} event
+ * @param {any} row
+ * @returns {Record<string, any>}
+ */
+function stamp(event, row) {
+  if (row.flow_id == null) return event;
+  const uid = String(row.flow_id);
+  if (uid.length > 0 && uid.length <= 64 && uid !== 'undefined') event.uid = uid;
+  return event;
 }
 
 /**

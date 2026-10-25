@@ -241,6 +241,7 @@ function validateOptions(raw) {
     sequence: input.sequence == null ? false : bool(input.sequence, 'sequence'),
     flowShape: input.flowShape == null ? false : bool(input.flowShape, 'flowShape'),
     fdr: input.fdr == null ? false : bool(input.fdr, 'fdr'),
+    correlate: input.correlate == null ? false : bool(input.correlate, 'correlate'),
     redact: parseRedact(input.redact),
     incidentWindowMs:
       input.incidentWindowMs == null

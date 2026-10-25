@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@1.3.1`, prototype. It is not published and it has not been validated on real traffic. The registry still has `hubvik@0.8.0`. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: package `hubvik@1.4.0`, prototype. It is not published and it has not been validated on real traffic. The registry still has `hubvik@0.8.0`. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
@@ -332,12 +332,13 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 | `sequence: true`                                              | Per-device transition model. `sequence-surprise` stays shadow                                                                                        |
 | `flowShape: true`                                             | First-packet histograms. `flow-shape-change` stays shadow. `hubvik doctor` sets `noSplt` when no event carries `splt`                                |
 | `fdr: true`                                                   | Alpha-investing on live anomalies. `alert` uses discovered weight only. Each anomaly gets `data.fdr`. Default false, so the stream is unchanged      |
+| `correlate: true`                                             | Copies a DNS name, or a TLS SNI when no DNS name is stored, onto a later flow with the same `uid`. Cap 4,096 ids, 120 seconds. Default false         |
 | `annotate` / `loadTemplates` / `setDeviceCriticality`         | Maintenance windows, attack templates, and per-device alert thresholds. All default off                                                              |
 
 ## What this tree does not do yet
 
 `checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
-`dictionary-dga` has no detector file until Q-23 names the word list. The other B22 rows are shadow files. The package version is 1.0.0. Their notes are under 1.0.0 in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
+`dictionary-dga` is a shadow detector. The B22 and B23 rows stay shadow. The package version is 1.4.0. Their notes are in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built.
 
 With default options the bench gate on x86 is 12 µs median `feed()` at 1,000 devices and 120 KB per device on the 7-day line. That gate is 20% above the 10 µs and 100 KB requirement. A Raspberry Pi 4 has not been measured. IoT-23 result files are `eval/results/iot23-malware/` and `eval/results/iot23-honeypot/`. Copy figures from those files. Do not treat the roadmap's dataset names as results.

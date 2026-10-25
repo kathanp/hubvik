@@ -9,6 +9,7 @@ const { noteLearning, mark } = require('./learning');
 const { noteWatch } = require('./promote');
 const { noteHorizon } = require('./horizon');
 const { noteGraph } = require('./graph');
+const { createTable, note } = require('./correlate');
 
 /**
  * Validate, reorder, and dispatch one event.
@@ -59,6 +60,10 @@ module.exports = {
    * @returns {void}
    */
   _apply(event) {
+    if (this.opts.correlate) {
+      if (!this._correlate) this._correlate = createTable();
+      note(this._correlate, event);
+    }
     noteIdentity(this, event);
     rekeyIdentity(this, event);
     const device = this._touch(event.device, event.ts);

@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../../errors');
 
-const { requireFields, normalizeName } = require('./common');
+const { requireFields, normalizeName, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -43,6 +43,7 @@ function dnsEvent(raw, ts, warnings) {
   if (typeof raw.from === 'string' && raw.from.length > 0 && raw.from.length <= 64)
     event.from = raw.from;
   if (Number.isInteger(raw.port) && raw.port >= 0 && raw.port <= 65535) event.port = raw.port;
+  copyUid(raw, event, warnings);
   return event;
 }
 

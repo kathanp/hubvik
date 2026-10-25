@@ -288,6 +288,30 @@ function parsePolicy(input) {
   });
 }
 
+const UID_MAX = 64;
+
+/**
+ * Optional sensor id used by `correlate`. A bad value is dropped.
+ * @param {any} raw
+ * @param {Record<string, any>} event
+ * @param {{ code: string, message: string }[]} warnings
+ * @returns {void}
+ */
+function copyUid(raw, event, warnings) {
+  if (raw.uid == null) return;
+  const uid = raw.uid;
+  if (
+    typeof uid === 'string' &&
+    uid.length > 0 &&
+    uid.length <= UID_MAX &&
+    !FORBIDDEN_KEYS.has(uid)
+  ) {
+    event.uid = uid;
+    return;
+  }
+  warnings.push({ code: 'FIELD_DROPPED', message: 'dropped event.uid' });
+}
+
 /**
  * Per-tier silence limits. T4 defaults to 26 h because DHCP and ARP are often daily.
  * @param {unknown} input
@@ -316,6 +340,7 @@ module.exports = {
   assertSafeKey,
   assertSafeKeys,
   bool,
+  copyUid,
   identityMode,
   parseShadow,
   parsePromote,

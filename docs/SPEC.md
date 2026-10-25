@@ -309,7 +309,7 @@ WP-28 runs first and blocks everything else, because every later WP compares aga
 4. **Dated records are append-only.** `docs/DECISIONS.md` and ADRs get new entries; old entries are never rewritten, including for a rename. A rename is a new ADR and a new entry.
 5. **No run record.** How many agents ran, which agent did what, and how long it took are never written to this file or to any tracked file (AUTOPILOT 1a). This file records behavior, numbers, and decisions only.
 6. **One version, one commit.** A version's work lands on `main` as one `release: x.y.z` commit through a PR merge (AUTOPILOT Phases 9–10). This file's C10 row for that version is updated in the same commit.
-7. **A person approves, pushes, merges, tags, and publishes.** No work package in Part E asks an agent to do any of those.
+7. **A green local gate continues.** When `npm run gate` exits 0 on the release tree, the `release: x.y.z` commit, the push of `release/<x.y.z>` and tag `v<x.y.z>`, and the later merge into main happen without asking. `npm publish` and `npm login` still never run in the terminal. The tag starts the GitHub workflow, which publishes. If the npm website shows the version as staged, the person clicks Approve there. That click is not a stop.
 
 ## 0.8 What spec 3.3 adds, and the rule that governs it (2026-10-21)
 
@@ -361,6 +361,31 @@ D-86 to D-94 are `[PROPOSED]`. The implementation that is in the tree uses these
 ### 0.9.3 Order
 
 WP-52 (H1) and WP-53 (H2 primitive) may run before the 0.6 gate. WP-54 to WP-58 wait.
+
+## 0.10 What spec 3.5 adds (2026-10-24)
+
+3.5 does not relax 0.1. It adds no detector row. Core is `1.4.0`. The new behavior is a join between logs the host already has, and sensor fields the catalog already reads.
+
+### 0.10.1 `correlate`
+
+`createEngine({ correlate: false })`. Default `false` (D-95 `[PROPOSED]`). Any other value throws `MUST_BE_A_BOOLEAN`.
+
+While `false`, events are unchanged and the checkpoint has no `correlate` key.
+
+While `true`:
+
+- A `dns` event stores `qname` under `uid`. A `tls` event stores `sni` under `uid` only when that id has no DNS name yet. A later DNS name replaces a TLS name. A second DNS name does not replace the first (D-98 `[PROPOSED]`).
+- A `flow` with the same `uid` and no `dstName` receives the stored name. If `dst` is still the destination IP, it becomes that name too.
+- The table is engine-wide, cap 4,096 ids, oldest dropped (D-96 `[PROPOSED]`). A row older than 120,000 ms is dropped when it is read (D-97 `[PROPOSED]`). A row at exactly 120,000 ms is kept.
+- `checkpoint()` stores the table when it is not empty. `restore` on an engine with `correlate: true` rejects a malformed table with `CHECKPOINT_CORRELATE_IS_INVALID` and rejects `__proto__`, `constructor`, and `prototype`. An engine with `correlate: false` ignores the key.
+- `exportBaseline()` does not include the table.
+- `uid` is a string of 1 to 64 characters. Any other value is `FIELD_DROPPED`.
+
+### 0.10.2 Sensor fields
+
+`@hubvik/adapter-zeek` 0.2.0 and `@hubvik/adapter-suricata-eve` 0.2.0 emit the fields above. `bytesOut` is the device's bytes. An inbound flow swaps the initiator and responder counters. `tcpOutcome` comes from Zeek `conn_state` or from Suricata `flow.state` and `tcp.rst`. Direction comes from Zeek `local_orig` / `local_resp`, otherwise from private addresses. The Zeek join key is `uid`. The Suricata join key is `flow_id`.
+
+**Done when.** With `correlate: false`, a DNS event and a flow that share a `uid` do not fire `cloud-storage-exfil`. With `correlate: true`, they do. The cap test holds 4,096 ids. The age test is silent at 120,001 ms and fires at 120,000 ms. A Zeek `conn` log with three failed inbound attempts and one established session fires `port-knock`.
 
 ---
 
@@ -1355,6 +1380,7 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.x**  | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Numeric defaults are now in Part B            | Shipped as Rel 0.9 shadow. Each still needs a benign all-tier run + an eval or replay result before going live                                                                                                          | [ ]                                                                                                                                                    |
 | **1.1**  | WP-47 to WP-51 (spec 3.3 group C): Bloom filter, half-space trees, sequence model, flow-shape fingerprints, every B22 row in shadow                                                                                                                     | C10 row 0.6 ticked. Every B22 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix, ≤ 2 KB per device on the 7-day `shadow: true` sweep. No B22 row is live | [ ]                                                                                                                                                    |
 | **1.2**  | WP-52 and WP-53 (spec 3.4 group A): alpha-investing alerts, Hawkes primitive. B23 rows only after this row's gate and after C10 row 0.6                                                                                                                 | `fdr` default off; `test/diff/` byte-identical with `fdr` off; H1 and H2 tests in Part H; D-86 to D-94 approved; no B23 file until C10 row 0.6 is ticked                                                                | [ ]                                                                                                                                                    |
+| **1.4**  | `correlate` (0.10): join a DNS or TLS name onto a later flow by sensor id. Zeek 0.2.0 and Suricata EVE 0.2.0 emit `uid`, `tcpOutcome`, direction, and device `bytesOut`. No new detector row                                                            | `correlate` default off; cap 4,096; 120 s; Zeek conn drives `port-knock`; joined logs drive `cloud-storage-exfil` only when the option is on                                                                            | [ ]                                                                                                                                                    |
 
 ---
 
@@ -1918,6 +1944,14 @@ A self-exciting intensity used by `graph-contagion` (WP-54). Shipping the primit
 ## H3. DoH suffix list
 
 Named in B23. Not loaded, and not a file, until Q-26 is answered and the 0.6 gate is ticked.
+
+---
+
+# PART I — SENSOR JOIN (spec 3.5)
+
+Part I is the `correlate` option in 0.10. It adds no detector row. The F0 constraints apply. `correlate` defaults off. With it off, the anomaly stream and `exportBaseline()` stay as they are in 1.3.1.
+
+The numbers are D-95 to D-98 and they are `[PROPOSED]`. The implementation uses them so the tests have one target.
 
 ---
 
