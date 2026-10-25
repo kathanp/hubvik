@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+
+`@hubvik/adapter-conntrack` 0.3.0 reads the TCP state and the reply counters on a `conntrack -L` line. With no `direction` function, a private address chooses outbound, inbound, or LAN. `bytesOut` is the device's bytes. `SYN_SENT` is `no-response` and `ESTABLISHED` is `established`. A list of three silent inbound ports and one established session fires shadow `port-knock`. An explicit `direction` function is unchanged. The core anomaly stream is unchanged. No new detector row.
+
+D-99 through D-101 stay proposed. The 0.6 false-positive gate is still open.
+
 ## 1.4.0
 
 `correlate` defaults off. With `correlate: true`, a DNS query name or a TLS SNI is stored under the event's `uid` and copied onto a later flow that has the same `uid` and no `dstName`. The table holds 4,096 ids and drops a name after 120 seconds. A DNS name replaces an earlier TLS name. A second DNS name does not replace the first. The checkpoint stores the table. A default engine ignores it. A bad table throws `CHECKPOINT_CORRELATE_IS_INVALID`.

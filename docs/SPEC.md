@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 1.0.0
+- [x] `hubvik` (`packages/core`) 1.5.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -69,8 +69,8 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] Detectors through release 0.5
   - [x] Shadow mode, canaries, explain, identity, feedback, graph, campaigns, and the rule language
   - [x] B21 rows through WP-21, all `mode: 'shadow'`
-  - [ ] Published to npm
-- [x] `@hubvik/adapter-conntrack` 0.2.0 — `conntrack` lines to flow events
+  - [x] Published to npm (`hubvik@1.4.0`; `1.5.0` waits for its tag)
+- [x] `@hubvik/adapter-conntrack` 0.3.0 — `conntrack` lines to flow events
 - [x] `@hubvik/adapter-dnsmasq` 0.2.0 — dnsmasq query lines to DNS events
 - [x] `@hubvik/adapter-zeek` 0.1.0 — Zeek JSON logs
 - [x] `@hubvik/adapter-suricata-eve` 0.1.0 — Suricata EVE JSON
@@ -386,6 +386,20 @@ While `true`:
 `@hubvik/adapter-zeek` 0.2.0 and `@hubvik/adapter-suricata-eve` 0.2.0 emit the fields above. `bytesOut` is the device's bytes. An inbound flow swaps the initiator and responder counters. `tcpOutcome` comes from Zeek `conn_state` or from Suricata `flow.state` and `tcp.rst`. Direction comes from Zeek `local_orig` / `local_resp`, otherwise from private addresses. The Zeek join key is `uid`. The Suricata join key is `flow_id`.
 
 **Done when.** With `correlate: false`, a DNS event and a flow that share a `uid` do not fire `cloud-storage-exfil`. With `correlate: true`, they do. The cap test holds 4,096 ids. The age test is silent at 120,001 ms and fires at 120,000 ms. A Zeek `conn` log with three failed inbound attempts and one established session fires `port-knock`.
+
+## 0.11 What spec 3.6 adds (2026-10-24)
+
+3.6 does not relax 0.1. It adds no detector row. Core is `1.5.0`. The new behavior is the gateway's own conntrack line, which 0.10 left to Zeek and Suricata.
+
+### 0.11.1 Conntrack
+
+`@hubvik/adapter-conntrack` 0.3.0. The first `src`/`dst` pair is the original direction. The second pair is the reply.
+
+- With no `direction` function, a private address chooses `out`, `in`, or `lan` (D-99 `[PROPOSED]`). An explicit `direction` function still wins, and `device` is then called with the original source.
+- `bytesOut` is the device's bytes. An inbound flow swaps the original and reply counters (D-100 `[PROPOSED]`).
+- TCP `ESTABLISHED`, `FIN_WAIT`, `CLOSE_WAIT`, `LAST_ACK`, and `TIME_WAIT` are `tcpOutcome: 'established'`. `SYN_SENT`, `SYN_RECV`, `SYN_SENT2`, `NONE`, `LISTEN`, `[UNREPLIED]`, and `CLOSE` with no reply packets are `no-response` (D-101 `[PROPOSED]`). UDP omits `tcpOutcome`. Conntrack has no rejected state.
+
+**Done when.** The existing established line still reports `bytesOut` 1200 and now also `bytesIn` 9000. An inbound `SYN_SENT` is `no-response` with the device on the private address. Three silent inbound ports and one `ESTABLISHED` session fire shadow `port-knock`. Passing `direction` keeps that direction.
 
 ---
 
@@ -1380,7 +1394,8 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.x**  | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Numeric defaults are now in Part B            | Shipped as Rel 0.9 shadow. Each still needs a benign all-tier run + an eval or replay result before going live                                                                                                          | [ ]                                                                                                                                                    |
 | **1.1**  | WP-47 to WP-51 (spec 3.3 group C): Bloom filter, half-space trees, sequence model, flow-shape fingerprints, every B22 row in shadow                                                                                                                     | C10 row 0.6 ticked. Every B22 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix, ≤ 2 KB per device on the 7-day `shadow: true` sweep. No B22 row is live | [ ]                                                                                                                                                    |
 | **1.2**  | WP-52 and WP-53 (spec 3.4 group A): alpha-investing alerts, Hawkes primitive. B23 rows only after this row's gate and after C10 row 0.6                                                                                                                 | `fdr` default off; `test/diff/` byte-identical with `fdr` off; H1 and H2 tests in Part H; D-86 to D-94 approved; no B23 file until C10 row 0.6 is ticked                                                                | [ ]                                                                                                                                                    |
-| **1.4**  | `correlate` (0.10): join a DNS or TLS name onto a later flow by sensor id. Zeek 0.2.0 and Suricata EVE 0.2.0 emit `uid`, `tcpOutcome`, direction, and device `bytesOut`. No new detector row                                                            | `correlate` default off; cap 4,096; 120 s; Zeek conn drives `port-knock`; joined logs drive `cloud-storage-exfil` only when the option is on                                                                            | [ ]                                                                                                                                                    |
+| **1.4**  | `correlate` (0.10): join a DNS or TLS name onto a later flow by sensor id. Zeek 0.2.0 and Suricata EVE 0.2.0 emit `uid`, `tcpOutcome`, direction, and device `bytesOut`. No new detector row                                                            | `correlate` default off; cap 4,096; 120 s; Zeek conn drives `port-knock`; joined logs drive `cloud-storage-exfil` only when the option is on                                                                            | [x] npm `hubvik@1.4.0`                                                                                                                                 |
+| **1.5**  | Conntrack 0.3.0 (0.11): TCP state, reply counters, and a private-address direction when the caller does not pass one. No new detector row                                                                                                               | Inbound `SYN_SENT` is `no-response`; an established line keeps original `bytesOut` and adds reply `bytesIn`; three silent inbound ports and one established session fire shadow `port-knock`                            | [ ]                                                                                                                                                    |
 
 ---
 

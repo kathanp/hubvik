@@ -1,16 +1,22 @@
 'use strict';
 
 const FLOW =
-  /(tcp|udp|icmp|gre)\s+\d+\s+\d+\s+\S+\s+src=(\S+)\s+dst=(\S+)\s+sport=(\d+)\s+dport=(\d+)(?:\s+packets=(\d+))?(?:\s+bytes=(\d+))?/i;
+  /^(tcp|udp|icmp|gre)\s+\d+\s+\d+\s+(?:([A-Za-z0-9_]+)\s+)?src=(\S+)\s+dst=(\S+)\s+sport=(\d+)\s+dport=(\d+)(?:\s+packets=(\d+))?(?:\s+bytes=(\d+))?(?:\s+src=\S+\s+dst=\S+\s+sport=\d+\s+dport=\d+(?:\s+packets=(\d+))?(?:\s+bytes=(\d+))?)?/i;
+
+const OPEN = new Set(['ESTABLISHED', 'FIN_WAIT', 'CLOSE_WAIT', 'LAST_ACK', 'TIME_WAIT']);
+const SILENT = new Set(['SYN_SENT', 'SYN_RECV', 'SYN_SENT2', 'NONE', 'LISTEN']);
 
 /**
  * Stream parser for `conntrack -L` and `conntrack -E` lines.
- * The first src/dst pair is the original direction.
- * @param {{ device?: (srcIp: string) => string, direction?: (srcIp: string, dstIp: string) => 'out'|'in'|'lan', now?: () => number }} [opts]
+ * The first src/dst pair is the original direction. The second pair, when present, is the reply.
+ * With no `direction` function, a private address decides out, in, or lan (D-99).
+ * `bytesOut` is the device's bytes, so an inbound flow swaps the two counters (D-100).
+ * TCP state becomes `tcpOutcome` (D-101). UDP omits it.
+ * @param {{ device?: (ip: string) => string, direction?: (srcIp: string, dstIp: string) => 'out'|'in'|'lan', now?: () => number }} [opts]
  */
 function createParser(opts = {}) {
   const device = opts.device || ((ip) => ip);
-  const direction = opts.direction || (() => 'out');
+  const directionOf = opts.direction;
   const now = opts.now || (() => 0);
   return {
     /**
@@ -18,35 +24,96 @@ function createParser(opts = {}) {
      * @returns {object[]}
      */
     write(line) {
-      const match = FLOW.exec(line);
+      if (typeof line !== 'string') return [];
+      const match = FLOW.exec(line.trim());
       if (!match) return [];
       const proto = match[1].toLowerCase();
-      const srcIp = match[2];
-      const dstIp = match[3];
-      const srcPort = Number(match[4]);
-      const dstPort = Number(match[5]);
-      const packets = match[6] ? Number(match[6]) : 1;
-      const bytes = match[7] ? Number(match[7]) : 0;
-      return [
-        {
-          type: 'flow',
-          device: device(srcIp),
-          ts: now(),
-          srcIp,
-          srcPort,
-          dstIp,
-          dstPort,
-          proto,
-          direction: direction(srcIp, dstIp),
-          bytesOut: bytes,
-          bytesIn: 0,
-          pktsOut: packets,
-          pktsIn: 0,
-          durationMs: 0,
-        },
-      ];
+      const state = match[2];
+      const srcIp = match[3];
+      const dstIp = match[4];
+      const srcPort = Number(match[5]);
+      const dstPort = Number(match[6]);
+      const origPkts = match[7] ? Number(match[7]) : 1;
+      const origBytes = match[8] ? Number(match[8]) : 0;
+      const replyPkts = match[9] ? Number(match[9]) : 0;
+      const replyBytes = match[10] ? Number(match[10]) : 0;
+      const guessed = addressSide(srcIp, dstIp);
+      const direction = directionOf ? directionOf(srcIp, dstIp) : guessed.direction;
+      const inbound = direction === 'in';
+      const deviceIp = directionOf ? srcIp : guessed.deviceIp;
+      /** @type {Record<string, any>} */
+      const event = {
+        type: 'flow',
+        device: device(deviceIp),
+        ts: now(),
+        srcIp,
+        srcPort,
+        dstIp,
+        dstPort,
+        proto,
+        direction,
+        bytesOut: inbound ? replyBytes : origBytes,
+        bytesIn: inbound ? origBytes : replyBytes,
+        pktsOut: inbound ? replyPkts : origPkts,
+        pktsIn: inbound ? origPkts : replyPkts,
+        durationMs: 0,
+      };
+      const outcome = tcpOutcome(proto, state, /\[UNREPLIED\]/i.test(line), replyPkts);
+      if (outcome) event.tcpOutcome = outcome;
+      return [event];
     },
   };
+}
+
+/**
+ * @param {string} proto
+ * @param {string | undefined} state
+ * @param {boolean} unreplied
+ * @param {number} replyPkts
+ * @returns {'established' | 'no-response' | undefined}
+ */
+function tcpOutcome(proto, state, unreplied, replyPkts) {
+  if (proto !== 'tcp' || !state) return undefined;
+  const name = state.toUpperCase();
+  if (SILENT.has(name) || unreplied) return 'no-response';
+  if (name === 'CLOSE' && replyPkts === 0) return 'no-response';
+  if (OPEN.has(name) || name === 'CLOSE') return 'established';
+  return undefined;
+}
+
+/**
+ * @param {string} src
+ * @param {string} dst
+ * @returns {{ deviceIp: string, direction: 'out' | 'in' | 'lan' }}
+ */
+function addressSide(src, dst) {
+  const srcLocal = isLocalAddress(src);
+  const dstLocal = isLocalAddress(dst);
+  if (srcLocal && dstLocal) return { deviceIp: src, direction: 'lan' };
+  if (dstLocal && !srcLocal) return { deviceIp: dst, direction: 'in' };
+  return { deviceIp: src || dst, direction: 'out' };
+}
+
+/**
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isLocalAddress(ip) {
+  if (
+    ip.startsWith('10.') ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('127.') ||
+    ip.startsWith('169.254.')
+  ) {
+    return true;
+  }
+  const part = /^172\.(\d+)\./.exec(ip);
+  if (part) {
+    const octet = Number(part[1]);
+    if (octet >= 16 && octet <= 31) return true;
+  }
+  const lower = ip.toLowerCase();
+  return lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd');
 }
 
 module.exports = { createParser };
