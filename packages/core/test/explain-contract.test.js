@@ -705,6 +705,62 @@ const ATTACKS = {
       cert: { sha256: 'abc123', notBefore: 0, notAfter: 172800000 },
     });
   },
+  'h2-fanout'(engine) {
+    for (let i = 1; i <= 64; i += 1) {
+      engine.feed({
+        type: 'tls',
+        device: 'd',
+        ts: 1000,
+        dstIp: `9.9.0.${i}`,
+        dstPort: 443,
+        alpn: ['h2'],
+      });
+    }
+  },
+  'onion-name'(engine) {
+    engine.feed({
+      type: 'dns',
+      device: 'd',
+      ts: 1000,
+      qname: 'hidden.onion',
+      qtype: 'A',
+      rcode: 'NOERROR',
+      resolver: '10.0.0.1',
+    });
+  },
+  'proxy-fanin'(engine) {
+    for (let i = 1; i <= 8; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000,
+          direction: 'in',
+          srcIp: `8.8.8.${i}`,
+          dstIp: '10.0.0.8',
+          dstPort: 1080,
+          proto: 'tcp',
+          tcpOutcome: 'established',
+          bytesOut: 200,
+          bytesIn: 800,
+        }),
+      );
+    }
+  },
+  'scatter-udp'(engine) {
+    for (let i = 1; i <= 40; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000,
+          dstIp: `9.9.1.${i}`,
+          dstPort: 27015,
+          proto: 'udp',
+          bytesOut: 1000,
+          bytesIn: 0,
+          pktsOut: 20,
+          pktsIn: 0,
+        }),
+      );
+    }
+  },
 };
 
 /**

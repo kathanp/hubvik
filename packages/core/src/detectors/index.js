@@ -168,6 +168,10 @@ const ALL = [
   require('./txt-channel'),
   require('./inbound-lateral'),
   require('./short-lived-cert'),
+  require('./h2-fanout'),
+  require('./onion-name'),
+  require('./proxy-fanin'),
+  require('./scatter-udp'),
 ];
 
 /** @type {Record<string, any>} */

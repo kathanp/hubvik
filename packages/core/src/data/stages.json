@@ -34,5 +34,9 @@
   "dispersed-flood": "impact",
   "txt-channel": "c2",
   "inbound-lateral": "spread",
-  "short-lived-cert": "c2"
+  "short-lived-cert": "c2",
+  "h2-fanout": "impact",
+  "onion-name": "c2",
+  "proxy-fanin": "impact",
+  "scatter-udp": "impact"
 }

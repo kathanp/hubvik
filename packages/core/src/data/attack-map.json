@@ -71,5 +71,9 @@
   "dispersed-flood": ["T1498"],
   "txt-channel": ["T1071.004"],
   "inbound-lateral": ["T1021"],
-  "short-lived-cert": ["T1588.004"]
+  "short-lived-cert": ["T1588.004"],
+  "h2-fanout": ["T1498"],
+  "onion-name": ["T1090.003"],
+  "proxy-fanin": ["T1090"],
+  "scatter-udp": ["T1498"]
 }
