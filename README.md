@@ -2,7 +2,7 @@
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **1.4.0 prototype — not published, not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 1.4.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. Nothing in this repo is published to npm. The registry still has `hubvik@0.8.0`.
+Status: **1.5.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 1.5.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `hubvik@1.4.0` is the version on npm until this tag is published. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open.
 
 How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is [`docs/DETECTORS.md`](docs/DETECTORS.md).
 

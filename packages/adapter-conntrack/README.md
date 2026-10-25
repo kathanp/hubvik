@@ -14,4 +14,13 @@ const parser = createParser({
 parser.write(line); // array of flow events, or empty
 ```
 
-The first `src`/`dst` pair on the line is the original direction. Reply counters on the same line are not added.
+The first `src`/`dst` pair is the original direction. The second pair is the reply. `bytesOut` is the device's bytes, so an inbound flow swaps the counters. With no `direction` function, a private address chooses `out`, `in`, or `lan`. Pass `direction` to keep your own choice. TCP `ESTABLISHED` becomes `tcpOutcome: 'established'`. `SYN_SENT` becomes `no-response`.
+
+```js
+const { createEngine } = require('hubvik');
+const { createParser } = require('@hubvik/adapter-conntrack');
+
+const engine = createEngine({ learnMs: 0, tiers: ['T1'], shadow: ['port-knock'] });
+const parser = createParser({ now: () => Date.now() });
+for (const event of parser.write(line)) engine.feed(event);
+```
