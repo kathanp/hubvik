@@ -32,8 +32,8 @@ jobs:
           node <<'EOF'
           'use strict';
           const { execSync } = require('node:child_process');
-          const out = execSync('npm config list -l', { encoding: 'utf8' });
-          if (/_auth(?:Token)?\s*=\s*\S/.test(out)) {
+          const out = execSync('npm config list', { encoding: 'utf8' });
+          if (/_auth(?:Token)?\s*=/.test(out)) {
             console.error('an npm credential is configured; trusted publishing will not run');
             process.exit(1);
           }
