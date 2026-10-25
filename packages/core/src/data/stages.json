@@ -30,5 +30,9 @@
   "cert-change": "c2",
   "proxy-backconnect": "c2",
   "ot-recon": "recon",
-  "ot-dangerous-op": "impact"
+  "ot-dangerous-op": "impact",
+  "dispersed-flood": "impact",
+  "txt-channel": "c2",
+  "inbound-lateral": "spread",
+  "short-lived-cert": "c2"
 }

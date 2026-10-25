@@ -644,6 +644,67 @@ const ATTACKS = {
     }
     engine.flush(60_000);
   },
+  'dispersed-flood'(engine) {
+    for (let i = 1; i <= 8; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000,
+          dstIp: `9.9.9.${i}`,
+          bytesOut: 1000,
+          bytesIn: 0,
+          pktsOut: 1000,
+          pktsIn: 0,
+        }),
+      );
+    }
+  },
+  'txt-channel'(engine) {
+    const label = 'a'.repeat(20);
+    for (let i = 0; i < 12; i += 1) {
+      engine.feed({
+        type: 'dns',
+        device: 'd',
+        ts: 1000 + i,
+        qname: `${label}.example`,
+        qtype: 'TXT',
+        rcode: 'NOERROR',
+        resolver: '10.0.0.1',
+      });
+    }
+  },
+  'inbound-lateral'(engine) {
+    engine.feed(
+      flow({
+        ts: 0,
+        direction: 'in',
+        srcIp: '8.8.8.8',
+        dstIp: '10.0.0.8',
+        dstPort: 554,
+        tcpOutcome: 'established',
+      }),
+    );
+    for (let i = 2; i <= 4; i += 1) {
+      engine.feed(
+        flow({
+          ts: 1000,
+          direction: 'lan',
+          dstIp: `10.0.0.${i}`,
+          tcpOutcome: 'established',
+        }),
+      );
+    }
+  },
+  'short-lived-cert'(engine) {
+    engine.feed({
+      type: 'tls',
+      device: 'd',
+      ts: 1000,
+      dstIp: '9.9.9.9',
+      dstPort: 443,
+      sni: 'c2.example',
+      cert: { sha256: 'abc123', notBefore: 0, notAfter: 172800000 },
+    });
+  },
 };
 
 /**

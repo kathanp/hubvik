@@ -1467,7 +1467,8 @@
       "id": "flood-10-destinations",
       "fired": true,
       "detectors": [
-        "egress-flood"
+        "egress-flood",
+        "dispersed-flood"
       ]
     }
   ]
