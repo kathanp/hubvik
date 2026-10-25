@@ -17,14 +17,28 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # No registry-url. It writes an empty _authToken, and npm then never
+      # requests the trusted-publishing token. The registry answers 404.
       - name: setup node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
-          registry-url: https://registry.npmjs.org
       - name: install
         run: npm ci
+      - name: no static npm credential
+        run: |
+          set -euo pipefail
+          node <<'EOF'
+          'use strict';
+          const { execSync } = require('node:child_process');
+          const out = execSync('npm config list -l', { encoding: 'utf8' });
+          if (/_auth(?:Token)?\s*=\s*\S/.test(out)) {
+            console.error('an npm credential is configured; trusted publishing will not run');
+            process.exit(1);
+          }
+          console.log('no npm credential configured');
+          EOF
       - name: gate
         run: npm run gate
       - name: publish changed public packages
