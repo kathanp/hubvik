@@ -1,6 +1,6 @@
 {
   "name": "@hubvik/export-mqtt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MQTT topic and payload pairs for hubvik records. The caller supplies publish.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

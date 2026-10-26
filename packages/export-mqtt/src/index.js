@@ -17,17 +17,14 @@ function toMessages(record, opts = {}) {
     devices: row.devices || null,
   });
   if (Array.isArray(row.devices) && row.id) {
-    return [{ topic: `hubvik/campaign/${row.id}`, payload: body }];
+    return [{ topic: `hubvik/campaign/${topicPart(row.id, 'unknown')}`, payload: body }];
   }
   if (Array.isArray(row.anomalyIds)) {
-    return [{ topic: `hubvik/incident/${row.device || 'unknown'}`, payload: body }];
+    return [{ topic: `hubvik/incident/${topicPart(row.device, 'unknown')}`, payload: body }];
   }
-  return [
-    {
-      topic: `hubvik/anomaly/${row.device || 'unknown'}/${row.detector || 'unknown'}`,
-      payload: body,
-    },
-  ];
+  const device = topicPart(row.device, 'unknown');
+  const detector = topicPart(row.detector, 'unknown');
+  return [{ topic: `hubvik/anomaly/${device}/${detector}`, payload: body }];
 }
 
 /**
@@ -38,6 +35,26 @@ function publishWith(publish, record) {
   const messages = toMessages(record);
   for (const message of messages) publish(message.topic, message.payload);
   return messages.length;
+}
+
+/**
+ * One MQTT topic level. `#`, `+`, `/`, and controls are removed so a device name
+ * cannot add a level or a wildcard.
+ * @param {unknown} value
+ * @param {string} fallback
+ * @returns {string}
+ */
+function topicPart(value, fallback) {
+  const raw = value == null || value === '' ? fallback : String(value);
+  let out = '';
+  for (const ch of raw) {
+    const code = ch.codePointAt(0);
+    if (code == null || code <= 32 || code === 127 || ch === '#' || ch === '+' || ch === '/')
+      continue;
+    out += ch;
+    if (out.length >= 128) break;
+  }
+  return out || fallback;
 }
 
 /**

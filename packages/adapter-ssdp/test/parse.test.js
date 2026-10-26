@@ -12,5 +12,7 @@ test('ssdp notify and subscribe become events', () => {
   const sub = parser.write('SUBSCRIBE / HTTP/1.1\nCALLBACK: <http://203.0.113.5:9/n>\n');
   assert.strictEqual(sub[0].op, 'SUBSCRIBE');
   assert.strictEqual(sub[0].target, '203.0.113.5');
+  const v6 = parser.write('SUBSCRIBE / HTTP/1.1\nCALLBACK: <http://[2001:db8::9]:9/n>\n');
+  assert.strictEqual(v6[0].target, '2001:db8::9');
   assert.deepStrictEqual(parser.write('GET / HTTP/1.1\n'), []);
 });

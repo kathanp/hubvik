@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../errors');
 
-const { createHash, createHmac } = require('node:crypto');
+const { createHash, createHmac, timingSafeEqual } = require('node:crypto');
 const { assertSafeKeys } = require('./validate/common');
 
 /** Ring capacity (G9, D-60). */
@@ -63,17 +63,17 @@ const STATE_KEYS = new Set(['anchor', 'nextSeq', 'key', 'records']);
 
 /**
  * @typedef {object} AuditLog
- * @property {AuditRecord[]} records Oldest record first.
+ * @property {AuditRecord[]} records
  * @property {number} nextSeq
- * @property {string} anchor prevHash of the oldest record still in the ring.
- * @property {string | null} key HMAC key. Null selects plain SHA-256.
+ * @property {string} anchor
+ * @property {string | null} key
  */
 
 /** @type {WeakSet<object>} */
 const instances = new WeakSet();
 
 /**
- * Empty tamper-evident ring. The anchor starts as 64 zero hex characters.
+ * Empty tamper-evident ring.
  * @returns {AuditLog}
  */
 function createAuditLog() {
@@ -88,8 +88,7 @@ function createAuditLog() {
 }
 
 /**
- * Append one operator action. `ts` is the caller's watermark.
- * `opts.key` selects HMAC-SHA256 for a log that does not yet have records.
+ * Append one operator action.
  * @param {unknown} log
  * @param {unknown} recordInput
  * @param {unknown} [opts]
@@ -153,7 +152,7 @@ function auditLog(log, opts) {
 }
 
 /**
- * Recompute the chain. A broken link reports the sequence number where it failed.
+ * Recompute the chain.
  * @param {unknown} log
  * @returns {{ ok: true } | { ok: false, brokenAt: number }}
  */
@@ -178,7 +177,7 @@ function verifyAudit(log) {
   for (let i = 0; i < records.length; i += 1) {
     const record = records[i];
     const seq = seqOf(record);
-    if (!record || typeof expectedPrev !== 'string' || record.prevHash !== expectedPrev) {
+    if (!record || !sameHex(record.prevHash, expectedPrev)) {
       return { ok: false, brokenAt: seq };
     }
     if (i > 0) {
@@ -191,7 +190,7 @@ function verifyAudit(log) {
     } catch {
       return { ok: false, brokenAt: seq };
     }
-    if (hash !== record.hash) return { ok: false, brokenAt: seq };
+    if (!sameHex(hash, record.hash)) return { ok: false, brokenAt: seq };
     expectedPrev = record.hash;
   }
   const first = records[0];
@@ -519,8 +518,6 @@ function copyRecord(record) {
 }
 
 /**
- * SHA-256, or HMAC-SHA256 when `key` is a string.
- * The payload is `prevHash` concatenated with canonical JSON of the record without `hash`.
  * @param {AuditRecord} record
  * @param {string | null} key
  * @returns {string}
@@ -549,7 +546,21 @@ function digestHex(payload, key) {
 }
 
 /**
- * Canonical JSON. Object keys are sorted. Undefined object fields are omitted.
+ * Constant-time compare. A different length or encoding mismatches.
+ * @param {unknown} left
+ * @param {unknown} right
+ * @returns {boolean}
+ */
+function sameHex(left, right) {
+  if (typeof left !== 'string' || typeof right !== 'string' || left.length !== right.length) {
+    return false;
+  }
+  const a = Buffer.from(left);
+  const b = Buffer.from(right);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/**
  * @param {unknown} value
  * @returns {string}
  */

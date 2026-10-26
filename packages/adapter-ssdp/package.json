@@ -1,6 +1,6 @@
 {
   "name": "@hubvik/adapter-ssdp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Parse passive SSDP lines into discovery and UPnP app events. UNVERIFIED.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

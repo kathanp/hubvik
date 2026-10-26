@@ -33,12 +33,7 @@ function createParser(opts = {}) {
         ];
       }
       if (!first.startsWith('SUBSCRIBE')) return [];
-      const callback = header(text, 'CALLBACK') || '';
-      const host = callback
-        .replace(/[<>]/g, '')
-        .replace(/^https?:\/\//, '')
-        .split(':')[0]
-        .split('/')[0];
+      const host = hostOf(header(text, 'CALLBACK') || '');
       return [
         {
           type: 'app',
@@ -62,6 +57,20 @@ function createParser(opts = {}) {
 function header(text, name) {
   const match = new RegExp(`^${name}:\\s*(.+)$`, 'im').exec(text);
   return match ? match[1].trim() : '';
+}
+
+/**
+ * Host from a CALLBACK URL. A bracketed IPv6 address is kept whole.
+ * @param {string} callback
+ * @returns {string}
+ */
+function hostOf(callback) {
+  const text = callback.replace(/[<>]/g, '').replace(/^https?:\/\//i, '');
+  if (text.startsWith('[')) {
+    const end = text.indexOf(']');
+    if (end > 1) return text.slice(1, end);
+  }
+  return text.split(':')[0].split('/')[0];
 }
 
 module.exports = { createParser };

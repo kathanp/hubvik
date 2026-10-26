@@ -14,6 +14,15 @@ test('joins a query and a reply', () => {
   assert.strictEqual(event.device, 'cam-1');
 });
 
+test('drops the oldest name once 1024 queries are waiting', () => {
+  const parser = createParser();
+  assert.deepStrictEqual(parser.write(/** @type {any} */ (null)), []);
+  for (let i = 0; i < 1025; i += 1) parser.write(`query[A] n${i}.example from 10.0.0.8`);
+  assert.deepStrictEqual(parser.write('reply n0.example is 1.2.3.4'), []);
+  const [event] = parser.write('reply n1024.example is 1.2.3.4');
+  assert.strictEqual(event.qname, 'n1024.example');
+});
+
 test('maps NXDOMAIN', () => {
   const parser = createParser({ now: () => 1 });
   parser.write('query[A] missing.example from 10.0.0.8');

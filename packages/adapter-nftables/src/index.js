@@ -35,9 +35,12 @@ function createParser(opts = {}) {
           dstIp: String(counter.daddr),
           srcPort: Number(counter.sport) || 0,
           dstPort: Number(counter.dport) || 0,
-          proto: counter.protocol === 'udp' ? 'udp' : 'tcp',
+          proto: protoName(counter.protocol),
           bytesOut: Number(counter.bytes) || 0,
+          bytesIn: 0,
           pktsOut: Number(counter.packets) || 0,
+          pktsIn: 0,
+          durationMs: 0,
           direction: 'out',
         },
       ];
@@ -53,6 +56,21 @@ function counterOf(list) {
     if (item && item.counter) return item.counter;
   }
   return null;
+}
+
+/**
+ * Known names stay names. A numeric protocol stays a number. Anything else is TCP.
+ * @param {unknown} value
+ * @returns {string | number}
+ */
+function protoName(value) {
+  const name = String(value || '').toLowerCase();
+  if (name === 'tcp' || name === 'udp' || name === 'icmp' || name === 'gre' || name === 'esp') {
+    return name;
+  }
+  const n = Number(name);
+  if (name !== '' && Number.isInteger(n) && n >= 0 && n <= 255) return n;
+  return 'tcp';
 }
 
 module.exports = { createParser };
