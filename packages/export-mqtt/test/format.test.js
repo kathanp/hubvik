@@ -18,4 +18,6 @@ test('mqtt topics follow the record kind', () => {
   const count = publishWith((topic) => topics.push(topic), { id: 'c1', devices: ['a'], edges: [] });
   assert.strictEqual(count, 1);
   assert.strictEqual(topics[0], 'hubvik/campaign/c1');
+  const wild = toMessages({ id: '1', device: 'cam/#', detector: 'a+b' });
+  assert.strictEqual(wild[0].topic, 'hubvik/anomaly/cam/ab');
 });

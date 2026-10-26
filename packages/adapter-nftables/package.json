@@ -1,6 +1,6 @@
 {
   "name": "@hubvik/adapter-nftables",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Parse nftables JSON counters into hubvik flow summaries. UNVERIFIED.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

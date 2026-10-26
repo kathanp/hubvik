@@ -82,11 +82,11 @@ function readData(template, body, deviceFor) {
       const slice = body.subarray(cursor, cursor + field.len);
       cursor += field.len;
       if (field.id === 8 || field.id === 12) row[field.id === 8 ? 'src' : 'dst'] = ipv4(slice);
-      else if (field.id === 7) row.srcPort = slice.readUInt16BE(0);
-      else if (field.id === 11) row.dstPort = slice.readUInt16BE(0);
-      else if (field.id === 4) row.proto = slice[0] === 6 ? 'tcp' : slice[0] === 17 ? 'udp' : 'tcp';
-      else if (field.id === 1) row.bytes = slice.readUInt32BE(0);
-      else if (field.id === 2) row.packets = slice.readUInt32BE(0);
+      else if (field.id === 7) row.srcPort = u16(slice);
+      else if (field.id === 11) row.dstPort = u16(slice);
+      else if (field.id === 4) row.proto = protoOf(slice);
+      else if (field.id === 1) row.bytes = u32(slice);
+      else if (field.id === 2) row.packets = u32(slice);
     }
     if (!row.src || !row.dst) continue;
     events.push({
@@ -97,9 +97,12 @@ function readData(template, body, deviceFor) {
       dstIp: row.dst,
       srcPort: row.srcPort || 0,
       dstPort: row.dstPort || 0,
-      proto: row.proto || 'tcp',
+      proto: row.proto == null ? 'tcp' : row.proto,
       bytesOut: row.bytes || 0,
+      bytesIn: 0,
       pktsOut: row.packets || 0,
+      pktsIn: 0,
+      durationMs: 0,
       direction: 'out',
     });
   }
@@ -112,6 +115,39 @@ function readData(template, body, deviceFor) {
 function ipv4(slice) {
   if (slice.length < 4) return '';
   return `${slice[0]}.${slice[1]}.${slice[2]}.${slice[3]}`;
+}
+
+/**
+ * @param {Buffer} slice
+ * @returns {number}
+ */
+function u16(slice) {
+  return slice.length >= 2 ? slice.readUInt16BE(0) : 0;
+}
+
+/**
+ * @param {Buffer} slice
+ * @returns {number}
+ */
+function u32(slice) {
+  return slice.length >= 4 ? slice.readUInt32BE(0) : 0;
+}
+
+/**
+ * ICMP, TCP, UDP, GRE, and ESP keep their names. Any other protocol stays a number.
+ * A short field is omitted.
+ * @param {Buffer} slice
+ * @returns {'icmp' | 'tcp' | 'udp' | 'gre' | 'esp' | number | undefined}
+ */
+function protoOf(slice) {
+  if (slice.length < 1) return undefined;
+  const n = slice[0];
+  if (n === 1) return 'icmp';
+  if (n === 6) return 'tcp';
+  if (n === 17) return 'udp';
+  if (n === 47) return 'gre';
+  if (n === 50) return 'esp';
+  return n;
 }
 
 module.exports = { createParser };

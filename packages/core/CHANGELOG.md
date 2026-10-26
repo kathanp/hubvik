@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+
+Audit-chain hashes are compared in constant time. No detector threshold, severity, or default changed. A default engine still emits the same anomalies as 1.6.0.
+
 ## 2.0.2
 
 Bug fixes. No detector threshold, severity, or default changed. A default engine still emits the same anomalies as 1.6.0.

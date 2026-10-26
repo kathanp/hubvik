@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 2.0.2
+- [x] `hubvik` (`packages/core`) 2.0.3
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -71,26 +71,26 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] B21 rows through WP-21, all `mode: 'shadow'`
   - [x] B24 rows, all `mode: 'shadow'`, off unless `shadow` selects them
   - [x] B25 rows, all `mode: 'shadow'`, off unless `shadow` selects them
-  - [x] Published to npm (`hubvik@2.0.1`; `2.0.2` waits for its tag)
-- [x] `@hubvik/adapter-conntrack` 0.3.0 — `conntrack` lines to flow events
-- [x] `@hubvik/adapter-dnsmasq` 0.2.0 — dnsmasq query lines to DNS events
-- [x] `@hubvik/adapter-zeek` 0.1.0 — Zeek JSON logs
-- [x] `@hubvik/adapter-suricata-eve` 0.1.0 — Suricata EVE JSON
+  - [x] Published to npm (`hubvik@2.0.2`; `2.0.3` waits for its tag)
+- [x] `@hubvik/adapter-conntrack` 0.3.1 — `conntrack` lines to flow events
+- [x] `@hubvik/adapter-dnsmasq` 0.2.1 — dnsmasq query lines to DNS events
+- [x] `@hubvik/adapter-zeek` 0.2.1 — Zeek JSON logs
+- [x] `@hubvik/adapter-suricata-eve` 0.2.1 — Suricata EVE JSON
 - [x] `@hubvik/export-ocsf` 0.2.0 — OCSF Detection Finding, class_uid 2004
   - [x] `ocsfVersion` default `1.4.0`
-- [x] `@hubvik/export-syslog` 0.1.0 — RFC 5424 and a CEF message
+- [x] `@hubvik/export-syslog` 0.1.1 — RFC 5424 and a CEF message
 - [x] `@hubvik/export-webhook` 0.1.0 — POST with retry, backoff, and HMAC
   - [x] The caller supplies `fetch`
 - [x] `@hubvik/adapter-unbound` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/adapter-ipfix` 0.1.0 — UNVERIFIED
+- [x] `@hubvik/adapter-ipfix` 0.1.1 — UNVERIFIED
 - [x] `@hubvik/adapter-openwrt` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/adapter-nftables` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/adapter-ssdp` 0.1.0 — UNVERIFIED
+- [x] `@hubvik/adapter-nftables` 0.1.1 — UNVERIFIED
+- [x] `@hubvik/adapter-ssdp` 0.1.1 — UNVERIFIED
 - [x] `@hubvik/export-prometheus` 0.1.0 — UNVERIFIED
 - [x] `@hubvik/export-ecs` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/export-mqtt` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/respond-nftables (text only)` 0.1.0 — UNVERIFIED
-- [x] `@hubvik/cli` 0.1.0 — UNVERIFIED
+- [x] `@hubvik/export-mqtt` 0.1.1 — UNVERIFIED
+- [x] `@hubvik/respond-nftables (text only)` 0.1.1 — UNVERIFIED
+- [x] `@hubvik/cli` 0.1.1 — UNVERIFIED
 - [x] `eval/` harness
   - [x] IoT-23 joiner
   - [x] CICIoT2023 joiner
