@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createEngine } = require('hubvik');
-const { checkRule, replay, doctor, reportHtml } = require('../src/lib.js');
+const { checkRule, replay, doctor, reportHtml, verifyBaseline } = require('../src/lib.js');
 
 test('rules check rejects a regex operator and replay uses the injected engine', () => {
   assert.ok(checkRule({ id: 'bad', on: 'flow', where: { dstPort: { regex: '23' } } }).length > 0);
@@ -83,6 +83,22 @@ test('replay locks once the learn window has passed', () => {
     },
   );
   assert.deepStrictEqual(calls, ['feed', 'lock', 'feed']);
+});
+
+test('verifyBaseline checks the engine MAC and the report escapes a device name', () => {
+  const engine = createEngine({ learnMs: 0 });
+  const summary = engine.exportSummary({ key: 'lab-key', gatewayId: 'gw' });
+  const reordered = {
+    sig: summary.sig,
+    ts: summary.ts,
+    groups: summary.groups,
+    gatewayId: summary.gatewayId,
+  };
+  assert.strictEqual(verifyBaseline(reordered, 'lab-key'), true);
+  assert.strictEqual(verifyBaseline(reordered, 'other-key'), false);
+  const html = reportHtml('{"ts":1,"device":"<cam>","detector":"x"}\n');
+  assert.ok(html.includes('&lt;cam&gt;'));
+  assert.ok(!html.includes('<cam>'));
 });
 
 test('the Kimwolf pivot replay report matches its HTML snapshot', () => {

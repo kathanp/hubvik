@@ -115,21 +115,27 @@ function appExtras(log, row) {
  * @returns {boolean}
  */
 function isLocalAddress(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  let lower = ip.toLowerCase();
+  if (lower.startsWith('[') && lower.endsWith(']')) lower = lower.slice(1, -1);
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(lower);
+  if (mapped) lower = mapped[1];
   if (
-    ip.startsWith('10.') ||
-    ip.startsWith('192.168.') ||
-    ip.startsWith('127.') ||
-    ip.startsWith('169.254.')
+    lower.startsWith('10.') ||
+    lower.startsWith('192.168.') ||
+    lower.startsWith('127.') ||
+    lower.startsWith('169.254.')
   ) {
     return true;
   }
-  const part = /^172\.(\d+)\./.exec(ip);
+  const part = /^172\.(\d+)\./.exec(lower);
   if (part) {
     const octet = Number(part[1]);
     if (octet >= 16 && octet <= 31) return true;
   }
-  const lower = ip.toLowerCase();
-  return lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd');
+  if (lower === '::' || lower === '::1') return true;
+  if (/^fe[89ab][0-9a-f]/i.test(lower)) return true;
+  return lower.startsWith('fc') || lower.startsWith('fd');
 }
 
 module.exports = { tcpOutcome, flowSide, stamp, dnsAnswers, appExtras };

@@ -47,10 +47,12 @@ test('parses dns, ssl, http, and bacnet lines', () => {
       ja4: 't13d',
       version: 'TLSv1.3',
       issuer: 'Vendor CA',
+      next_protocol: 'h2',
     }),
   );
   assert.strictEqual(handshake.type, 'tls');
   assert.strictEqual(handshake.cert.issuer, 'Vendor CA');
+  assert.deepStrictEqual(handshake.alpn, ['h2']);
 
   const http = createParser({ log: 'http', now: () => 7 });
   const [page] = http.write(
@@ -206,6 +208,32 @@ test('dns answer type follows the query, and app logs keep unit and flags', () =
   );
   assert.deepStrictEqual(will.flags, ['will']);
   assert.strictEqual(will.target, 'floor/1/set');
+});
+
+test('a public source to a link-local or mapped private address is inbound', () => {
+  const parser = createParser({ log: 'conn', now: (ts) => ts * 1000 });
+  const [link] = parser.write(
+    JSON.stringify({
+      ts: 1,
+      id: { orig_h: '1.2.3.4', orig_p: 9, resp_h: 'fe90::1', resp_p: 1111 },
+      proto: 'tcp',
+      orig_bytes: 40,
+      resp_bytes: 0,
+    }),
+  );
+  assert.strictEqual(link.direction, 'in');
+  assert.strictEqual(link.device, 'fe90::1');
+  const [mapped] = parser.write(
+    JSON.stringify({
+      ts: 2,
+      id: { orig_h: '8.8.8.8', orig_p: 9, resp_h: '::ffff:10.0.0.8', resp_p: 1111 },
+      proto: 'tcp',
+      orig_bytes: 40,
+      resp_bytes: 0,
+    }),
+  );
+  assert.strictEqual(mapped.direction, 'in');
+  assert.strictEqual(mapped.device, '::ffff:10.0.0.8');
 });
 
 test('rejects an unknown log name and a broken line', () => {

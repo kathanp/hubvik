@@ -132,6 +132,53 @@ test('sample history cap stays bounded', () => {
   assert.deepStrictEqual(Object.keys(state).sort(), ['count', 'm2', 'max', 'mean']);
 });
 
+test('IPv4-mapped flow addresses match the IPv4 indicator and a link-local bogon', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0', 'T1'] });
+  /** @type {any[]} */
+  const intel = [];
+  /** @type {any[]} */
+  const bogons = [];
+  engine.on('anomaly', (item) => {
+    if (item.detector === 'threat-intel-match') intel.push(item);
+    if (item.detector === 'bogon-destination') bogons.push(item);
+  });
+  engine.loadIndicators([{ value: '::ffff:8.8.8.8', type: 'ip', source: 'lab', confidence: 1 }]);
+  engine.feed(flow({ dstIp: '::FFFF:8.8.8.8' }));
+  engine.feed(flow({ dstIp: '::ffff:10.1.2.3', ts: 3000 }));
+  engine.feed(flow({ dstIp: 'fe90::1', ts: 4000 }));
+  assert.deepStrictEqual(
+    intel.map((item) => item.actual),
+    ['8.8.8.8'],
+  );
+  assert.deepStrictEqual(
+    bogons.map((item) => item.actual),
+    ['10.1.2.3', 'fe90::1'],
+  );
+});
+
+/**
+ * @param {Record<string, unknown>} extra
+ */
+function flow(extra) {
+  return {
+    type: 'flow',
+    device: 'd',
+    ts: 1000,
+    srcIp: '10.0.0.8',
+    srcPort: 40000,
+    dstIp: '1.2.3.4',
+    dstPort: 443,
+    proto: 'tcp',
+    direction: 'out',
+    bytesOut: 200,
+    bytesIn: 200,
+    pktsOut: 2,
+    pktsIn: 2,
+    durationMs: 20,
+    ...extra,
+  };
+}
+
 test('IPv4-mapped IPv6 is the same destination as the IPv4 host', () => {
   const engine = createEngine({ learnMs: 1000, windowMs: 60_000 });
   const anomalies = [];

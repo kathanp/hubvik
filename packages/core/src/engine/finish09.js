@@ -3,7 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { EventEmitter } = require('node:events');
-const { createHmac, createHash } = require('node:crypto');
+const { createHmac, createHash, timingSafeEqual } = require('node:crypto');
 const { fnv1a32 } = require('./stats/hash');
 const { canonical } = require('./baseline');
 const { domainFamily } = require('./net');
@@ -290,7 +290,7 @@ const methods = {
         const unsigned = { ...row };
         delete unsigned.sig;
         const mac = row.sig && row.sig.mac;
-        if (mac !== macOf(opts.verify, unsigned))
+        if (!macMatches(opts.verify, unsigned, mac))
           throw new HubvikError('SUMMARY_SIGNATURE_IS_INVALID', 'summary signature is invalid');
       }
       const age = (this.watermark || 0) - (row.ts || 0);
@@ -569,6 +569,20 @@ function token(key, value) {
  */
 function macOf(key, body) {
   return createHmac('sha256', key).update(canonical(body)).digest('hex');
+}
+
+/**
+ * Compare a summary MAC without leaking the match through a short string compare.
+ * @param {string | Buffer} key
+ * @param {object} body
+ * @param {unknown} mac
+ * @returns {boolean}
+ */
+function macMatches(key, body, mac) {
+  if (typeof mac !== 'string' || !/^[0-9a-f]{64}$/i.test(mac)) return false;
+  const expected = Buffer.from(macOf(key, body), 'hex');
+  const actual = Buffer.from(mac, 'hex');
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
 /**

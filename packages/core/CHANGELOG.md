@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+Bug fixes. No detector threshold, severity, or default changed. A default engine still emits the same anomalies as 1.6.0.
+
+IPv4-mapped IPv6 (`::ffff:a.b.c.d`) is stored as the IPv4 host on flow, TLS, HTTP, DNS, ARP, and app addresses, and on an `ip` indicator. `::ffff:10.1.2.3` is a bogon. `::ffff:8.8.8.8` is the same indicator as `8.8.8.8`. Link-local `fe80::/10` is a bogon, including `fe90::1`. A peer-summary MAC is compared in constant time.
+
 ## 2.0.1
 
 Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is the same as 1.6.0. The call surface is unchanged. The library still only reports.

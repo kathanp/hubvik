@@ -24,6 +24,17 @@ test('formats RFC 5424 with a CEF message', () => {
   assert.ok(line.includes('msg=Vendor CA'));
 });
 
+test('a host cannot break the syslog header', () => {
+  const line = format(
+    { detector: 'cert-change', device: 'cam', actual: 'a<b>', expected: 'c>d' },
+    { host: 'gw\n<0>1', app: 'hub vik' },
+  );
+  assert.strictEqual(line.split('\n').length, 1);
+  assert.ok(line.includes(' gw01 hubvik '));
+  assert.ok(!line.includes('<0>'));
+  assert.ok(line.includes('a b '));
+});
+
 test('uses info defaults and strips CEF separators', () => {
   const line = format({ detector: 'x', actual: 'a|b\nc', device: 'cam' });
   assert.ok(line.startsWith('<134>1 '));

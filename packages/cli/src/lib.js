@@ -1,6 +1,6 @@
 'use strict';
 
-const { createHmac } = require('node:crypto');
+const { createHmac, timingSafeEqual } = require('node:crypto');
 
 /**
  * Structural check for one declarative rule. No regular expressions.
@@ -156,9 +156,9 @@ function reportHtml(jsonl) {
     .filter(Boolean)
     .map((line) => JSON.parse(line));
   /** @type {Record<string, any[]>} */
-  const byDevice = {};
+  const byDevice = Object.create(null);
   /** @type {Record<string, number>} */
-  const counts = {};
+  const counts = Object.create(null);
   /** @type {any[]} */
   const incidents = [];
   for (const row of rows) {
@@ -215,10 +215,27 @@ function diffBaseline(a, b) {
  */
 function verifyBaseline(body, key) {
   if (!body || !body.sig || body.sig.alg !== 'HMAC-SHA256') return false;
-  const unsigned = { ...body };
-  delete unsigned.sig;
-  const mac = createHmac('sha256', key).update(JSON.stringify(unsigned)).digest('hex');
-  return mac === body.sig.mac;
+  if (typeof body.sig.mac !== 'string' || !/^[0-9a-f]{64}$/i.test(body.sig.mac)) return false;
+  const mac = createHmac('sha256', key).update(canonical(body)).digest('hex');
+  const left = Buffer.from(mac, 'hex');
+  const right = Buffer.from(body.sig.mac, 'hex');
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+/**
+ * Same byte string the engine uses when it signs a baseline or a summary.
+ * Key order does not change the MAC. The `sig` field is left out.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function canonical(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null';
+  if (Array.isArray(value)) return `[${value.map((item) => canonical(item)).join(',')}]`;
+  const record = /** @type {Record<string, unknown>} */ (value);
+  const keys = Object.keys(record)
+    .filter((key) => key !== 'sig')
+    .sort();
+  return `{${keys.map((key) => `${JSON.stringify(key)}:${canonical(record[key])}`).join(',')}}`;
 }
 
 /**

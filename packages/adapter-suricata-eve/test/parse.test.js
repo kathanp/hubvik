@@ -43,10 +43,11 @@ test('parses flow, dns, tls, http, and alert lines', () => {
       src_ip: '10.0.0.8',
       dest_ip: '1.2.3.4',
       dest_port: 443,
-      tls: { sni: 'video.vendor.com', ja4: 't13d', version: 'TLS 1.3' },
+      tls: { sni: 'video.vendor.com', ja4: 't13d', version: 'TLS 1.3', alpn: 'h2' },
     }),
   );
   assert.strictEqual(tls.sni, 'video.vendor.com');
+  assert.deepStrictEqual(tls.alpn, ['h2']);
 
   const [http] = parser.write(
     JSON.stringify({
@@ -141,4 +142,30 @@ test('flow_id, tcp outcome, inbound bytes, and dns ttl are kept', () => {
   );
   assert.strictEqual(query.uid, '42');
   assert.strictEqual(query.answers[0].ttl, 60);
+});
+
+test('a public source to a link-local or mapped private address is inbound', () => {
+  const parser = createParser({ now: () => 1000 });
+  const [link] = parser.write(
+    JSON.stringify({
+      event_type: 'flow',
+      src_ip: '1.2.3.4',
+      dest_ip: 'fe90::1',
+      proto: 'TCP',
+      flow: { bytes_toserver: 40, bytes_toclient: 0 },
+    }),
+  );
+  assert.strictEqual(link.direction, 'in');
+  assert.strictEqual(link.device, 'fe90::1');
+  const [mapped] = parser.write(
+    JSON.stringify({
+      event_type: 'flow',
+      src_ip: '8.8.8.8',
+      dest_ip: '::ffff:10.0.0.8',
+      proto: 'TCP',
+      flow: { bytes_toserver: 40, bytes_toclient: 0 },
+    }),
+  );
+  assert.strictEqual(mapped.direction, 'in');
+  assert.strictEqual(mapped.device, '::ffff:10.0.0.8');
 });

@@ -1,6 +1,6 @@
 {
   "name": "@hubvik/adapter-zeek",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Parse Zeek JSON logs into hubvik events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

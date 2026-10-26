@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../../errors');
 
-const { normalizeName, requireFields, num, copyUid } = require('./common');
+const { normalizeName, coerceIp, requireFields, num, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -67,9 +67,9 @@ function flowEvent(raw, ts, warnings) {
     tier: 'T1',
     device: raw.device,
     ts,
-    srcIp: String(raw.srcIp),
+    srcIp: coerceIp(raw.srcIp),
     srcPort: num(raw.srcPort, 'srcPort', { integer: true, max: 65535 }),
-    dstIp: String(raw.dstIp),
+    dstIp: coerceIp(raw.dstIp),
     dstPort: num(raw.dstPort, 'dstPort', { integer: true, max: 65535 }),
     proto,
     direction,

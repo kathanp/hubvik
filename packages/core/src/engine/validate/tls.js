@@ -1,6 +1,6 @@
 'use strict';
 
-const { requireFields, num, normalizeName, copyUid } = require('./common');
+const { requireFields, num, normalizeName, coerceIp, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -15,7 +15,7 @@ function tlsEvent(raw, ts, warnings) {
     tier: 'T3',
     device: raw.device,
     ts,
-    dstIp: String(raw.dstIp),
+    dstIp: coerceIp(raw.dstIp),
     dstPort: num(raw.dstPort, 'dstPort', { integer: true, max: 65535 }),
   };
   if (raw.sni != null) {

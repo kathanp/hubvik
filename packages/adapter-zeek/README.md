@@ -1,6 +1,6 @@
 # @hubvik/adapter-zeek
 
-Version 0.2.0. Turns Zeek JSON logs into hubvik events. No dependencies.
+Version 0.2.1. Turns Zeek JSON logs into hubvik events. No dependencies. `ssl.next_protocol` is copied to `alpn`. A `::ffff:` address and `fe80::/10` count as local when `local_orig` and `local_resp` are absent.
 
 Supported `log` values: `conn`, `dns`, `ssl`, `http`, `modbus`, `dnp3`, `mqtt_connect`, `mqtt_subscribe`, `mqtt_publish`, and the CISA ICSNPP logs `bacnet`, `s7comm`, `enip`.
 

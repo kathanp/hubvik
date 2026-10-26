@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../../errors');
 
-const { requireFields, normalizeName, copyUid } = require('./common');
+const { requireFields, normalizeName, coerceIp, copyUid } = require('./common');
 
 /**
  * @param {any} raw
@@ -22,7 +22,7 @@ function dnsEvent(raw, ts, warnings) {
     qname,
     qtype: String(raw.qtype),
     rcode: String(raw.rcode),
-    resolver: String(raw.resolver),
+    resolver: coerceIp(raw.resolver),
   };
   if (raw.answers != null) {
     if (!Array.isArray(raw.answers)) {
@@ -33,7 +33,7 @@ function dnsEvent(raw, ts, warnings) {
         if (!answer || typeof answer !== 'object' || typeof answer.type !== 'string') continue;
         answers.push({
           type: answer.type,
-          value: answer.value == null ? '' : String(answer.value).slice(0, 255),
+          value: coerceIp(answer.value == null ? '' : String(answer.value).slice(0, 255)),
           ttl: typeof answer.ttl === 'number' && Number.isFinite(answer.ttl) ? answer.ttl : 0,
         });
       }
