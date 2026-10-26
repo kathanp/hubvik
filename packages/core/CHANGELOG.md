@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is the same as 1.6.0. The call surface is unchanged. The library still only reports.
+
+`h2-fanout` reports 64 or more new public destinations in one window whose TLS ALPN list includes `h2`. `browser-mimic` still needs a host-supplied JA4 list and still fires on one handshake. `onion-name` reports a DNS name, SNI, or flow name ending in `.onion` without an indicator feed. `tor-or-proxy` is unchanged. `proxy-fanin` reports 8 or more new public clients with established two-way sessions to a port above 1024. `scatter-udp` reports a one-way UDP burst to at least 40 destinations that each stay in the 20-to-199 packet band, 800 packets in total. A destination at 200 packets stays with `dispersed-flood`. DNS port 53 and NTP port 123 do not count.
+
+D-107 through D-110 stay proposed. The 0.6 false-positive gate is still open.
+
 ## 1.6.0
 
 Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is unchanged. The library still only reports.
