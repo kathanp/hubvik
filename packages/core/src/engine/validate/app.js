@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../../errors');
 
-const { requireFields, num, normalizeName } = require('./common');
+const { requireFields, num, normalizeName, coerceIp } = require('./common');
 
 /**
  * @param {any} raw
@@ -17,7 +17,7 @@ function httpEvent(raw, ts, warnings) {
     tier: 'T3',
     device: raw.device,
     ts,
-    dstIp: String(raw.dstIp),
+    dstIp: coerceIp(raw.dstIp),
     dstPort: num(raw.dstPort, 'dstPort', { integer: true, max: 65535 }),
     method: String(raw.method).slice(0, 32),
   };
@@ -100,7 +100,7 @@ function appEvent(raw, ts, warnings) {
     ts,
     proto: raw.proto,
     role: raw.role,
-    peerIp: String(raw.peerIp),
+    peerIp: coerceIp(raw.peerIp),
     op: String(raw.op).slice(0, 255),
   };
   if (raw.target != null) event.target = String(raw.target).slice(0, 255);

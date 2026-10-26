@@ -283,12 +283,19 @@ function validateIndicator(raw) {
     raw.confidence == null ? 1 : num(raw.confidence, 'indicator.confidence', { max: 1 });
   let expiresTs = null;
   if (raw.expiresTs != null) expiresTs = num(raw.expiresTs, 'indicator.expiresTs');
-  if (raw.type === 'ip' && !normalizeIp(raw.value))
+  const ip = raw.type === 'ip' ? normalizeIp(raw.value) : null;
+  if (raw.type === 'ip' && !ip)
     throw new HubvikError('INDICATOR_IP_IS_INVALID', 'indicator ip is invalid');
   if (raw.type === 'cidr' && !/^(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(raw.value)) {
     throw new HubvikError('INDICATOR_CIDR_IS_INVALID', 'indicator cidr is invalid');
   }
-  return { value: raw.value, type: raw.type, source: raw.source, confidence, expiresTs };
+  return {
+    value: ip || raw.value,
+    type: raw.type,
+    source: raw.source,
+    confidence,
+    expiresTs,
+  };
 }
 
 /**

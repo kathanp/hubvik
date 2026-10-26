@@ -56,6 +56,20 @@ test('a udp line has no tcp outcome', () => {
   assert.strictEqual(event.bytesIn, 80);
 });
 
+test('a mapped private address and link-local fe90 are local', () => {
+  const parser = createParser({ now: () => 90 });
+  const [mapped] = parser.write(
+    'tcp 6 10 ESTABLISHED src=8.8.8.8 dst=::ffff:10.0.0.8 sport=9 dport=1111 packets=1 bytes=40 src=::ffff:10.0.0.8 dst=8.8.8.8 sport=1111 dport=9 packets=1 bytes=40',
+  );
+  assert.strictEqual(mapped.direction, 'in');
+  assert.strictEqual(mapped.device, '::ffff:10.0.0.8');
+  const [link] = parser.write(
+    'tcp 6 10 ESTABLISHED src=1.2.3.4 dst=fe90::1 sport=9 dport=1111 packets=1 bytes=40 src=fe90::1 dst=1.2.3.4 sport=1111 dport=9 packets=1 bytes=40',
+  );
+  assert.strictEqual(link.direction, 'in');
+  assert.strictEqual(link.device, 'fe90::1');
+});
+
 test('ignores unrelated text', () => {
   const parser = createParser();
   assert.deepStrictEqual(parser.write('conntrack v1.4.6 (conntrack-tools)'), []);

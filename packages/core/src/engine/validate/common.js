@@ -146,6 +146,18 @@ function normalizeIp(ip) {
 }
 
 /**
+ * Store an address in one form. IPv4-mapped IPv6 becomes the IPv4 host.
+ * A value that is not an address is returned unchanged.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function coerceIp(value) {
+  const text = String(value);
+  const normalized = normalizeIp(text);
+  return normalized == null ? text : normalized;
+}
+
+/**
  * Lowercase, strip a trailing dot, punycode a hostname, unwrap IPv4-mapped IPv6.
  * @param {unknown} value
  * @param {number} maxString
@@ -347,6 +359,7 @@ module.exports = {
   num,
   isV4,
   normalizeIp,
+  coerceIp,
   normalizeName,
   requireFields,
   defaultHour,

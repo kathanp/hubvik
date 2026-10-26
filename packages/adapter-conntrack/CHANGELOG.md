@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+A private, loopback, link-local (`fe80::/10`), or ULA address decides direction, including `::1`, `fe90::1`, and `::ffff:10.0.0.0/8`. An explicit `direction` function still wins.
+
 ## 0.3.0
 
 A conntrack line now carries TCP outcome, both directions of bytes, and a direction taken from private addresses when the caller does not pass one. An inbound flow counts the device's bytes. `SYN_SENT` is `no-response`. `ESTABLISHED` is `established`. Three silent inbound ports and one established session drive `port-knock`. An explicit `direction` function still wins.

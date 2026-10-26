@@ -3,7 +3,7 @@
 const { HubvikError } = require('../../errors');
 
 const { isIpv6, isMac } = require('../identity');
-const { requireFields } = require('./common');
+const { requireFields, coerceIp, normalizeIp } = require('./common');
 
 const DISCOVERY_PROTOS = new Set(['mdns', 'ssdp', 'ws-discovery', 'coap']);
 
@@ -22,15 +22,16 @@ function linkEvent(raw, type, ts, warnings) {
   else if (raw.device != null) event.device = raw.device;
   if (type === 'arp') {
     requireFields(raw, ['ip', 'mac', 'op'], 'arp');
-    event.ip = String(raw.ip);
+    event.ip = coerceIp(raw.ip);
     event.mac = String(raw.mac).toLowerCase();
     event.op = raw.op;
   } else if (type === 'dhcp') {
     requireFields(raw, ['mac', 'msg'], 'dhcp');
     event.mac = String(raw.mac).toLowerCase();
     event.msg = String(raw.msg);
-    if (typeof raw.serverIp === 'string') event.serverIp = raw.serverIp.slice(0, 64);
-    if (typeof raw.requestedIp === 'string') event.requestedIp = raw.requestedIp.slice(0, 64);
+    if (typeof raw.serverIp === 'string') event.serverIp = coerceIp(raw.serverIp.slice(0, 64));
+    if (typeof raw.requestedIp === 'string')
+      event.requestedIp = coerceIp(raw.requestedIp.slice(0, 64));
     if (
       typeof raw.fingerprint === 'string' &&
       raw.fingerprint.length > 0 &&
@@ -64,13 +65,14 @@ function linkEvent(raw, type, ts, warnings) {
     }
   } else if (type === 'nd') {
     requireFields(raw, ['ip', 'mac', 'op'], 'nd');
-    if (!isIpv6(String(raw.ip))) throw new HubvikError('ND_IP_MUST_BE_IPV6', 'nd.ip must be IPv6');
+    const ndIp = ipv6Address(raw.ip);
+    if (!ndIp) throw new HubvikError('ND_IP_MUST_BE_IPV6', 'nd.ip must be IPv6');
     const mac = String(raw.mac).toLowerCase();
     if (!isMac(mac)) throw new HubvikError('ND_MAC_IS_INVALID', 'nd.mac is invalid');
     if (raw.op !== 'na' && raw.op !== 'ns' && raw.op !== 'rs' && raw.op !== 'ra') {
       throw new HubvikError('ND_OP_IS_INVALID', 'nd.op is invalid');
     }
-    event.ip = String(raw.ip);
+    event.ip = ndIp;
     event.mac = mac;
     event.op = raw.op;
     if (raw.router === true) event.router = true;
@@ -102,7 +104,7 @@ function linkEvent(raw, type, ts, warnings) {
   } else if (type === 'ra') {
     requireFields(raw, ['srcMac', 'srcIp'], 'ra');
     event.srcMac = String(raw.srcMac).toLowerCase();
-    event.srcIp = String(raw.srcIp);
+    event.srcIp = coerceIp(raw.srcIp);
     event.prefixes = Array.isArray(raw.prefixes) ? raw.prefixes.map(String) : [];
     event.routerLifetime = typeof raw.routerLifetime === 'number' ? raw.routerLifetime : 0;
     if (raw.count == null) event.count = 1;
@@ -114,7 +116,7 @@ function linkEvent(raw, type, ts, warnings) {
     }
   } else {
     requireFields(raw, ['proto', 'srcIp', 'direction'], 'discovery');
-    event.srcIp = String(raw.srcIp);
+    event.srcIp = coerceIp(raw.srcIp);
     event.direction = raw.direction;
     if (typeof raw.proto === 'string' && DISCOVERY_PROTOS.has(raw.proto)) event.proto = raw.proto;
     else warnings.push({ code: 'FIELD_DROPPED', message: 'dropped discovery.proto' });
@@ -193,6 +195,19 @@ function dhcpRoutes(value, warnings) {
     out.push(item);
   }
   return out;
+}
+
+/**
+ * Keep an ND address as IPv6. A mapped form stays IPv6 because unwrapping it is IPv4.
+ * @param {unknown} value
+ * @returns {string | null}
+ */
+function ipv6Address(value) {
+  const text = String(value);
+  if (!isIpv6(text)) return null;
+  const normalized = normalizeIp(text);
+  if (normalized && isIpv6(normalized)) return normalized;
+  return text.toLowerCase();
 }
 
 module.exports = { linkEvent };

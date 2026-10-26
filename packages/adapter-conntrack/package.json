@@ -1,6 +1,6 @@
 {
   "name": "@hubvik/adapter-conntrack",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Parse conntrack list and event lines into hubvik flow events.",
   "license": "Apache-2.0",
   "author": "Kathan Patel",

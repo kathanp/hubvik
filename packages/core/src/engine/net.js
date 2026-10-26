@@ -52,14 +52,34 @@ const V4_BOGONS = [
  * @param {string} ip
  * @returns {boolean}
  */
+/**
+ * Lowercase, strip brackets, and unwrap `::ffff:a.b.c.d` to IPv4.
+ * @param {string} ip
+ * @returns {string}
+ */
+function unwrapMapped(ip) {
+  let s = ip.toLowerCase();
+  if (s.startsWith('[') && s.endsWith(']')) s = s.slice(1, -1);
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(s);
+  if (mapped && ipv4(mapped[1]) != null) return mapped[1];
+  return s;
+}
+
+/**
+ * Reserved, private, documentation, multicast, or otherwise not a global address.
+ * IPv4-mapped IPv6 is classified as the IPv4 host. Link-local is `fe80::/10`.
+ * @param {string} ip
+ * @returns {boolean}
+ */
 function isBogon(ip) {
   if (typeof ip !== 'string' || ip.length === 0) return false;
-  const v4 = ipv4(ip);
+  const lower = unwrapMapped(ip);
+  const v4 = ipv4(lower);
   if (v4 != null) return V4_BOGONS.some((block) => inBlock(v4, block.base ?? 0, block.bits));
-  const lower = ip.toLowerCase();
   if (!lower.includes(':')) return false;
   if (lower === '::' || lower === '::1') return true;
-  if (lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd')) return true;
+  if (/^fe[89ab][0-9a-f]/i.test(lower)) return true;
+  if (lower.startsWith('fc') || lower.startsWith('fd')) return true;
   if (lower.startsWith('ff') || lower.startsWith('2001:db8:')) return true;
   return false;
 }
@@ -112,9 +132,10 @@ function domainFamily(name) {
  */
 function isMulticast(ip) {
   if (typeof ip !== 'string' || ip.length === 0) return false;
-  const v4 = ipv4(ip);
+  const lower = unwrapMapped(ip);
+  const v4 = ipv4(lower);
   if (v4 != null) return inBlock(v4, ipv4('224.0.0.0') ?? 0, 4);
-  return ip.toLowerCase().startsWith('ff');
+  return lower.startsWith('ff');
 }
 
 /**
@@ -133,9 +154,10 @@ function isBroadcast(ip) {
  */
 function isLinkLocal(ip) {
   if (typeof ip !== 'string' || ip.length === 0) return false;
-  const v4 = ipv4(ip);
+  const lower = unwrapMapped(ip);
+  const v4 = ipv4(lower);
   if (v4 != null) return inBlock(v4, ipv4('169.254.0.0') ?? 0, 16);
-  return /^fe[89ab][0-9a-f]/i.test(ip);
+  return /^fe[89ab][0-9a-f]/i.test(lower);
 }
 
 /**

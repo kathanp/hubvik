@@ -11,4 +11,8 @@ test('nftables text is a comment for review and a drop for an ip block', () => {
   const block = render({ action: 'block-destination', target: '198.51.100.9', fingerprint: 'abc' });
   assert.match(block, /ip saddr 198.51.100.9 drop/);
   assert.throws(() => render({ action: 'block-destination', target: '1.2.3.4; drop' }), /invalid/);
+  assert.throws(() => render({ action: 'block-destination', target: '::1#drop' }), /invalid/);
+  assert.throws(() => render({ action: 'review' }, { family: 'inet;drop' }), /invalid/);
+  const v6 = render({ action: 'block-destination', target: '2001:db8::9', fingerprint: 'abc' });
+  assert.match(v6, /ip6 saddr 2001:db8::9 drop/);
 });
