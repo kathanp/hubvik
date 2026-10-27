@@ -5,6 +5,8 @@ const { HubvikError } = require('../errors');
 const { assertState } = require('./state');
 const { explainChanged, explainThreshold, scratchBag } = require('./lib');
 
+const CAP = 5000;
+
 const detector = {
   id: 'arp-spoof',
   version: 1,
@@ -28,7 +30,7 @@ const detector = {
   check(dev, ev, ctx) {
     const bag = shared(ctx);
     if (ev.type === 'dhcp' && (ev.msg === 'ack' || ev.msg === 'offer') && ev.requestedIp) {
-      bag.bindings.set(ev.requestedIp, ev.mac);
+      bind(bag, ev.requestedIp, ev.mac);
       return;
     }
     if (ev.type !== 'arp' || (ev.op !== 'reply' && ev.op !== 'gratuitous')) return;
@@ -36,9 +38,9 @@ const detector = {
     const gateway = ctx.gatewayIp && ev.ip === ctx.gatewayIp;
     if (previous && previous !== ev.mac && (!ctx.learning || gateway)) {
       const key = `${ev.ip}>${ev.mac}`;
-      if (!bag.fired.has(key)) {
+      if (!bag.fired.has(key) && bag.fired.size < CAP) {
         bag.fired.add(key);
-        bag.bindings.set(ev.ip, ev.mac);
+        bind(bag, ev.ip, ev.mac);
         return {
           severity: ctx.options.severity,
           confidence: gateway ? 0.95 : 0.85,
@@ -50,14 +52,16 @@ const detector = {
         };
       }
     }
-    bag.bindings.set(ev.ip, ev.mac);
+    bind(bag, ev.ip, ev.mac);
     let ips = bag.macIps.get(ev.mac);
     if (!ips) {
+      if (bag.macIps.size >= CAP) return;
       ips = new Set();
       bag.macIps.set(ev.mac, ips);
     }
     if (ips.size < 64) ips.add(ev.ip);
     if (ctx.learning || ips.size <= ctx.options.maxIpsPerMac || bag.fired.has(ev.mac)) return;
+    if (bag.fired.size >= CAP && !bag.fired.has(ev.mac)) return;
     bag.fired.add(ev.mac);
     return {
       severity: ctx.options.severity,
@@ -87,12 +91,16 @@ const detector = {
     dev.macIps = new Map();
     dev.fired = new Set();
     if (!Array.isArray(state.bindings)) return;
-    if (state.bindings.length > 5000)
+    if (state.bindings.length > CAP)
       throw new HubvikError('ARRAY_BINDINGS_EXCEEDS_CAP', 'array bindings exceeds cap');
     for (const pair of state.bindings) {
       if (!Array.isArray(pair) || pair.length !== 2)
         throw new HubvikError('BINDINGS_MUST_BE_PAIRS', 'bindings must be pairs');
-      dev.bindings.set(String(pair[0]), String(pair[1]));
+      const ip = String(pair[0]);
+      const mac = String(pair[1]);
+      if (ip.length > 64 || mac.length > 64)
+        throw new HubvikError('STRING_TOO_LONG', 'string too long');
+      dev.bindings.set(ip, mac);
     }
   },
 
@@ -101,6 +109,16 @@ const detector = {
     return dev.bindings.size * 32 + 16;
   },
 };
+
+/**
+ * @param {{ bindings: Map<string, string> }} bag
+ * @param {string} ip
+ * @param {string} mac
+ */
+function bind(bag, ip, mac) {
+  if (bag.bindings.size >= CAP && !bag.bindings.has(ip)) return;
+  bag.bindings.set(ip, mac);
+}
 
 /**
  * One binding table for the LAN. ARP is not a per-device fact.

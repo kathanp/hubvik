@@ -120,6 +120,8 @@ const detector = {
           'learned must be a destination and a count',
         );
       }
+      if (pair[0].length > caps.maxString)
+        throw new HubvikError('STRING_TOO_LONG', 'string too long');
       dev.learned.set(pair[0], pair[1]);
     }
   },

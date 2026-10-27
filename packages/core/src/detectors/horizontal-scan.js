@@ -18,6 +18,7 @@ function slot(dev, ev, ctx) {
   if (dev.win !== start) {
     if (dev.learning && dev.counts) {
       for (const [port, count] of dev.counts) {
+        if (!dev.max.has(port) && dev.max.size >= 512) continue;
         dev.max.set(port, Math.max(dev.max.get(port) || 0, count));
       }
     }

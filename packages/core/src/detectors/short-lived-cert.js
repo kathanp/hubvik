@@ -96,7 +96,10 @@ const detector = {
     if (state.seen.length > CAP)
       throw new HubvikError('ARRAY_EXCEEDS_CAP', 'array seen exceeds cap');
     for (const row of state.seen) {
-      if (!row || typeof row.key !== 'string' || typeof row.ts !== 'number')
+      if (!row || typeof row !== 'object' || Array.isArray(row))
+        throw new HubvikError('STATE_IS_INVALID', 'short-lived-cert row is invalid');
+      assertState(row, detector.id);
+      if (typeof row.key !== 'string' || typeof row.ts !== 'number')
         throw new HubvikError('STATE_IS_INVALID', 'short-lived-cert row is invalid');
       if (row.key.length > caps.maxString)
         throw new HubvikError('STRING_TOO_LONG', 'string too long');

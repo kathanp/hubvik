@@ -171,6 +171,28 @@ function isPrivateAnswer(value) {
   return isBogon(ip);
 }
 
+/**
+ * RFC1918, link-local, or ULA. Not documentation, CGNAT, loopback, or multicast.
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isLanUnicast(ip) {
+  if (typeof ip !== 'string' || ip.length === 0) return false;
+  const lower = unwrapMapped(ip);
+  const v4 = ipv4(lower);
+  if (v4 != null) {
+    return (
+      inBlock(v4, ipv4('10.0.0.0') ?? 0, 8) ||
+      inBlock(v4, ipv4('172.16.0.0') ?? 0, 12) ||
+      inBlock(v4, ipv4('192.168.0.0') ?? 0, 16) ||
+      inBlock(v4, ipv4('169.254.0.0') ?? 0, 16)
+    );
+  }
+  if (!lower.includes(':')) return false;
+  if (/^fe[89ab][0-9a-f]/i.test(lower)) return true;
+  return lower.startsWith('fc') || lower.startsWith('fd');
+}
+
 module.exports = {
   ipv4,
   inBlock,
@@ -182,4 +204,5 @@ module.exports = {
   isBroadcast,
   isLinkLocal,
   isPrivateAnswer,
+  isLanUnicast,
 };

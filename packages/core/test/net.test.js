@@ -9,6 +9,7 @@ const {
   isMulticast,
   isBroadcast,
   isLinkLocal,
+  isLanUnicast,
 } = require('../src/engine/net');
 
 test('bogon checks cover IPv4, IPv6, and names that are not addresses', () => {
@@ -47,4 +48,15 @@ test('bogon checks cover IPv4, IPv6, and names that are not addresses', () => {
   assert.strictEqual(isLinkLocal('169.255.1.1'), false);
   assert.strictEqual(isLinkLocal('fe80::1'), true);
   assert.strictEqual(isLinkLocal('2001:4860:4860::8888'), false);
+  assert.strictEqual(isLanUnicast('10.0.0.8'), true);
+  assert.strictEqual(isLanUnicast('192.168.1.1'), true);
+  assert.strictEqual(isLanUnicast('172.16.0.1'), true);
+  assert.strictEqual(isLanUnicast('169.254.1.1'), true);
+  assert.strictEqual(isLanUnicast('fd12::1'), true);
+  assert.strictEqual(isLanUnicast('::ffff:10.1.2.3'), true);
+  assert.strictEqual(isLanUnicast('203.0.113.1'), false);
+  assert.strictEqual(isLanUnicast('100.64.0.1'), false);
+  assert.strictEqual(isLanUnicast('127.0.0.1'), false);
+  assert.strictEqual(isLanUnicast('1.2.3.4'), false);
+  assert.strictEqual(isLanUnicast('224.0.0.251'), false);
 });
