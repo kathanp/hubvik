@@ -194,6 +194,10 @@ function assertRevived(scratch) {
         'checkpoint scratch arp-spoof is invalid',
       );
     }
+    if (arp.bindings.size > 5000)
+      throw new HubvikError('ARRAY_BINDINGS_EXCEEDS_CAP', 'array bindings exceeds cap');
+    if (arp.macIps.size > 5000)
+      throw new HubvikError('ARRAY_BINDINGS_EXCEEDS_CAP', 'array bindings exceeds cap');
   }
   const learnedMacs = scratch['identity-change'];
   if (learnedMacs != null) {

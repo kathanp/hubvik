@@ -79,6 +79,20 @@ test('inbound-lateral fires on the third new LAN peer inside 300000 ms', () => {
   assert.deepStrictEqual(lateHits, []);
 });
 
+test('inbound-lateral does not treat a documentation destination as a LAN peer', () => {
+  const engine = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
+  const hits = hitsOf(engine);
+  engine.feed(inbound(0));
+  engine.feed(flow({ ts: 1000, dstIp: '203.0.113.1' }));
+  engine.feed(flow({ ts: 1000, dstIp: '203.0.113.2' }));
+  engine.feed(flow({ ts: 1000, dstIp: '203.0.113.3' }));
+  assert.deepStrictEqual(hits, []);
+  engine.feed(flow({ ts: 1000, dstIp: '10.0.0.2' }));
+  engine.feed(flow({ ts: 1000, dstIp: '10.0.0.3' }));
+  engine.feed(flow({ ts: 1000, dstIp: '10.0.0.4' }));
+  assert.strictEqual(hits.length, 1);
+});
+
 test('inbound-lateral ignores a documentation address, a learned peer, and multicast', () => {
   const doc = createEngine({ shadow: true, learnMs: 0, tiers: ['T1'] });
   const docHits = hitsOf(doc);

@@ -1,32 +1,26 @@
 # Changelog
 
+## 2.0.4
+
+Detector fixes. Thresholds, severities, and defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 905 KiB.
+
+`arp-spoof` caps bindings at 5000. `egress-flood` rejects overlong learned strings. `dns-tunnel` scores names per parent. `horizontal-scan` caps learned ports at 512. `inbound-lateral` uses LAN unicast only. Nested imports reject forbidden keys and overlong strings.
+
 ## 2.0.3
 
-Audit-chain hashes are compared in constant time. No detector threshold, severity, or default changed. A default engine still emits the same anomalies as 1.6.0.
+Constant-time audit-chain hash compare. Thresholds unchanged.
 
 ## 2.0.2
 
-Bug fixes. No detector threshold, severity, or default changed. A default engine still emits the same anomalies as 1.6.0.
-
-IPv4-mapped IPv6 (`::ffff:a.b.c.d`) is stored as the IPv4 host on flow, TLS, HTTP, DNS, ARP, and app addresses, and on an `ip` indicator. `::ffff:10.1.2.3` is a bogon. `::ffff:8.8.8.8` is the same indicator as `8.8.8.8`. Link-local `fe80::/10` is a bogon, including `fe90::1`. A peer-summary MAC is compared in constant time.
+IPv4-mapped unwrap, `fe80::/10` bogon, constant-time peer-summary MAC. Thresholds unchanged.
 
 ## 2.0.1
 
-Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is the same as 1.6.0. The call surface is unchanged. The library still only reports.
-
-`h2-fanout` reports 64 or more new public destinations in one window whose TLS ALPN list includes `h2`. `browser-mimic` still needs a host-supplied JA4 list and still fires on one handshake. `onion-name` reports a DNS name, SNI, or flow name ending in `.onion` without an indicator feed. `tor-or-proxy` is unchanged. `proxy-fanin` reports 8 or more new public clients with established two-way sessions to a port above 1024. `scatter-udp` reports a one-way UDP burst to at least 40 destinations that each stay in the 20-to-199 packet band, 800 packets in total. A destination at 200 packets stays with `dispersed-flood`. DNS port 53 and NTP port 123 do not count.
-
-D-107 through D-110 stay proposed. The 0.6 false-positive gate is still open.
+Shadow `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. Default stream matches 1.6.0.
 
 ## 1.6.0
 
-Four shadow detectors. They run only when `shadow` selects them. With `shadow` left off, the live anomaly stream is unchanged. The library still only reports.
-
-`dispersed-flood` reports a device that sends a one-way burst to at least eight public destinations in one window, each under the per-destination floors of `egress-flood`, when the window total reaches 8,000 packets or 8,000,000 bytes. `txt-channel` reports 12 or more TXT or NULL queries for one name whose leftmost label is 20 to 40 characters, which is the range `dns-tunnel` does not treat as a long label. `inbound-lateral` reports three or more new LAN peers within 300,000 ms of a public inbound session that reached `established`. `short-lived-cert` reports a TLS certificate whose lifetime is greater than 0 and at most 48 hours on a name the device did not learn.
-
-`tls.cert.notBefore` is kept when it is a finite number. Any other value is dropped, and the rest of the certificate stays.
-
-D-102 through D-106 stay proposed. The 0.6 false-positive gate is still open.
+Shadow `dispersed-flood`, `txt-channel`, `inbound-lateral`, `short-lived-cert`. `tls.cert.notBefore` kept when finite.
 
 ## 1.5.0
 

@@ -116,7 +116,10 @@ const detector = {
     if (state.counts.length > CAP)
       throw new HubvikError('ARRAY_EXCEEDS_CAP', 'array counts exceeds cap');
     for (const row of state.counts) {
-      if (!row || typeof row.name !== 'string')
+      if (!row || typeof row !== 'object' || Array.isArray(row))
+        throw new HubvikError('MUST_BE_STRINGS', 'counts name must be a string');
+      assertState(row, detector.id);
+      if (typeof row.name !== 'string')
         throw new HubvikError('MUST_BE_STRINGS', 'counts name must be a string');
       if (row.name.length > caps.maxString)
         throw new HubvikError('STRING_TOO_LONG', 'string too long');

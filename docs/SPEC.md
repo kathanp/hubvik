@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 2.0.3
+- [x] `hubvik` (`packages/core`) 2.0.4
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -71,7 +71,7 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] B21 rows through WP-21, all `mode: 'shadow'`
   - [x] B24 rows, all `mode: 'shadow'`, off unless `shadow` selects them
   - [x] B25 rows, all `mode: 'shadow'`, off unless `shadow` selects them
-  - [x] Published to npm (`hubvik@2.0.2`; `2.0.3` waits for its tag)
+  - [x] Published to npm (`hubvik@2.0.3`; `2.0.4` waits for its tag)
 - [x] `@hubvik/adapter-conntrack` 0.3.1 — `conntrack` lines to flow events
 - [x] `@hubvik/adapter-dnsmasq` 0.2.1 — dnsmasq query lines to DNS events
 - [x] `@hubvik/adapter-zeek` 0.2.1 — Zeek JSON logs

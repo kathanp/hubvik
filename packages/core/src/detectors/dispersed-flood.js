@@ -128,6 +128,8 @@ const detector = {
       assertState(row, detector.id);
       if (typeof row.ip !== 'string')
         throw new HubvikError('MUST_BE_STRINGS', 'rows ip must be a string');
+      if (row.ip.length > caps.maxString)
+        throw new HubvikError('STRING_TOO_LONG', 'string too long');
       dev.rows.set(row.ip, {
         pkts: numberOrZero(row.pkts),
         out: numberOrZero(row.out),

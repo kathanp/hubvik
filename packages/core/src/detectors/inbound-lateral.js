@@ -2,7 +2,7 @@
 
 const { HubvikError } = require('../errors');
 
-const { isPublic, isBogon } = require('../engine/net');
+const { isPublic, isLanUnicast } = require('../engine/net');
 const { assertState, readStrings } = require('./state');
 const { isGroupDst, explainThreshold } = require('./lib');
 
@@ -131,10 +131,14 @@ const detector = {
     if (state.inbound == null) return;
     if (!Array.isArray(state.inbound))
       throw new HubvikError('MUST_BE_AN_ARRAY', 'inbound must be an array');
-    if (state.inbound.length > detector.defaults.maxInbound)
+    const inboundCap = Math.max(detector.defaults.maxInbound, 64);
+    if (state.inbound.length > inboundCap)
       throw new HubvikError('ARRAY_EXCEEDS_CAP', 'array inbound exceeds cap');
     for (const row of state.inbound) {
-      if (!row || typeof row.src !== 'string' || typeof row.ts !== 'number')
+      if (!row || typeof row !== 'object' || Array.isArray(row))
+        throw new HubvikError('STATE_IS_INVALID', 'inbound-lateral row is invalid');
+      assertState(row, detector.id);
+      if (typeof row.src !== 'string' || typeof row.ts !== 'number')
         throw new HubvikError('STATE_IS_INVALID', 'inbound-lateral row is invalid');
       if (row.src.length > caps.maxString)
         throw new HubvikError('STRING_TOO_LONG', 'string too long');
@@ -164,14 +168,13 @@ function isInbound(ev) {
 }
 
 /**
- * A unicast LAN peer. Group addresses and public destinations are not peers.
+ * A unicast LAN peer. Group, public, and documentation addresses are not peers.
  * @param {any} ev
  * @returns {string | null}
  */
 function lanPeer(ev) {
   if (!ev || ev.type !== 'flow' || ev.direction !== 'lan') return null;
-  if (typeof ev.dstIp !== 'string' || isGroupDst(ev.dstIp) || !isBogon(ev.dstIp)) return null;
-  if (isPublic(ev.dstIp)) return null;
+  if (typeof ev.dstIp !== 'string' || isGroupDst(ev.dstIp) || !isLanUnicast(ev.dstIp)) return null;
   return ev.dstIp;
 }
 
