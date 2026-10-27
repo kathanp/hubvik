@@ -21,6 +21,11 @@ const detector = {
     return { hour: null, count: 0, fired: false, learned: false };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && ev.direction === 'out' && ev.dstPort === 25;
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (ev.type !== 'flow' || ev.direction !== 'out' || ev.dstPort !== 25) return;

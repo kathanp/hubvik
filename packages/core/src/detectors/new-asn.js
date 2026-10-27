@@ -19,6 +19,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev @param {any} ctx */
+  prepare(ev, ctx) {
+    return lookupAsn(ev, ctx) != null;
+  },
+
   /**
    * @param {any} dev
    * @param {string} kind

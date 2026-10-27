@@ -24,6 +24,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && PORTS.has(ev.dstPort);
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (ev.type !== 'flow' || !PORTS.has(ev.dstPort)) return;

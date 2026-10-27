@@ -19,6 +19,11 @@ const detector = {
     return { win: null, sites: new Set(), fired: false };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return !!siteOf(ev);
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     const site = siteOf(ev);

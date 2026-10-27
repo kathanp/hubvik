@@ -22,6 +22,11 @@ const detector = {
     return { win: null, targets: new Set(), fired: false };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return !!targetOf(ev);
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     const target = targetOf(ev);

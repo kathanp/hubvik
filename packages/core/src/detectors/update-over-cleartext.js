@@ -20,6 +20,15 @@ const detector = {
     return { fired: false };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return (
+      ev.type === 'flow' &&
+      ev.direction === 'in' &&
+      (PORTS.has(ev.dstPort) || PORTS.has(ev.srcPort))
+    );
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (dev.fired || ev.type !== 'flow' || ev.direction !== 'in') return;

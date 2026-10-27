@@ -36,6 +36,12 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    const name = ev.qname || ev.dstName;
+    return typeof name === 'string' && name.length > 0;
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     const name = ev.qname || ev.dstName;

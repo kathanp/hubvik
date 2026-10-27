@@ -36,6 +36,13 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev @param {any} ctx */
+  prepare(ev, ctx) {
+    const index = ctx && ctx.indicatorIndex;
+    if (!index || (index.exact.size === 0 && index.v4.size === 0)) return false;
+    return !!(ev.dstIp || ev.dst || ev.dstName || ev.qname);
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     const hit = torHit(ctx.indicatorIndex, ev);

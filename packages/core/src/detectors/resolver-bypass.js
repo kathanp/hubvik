@@ -21,6 +21,12 @@ const detector = {
     return { resolvers: new LruSet(64), alerted: new LruSet(caps.maxAlertKeys) };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    if (ev.type === 'dns') return true;
+    return ev.type === 'flow' && (ev.dstPort === 53 || ev.dstPort === 853);
+  },
+
   /** @param {any} dev @param {string} kind @param {string} value */
   allow(dev, kind, value) {
     if (kind !== 'resolver') return false;

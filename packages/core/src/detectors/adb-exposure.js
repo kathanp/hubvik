@@ -25,6 +25,13 @@ const detector = {
     return { alerted: new LruSet(caps.maxAlertKeys) };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return (
+      ev.type === 'flow' && ev.proto === 'tcp' && ev.dstPort === 5555 && ev.direction !== 'out'
+    );
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (ev.type !== 'flow' || ev.proto !== 'tcp' || ev.dstPort !== 5555) return;

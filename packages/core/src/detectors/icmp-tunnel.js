@@ -19,6 +19,11 @@ const detector = {
     return { fired: false };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && ev.proto === 'icmp' && ev.icmpType !== 5;
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (dev.fired || ev.type !== 'flow' || ev.proto !== 'icmp' || ev.icmpType === 5) return;

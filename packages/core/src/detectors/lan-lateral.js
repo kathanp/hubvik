@@ -22,6 +22,11 @@ const detector = {
     return { peers: new LruSet(caps.maxDestinations), alerted: new LruSet(caps.maxAlertKeys) };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && ev.direction === 'lan' && !!ev.dstIp;
+  },
+
   /** @param {any} dev @param {string} kind @param {string} value */
   allow(dev, kind, value) {
     if (kind !== 'peer') return false;
