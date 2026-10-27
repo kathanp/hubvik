@@ -34,6 +34,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return !!nameOf(ev);
+  },
+
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
     const hit = nameOf(ev);

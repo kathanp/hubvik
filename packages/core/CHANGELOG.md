@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0
+
+Faster `feed()` hot path. Thresholds, severities, and defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 912 KiB.
+
+The engine reuses one feed context, skips canary work when none are configured, splits detectors into plain and `prepare` lists, and caches shed tiers. Rare-match detectors add `prepare()` so a typical flow or summary skips their state and check. Empty threat-intel and Tor indexes short-circuit. Gate bench on this host: 1,000-device watching median 3.58 µs (under the 12 µs gate).
+
 ## 2.0.4
 
 Detector fixes. Thresholds, severities, and defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 905 KiB.

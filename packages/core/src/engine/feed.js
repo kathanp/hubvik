@@ -27,7 +27,7 @@ module.exports = {
     this.stateSeq = (this.stateSeq || 0) + 1;
     const budget = this.opts.budget;
     const started = budget ? budget.clock() : null;
-    this._notePromotions();
+    if (!this._promotionsNoted) this._notePromotions();
     const event = this._prepare(raw);
     if (this._reorder) this._acceptReorder(event);
     else this._apply(event);
@@ -242,50 +242,83 @@ module.exports = {
    * @param {any} event
    */
   _run(device, event) {
-    if (this._horizonOn) noteHorizon(device, event);
-    if (this._graphOn) noteGraph(this, device, event);
-    if (typeof this._notePeer === 'function') this._notePeer(device, event);
-    if (typeof this._noteDrift === 'function') this._noteDrift(device, event);
-    const learning = device.mode === 'learning';
-    const ctx = this._ctx(device, learning, event.ts);
-    ctx.window = device.open;
-    const list = this.byType[event.type] || [];
-    const gated = this.preparedType[event.type] === true;
-    for (const det of list) {
-      if (gated && det.prepare && !det.prepare(event, ctx)) continue;
-      if (this._sheds(det)) {
-        if (learning && !this._shedLearn && !det.hardRule && typeof det.learn === 'function') {
-          det.learn(/** @type {any} */ (this)._state(device, det), event, ctx);
-        } else if (learning && this._shedLearn) device.shedLearn = true;
-        continue;
-      }
-      const state = /** @type {any} */ (this)._state(device, det);
-      ctx.options = /** @type {any} */ (this)._optionsFor(det);
-      if (learning && !det.hardRule) {
-        if (typeof det.learn === 'function') {
-          const noted = det.learn(state, event, ctx);
-          if (noted && typeof noted.reason === 'string') {
-            mark(this, device, event, noted.reason, noted.message || noted.reason);
-          } else if (noted && typeof noted.severity === 'string') {
-            this._take(device, det, noted, learning, event);
-          }
+    this._runDepth = (this._runDepth || 0) + 1;
+    const reuse = this._runDepth === 1;
+    const prevReuse = this._allowCtxReuse === true;
+    try {
+      if (this._horizonOn) noteHorizon(device, event);
+      if (this._graphOn) noteGraph(this, device, event);
+      if (this._peerOn) this._notePeer(device, event);
+      if (this._driftOn) this._noteDrift(device, event);
+      const learning = device.mode === 'learning';
+      // Reuse one bag for this feed only. Emit/_ctx during detectors must not clobber it.
+      this._allowCtxReuse = reuse;
+      const ctx = this._ctx(device, learning, event.ts);
+      this._allowCtxReuse = false;
+      ctx.window = device.open;
+      const type = event.type;
+      // `byType` is the dispatch index; missing entry skips detectors.
+      if (this.byType[type]) {
+        const plain = this.byTypePlain[type] || [];
+        const prep = this.byTypePrep[type] || [];
+        const anyCanary = this._anyCanary === true;
+        for (let i = 0; i < plain.length; i += 1) {
+          this._runDet(device, event, plain[i], learning, ctx, anyCanary);
         }
-      } else if (typeof det.check === 'function') {
-        this._take(device, det, det.check(state, event, ctx), learning, event);
-      }
-      const canary = this._canaryOverrides(det);
-      if (canary) {
-        const saved = ctx.options;
-        ctx.options = { ...saved, ...canary };
-        const copy = this._canaryState(device, det);
-        if (learning && !det.hardRule) {
-          if (typeof det.learn === 'function') det.learn(copy, event, ctx);
-        } else if (typeof det.check === 'function') {
-          this._take(device, det, det.check(copy, event, ctx), learning, event, 'canary');
+        for (let i = 0; i < prep.length; i += 1) {
+          const det = prep[i];
+          if (!det.prepare(event, ctx)) continue;
+          this._runDet(device, event, det, learning, ctx, anyCanary);
         }
-        ctx.options = saved;
       }
+      if (this.opts.promote && device.mode === 'watching') noteWatch(this, device, event);
+    } finally {
+      this._allowCtxReuse = prevReuse;
+      this._runDepth -= 1;
     }
-    if (this.opts.promote && device.mode === 'watching') noteWatch(this, device, event);
+  },
+
+  /**
+   * @this {any}
+   * @param {any} device
+   * @param {any} event
+   * @param {any} det
+   * @param {boolean} learning
+   * @param {any} ctx
+   * @param {boolean} anyCanary
+   */
+  _runDet(device, event, det, learning, ctx, anyCanary) {
+    if (this._sheds(det)) {
+      if (learning && !this._shedLearn && !det.hardRule && typeof det.learn === 'function') {
+        det.learn(/** @type {any} */ (this)._state(device, det), event, ctx);
+      } else if (learning && this._shedLearn) device.shedLearn = true;
+      return;
+    }
+    const state = /** @type {any} */ (this)._state(device, det);
+    ctx.options = /** @type {any} */ (this)._optionsFor(det);
+    if (learning && !det.hardRule) {
+      if (typeof det.learn === 'function') {
+        const noted = det.learn(state, event, ctx);
+        if (noted && typeof noted.reason === 'string') {
+          mark(this, device, event, noted.reason, noted.message || noted.reason);
+        } else if (noted && typeof noted.severity === 'string') {
+          this._take(device, det, noted, learning, event);
+        }
+      }
+    } else if (typeof det.check === 'function') {
+      this._take(device, det, det.check(state, event, ctx), learning, event);
+    }
+    if (!anyCanary) return;
+    const canary = this._canaryOverrides(det);
+    if (!canary) return;
+    const saved = ctx.options;
+    ctx.options = { ...saved, ...canary };
+    const copy = this._canaryState(device, det);
+    if (learning && !det.hardRule) {
+      if (typeof det.learn === 'function') det.learn(copy, event, ctx);
+    } else if (typeof det.check === 'function') {
+      this._take(device, det, det.check(copy, event, ctx), learning, event, 'canary');
+    }
+    ctx.options = saved;
   },
 };

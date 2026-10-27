@@ -69,8 +69,12 @@ class Engine extends EventEmitter {
     this._checkDetectorOptions(opts);
     this._checkShadowList();
     let canaries = 0;
+    this._anyCanary = false;
     for (const value of Object.values(opts.detectors)) {
-      if (value && value.canary != null) canaries += 1;
+      if (value && value.canary != null) {
+        canaries += 1;
+        this._anyCanary = true;
+      }
     }
     if (canaries > 4) throw new HubvikError('AT_MOST_4_CANARIES', 'at most 4 canaries');
     /** @type {Record<string, { fired: number, devices: Set<string>, bySeverity: Record<string, number>, wouldJoinIncident: number }>} */
@@ -133,8 +137,16 @@ class Engine extends EventEmitter {
     this.active = [];
     /** @type {Record<string, any[]>} */
     this.byType = Object.create(null);
+    /** @type {Record<string, any[]>} */
+    this.byTypePlain = Object.create(null);
+    /** @type {Record<string, any[]>} */
+    this.byTypePrep = Object.create(null);
     this.preparedType = Object.create(null);
-    for (const type of EVENT_TYPES) this.byType[type] = [];
+    for (const type of EVENT_TYPES) {
+      this.byType[type] = [];
+      this.byTypePlain[type] = [];
+      this.byTypePrep[type] = [];
+    }
     /** @type {Record<string, { active: boolean, reason: string | null }>} */
     this.detectorStatus = Object.create(null);
     const enabled = new Set(this.opts.tiers);
@@ -159,11 +171,18 @@ class Engine extends EventEmitter {
       const prepares = typeof det.prepare === 'function';
       for (const type of consumes) {
         this.byType[type].push(det);
-        if (prepares) this.preparedType[type] = true;
+        if (prepares) {
+          this.byTypePrep[type].push(det);
+          this.preparedType[type] = true;
+        } else {
+          this.byTypePlain[type].push(det);
+        }
       }
     }
     this._horizonOn = horizonOn(this);
     this._graphOn = graphOn(this);
+    this._peerOn = this.opts.peerSuggest === true;
+    this._driftOn = this.opts.drift === true;
   }
 
   /**
@@ -486,29 +505,143 @@ class Engine extends EventEmitter {
    */
   _ctx(device, learning, ts) {
     const engine = /** @type {any} */ (this);
+    // Only the top of `_run` may reuse. Emit/windows/re-entrant feed get a fresh bag.
+    if (engine._allowCtxReuse !== true) return engine._freshCtx(device, learning, ts);
+    let bag = engine._feedCtx;
+    if (!bag) {
+      bag = engine._feedCtx = {
+        learning: false,
+        ts: 0,
+        deviceId: '',
+        /** @type {any} */
+        _device: null,
+        options: null,
+        window: null,
+        extra: null,
+        learnMs: 0,
+        engineStarted: null,
+        indicatorIndex: null,
+        policy: null,
+        deviceClass: null,
+        gatewayIp: null,
+        dhcpServers: null,
+        routers: null,
+        ownBssids: null,
+        zones: null,
+        browserJa4: null,
+        peerGroup: null,
+        outlier: false,
+        sequence: false,
+        flowShape: false,
+        abuseFacts: null,
+        deviceCount: 0,
+        scratch: null,
+        lanEdges: null,
+        bridges: null,
+        /** @param {number} value */
+        hour(value) {
+          const current = bag._device;
+          if (current && current.timeZone) return zonedClock(value, current.timeZone).hour;
+          return engine.opts.hourOf(value);
+        },
+        /** @param {number} value */
+        day(value) {
+          const current = bag._device;
+          if (current && current.timeZone) return zonedClock(value, current.timeZone).day;
+          return engine.opts.dayOf(value);
+        },
+        peerSummaries() {
+          return engine._peerSummaries || [];
+        },
+        mud() {
+          return bag._device ? bag._device.mud || null : null;
+        },
+        summaryKey() {
+          return engine._summaryKey || null;
+        },
+        peers() {
+          const current = bag._device;
+          const group = current && current.peerGroup;
+          if (!group) return [];
+          /** @type {any[]} */
+          const list = [];
+          for (const other of engine.devices.values()) {
+            if (other !== current && other.peerGroup === group && other.seen) list.push(other);
+          }
+          return list;
+        },
+        /**
+         * @param {any} other
+         * @param {string} id
+         */
+        peerState(other, id) {
+          return other && other.states ? other.states.get(id) : null;
+        },
+        /**
+         * @param {string} ip
+         */
+        lookup(ip) {
+          if (typeof engine.opts.lookup !== 'function') return null;
+          const found = engine.opts.lookup(ip);
+          if (!found || typeof found !== 'object') return null;
+          return {
+            asn: typeof found.asn === 'string' ? found.asn : null,
+            country: typeof found.country === 'string' ? found.country : null,
+          };
+        },
+        /** @param {any} det */
+        detectorOptions(det) {
+          return engine._optionsFor(det);
+        },
+        horizon() {
+          return horizonView(bag._device);
+        },
+      };
+    }
+    bag._device = device;
+    bag.learning = learning;
+    bag.ts = ts;
+    bag.deviceId = device.id;
+    bag.options = null;
+    bag.window = null;
+    bag.extra = null;
+    bag.learnMs = engine.opts.learnMs;
+    bag.engineStarted = engine.startedAt;
+    bag.indicatorIndex = engine.indicatorIndex;
+    bag.policy = engine.opts.policy;
+    bag.deviceClass = CLASSES[device.deviceClass] || null;
+    bag.gatewayIp = engine.opts.gatewayIp;
+    bag.dhcpServers = engine.opts.dhcpServers;
+    bag.routers = engine.opts.routers;
+    bag.ownBssids = engine.opts.ownBssids;
+    bag.zones = engine.opts.zones;
+    bag.browserJa4 = engine.opts.browserJa4;
+    bag.peerGroup = device.peerGroup;
+    bag.outlier = engine.opts.outlier === true;
+    bag.sequence = engine.opts.sequence === true;
+    bag.flowShape = engine.opts.flowShape === true;
+    bag.abuseFacts = engine._abuse || [];
+    bag.deviceCount = engine.devices.size;
+    bag.scratch = engine.scratch;
+    bag.lanEdges = device.lanEdges || null;
+    bag.bridges = engine._bridges || (engine._bridges = new Set());
+    return bag;
+  }
+
+  /**
+   * One-shot context when feed re-enters during an anomaly listener.
+   * @param {any} device
+   * @param {boolean} learning
+   * @param {number} ts
+   * @returns {any}
+   */
+  _freshCtx(device, learning, ts) {
+    const engine = /** @type {any} */ (this);
     return {
       learning,
       ts,
       deviceId: device.id,
-      /** @param {number} value */
-      hour(value) {
-        if (device.timeZone) return zonedClock(value, device.timeZone).hour;
-        return engine.opts.hourOf(value);
-      },
-      /** @param {number} value */
-      day(value) {
-        if (device.timeZone) return zonedClock(value, device.timeZone).day;
-        return engine.opts.dayOf(value);
-      },
-      peerSummaries() {
-        return engine._peerSummaries || [];
-      },
-      mud() {
-        return device.mud || null;
-      },
-      summaryKey() {
-        return engine._summaryKey || null;
-      },
+      _device: device,
       options: null,
       window: null,
       extra: null,
@@ -530,6 +663,27 @@ class Engine extends EventEmitter {
       abuseFacts: engine._abuse || [],
       deviceCount: engine.devices.size,
       scratch: engine.scratch,
+      lanEdges: device.lanEdges || null,
+      bridges: engine._bridges || (engine._bridges = new Set()),
+      /** @param {number} value */
+      hour(value) {
+        if (device.timeZone) return zonedClock(value, device.timeZone).hour;
+        return engine.opts.hourOf(value);
+      },
+      /** @param {number} value */
+      day(value) {
+        if (device.timeZone) return zonedClock(value, device.timeZone).day;
+        return engine.opts.dayOf(value);
+      },
+      peerSummaries() {
+        return engine._peerSummaries || [];
+      },
+      mud() {
+        return device.mud || null;
+      },
+      summaryKey() {
+        return engine._summaryKey || null;
+      },
       peers() {
         const group = device.peerGroup;
         if (!group) return [];
@@ -563,15 +717,9 @@ class Engine extends EventEmitter {
       detectorOptions(det) {
         return engine._optionsFor(det);
       },
-      /**
-       * Hourly ring for the device this context belongs to.
-       * Callers may pass the detector state; it is not read.
-       */
       horizon() {
         return horizonView(device);
       },
-      lanEdges: device.lanEdges || null,
-      bridges: engine._bridges || (engine._bridges = new Set()),
     };
   }
 

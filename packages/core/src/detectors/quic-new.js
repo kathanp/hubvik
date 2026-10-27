@@ -19,6 +19,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return quic(ev) != null;
+  },
+
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
     const dst = quic(ev);

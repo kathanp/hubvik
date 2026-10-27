@@ -26,6 +26,11 @@ const detector = {
     return { brokers: new LruSet(caps.maxDestinations), alerted: new LruSet(caps.maxAlertKeys) };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return broker(ev) != null;
+  },
+
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
     const id = broker(ev);

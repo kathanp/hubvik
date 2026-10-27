@@ -22,6 +22,11 @@ const detector = {
     return { samples: new SampleRing(Math.min(1024, caps.maxWindows)), win: null, count: 0 };
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'dns' && String(ev.rcode).toUpperCase() === 'NXDOMAIN';
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   learn(dev, ev, ctx) {
     count(dev, ev, ctx);

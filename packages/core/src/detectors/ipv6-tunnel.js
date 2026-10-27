@@ -20,6 +20,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return tunnelKind(ev) != null;
+  },
+
   /** @param {any} dev @param {any} ev */
   learn(dev, ev) {
     const kind = tunnelKind(ev);

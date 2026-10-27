@@ -39,6 +39,12 @@ const detector = {
     return { alerted: new LruSet(caps.maxAlertKeys) };
   },
 
+  /** @param {any} _ev @param {any} ctx */
+  prepare(_ev, ctx) {
+    const index = ctx && ctx.indicatorIndex;
+    return !!(index && (index.exact.size > 0 || index.v4.size > 0));
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     const index = ctx.indicatorIndex;

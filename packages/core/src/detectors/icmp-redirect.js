@@ -21,6 +21,11 @@ const detector = {
     return seenState(caps);
   },
 
+  /** @param {any} ev */
+  prepare(ev) {
+    return ev.type === 'flow' && ev.proto === 'icmp' && ev.icmpType === 5;
+  },
+
   /** @param {any} dev @param {any} ev @param {any} ctx */
   check(dev, ev, ctx) {
     if (ev.type !== 'flow' || ev.proto !== 'icmp' || ev.icmpType !== 5) return;

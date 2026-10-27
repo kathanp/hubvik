@@ -355,7 +355,11 @@ const methods = {
    */
   _sheds(det) {
     if (!this.opts.budget || !this._shedSteps || det.hardRule) return false;
-    const shed = new Set(SHED_ORDER.slice(0, this._shedSteps));
+    if (this._shedCacheStep !== this._shedSteps) {
+      this._shedCacheStep = this._shedSteps;
+      this._shedCache = new Set(SHED_ORDER.slice(0, this._shedSteps));
+    }
+    const shed = this._shedCache;
     return (det.requires || []).some((/** @type {string} */ tier) => shed.has(tier));
   },
 
