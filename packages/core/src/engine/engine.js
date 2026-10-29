@@ -99,6 +99,8 @@ class Engine extends EventEmitter {
     this._anomalyById = new Map();
     /** @type {any[]} Live anomalies kept for digest() and exportDecisions(). Capped by explainCap. */
     this._reports = [];
+    /** @type {any[]} Shadow anomalies kept for shadow(). Capped by explainCap. Not checkpointed. */
+    this._shadowReports = [];
     /** @type {Map<string, any>} */
     this._anomalyByFp = new Map();
     /** @type {Set<string>} */

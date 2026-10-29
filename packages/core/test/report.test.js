@@ -175,6 +175,8 @@ test('a sharded engine merges digest rows from each shard', () => {
   assert.strictEqual(engine.attacks(0).devices.length, 2);
   assert.deepStrictEqual(engine.waves(0).waves, []);
   assert.ok(engine.openIncidents(2_000).incidents.length >= 1);
+  assert.deepStrictEqual(engine.shadow(0).devices, []);
+  assert.deepStrictEqual(engine.campaigns(2_000).campaigns, []);
   const counts = engine.counts(0);
   assert.deepStrictEqual(counts.detectors, [{ detector: 'spam-relay', count: 2, devices: 2 }]);
   assert.deepStrictEqual(engine.hints(0).hints, []);
@@ -242,6 +244,8 @@ test('attacks, waves, and open incidents read anomalies that already fired', () 
   assert.ok(attack.stages.includes('c2'));
   assert.strictEqual(attack.progressing, true);
   assert.ok(attack.techniques.includes('T1046'));
+  assert.ok(attack.destinations.includes('host-0.example'));
+  assert.ok(attack.destinations.length <= 8);
   assert.strictEqual(incidents.length, before);
   const open = engine.openIncidents(1_020);
   assert.ok(
@@ -269,5 +273,146 @@ test('attacks, waves, and open incidents read anomalies that already fired', () 
   assert.throws(
     () => wave.waves(Number.POSITIVE_INFINITY),
     (err) => err instanceof HubvikError && err.code === 'WAVES_SINCE_IS_INVALID',
+  );
+});
+
+test('destinations, the shadow ring, and open campaigns are reads', () => {
+  const capped = createEngine({ learnMs: 7 * 24 * 3600e3 });
+  demo(capped);
+  for (let i = 0; i < 9; i += 1) {
+    capped.feed({ device: 'cam', dst: `host-${i}.example`, bytes: 10, ts: 1_000 + i });
+  }
+  const listed = capped.attacks(0).devices[0];
+  assert.strictEqual(listed.destinations.length, 8);
+  assert.strictEqual(listed.destinations[0], 'host-0.example');
+  assert.ok(!listed.destinations.includes('host-8.example'));
+
+  const shadow = createEngine({ learnMs: 7 * 24 * 3600e3, shadow: true, explainCap: 2 });
+  shadow.use({
+    id: 'shadow-demo',
+    version: 1,
+    meta: { mode: 'shadow' },
+    requires: ['T0'],
+    hardRule: true,
+    defaults: { severity: 'low' },
+    createState() {
+      return {};
+    },
+    /**
+     * @param {unknown} _state
+     * @param {any} ev
+     */
+    check(_state, ev) {
+      return {
+        severity: 'low',
+        confidence: 0.8,
+        ts: ev.ts,
+        actual: ev.dst,
+        expected: 'quiet',
+        data: { dst: ev.dst },
+      };
+    },
+  });
+  /** @type {any[]} */
+  const live = [];
+  /** @type {any[]} */
+  const shadows = [];
+  shadow.on('anomaly', (row) => live.push(row));
+  shadow.on('shadow-anomaly', (row) => shadows.push(row));
+  for (const [i, name] of ['a.example', 'b.example', 'c.example'].entries()) {
+    shadow.feed({ device: 'aa:bb:cc:dd:ee:ff', dst: name, bytes: 10, ts: 5_000 + i });
+  }
+  assert.strictEqual(shadows.length, 3);
+  assert.ok(!live.some((row) => row.detector === 'shadow-demo'));
+  const seen = shadow.shadow(0).devices[0];
+  assert.strictEqual(seen.count, 2);
+  assert.deepStrictEqual(seen.destinations, ['b.example', 'c.example']);
+  assert.deepStrictEqual(seen.detectors, ['shadow-demo']);
+  assert.ok(!shadow.attacks(0).devices.some((row) => row.detectors.includes('shadow-demo')));
+  assert.throws(
+    () => shadow.shadow(Number.NaN),
+    (err) => err instanceof HubvikError && err.code === 'SHADOW_SINCE_IS_INVALID',
+  );
+
+  const TV = 'aa:bb:cc:dd:ee:21';
+  const BOX = 'aa:bb:cc:dd:ee:22';
+  const engine = createEngine({
+    learnMs: 0,
+    tiers: ['T1', 'T2'],
+    identity: 'auto',
+    campaigns: true,
+  });
+  engine.setDeviceClass(TV, 'smart-tv');
+  engine.feed({ type: 'dhcp', device: TV, ts: 1, mac: TV, msg: 'ack', requestedIp: '10.0.0.21' });
+  engine.feed({ type: 'dhcp', device: BOX, ts: 2, mac: BOX, msg: 'ack', requestedIp: '10.0.0.50' });
+  /** @type {any[]} */
+  const opened = [];
+  engine.on('campaign', (row) => opened.push(row));
+  engine.feed(
+    flow({ device: TV, ts: 10_000, durationMs: 60_000, dstIp: '9.9.9.9', srcIp: '10.0.0.21' }),
+  );
+  for (let i = 0; i < 8; i += 1) {
+    engine.feed(
+      flow({
+        device: TV,
+        ts: 70_100 + i,
+        durationMs: 100,
+        dstIp: `9.9.8.${i + 1}`,
+        dstPort: 80,
+        srcIp: '10.0.0.21',
+      }),
+    );
+  }
+  engine.feed(
+    flow({
+      device: TV,
+      ts: 80_000,
+      direction: 'in',
+      srcIp: '9.9.9.9',
+      dstIp: '10.0.0.21',
+      bytesIn: 200,
+      bytesOut: 0,
+    }),
+  );
+  engine.feed(
+    flow({
+      device: TV,
+      ts: 80_400,
+      direction: 'lan',
+      dstIp: '10.0.0.50',
+      dstPort: 5555,
+      srcIp: '10.0.0.21',
+    }),
+  );
+  engine.feed(
+    flow({
+      device: BOX,
+      ts: 81_000,
+      direction: 'in',
+      srcIp: '10.0.0.21',
+      dstIp: '10.0.0.50',
+      dstPort: 5555,
+      proto: 'tcp',
+    }),
+  );
+  engine.feed({
+    type: 'dns',
+    device: BOX,
+    ts: 82_000,
+    qname: 'eth.llamarpc.com',
+    qtype: 'A',
+    rcode: 'NOERROR',
+    resolver: '10.0.0.1',
+  });
+  const before = opened.length;
+  const campaigns = engine.campaigns(82_000);
+  assert.strictEqual(opened.length, before);
+  assert.strictEqual(campaigns.campaigns.length, 1);
+  assert.strictEqual(campaigns.campaigns[0].devices.length, 2);
+  assert.ok(campaigns.campaigns[0].stages.includes('spread'));
+  assert.strictEqual(engine.campaigns(82_000 + 31 * 60 * 1000).campaigns.length, 0);
+  assert.throws(
+    () => engine.campaigns('now'),
+    (err) => err instanceof HubvikError && err.code === 'CAMPAIGNS_NOW_IS_INVALID',
   );
 });

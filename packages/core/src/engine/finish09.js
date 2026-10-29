@@ -26,6 +26,9 @@ const {
   wavesOf,
   openIncidentsOf,
   mergeOpen,
+  shadowOf,
+  campaignsOf,
+  mergeCampaigns,
 } = require('./report');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
@@ -1017,6 +1020,28 @@ class Sharded extends EventEmitter {
     const rows = [];
     for (const engine of this.engines) rows.push(...openIncidentsOf(engine, now).incidents);
     return mergeOpen(rows, now);
+  }
+
+  /**
+   * @param {number} sinceTs
+   */
+  shadow(sinceTs) {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) {
+      if (Array.isArray(engine._shadowReports)) rows.push(...engine._shadowReports);
+    }
+    return shadowOf(rows, sinceTs);
+  }
+
+  /**
+   * @param {number} now
+   */
+  campaigns(now) {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) rows.push(...campaignsOf(engine, now).campaigns);
+    return mergeCampaigns(rows, now);
   }
 
   /** @returns {Promise<void>} */

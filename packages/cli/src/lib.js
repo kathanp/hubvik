@@ -166,7 +166,7 @@ function reportHtml(jsonl) {
     if (!byDevice[device]) byDevice[device] = [];
     byDevice[device].push(row);
     if (row.detector) counts[row.detector] = (counts[row.detector] || 0) + 1;
-    if (row.kind === 'incident' || row.stages) incidents.push(row);
+    if ((row.kind === 'incident' || row.stages) && row.kind !== 'campaign') incidents.push(row);
   }
   const timeline = Object.keys(byDevice)
     .sort()
@@ -214,7 +214,57 @@ function reportHtml(jsonl) {
     .join('');
   const sentenceBlock = sentences ? `<h1>Sentences</h1><ul>${sentences}</ul>` : '';
   const hintBlock = hintItems.length ? `<h1>Hints</h1><ul>${hintItems.join('')}</ul>` : '';
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1>${timeline}<h1>Incidents</h1><ul>${incidentList}</ul><h1>Detectors</h1><ol>${top}</ol>${sentenceBlock}${hintBlock}</body></html>`;
+  const destItems = [];
+  for (const row of rows) {
+    if (!row || row.shadow === true || row.kind === 'shadow-anomaly' || row.kind === 'campaign') {
+      continue;
+    }
+    const dest = rowDestination(row);
+    if (!dest || !row.detector) continue;
+    destItems.push(
+      `<li>${escapeHtml(String(row.device || ''))} ${escapeHtml(String(row.detector))} ${escapeHtml(dest)}</li>`,
+    );
+    if (destItems.length >= 20) break;
+  }
+  const campaignItems = rows
+    .filter((row) => row && row.kind === 'campaign')
+    .slice(0, 20)
+    .map((row) => {
+      const devices = Array.isArray(row.devices) ? row.devices.join(', ') : '';
+      const stages = Array.isArray(row.stages) ? row.stages.join(', ') : '';
+      return `<li>${escapeHtml(devices)} ${escapeHtml(stages)}</li>`;
+    })
+    .join('');
+  const shadowItems = rows
+    .filter((row) => row && (row.shadow === true || row.kind === 'shadow-anomaly'))
+    .slice(0, 20)
+    .map((row) => {
+      const dest = rowDestination(row);
+      const extra = dest ? ` ${escapeHtml(dest)}` : '';
+      return `<li>${escapeHtml(String(row.device || ''))} ${escapeHtml(String(row.detector || row.kind || ''))}${extra}</li>`;
+    })
+    .join('');
+  const destBlock = destItems.length ? `<h1>Destinations</h1><ul>${destItems.join('')}</ul>` : '';
+  const campaignBlock = campaignItems ? `<h1>Campaigns</h1><ul>${campaignItems}</ul>` : '';
+  const shadowBlock = shadowItems ? `<h1>Shadow</h1><ul>${shadowItems}</ul>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1>${timeline}<h1>Incidents</h1><ul>${incidentList}</ul><h1>Detectors</h1><ol>${top}</ol>${sentenceBlock}${hintBlock}${destBlock}${campaignBlock}${shadowBlock}</body></html>`;
+}
+
+/**
+ * A destination already stored on a logged row. Reads data the record already has.
+ * @param {any} row
+ * @returns {string}
+ */
+function rowDestination(row) {
+  if (typeof row.destination === 'string' && row.destination) return row.destination;
+  const data = row.data && typeof row.data === 'object' ? row.data : {};
+  for (const key of ['dstName', 'qname', 'dst', 'dstIp', 'domain', 'peerIp', 'name']) {
+    if (typeof data[key] === 'string' && data[key]) return data[key];
+  }
+  if (Array.isArray(row.destinations) && typeof row.destinations[0] === 'string') {
+    return row.destinations[0];
+  }
+  return '';
 }
 
 /**

@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.0
+
+Where an attack went, which devices are tied together, and what shadow detectors already saw. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 956 KiB. The unpacked tree measured 971688 bytes.
+
+`attacks(sinceTs)` now includes up to 8 destinations already stored on those anomalies, in the order they were first seen. `shadow(sinceTs)` reads a second ring of shadow anomalies with the same shape and the same `explainCap`. It does not promote a detector and it does not emit. `campaigns(now)` returns campaigns the engine already opened and has not closed. The score is the one already stored. `@hubvik/cli` 0.1.3 adds Destinations, Campaigns, and Shadow sections to the HTML report when the JSONL already has those rows.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## 3.0.1
 
 Attack readers. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 948 KiB. The unpacked tree measured 964760 bytes.

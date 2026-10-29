@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+The HTML report adds Destinations, Campaigns, and Shadow sections when the JSONL already has those rows. Inline CSS. No script.
+
 ## 0.1.2
 
 The HTML report adds a sentences list and, when the JSONL already has them, hint lines. It still uses inline CSS and does not fetch a script.
