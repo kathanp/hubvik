@@ -2,7 +2,7 @@
 
 const { createHash } = require('node:crypto');
 const { rememberAnomaly } = require('./feedback');
-const { noteReport } = require('./report');
+const { noteReport, noteShadow } = require('./report');
 const { noteThreat } = require('./promote');
 const { noteCampaign } = require('./campaigns');
 const { spread } = require('./contagion');
@@ -458,6 +458,7 @@ module.exports = {
         this._rememberExplain(anomaly, det, item);
         if (typeof this._advanceTemplates === 'function') this._advanceTemplates(device, anomaly);
         delete anomaly._partgHard;
+        noteShadow(this, anomaly);
         this.emit('shadow-anomaly', anomaly);
         continue;
       }

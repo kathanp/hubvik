@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const MAX_UNPACKED = 500 * 1024;
-const CORE_UNPACKED = 948 * 1024;
+const CORE_UNPACKED = 956 * 1024;
 const MAX_FILE = 60 * 1024;
 const MAX_DATA = 200 * 1024;
 const ALLOWED = new Set(['package.json', 'README.md', 'LICENSE', 'CHANGELOG.md', 'SECURITY.md']);

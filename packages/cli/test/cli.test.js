@@ -116,3 +116,20 @@ test('the Kimwolf pivot replay report matches its HTML snapshot', () => {
   assert.match(html, /adb-exposure/);
   assert.match(html, /blockchain-c2/);
 });
+
+test('the HTML report lists destinations, campaigns, and shadow hits', () => {
+  const html = reportHtml(
+    [
+      '{"ts":1,"device":"cam","detector":"new-destination","data":{"dst":"host.example"}}',
+      '{"kind":"campaign","devices":["cam","box"],"stages":["c2","spread"]}',
+      '{"kind":"shadow-anomaly","device":"cam","detector":"onion-name","shadow":true,"data":{"name":"aaaaaaa.onion"}}',
+    ].join('\n'),
+  );
+  assert.match(html, /<h1>Destinations<\/h1>/);
+  assert.match(html, /cam new-destination host\.example/);
+  assert.match(html, /<h1>Campaigns<\/h1>/);
+  assert.match(html, /cam, box c2, spread/);
+  assert.match(html, /<h1>Shadow<\/h1>/);
+  assert.match(html, /cam onion-name aaaaaaa\.onion/);
+  assert.doesNotMatch(html, /<script/);
+});

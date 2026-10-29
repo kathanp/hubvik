@@ -16,9 +16,30 @@ const ACTIONS = new Set(['review', 'relearn', 'isolate-device', 'block-destinati
  * @returns {void}
  */
 function noteReport(engine, anomaly) {
-  if (!Array.isArray(engine._reports)) engine._reports = [];
+  pushRing(engine, '_reports', anomaly);
+}
+
+/**
+ * Remember one shadow anomaly. Same cap and same row as the live ring.
+ * The ring is not part of the baseline or the checkpoint. This does not emit.
+ * @param {any} engine
+ * @param {any} anomaly
+ * @returns {void}
+ */
+function noteShadow(engine, anomaly) {
+  pushRing(engine, '_shadowReports', anomaly);
+}
+
+/**
+ * @param {any} engine
+ * @param {string} key
+ * @param {any} anomaly
+ * @returns {void}
+ */
+function pushRing(engine, key, anomaly) {
+  if (!Array.isArray(engine[key])) engine[key] = [];
   const data = anomaly.data && typeof anomaly.data === 'object' ? anomaly.data : {};
-  engine._reports.push({
+  engine[key].push({
     device: String(anomaly.device),
     detector: String(anomaly.detector),
     ts: typeof anomaly.ts === 'number' ? anomaly.ts : 0,
@@ -30,7 +51,7 @@ function noteReport(engine, anomaly) {
     response: clipHints(anomaly.response),
   });
   const cap = engine.opts && engine.opts.explainCap ? engine.opts.explainCap : 1000;
-  while (engine._reports.length > cap) engine._reports.shift();
+  while (engine[key].length > cap) engine[key].shift();
 }
 
 /**
@@ -254,6 +275,24 @@ const reportMethods = {
    */
   openIncidents(now) {
     return openIncidentsOf(this, now);
+  },
+
+  /**
+   * Shadow anomalies already emitted. Same shape as attacks(). Does not emit.
+   * @this {any}
+   * @param {number} sinceTs
+   */
+  shadow(sinceTs) {
+    return shadowOf(this._shadowReports, sinceTs);
+  },
+
+  /**
+   * Campaigns the engine already opened and has not closed. Does not emit.
+   * @this {any}
+   * @param {number} now
+   */
+  campaigns(now) {
+    return campaignsOf(this, now);
   },
 };
 
@@ -607,9 +646,11 @@ function attacksOf(rows, sinceTs) {
         detectors: [],
         stages: [],
         techniques: [],
+        destinations: [],
         seenDet: new Set(),
         seenStage: new Set(),
         seenTech: new Set(),
+        seenDest: new Set(),
       };
       byDevice.set(row.device, bucket);
     }
@@ -634,6 +675,15 @@ function attacksOf(rows, sinceTs) {
         }
       }
     }
+    if (
+      typeof row.destination === 'string' &&
+      row.destination &&
+      bucket.destinations.length < 8 &&
+      !bucket.seenDest.has(row.destination)
+    ) {
+      bucket.seenDest.add(row.destination);
+      bucket.destinations.push(row.destination);
+    }
   }
   const devices = [...byDevice.values()]
     .map((bucket) => ({
@@ -644,6 +694,7 @@ function attacksOf(rows, sinceTs) {
       detectors: bucket.detectors,
       stages: bucket.stages,
       techniques: bucket.techniques,
+      destinations: bucket.destinations,
       progressing: bucket.stages.length >= 2,
     }))
     .sort(
@@ -744,6 +795,113 @@ function openIncidentsOf(engine, now) {
 }
 
 /**
+ * Shadow anomalies grouped the same way as attacks(). Does not emit.
+ * @param {any[]} rows
+ * @param {number} sinceTs
+ */
+function shadowOf(rows, sinceTs) {
+  if (typeof sinceTs !== 'number' || !Number.isFinite(sinceTs)) {
+    throw new HubvikError('SHADOW_SINCE_IS_INVALID', 'shadow sinceTs is invalid');
+  }
+  return attacksOf(rows, sinceTs);
+}
+
+/**
+ * Campaigns already stored whose lastTs is still inside the incident window.
+ * Does not emit and does not change a score.
+ * @param {any} engine
+ * @param {number} now
+ */
+function campaignsOf(engine, now) {
+  if (typeof now !== 'number' || !Number.isFinite(now)) {
+    throw new HubvikError('CAMPAIGNS_NOW_IS_INVALID', 'campaigns now is invalid');
+  }
+  const windowMs = windowOf(engine);
+  /** @type {any[]} */
+  const campaigns = [];
+  const list = engine && Array.isArray(engine._campaigns) ? engine._campaigns : [];
+  for (const campaign of list) {
+    const row = campaignRow(campaign, now, windowMs);
+    if (row) campaigns.push(row);
+  }
+  campaigns.sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1));
+  return { now, campaigns };
+}
+
+/**
+ * Same device set on two shards keeps the later lastTs.
+ * @param {any[]} rows
+ * @param {number} now
+ */
+function mergeCampaigns(rows, now) {
+  if (typeof now !== 'number' || !Number.isFinite(now)) {
+    throw new HubvikError('CAMPAIGNS_NOW_IS_INVALID', 'campaigns now is invalid');
+  }
+  /** @type {Map<string, any>} */
+  const byDevices = new Map();
+  for (const row of rows) {
+    if (!row || !Array.isArray(row.devices)) continue;
+    const key = row.devices
+      .map((/** @type {string} */ id) => String(id))
+      .sort()
+      .join('\n');
+    const prev = byDevices.get(key);
+    if (!prev || row.lastTs > prev.lastTs) byDevices.set(key, row);
+  }
+  const campaigns = [...byDevices.values()].sort(
+    (a, b) => b.score - a.score || (a.id < b.id ? -1 : 1),
+  );
+  return { now, campaigns };
+}
+
+/**
+ * @param {any} engine
+ * @returns {number}
+ */
+function windowOf(engine) {
+  return engine && engine.opts && typeof engine.opts.incidentWindowMs === 'number'
+    ? engine.opts.incidentWindowMs
+    : 30 * 60 * 1000;
+}
+
+/**
+ * @param {any} campaign
+ * @param {number} now
+ * @param {number} windowMs
+ * @returns {any}
+ */
+function campaignRow(campaign, now, windowMs) {
+  if (!campaign || typeof campaign.lastTs !== 'number' || typeof campaign.firstTs !== 'number') {
+    return null;
+  }
+  if (now < campaign.firstTs || now - campaign.lastTs > windowMs) return null;
+  const stages = Array.isArray(campaign.stages)
+    ? campaign.stages.map((/** @type {string} */ stage) => String(stage))
+    : [...(campaign.stages || [])].map((stage) => String(stage));
+  /** @type {any[]} */
+  const edges = [];
+  for (const edge of campaign.edges || []) {
+    if (!edge || edges.length >= 64) break;
+    edges.push({
+      from: String(edge.from),
+      to: String(edge.to),
+      via: String(edge.via),
+      ts: typeof edge.ts === 'number' ? edge.ts : 0,
+    });
+  }
+  return {
+    id: String(campaign.id),
+    devices: (campaign.devices || []).slice(0, 64).map((/** @type {string} */ id) => String(id)),
+    edges,
+    stages,
+    score: campaign.score,
+    severity: campaign.severity,
+    firstTs: campaign.firstTs,
+    lastTs: campaign.lastTs,
+  };
+}
+
+/**
  * @param {any[]} rows
  * @param {number} now
  */
@@ -766,6 +924,7 @@ function mergeOpen(rows, now) {
 
 module.exports = {
   noteReport,
+  noteShadow,
   digestOf,
   decisionsOf,
   inventoryOf,
@@ -779,5 +938,8 @@ module.exports = {
   wavesOf,
   openIncidentsOf,
   mergeOpen,
+  shadowOf,
+  campaignsOf,
+  mergeCampaigns,
   reportMethods,
 };

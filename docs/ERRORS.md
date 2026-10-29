@@ -624,6 +624,16 @@ Fix: pass a finite timestamp in milliseconds. The library does not modify traffi
 Cause: 'quiet now is invalid'.
 Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
 
+## SHADOW_SINCE_IS_INVALID
+
+Cause: 'shadow sinceTs is invalid'.
+Fix: pass a finite number of milliseconds. The library does not modify traffic.
+
+## CAMPAIGNS_NOW_IS_INVALID
+
+Cause: 'campaigns now is invalid'.
+Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
+
 ## WAVES_SINCE_IS_INVALID
 
 Cause: 'waves sinceTs is invalid'.

@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 3.0.1
+- [x] `hubvik` (`packages/core`) 3.1.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -90,7 +90,7 @@ These are not new features. They are places where the shipped behavior cannot do
 - [x] `@hubvik/export-ecs` 0.1.0 — UNVERIFIED
 - [x] `@hubvik/export-mqtt` 0.1.1 — UNVERIFIED
 - [x] `@hubvik/respond-nftables (text only)` 0.1.1 — UNVERIFIED
-- [x] `@hubvik/cli` 0.1.1 — UNVERIFIED
+- [x] `@hubvik/cli` 0.1.3 — UNVERIFIED
 - [x] `@hubvik/indicators-file` 0.1.0 — host-local indicator file. No bundled feed.
 - [x] `@hubvik/mud` 0.1.0 — MUD JSON to `loadMud` allows. No ACL install.
 - [x] `@hubvik/trail` 0.1.0 — host-local trail file. No bundled hosts.
@@ -472,6 +472,18 @@ Core is `3.0.1`. No new detector row. No threshold change. The live anomaly stre
 
 **Done when.** The three calls reject a bad number, do not emit an anomaly, and a device with both `recon` and `c2` is `progressing`. A detector on two devices is not a wave. A detector on three devices is.
 
+## 0.17 Where it went (3.1.0)
+
+Core is `3.1.0`. No new detector row. No threshold change. The live anomaly stream of a default engine stays the 1.6.0 stream. `campaigns` stays off unless the host sets it. Shadow detectors stay off unless `shadow` selects them.
+
+- `attacks(sinceTs)` also returns `destinations`: up to 8 distinct destinations already stored on the report ring, in first-seen order. A missing destination is skipped.
+- `shadow(sinceTs)` reads a second ring. Each shadow anomaly, including a canary copy, is stored with the same fields as a live report row. The ring is capped by `explainCap`, separately from the live ring, and is not in the baseline or the checkpoint. The return value has the same shape as `attacks`. A non-finite `sinceTs` throws `SHADOW_SINCE_IS_INVALID`. The call does not emit `shadow-anomaly` and does not promote a detector.
+- `campaigns(now)` returns campaigns already stored whose `lastTs` is inside `incidentWindowMs` of `now` (default 30 minutes, unchanged). Each row has `id`, `devices` (at most 64), `edges` (at most 64), `stages`, `score`, `severity`, `firstTs`, and `lastTs`. The score is not recomputed. A non-finite `now` throws `CAMPAIGNS_NOW_IS_INVALID`. The call does not emit `campaign`. With `campaigns` left off, the list is empty.
+- A sharded engine merges the shadow rings. The same device set on two shards keeps the campaign with the later `lastTs`.
+- `@hubvik/cli` 0.1.3 adds Destinations, Campaigns, and Shadow headings to the HTML report when the JSONL already contains them. At most 20 rows each. Inline CSS. No script.
+
+**Done when.** `attacks` keeps at most 8 destinations. A shadow ring of cap 2 keeps the two newest shadow rows and those rows are absent from `attacks`. `campaigns` rejects a bad `now`, does not emit, and drops a campaign whose `lastTs` is outside the incident window. The HTML report has no `<script`.
+
 ---
 
 # PART A — ENGINE
@@ -642,7 +654,9 @@ const { createEngine, Engine, detectors, SEVERITY } = require('hubvik');
 | `hints(sinceTs)`                                                | Hint text already stored. Empty unless `responseHints` is on. Does not apply a hint.                                                                                                      |
 | `noisy()`                                                       | Detectors already over the labeled noisy bar. Does not change a threshold.                                                                                                                |
 | `quiet(now, quietMs)`                                           | Seen devices quiet for `quietMs`. Does not emit `went-silent`.                                                                                                                            |
-| `attacks(sinceTs)`                                              | Stages and technique ids already on live anomalies. `progressing` when two stages are present. Does not run a detector.                                                                   |
+| `attacks(sinceTs)`                                              | Stages, technique ids, and up to 8 destinations already on live anomalies. `progressing` when two stages are present. Does not run a detector.                                            |
+| `shadow(sinceTs)`                                               | Shadow anomalies already emitted. Same shape as `attacks`. Does not promote a detector.                                                                                                   |
+| `campaigns(now)`                                                | Campaigns already open. Does not emit `campaign`.                                                                                                                                         |
 | `waves(sinceTs)`                                                | A detector that already fired on three or more devices. Does not change a threshold.                                                                                                      |
 | `openIncidents(now)`                                            | Incidents already open. Does not emit `incident`.                                                                                                                                         |
 

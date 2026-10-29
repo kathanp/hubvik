@@ -4,7 +4,7 @@ hubvik is a **detector library**, not a protection appliance. It watches per-dev
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **3.0.1 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). Full machine-generated catalog: [`docs/DETECTORS.md`](docs/DETECTORS.md) (170 rows). Also: [`README.md`](README.md), [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md).
+Status: **3.1.0 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). Full machine-generated catalog: [`docs/DETECTORS.md`](docs/DETECTORS.md) (170 rows). Also: [`README.md`](README.md), [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md).
 
 ---
 
@@ -228,6 +228,15 @@ Readers over anomalies the detectors already emit. No new detector row. No thres
 16. [x] **`engine.attacks(sinceTs)`.** Per device: stages (`recon`, `c2`, `spread`, `impact`) and technique ids already mapped to those detectors. `progressing` is true when two stages have been seen. That is the device moving through an attack, not one noisy detector.
 17. [x] **`engine.waves(sinceTs)`.** A detector that already fired on three or more devices. That is the same bar a campaign uses. It is how a spread across the LAN shows up.
 18. [x] **`engine.openIncidents(now)`.** Incidents the engine already opened and has not closed. The score is the one already stored. The call does not emit.
+
+### 3.1.0
+
+Readers over destinations, campaigns, and shadow hits the engine already has. No new detector row. No threshold change.
+
+19. [x] **Destinations on `engine.attacks(sinceTs)`.** Up to 8 hosts already stored on those anomalies, first-seen order. That is where the device went.
+20. [x] **`engine.campaigns(now)`.** Campaigns the engine already opened and has not closed. The devices, edges, and stages are the ones already stored. The call does not emit.
+21. [x] **`engine.shadow(sinceTs)`.** A second ring of shadow anomalies, capped by `explainCap`. Same shape as `attacks`. It does not promote a detector.
+22. [x] **`@hubvik/cli` 0.1.3 sections.** The HTML report lists Destinations, Campaigns, and Shadow when the JSONL already has them. Inline CSS. No script.
 
 ### Stays outside the hubvik package
 
