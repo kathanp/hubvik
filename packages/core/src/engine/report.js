@@ -2,6 +2,8 @@
 
 const { HubvikError } = require('../errors');
 const { precisionOf } = require('./feedback');
+const STAGES = require('../data/stages.json');
+const ATTACK = require('../data/attack-map.json');
 
 const CLIP = 200;
 const ACTIONS = new Set(['review', 'relearn', 'isolate-device', 'block-destination', 'rate-limit']);
@@ -225,6 +227,33 @@ const reportMethods = {
    */
   quiet(now, quietMs) {
     return quietOf(this, now, quietMs);
+  },
+
+  /**
+   * Stages and techniques already tagged on live anomalies. Does not run a detector.
+   * @this {any}
+   * @param {number} sinceTs
+   */
+  attacks(sinceTs) {
+    return attacksOf(this._reports, sinceTs);
+  },
+
+  /**
+   * One detector firing on three or more devices. The same device count campaigns use.
+   * @this {any}
+   * @param {number} sinceTs
+   */
+  waves(sinceTs) {
+    return wavesOf(this._reports, sinceTs);
+  },
+
+  /**
+   * Incidents the engine already opened and has not closed. Does not emit.
+   * @this {any}
+   * @param {number} now
+   */
+  openIncidents(now) {
+    return openIncidentsOf(this, now);
   },
 };
 
@@ -546,6 +575,195 @@ function union(left, right, compare) {
   return [...set].sort(compare);
 }
 
+/**
+ * Kill-chain stages and technique ids already attached to live anomalies.
+ * A device is progressing when two or more stages have been seen.
+ * @param {any[]} rows
+ * @param {number} sinceTs
+ */
+function attacksOf(rows, sinceTs) {
+  if (typeof sinceTs !== 'number' || !Number.isFinite(sinceTs)) {
+    throw new HubvikError('ATTACKS_SINCE_IS_INVALID', 'attacks sinceTs is invalid');
+  }
+  /** @type {Map<string, any>} */
+  const byDevice = new Map();
+  const ordered = (Array.isArray(rows) ? rows : [])
+    .filter((row) => row && typeof row.ts === 'number' && row.ts >= sinceTs)
+    .slice()
+    .sort(
+      (a, b) =>
+        a.ts - b.ts ||
+        String(a.device).localeCompare(String(b.device)) ||
+        String(a.detector).localeCompare(String(b.detector)),
+    );
+  for (const row of ordered) {
+    let bucket = byDevice.get(row.device);
+    if (!bucket) {
+      bucket = {
+        device: String(row.device),
+        count: 0,
+        firstTs: row.ts,
+        lastTs: row.ts,
+        detectors: [],
+        stages: [],
+        techniques: [],
+        seenDet: new Set(),
+        seenStage: new Set(),
+        seenTech: new Set(),
+      };
+      byDevice.set(row.device, bucket);
+    }
+    bucket.count += 1;
+    bucket.lastTs = row.ts;
+    if (bucket.detectors.length < 16 && !bucket.seenDet.has(row.detector)) {
+      bucket.seenDet.add(row.detector);
+      bucket.detectors.push(String(row.detector));
+    }
+    const stage = /** @type {Record<string, string>} */ (STAGES)[row.detector];
+    if (stage && !bucket.seenStage.has(stage)) {
+      bucket.seenStage.add(stage);
+      bucket.stages.push(stage);
+    }
+    const techs = /** @type {Record<string, string[]>} */ (ATTACK)[row.detector];
+    if (Array.isArray(techs)) {
+      for (const tech of techs) {
+        if (bucket.techniques.length >= 8) break;
+        if (!bucket.seenTech.has(tech)) {
+          bucket.seenTech.add(tech);
+          bucket.techniques.push(tech);
+        }
+      }
+    }
+  }
+  const devices = [...byDevice.values()]
+    .map((bucket) => ({
+      device: bucket.device,
+      count: bucket.count,
+      firstTs: bucket.firstTs,
+      lastTs: bucket.lastTs,
+      detectors: bucket.detectors,
+      stages: bucket.stages,
+      techniques: bucket.techniques,
+      progressing: bucket.stages.length >= 2,
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.progressing) - Number(a.progressing) ||
+        b.count - a.count ||
+        (a.device < b.device ? -1 : 1),
+    );
+  return { sinceTs, devices };
+}
+
+/**
+ * A detector that already fired on three or more devices. Does not change a threshold.
+ * @param {any[]} rows
+ * @param {number} sinceTs
+ */
+function wavesOf(rows, sinceTs) {
+  if (typeof sinceTs !== 'number' || !Number.isFinite(sinceTs)) {
+    throw new HubvikError('WAVES_SINCE_IS_INVALID', 'waves sinceTs is invalid');
+  }
+  /** @type {Map<string, { detector: string, count: number, devices: Set<string>, stage: string | null }>} */
+  const byDetector = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (
+      !row ||
+      typeof row.ts !== 'number' ||
+      row.ts < sinceTs ||
+      typeof row.detector !== 'string'
+    ) {
+      continue;
+    }
+    let bucket = byDetector.get(row.detector);
+    if (!bucket) {
+      const stage = /** @type {Record<string, string>} */ (STAGES)[row.detector] || null;
+      bucket = { detector: row.detector, count: 0, devices: new Set(), stage };
+      byDetector.set(row.detector, bucket);
+    }
+    bucket.count += 1;
+    bucket.devices.add(String(row.device));
+  }
+  const waves = [...byDetector.values()]
+    .filter((bucket) => bucket.devices.size >= 3)
+    .map((bucket) => ({
+      detector: bucket.detector,
+      stage: bucket.stage,
+      devices: bucket.devices.size,
+      count: bucket.count,
+    }))
+    .sort(
+      (a, b) => b.devices - a.devices || b.count - a.count || (a.detector < b.detector ? -1 : 1),
+    );
+  return { sinceTs, waves };
+}
+
+/**
+ * @param {any} engine
+ * @param {number} now
+ */
+function openIncidentsOf(engine, now) {
+  if (typeof now !== 'number' || !Number.isFinite(now)) {
+    throw new HubvikError('OPEN_INCIDENTS_NOW_IS_INVALID', 'open incidents now is invalid');
+  }
+  const windowMs =
+    engine && engine.opts && typeof engine.opts.incidentWindowMs === 'number'
+      ? engine.opts.incidentWindowMs
+      : 30 * 60 * 1000;
+  /** @type {any[]} */
+  const incidents = [];
+  if (!engine || !engine.devices || typeof engine.devices.values !== 'function') {
+    return { now, incidents };
+  }
+  for (const device of engine.devices.values()) {
+    const incident = device && device.incident;
+    if (!incident || typeof incident.lastTs !== 'number') continue;
+    if (now < incident.firstTs || now - incident.lastTs > windowMs) continue;
+    /** @type {string[]} */
+    const detectors = [];
+    const seen = new Set();
+    for (const id of incident.detectors || []) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      detectors.push(String(id));
+      if (detectors.length >= 16) break;
+    }
+    incidents.push({
+      id: incident.id,
+      device: String(incident.device),
+      stages: [...incident.stages],
+      score: incident.score,
+      severity: incident.severity,
+      detectors,
+      firstTs: incident.firstTs,
+      lastTs: incident.lastTs,
+    });
+  }
+  incidents.sort((a, b) => b.score - a.score || (a.device < b.device ? -1 : 1));
+  return { now, incidents };
+}
+
+/**
+ * @param {any[]} rows
+ * @param {number} now
+ */
+function mergeOpen(rows, now) {
+  if (typeof now !== 'number' || !Number.isFinite(now)) {
+    throw new HubvikError('OPEN_INCIDENTS_NOW_IS_INVALID', 'open incidents now is invalid');
+  }
+  /** @type {Map<string, any>} */
+  const byDevice = new Map();
+  for (const row of rows) {
+    if (!row || typeof row.device !== 'string') continue;
+    const prev = byDevice.get(row.device);
+    if (!prev || row.lastTs > prev.lastTs) byDevice.set(row.device, row);
+  }
+  const incidents = [...byDevice.values()].sort(
+    (a, b) => b.score - a.score || (a.device < b.device ? -1 : 1),
+  );
+  return { now, incidents };
+}
+
 module.exports = {
   noteReport,
   digestOf,
@@ -557,5 +775,9 @@ module.exports = {
   quietOf,
   mergeQuiet,
   noisyFrom,
+  attacksOf,
+  wavesOf,
+  openIncidentsOf,
+  mergeOpen,
   reportMethods,
 };

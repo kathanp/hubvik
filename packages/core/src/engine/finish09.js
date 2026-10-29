@@ -22,6 +22,10 @@ const {
   quietOf,
   mergeQuiet,
   noisyFrom,
+  attacksOf,
+  wavesOf,
+  openIncidentsOf,
+  mergeOpen,
 } = require('./report');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
@@ -989,6 +993,30 @@ class Sharded extends EventEmitter {
     const rows = [];
     for (const engine of this.engines) rows.push(...quietOf(engine, now, quietMs).devices);
     return mergeQuiet(rows, now, quietMs);
+  }
+
+  /**
+   * @param {number} sinceTs
+   */
+  attacks(sinceTs) {
+    return attacksOf(reportRows(this.engines), sinceTs);
+  }
+
+  /**
+   * @param {number} sinceTs
+   */
+  waves(sinceTs) {
+    return wavesOf(reportRows(this.engines), sinceTs);
+  }
+
+  /**
+   * @param {number} now
+   */
+  openIncidents(now) {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) rows.push(...openIncidentsOf(engine, now).incidents);
+    return mergeOpen(rows, now);
   }
 
   /** @returns {Promise<void>} */

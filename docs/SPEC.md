@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 2.3.0
+- [x] `hubvik` (`packages/core`) 3.0.1
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -461,6 +461,17 @@ Core is `2.3.0`. No new detector row. No threshold change. The live anomaly stre
 
 **Done when.** The four engine calls reject bad numbers, do not emit an anomaly, and merge on a sharded engine. The three packages reject `__proto__` and do not reference `child_process`. The HTML report has no `<script`.
 
+## 0.16 Attack readers (3.0.1)
+
+Core is `3.0.1`. No new detector row. No threshold change. The live anomaly stream of a default engine stays the 1.6.0 stream.
+
+- `attacks(sinceTs)` reads the report ring. For each device it returns `count`, `firstTs`, `lastTs`, up to 16 detector ids, the kill-chain stages from `stages.json` in the order they were first seen, and up to 8 technique ids from `attack-map.json`. `progressing` is true when that device has two or more stages. A non-finite `sinceTs` throws `ATTACKS_SINCE_IS_INVALID`.
+- `waves(sinceTs)` returns detectors that already fired on at least 3 distinct devices. Three is the device count `campaigns.js` already uses before it opens a campaign. Each row has `detector`, `stage` or null, `devices`, and `count`. A non-finite `sinceTs` throws `WAVES_SINCE_IS_INVALID`.
+- `openIncidents(now)` returns incidents already stored on a device whose `lastTs` is inside `incidentWindowMs` of `now` (default 30 minutes, unchanged). The score and severity are the values the incident already has. A non-finite `now` throws `OPEN_INCIDENTS_NOW_IS_INVALID`. The call does not emit `incident`.
+- A sharded engine merges the rings for `attacks` and `waves`, and keeps the later `lastTs` when the same device has an open incident on more than one shard.
+
+**Done when.** The three calls reject a bad number, do not emit an anomaly, and a device with both `recon` and `c2` is `progressing`. A detector on two devices is not a wave. A detector on three devices is.
+
 ---
 
 # PART A — ENGINE
@@ -631,6 +642,9 @@ const { createEngine, Engine, detectors, SEVERITY } = require('hubvik');
 | `hints(sinceTs)`                                                | Hint text already stored. Empty unless `responseHints` is on. Does not apply a hint.                                                                                                      |
 | `noisy()`                                                       | Detectors already over the labeled noisy bar. Does not change a threshold.                                                                                                                |
 | `quiet(now, quietMs)`                                           | Seen devices quiet for `quietMs`. Does not emit `went-silent`.                                                                                                                            |
+| `attacks(sinceTs)`                                              | Stages and technique ids already on live anomalies. `progressing` when two stages are present. Does not run a detector.                                                                   |
+| `waves(sinceTs)`                                                | A detector that already fired on three or more devices. Does not change a threshold.                                                                                                      |
+| `openIncidents(now)`                                            | Incidents already open. Does not emit `incident`.                                                                                                                                         |
 
 Events:
 

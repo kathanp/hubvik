@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.1
+
+Attack readers. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 948 KiB. The unpacked tree measured 964760 bytes.
+
+`attacks(sinceTs)` groups live anomalies by device and lists the kill-chain stages and technique ids those detectors already carry. `progressing` is true when a device has two or more stages. `waves(sinceTs)` lists a detector that already fired on three or more devices, the same device count a campaign uses. `openIncidents(now)` returns incidents the engine already opened and has not closed. None of the three calls emits an anomaly or changes a score.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## 2.3.0
 
 Report readers. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 940 KiB. The unpacked tree measured 955791 bytes.

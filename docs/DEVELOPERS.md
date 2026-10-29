@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@2.3.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@2.1.0` until the 2.3.0 tag is published. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: package `hubvik@3.0.1`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@2.3.0` until the 3.0.1 tag is published. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
@@ -313,6 +313,8 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 `digest(sinceTs)` returns one sentence per device for live anomalies at or after `sinceTs`. `exportDecisions()` returns JSON `{ decisions }` for the same ring. The ring holds `explainCap` rows and is not in the checkpoint. Neither call opens a socket. `inventory()` lists devices that have been seen. `suggestions` is included only when `classSuggest` is true. The host still calls `setDeviceClass`.
 
 `counts(sinceTs)` is the fire count per detector on that ring. `hints(sinceTs)` lists hint text already stored on those anomalies and does not apply it. With `responseHints` left off the list is empty. `noisy()` reads the same labels as `stats().precision` and returns detectors already over that bar. `quiet(now, quietMs)` lists seen devices whose last event is at least `quietMs` before `now`. It does not emit `went-silent`.
+
+`attacks(sinceTs)` lists, per device, the kill-chain stages and technique ids already carried by those anomalies. `progressing` is true when two or more stages have been seen. `waves(sinceTs)` lists a detector that already fired on three or more devices. `openIncidents(now)` returns incidents the engine already opened and has not closed. None of these calls runs a new detector or emits an anomaly.
 
 `@hubvik/indicators-file` reads a local indicator file. `@hubvik/mud` parses a local MUD file into the object `loadMud` accepts. `@hubvik/trail` reads a local one-host-per-line trail. `@hubvik/decisions-file` reads a local decisions file and does not apply a ban. `@hubvik/rules-file` reads a local JSON rules file and rejects regular-expression keys. None of these packages contact the network.
 
