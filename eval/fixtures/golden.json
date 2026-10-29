@@ -674,7 +674,7 @@
     },
     {
       "detector": "bogon-destination",
-      "severity": "medium",
+      "severity": "info",
       "exercised": true,
       "unique": 0,
       "falsePositives": 0,

@@ -491,6 +491,42 @@ export class Engine extends EventEmitter {
     opts?: { operator?: string; note?: string },
   ): void;
   exportLabels(): string;
+  digest(sinceTs: number): {
+    sinceTs: number;
+    devices: Array<{ device: string; count: number; text: string }>;
+  };
+  inventory(): Array<{
+    device: string;
+    lastSeen: number | null;
+    class: string | null;
+    addresses: string[];
+    ports: number[];
+    protocols: string[];
+    apps: string[];
+    suggestions?: Array<{ class: string; score: number; reasons: string[] }>;
+  }>;
+  exportDecisions(): string;
+  counts(sinceTs: number): {
+    sinceTs: number;
+    detectors: Array<{ detector: string; count: number; devices: number }>;
+  };
+  hints(sinceTs: number): {
+    sinceTs: number;
+    hints: Array<{
+      device: string;
+      detector: string;
+      ts: number;
+      action: 'review' | 'relearn' | 'isolate-device' | 'block-destination' | 'rate-limit';
+      target: string;
+      reversible: true;
+      minConfidence: number;
+    }>;
+  };
+  noisy(): Array<{ detector: string; fpRate: number; n: number }>;
+  quiet(
+    now: number,
+    quietMs: number,
+  ): { now: number; quietMs: number; devices: Array<{ device: string; lastSeen: number }> };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

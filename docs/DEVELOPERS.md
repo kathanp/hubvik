@@ -2,7 +2,7 @@
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@2.1.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@2.0.4` until the 2.1.0 tag is published. Do not publish detection rates that this repository did not measure.
+Status of the code in this repo: package `hubvik@2.3.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@2.1.0` until the 2.3.0 tag is published. Do not publish detection rates that this repository did not measure.
 
 ## Install
 
@@ -309,6 +309,12 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 `horizons` is on when T1 is on and `slow-scan` or `multi-horizon-exfil` is running. `horizons: false` turns the ring off. Each device keeps 24 hourly rows of bytes, flows, and a HyperLogLog (`p = 8`). A gap over 24 hours clears the ring. `ctx.horizon(dev).last(hours)` and `.sum(field, hours)` are read-only. The ring is in `checkpoint()`.
 
 `explain(anomalyId)` returns the test, the observed value, and either a threshold or what was learned. Reading an id refreshes it. An id older than `explainCap` (default 1,000) returns `null`. For a hard rule, `suppressWith` is only `suppress`, and `untilTs` is at most 24 hours after the anomaly. Calling that `suppress` with the returned arguments mutes later drafts of that detector on that device when `match` equals `actual`.
+
+`digest(sinceTs)` returns one sentence per device for live anomalies at or after `sinceTs`. `exportDecisions()` returns JSON `{ decisions }` for the same ring. The ring holds `explainCap` rows and is not in the checkpoint. Neither call opens a socket. `inventory()` lists devices that have been seen. `suggestions` is included only when `classSuggest` is true. The host still calls `setDeviceClass`.
+
+`counts(sinceTs)` is the fire count per detector on that ring. `hints(sinceTs)` lists hint text already stored on those anomalies and does not apply it. With `responseHints` left off the list is empty. `noisy()` reads the same labels as `stats().precision` and returns detectors already over that bar. `quiet(now, quietMs)` lists seen devices whose last event is at least `quietMs` before `now`. It does not emit `went-silent`.
+
+`@hubvik/indicators-file` reads a local indicator file. `@hubvik/mud` parses a local MUD file into the object `loadMud` accepts. `@hubvik/trail` reads a local one-host-per-line trail. `@hubvik/decisions-file` reads a local decisions file and does not apply a ban. `@hubvik/rules-file` reads a local JSON rules file and rejects regular-expression keys. None of these packages contact the network.
 
 ## Options added in the 0.9 work (all default off)
 

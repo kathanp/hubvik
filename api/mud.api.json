@@ -1,0 +1,12 @@
+{
+  "name": "@hubvik/mud",
+  "exports": [
+    "loadMudFile",
+    "parseMud"
+  ],
+  "methods": {
+    "loadMudFile": [],
+    "parseMud": []
+  },
+  "dts": "export function parseMud(text: string): {\n  allows: Array<{\n    dstPort?: number;\n    proto?: string;\n    domain?: string;\n    direction?: 'out' | 'in';\n  }>;\n};\nexport function loadMudFile(file: string): {\n  allows: Array<{\n    dstPort?: number;\n    proto?: string;\n    domain?: string;\n    direction?: 'out' | 'in';\n  }>;\n};\n"
+}

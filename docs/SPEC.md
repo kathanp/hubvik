@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 2.1.0
+- [x] `hubvik` (`packages/core`) 2.3.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -91,6 +91,11 @@ These are not new features. They are places where the shipped behavior cannot do
 - [x] `@hubvik/export-mqtt` 0.1.1 — UNVERIFIED
 - [x] `@hubvik/respond-nftables (text only)` 0.1.1 — UNVERIFIED
 - [x] `@hubvik/cli` 0.1.1 — UNVERIFIED
+- [x] `@hubvik/indicators-file` 0.1.0 — host-local indicator file. No bundled feed.
+- [x] `@hubvik/mud` 0.1.0 — MUD JSON to `loadMud` allows. No ACL install.
+- [x] `@hubvik/trail` 0.1.0 — host-local trail file. No bundled hosts.
+- [x] `@hubvik/decisions-file` 0.1.0 — host-local decisions file. No ban.
+- [x] `@hubvik/rules-file` 0.1.0 — host-local JSON rules. No regular expressions.
 - [x] `eval/` harness
   - [x] IoT-23 joiner
   - [x] CICIoT2023 joiner
@@ -427,6 +432,35 @@ The behavior is B25. These are the 2026 behaviors the catalog does not already r
 
 **Done when.** With `shadow: false`, none of the four ids emits `shadow-anomaly` or `anomaly`. With `shadow: true`, each row fires on its attack, stays silent one step outside its threshold, stays silent on one 14-day benign pass per simulated class, rejects an over-cap import and a `constructor` key, and restores through `exportBaseline` / `importBaseline`. None fires during learning.
 
+## 0.14 Report helpers (2.2.0)
+
+Core is `2.2.0`. No new detector row. No threshold change. The live anomaly stream of a default engine stays the 1.6.0 stream.
+
+- `digest(sinceTs)` returns `{ sinceTs, devices: [{ device, count, text }] }` for live anomalies with `ts >= sinceTs`. `sinceTs` must be a finite number. A bad value throws `DIGEST_SINCE_IS_INVALID`. Each device keeps at most 20 sentences. A sentence is the detector id, `actual`, `expected`, and a destination when `data` already has one.
+- `exportDecisions()` returns a JSON string `{ decisions: [...] }` with `device`, `detector`, `ts`, `confidence`, `destination`, and `fingerprint`. The function does not open a socket.
+- Both read a ring capped by `explainCap` (default 1,000). The ring is not written into the baseline or the checkpoint.
+- `inventory()` lists seen devices: `lastSeen`, the class from `setDeviceClass` or null, identity-table addresses for that MAC (at most 16), ports from `new-port` state (at most 32), protocols from `new-protocol` state (at most 16), and app names `mqtt`, `ot`, `rtsp`, `onvif` when those detectors already hold state. `suggestions` is present only when `classSuggest` is on. The engine still does not call `setDeviceClass`.
+- `@hubvik/indicators-file` parses a host-local file into `loadIndicators` rows. Cap 100,000. No bundled rows.
+- `@hubvik/mud` parses RFC 8520 JSON into `{ allows }` of at most 64 rows for `loadMud`. It does not install an ACL.
+
+**Done when.** `digest` and `exportDecisions` follow the ring cap, reject a non-finite `sinceTs`, and include a sharded merge. `inventory` does not assign a class. Both new packages reject `__proto__` and do not reference `child_process`.
+
+## 0.15 Report readers (2.3.0)
+
+Core is `2.3.0`. No new detector row. No threshold change. The live anomaly stream of a default engine stays the 1.6.0 stream. `responseHints` stays off.
+
+- `counts(sinceTs)` returns `{ sinceTs, detectors: [{ detector, count, devices }] }` from the same ring as `digest`. `devices` is the number of distinct device ids. A non-finite `sinceTs` throws `COUNTS_SINCE_IS_INVALID`.
+- `hints(sinceTs)` returns hint rows already stored on those anomalies: `action`, `target`, `reversible: true`, and `minConfidence`. At most 4 hints are kept per anomaly. The actions are the F16 set. A non-finite `sinceTs` throws `HINTS_SINCE_IS_INVALID`. The call does not apply a hint. With `responseHints` left off, `hints` is empty.
+- `noisy()` returns detectors whose `stats().precision` row already has `fpRate > 0.5` and `n >= 10`. It does not warn again and does not change a threshold.
+- `quiet(now, quietMs)` returns seen devices whose `lastTs` is at least `quietMs` before `now`. A non-finite `now` throws `QUIET_NOW_IS_INVALID`. A non-finite or negative `quietMs` throws `QUIET_MS_IS_INVALID`. The call does not emit `went-silent`.
+- A sharded engine merges the rings, the feedback rows, and the later `lastSeen` before applying `quietMs`.
+- `@hubvik/trail` 0.1.0 parses a local one-host-per-line file into `loadIndicators` rows. Cap 100,000. No bundled hosts.
+- `@hubvik/decisions-file` 0.1.0 parses a local decisions file into `loadIndicators` rows. `scope` `Ip`, `Range`, and `Domain` become indicator types. A ban type is not copied and is not applied. `duration` needs a finite `now`. Cap 100,000.
+- `@hubvik/rules-file` 0.1.0 reads a local JSON array for `loadRules`. Cap 256. A key named `regex`, `regexp`, or `pcre` throws. `loadRules` still validates the rows.
+- `@hubvik/cli` 0.1.2 adds a sentences list to the HTML report, and hint lines when the JSONL already has `response`. Inline CSS. No script fetch.
+
+**Done when.** The four engine calls reject bad numbers, do not emit an anomaly, and merge on a sharded engine. The three packages reject `__proto__` and do not reference `child_process`. The HTML report has no `<script`.
+
 ---
 
 # PART A — ENGINE
@@ -590,6 +624,13 @@ const { createEngine, Engine, detectors, SEVERITY } = require('hubvik');
 | `exportBaseline({ devices? })` / `importBaseline(b, { merge })` | §A6. Import validates fully before mutating.                                                                                                                                              |
 | `use(detector)`                                                 | Register a custom detector (§A5).                                                                                                                                                         |
 | `stats()`                                                       | Counters, active/disabled detectors with reasons, memory estimate.                                                                                                                        |
+| `digest(sinceTs)`                                               | Plain-language summary of live anomalies at or after `sinceTs`. Ring capped by `explainCap`. Not checkpointed.                                                                            |
+| `inventory()`                                                   | Seen devices, learned ports, identity addresses, and class suggestions only when `classSuggest` is on. Does not assign a class.                                                           |
+| `exportDecisions()`                                             | JSON of flagged destinations. The host may upload it. The function opens no socket.                                                                                                       |
+| `counts(sinceTs)`                                               | Fire counts on the report ring. Does not change a detector.                                                                                                                               |
+| `hints(sinceTs)`                                                | Hint text already stored. Empty unless `responseHints` is on. Does not apply a hint.                                                                                                      |
+| `noisy()`                                                       | Detectors already over the labeled noisy bar. Does not change a threshold.                                                                                                                |
+| `quiet(now, quietMs)`                                           | Seen devices quiet for `quietMs`. Does not emit `went-silent`.                                                                                                                            |
 
 Events:
 
@@ -768,7 +809,7 @@ Columns: **Needs** = input tier. **Rel** = release (0.1, 0.2, 0.3, 0.4, 1.0, 1.x
 | `inbound-from-wan`        | Unsolicited inbound connections reaching the device                               | T1      | `direction: 'in'` from public IP without prior outbound                                                                                        | high         | Low; means port forward/UPnP exposure                                   | 0.2 |
 | `upnp-port-open`          | Device opens a WAN port mapping via UPnP-IGD / NAT-PMP / PCP                      | T1/host | Host reports mapping event; flag any new mapping                                                                                               | high         | Low                                                                     | 0.3 |
 | `threat-intel-match`      | Destination on a known-bad list                                                   | T0+     | Host-supplied indicator sets (IP, CIDR, domain, JA4); loaded via `engine.loadIndicators()`                                                     | critical     | Depends on feed quality                                                 | 0.2 |
-| `bogon-destination`       | Traffic to reserved/unallocated/martian space on WAN side                         | T1      | Static RFC table + host-provided bogon list                                                                                                    | medium       | Low                                                                     | 0.2 |
+| `bogon-destination`       | Traffic to reserved/unallocated/martian space on WAN side                         | T1      | Static RFC table + host-provided bogon list                                                                                                    | info         | Low                                                                     | 0.2 |
 | `tor-or-proxy`            | Connections to Tor relays / known anonymizers                                     | T1      | Indicator set (Tor Project publishes relay lists)                                                                                              | high         | Very low for IoT                                                        | 0.3 |
 | `p2p-pattern`             | Device acting as a P2P node (many residential peers, high ports, both directions) | T1      | Ratio of unique peers on ephemeral ports + inbound share                                                                                       | high         | Medium (some cameras use P2P relay legitimately; baseline catches that) | 0.4 |
 
@@ -947,7 +988,7 @@ These are the tunables the 0.2 detectors use when the host does not override the
 | `clock-jump`                                      | backward by more than `reorderMs` (default 0), or forward more than 36 h                          | See the table above                                                                       |
 | `alert-storm`                                     | 1000 anomalies / device / minute                                                                  |                                                                                           |
 
-`bogon-destination` uses the IANA special-purpose ranges (private, loopback, link-local, CGNAT, documentation, multicast, reserved) and only when `direction` is `out`. `new-domain-family` uses a bundled multi-label public-suffix snapshot; single-label TLDs use the last two labels. An address, and any name that starts with four dotted decimal octets, has no family. Refresh the snapshot with `scripts/update-psl.mjs`. `went-silent` prints the limit in minutes when it is under an hour.
+`bogon-destination` uses the IANA special-purpose ranges (private, loopback, link-local, CGNAT, documentation, multicast, reserved) and only when `direction` is `out`. Its default severity is `info`. On the IoT-23 malware capture it had zero unique detections and 307 false positives at medium (`eval/results/iot23-malware/iot23.md`). Those no longer count toward the medium false-positive rate. A host that still wants that page sets `detectors['bogon-destination'].severity` to `medium`. `new-domain-family` uses a bundled multi-label public-suffix snapshot; single-label TLDs use the last two labels. An address, and any name that starts with four dotted decimal octets, has no family. Refresh the snapshot with `scripts/update-psl.mjs`. `went-silent` prints the limit in minutes when it is under an hour.
 
 ### Defaults shipped in 0.3
 

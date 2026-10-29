@@ -184,13 +184,37 @@ function reportHtml(jsonl) {
     .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
     .map(([id, n]) => `<li>${escapeHtml(id)} ${n}</li>`)
     .join('');
+  const sentences = rows
+    .filter((row) => row && row.detector && row.kind !== 'incident' && row.kind !== 'campaign')
+    .slice(0, 20)
+    .map((row) => {
+      const detail = row.actual || row.explain;
+      if (!detail) return '';
+      return `<li>${escapeHtml(String(row.device || ''))}: ${escapeHtml(String(row.detector))}: ${escapeHtml(String(detail))}</li>`;
+    })
+    .filter(Boolean)
+    .join('');
+  const hintItems = [];
+  for (const row of rows) {
+    if (!row || !Array.isArray(row.response)) continue;
+    for (const hint of row.response) {
+      if (!hint || typeof hint.action !== 'string') continue;
+      hintItems.push(
+        `<li>${escapeHtml(String(row.device || ''))} ${escapeHtml(String(row.detector || ''))} ${escapeHtml(hint.action)}</li>`,
+      );
+      if (hintItems.length >= 20) break;
+    }
+    if (hintItems.length >= 20) break;
+  }
   const incidentList = incidents
     .map(
       (row) =>
         `<li>${escapeHtml(String(row.device || ''))} ${escapeHtml(String(row.ts || 0))}</li>`,
     )
     .join('');
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1>${timeline}<h1>Incidents</h1><ul>${incidentList}</ul><h1>Detectors</h1><ol>${top}</ol></body></html>`;
+  const sentenceBlock = sentences ? `<h1>Sentences</h1><ul>${sentences}</ul>` : '';
+  const hintBlock = hintItems.length ? `<h1>Hints</h1><ul>${hintItems.join('')}</ul>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1>${timeline}<h1>Incidents</h1><ul>${incidentList}</ul><h1>Detectors</h1><ol>${top}</ol>${sentenceBlock}${hintBlock}</body></html>`;
 }
 
 /**

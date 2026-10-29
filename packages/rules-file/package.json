@@ -1,0 +1,44 @@
+{
+  "name": "@hubvik/rules-file",
+  "version": "0.1.0",
+  "description": "Read a local JSON rules file for hubvik loadRules(). Rejects regular-expression keys. Does not execute rules.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "hubvik",
+    "rules"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kathanp/hubvik.git",
+    "directory": "packages/rules-file"
+  },
+  "bugs": {
+    "url": "https://github.com/kathanp/hubvik/issues"
+  },
+  "homepage": "https://github.com/kathanp/hubvik#readme",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}

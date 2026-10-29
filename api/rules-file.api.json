@@ -1,0 +1,12 @@
+{
+  "name": "@hubvik/rules-file",
+  "exports": [
+    "loadRulesFile",
+    "parseRules"
+  ],
+  "methods": {
+    "loadRulesFile": [],
+    "parseRules": []
+  },
+  "dts": "export function parseRules(text: string, opts?: { max?: number }): object[];\nexport function loadRulesFile(file: string, opts?: { max?: number }): object[];\n"
+}

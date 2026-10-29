@@ -1,0 +1,45 @@
+{
+  "name": "@hubvik/decisions-file",
+  "version": "0.1.0",
+  "description": "Turn a host-downloaded decisions file into hubvik indicator rows. Does not ban, drop, or open a socket.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "hubvik",
+    "indicators",
+    "decisions"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kathanp/hubvik.git",
+    "directory": "packages/decisions-file"
+  },
+  "bugs": {
+    "url": "https://github.com/kathanp/hubvik/issues"
+  },
+  "homepage": "https://github.com/kathanp/hubvik#readme",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}

@@ -2,6 +2,7 @@
 
 const { createHash } = require('node:crypto');
 const { rememberAnomaly } = require('./feedback');
+const { noteReport } = require('./report');
 const { noteThreat } = require('./promote');
 const { noteCampaign } = require('./campaigns');
 const { spread } = require('./contagion');
@@ -479,6 +480,7 @@ module.exports = {
       delete anomaly._partgHard;
       delete anomaly._skipScore;
       rememberAnomaly(this, anomaly);
+      noteReport(this, anomaly);
       noteThreat(this, device, det, anomaly);
       this.emit('anomaly', anomaly);
       spread(this, device, anomaly);

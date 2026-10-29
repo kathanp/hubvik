@@ -1,8 +1,30 @@
 # Changelog
 
+## 2.3.0
+
+Report readers. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 940 KiB. The unpacked tree measured 955791 bytes.
+
+`counts(sinceTs)` returns how often each detector fired in the report ring. `hints(sinceTs)` returns response-hint text already stored on those anomalies, and it is empty unless `responseHints` is on. Neither call applies a hint. `noisy()` lists detectors whose existing labels are already over the noisy bar. `quiet(now, quietMs)` lists seen devices with no event for that long. It does not emit `went-silent`.
+
+`@hubvik/trail` 0.1.0 reads a local trail file. `@hubvik/decisions-file` 0.1.0 reads a local decisions file and does not apply a ban. `@hubvik/rules-file` 0.1.0 reads a local JSON rules file and rejects regular-expression keys. `@hubvik/cli` 0.1.2 adds sentences and hint lines to the HTML report.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
+## 2.2.0
+
+Report helpers. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies.
+
+`digest(sinceTs)` groups live anomalies at or after that timestamp into one sentence per device. `exportDecisions()` returns JSON of those destinations. Neither function opens a socket. The ring is capped by `explainCap` and is not stored in the baseline. `inventory()` lists devices already seen: last time, host-set class, identity addresses, learned ports and protocols, and app names already in detector state. `classSuggest` still only suggests. The engine does not assign a class.
+
+`@hubvik/indicators-file` 0.1.0 reads a file the host downloaded. `@hubvik/mud` 0.1.0 parses a MUD file into `loadMud` allows. Neither package fetches or installs rules.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## 2.1.0
 
-Faster `feed()` hot path. Thresholds, severities, and defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 912 KiB.
+Faster `feed()` hot path. Thresholds and defaults are unchanged except `bogon-destination`, whose severity is `info`. A default engine otherwise matches 1.6.0 live anomalies. Core pack budget is 912 KiB.
+
+`bogon-destination` stays on and still reports. The IoT-23 malware ablation recorded 307 medium false positives for it and zero unique detections (`eval/results/iot23-malware/iot23.md`). Info alerts are outside the medium false-positive count. The other 7 medium false positives on that capture are unchanged: `new-port` 5, `new-protocol` 1, `vpn-protocol` 1.
 
 The engine reuses one feed context, skips canary work when none are configured, splits detectors into plain and `prepare` lists, and caches shed tiers. Rare-match detectors add `prepare()` so a typical flow or summary skips their state and check. Empty threat-intel and Tor indexes short-circuit. Gate bench on this host: 1,000-device watching median 3.58 µs (under the 12 µs gate).
 
