@@ -589,6 +589,11 @@ Fix: change the value that failed the check and call the method again. The libra
 Cause: 'device id is invalid'.
 Fix: change the value that failed the check and call the method again. The library does not modify traffic.
 
+## ATTACKS_SINCE_IS_INVALID
+
+Cause: 'attacks sinceTs is invalid'.
+Fix: pass a finite number of milliseconds. The library does not modify traffic.
+
 ## DIGEST_SINCE_IS_INVALID
 
 Cause: 'digest sinceTs is invalid'.
@@ -609,10 +614,20 @@ Fix: pass a finite number of milliseconds. The library does not modify traffic.
 Cause: 'quiet ms is invalid'.
 Fix: pass a finite number of milliseconds that is zero or greater. The library does not modify traffic.
 
+## OPEN_INCIDENTS_NOW_IS_INVALID
+
+Cause: 'open incidents now is invalid'.
+Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
+
 ## QUIET_NOW_IS_INVALID
 
 Cause: 'quiet now is invalid'.
 Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
+
+## WAVES_SINCE_IS_INVALID
+
+Cause: 'waves sinceTs is invalid'.
+Fix: pass a finite number of milliseconds. The library does not modify traffic.
 
 ## DNS_QNAME_IS_INVALID
 

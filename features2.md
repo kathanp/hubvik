@@ -4,7 +4,7 @@ hubvik is a **detector library**, not a protection appliance. It watches per-dev
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **2.3.0 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). Full machine-generated catalog: [`docs/DETECTORS.md`](docs/DETECTORS.md) (170 rows). Also: [`README.md`](README.md), [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md).
+Status: **3.0.1 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). Full machine-generated catalog: [`docs/DETECTORS.md`](docs/DETECTORS.md) (170 rows). Also: [`README.md`](README.md), [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md).
 
 ---
 
@@ -220,6 +220,14 @@ Eight more report-only pieces. No new detector row. No threshold change. A ban i
 13. [x] **`@hubvik/decisions-file`.** A local decisions file into `loadIndicators` rows. `Ip`, `Range`, and `Domain` become indicator types. A ban type is dropped. Cap 100,000.
 14. [x] **`@hubvik/rules-file`.** A local JSON rules file for `loadRules`. Keys named `regex`, `regexp`, or `pcre` are rejected. Cap 256.
 15. [x] **`@hubvik/cli` 0.1.2 sentences.** The HTML report lists one sentence per anomaly and hint lines when the JSONL already has them. Inline CSS. No script.
+
+### 3.0.1
+
+Readers over anomalies the detectors already emit. No new detector row. No threshold change.
+
+16. [x] **`engine.attacks(sinceTs)`.** Per device: stages (`recon`, `c2`, `spread`, `impact`) and technique ids already mapped to those detectors. `progressing` is true when two stages have been seen. That is the device moving through an attack, not one noisy detector.
+17. [x] **`engine.waves(sinceTs)`.** A detector that already fired on three or more devices. That is the same bar a campaign uses. It is how a spread across the LAN shows up.
+18. [x] **`engine.openIncidents(now)`.** Incidents the engine already opened and has not closed. The score is the one already stored. The call does not emit.
 
 ### Stays outside the hubvik package
 

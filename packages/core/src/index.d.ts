@@ -527,6 +527,36 @@ export class Engine extends EventEmitter {
     now: number,
     quietMs: number,
   ): { now: number; quietMs: number; devices: Array<{ device: string; lastSeen: number }> };
+  attacks(sinceTs: number): {
+    sinceTs: number;
+    devices: Array<{
+      device: string;
+      count: number;
+      firstTs: number;
+      lastTs: number;
+      detectors: string[];
+      stages: string[];
+      techniques: string[];
+      progressing: boolean;
+    }>;
+  };
+  waves(sinceTs: number): {
+    sinceTs: number;
+    waves: Array<{ detector: string; stage: string | null; devices: number; count: number }>;
+  };
+  openIncidents(now: number): {
+    now: number;
+    incidents: Array<{
+      id: string;
+      device: string;
+      stages: string[];
+      score: number;
+      severity: string;
+      detectors: string[];
+      firstTs: number;
+      lastTs: number;
+    }>;
+  };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

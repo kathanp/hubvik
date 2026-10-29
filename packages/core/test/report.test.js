@@ -172,6 +172,9 @@ test('a sharded engine merges digest rows from each shard', () => {
   for (const row of digest.devices) assert.match(row.text, /spam-relay/);
   const decisions = JSON.parse(engine.exportDecisions());
   assert.strictEqual(decisions.decisions.length, 2);
+  assert.strictEqual(engine.attacks(0).devices.length, 2);
+  assert.deepStrictEqual(engine.waves(0).waves, []);
+  assert.ok(engine.openIncidents(2_000).incidents.length >= 1);
   const counts = engine.counts(0);
   assert.deepStrictEqual(counts.detectors, [{ detector: 'spam-relay', count: 2, devices: 2 }]);
   assert.deepStrictEqual(engine.hints(0).hints, []);
@@ -215,5 +218,56 @@ test('counts, hints, noisy, and quiet read state and do not emit', () => {
   assert.throws(
     () => off.counts('0'),
     (err) => err instanceof HubvikError && err.code === 'COUNTS_SINCE_IS_INVALID',
+  );
+});
+
+test('attacks, waves, and open incidents read anomalies that already fired', () => {
+  const engine = createEngine({ learnMs: 0, tiers: ['T0'] });
+  engine.lock();
+  /** @type {any[]} */
+  const incidents = [];
+  engine.on('incident', (row) => incidents.push(row));
+  for (let i = 0; i < 11; i += 1) {
+    engine.feed({
+      device: 'aa:bb:cc:dd:ee:ff',
+      dst: `host-${i}.example`,
+      bytes: 20,
+      ts: 1_000 + i,
+    });
+  }
+  const before = incidents.length;
+  const attack = engine.attacks(0).devices.find((row) => row.device === 'aa:bb:cc:dd:ee:ff');
+  assert.ok(attack);
+  assert.ok(attack.stages.includes('recon'));
+  assert.ok(attack.stages.includes('c2'));
+  assert.strictEqual(attack.progressing, true);
+  assert.ok(attack.techniques.includes('T1046'));
+  assert.strictEqual(incidents.length, before);
+  const open = engine.openIncidents(1_020);
+  assert.ok(
+    open.incidents.some((row) => row.device === 'aa:bb:cc:dd:ee:ff' && row.stages.length >= 2),
+  );
+  assert.strictEqual(engine.openIncidents(1_020 + 31 * 60 * 1000).incidents.length, 0);
+  assert.throws(
+    () => engine.attacks(Number.NaN),
+    (err) => err instanceof HubvikError && err.code === 'ATTACKS_SINCE_IS_INVALID',
+  );
+  assert.throws(
+    () => engine.openIncidents('now'),
+    (err) => err instanceof HubvikError && err.code === 'OPEN_INCIDENTS_NOW_IS_INVALID',
+  );
+
+  const wave = createEngine({ learnMs: 7 * 24 * 3600e3 });
+  demo(wave);
+  for (const device of ['a', 'b']) wave.feed({ device, dst: 'x.example', bytes: 10, ts: 5_000 });
+  assert.deepStrictEqual(wave.waves(0).waves, []);
+  wave.feed({ device: 'c', dst: 'x.example', bytes: 10, ts: 5_001 });
+  const found = wave.waves(0).waves.find((row) => row.detector === 'report-demo');
+  assert.ok(found);
+  assert.strictEqual(found.devices, 3);
+  assert.strictEqual(found.stage, null);
+  assert.throws(
+    () => wave.waves(Number.POSITIVE_INFINITY),
+    (err) => err instanceof HubvikError && err.code === 'WAVES_SINCE_IS_INVALID',
   );
 });
