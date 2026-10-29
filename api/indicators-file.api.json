@@ -1,0 +1,12 @@
+{
+  "name": "@hubvik/indicators-file",
+  "exports": [
+    "loadIndicatorFile",
+    "parseIndicators"
+  ],
+  "methods": {
+    "loadIndicatorFile": [],
+    "parseIndicators": []
+  },
+  "dts": "export function parseIndicators(\n  text: string,\n  opts?: { source?: string; expiresTs?: number; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: number | null;\n}>;\nexport function loadIndicatorFile(\n  file: string,\n  opts?: { source?: string; expiresTs?: number; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: number | null;\n}>;\n"
+}

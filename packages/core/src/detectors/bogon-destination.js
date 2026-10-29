@@ -14,7 +14,7 @@ const detector = {
   },
   requires: ['T1'],
   category: 'destination',
-  defaults: { severity: 'medium' },
+  defaults: { severity: 'info' },
 
   /** @param {any} caps */
   createState(caps) {

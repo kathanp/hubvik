@@ -1,0 +1,44 @@
+{
+  "name": "@hubvik/indicators-file",
+  "version": "0.1.0",
+  "description": "Turn a host-downloaded indicator file into the array hubvik loadIndicators() accepts. No network call and no bundled feed.",
+  "license": "Apache-2.0",
+  "author": "Kathan Patel",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "keywords": [
+    "hubvik",
+    "indicators"
+  ],
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./src/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kathanp/hubvik.git",
+    "directory": "packages/indicators-file"
+  },
+  "bugs": {
+    "url": "https://github.com/kathanp/hubvik/issues"
+  },
+  "homepage": "https://github.com/kathanp/hubvik#readme",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}

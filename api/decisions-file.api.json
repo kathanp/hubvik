@@ -1,0 +1,12 @@
+{
+  "name": "@hubvik/decisions-file",
+  "exports": [
+    "loadDecisionsFile",
+    "parseDecisions"
+  ],
+  "methods": {
+    "loadDecisionsFile": [],
+    "parseDecisions": []
+  },
+  "dts": "export function parseDecisions(\n  text: string,\n  opts?: { now?: number; source?: string; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: number | null;\n}>;\nexport function loadDecisionsFile(\n  file: string,\n  opts?: { now?: number; source?: string; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: number | null;\n}>;\n"
+}

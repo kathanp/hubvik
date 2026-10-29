@@ -24,6 +24,7 @@ const persistMethods = require('./persist');
 const { learningMethods } = require('./learning');
 const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = require('./finish09');
 const { partgMethods } = require('./partg');
+const { reportMethods } = require('./report');
 
 class Engine extends EventEmitter {
   /**
@@ -96,6 +97,8 @@ class Engine extends EventEmitter {
     this._feedback = [];
     /** @type {Map<string, any>} */
     this._anomalyById = new Map();
+    /** @type {any[]} Live anomalies kept for digest() and exportDecisions(). Capped by explainCap. */
+    this._reports = [];
     /** @type {Map<string, any>} */
     this._anomalyByFp = new Map();
     /** @type {Set<string>} */
@@ -826,6 +829,7 @@ Object.assign(
   persistMethods,
   finishMethods,
   partgMethods,
+  reportMethods,
 );
 
 /**

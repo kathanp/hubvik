@@ -1,0 +1,12 @@
+{
+  "name": "@hubvik/trail",
+  "exports": [
+    "loadTrailFile",
+    "parseTrail"
+  ],
+  "methods": {
+    "loadTrailFile": [],
+    "parseTrail": []
+  },
+  "dts": "export function parseTrail(\n  text: string,\n  opts?: { source?: string; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: null;\n}>;\nexport function loadTrailFile(\n  file: string,\n  opts?: { source?: string; max?: number },\n): Array<{\n  value: string;\n  type: string;\n  source: string;\n  confidence: number;\n  expiresTs: null;\n}>;\n"
+}

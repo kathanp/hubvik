@@ -12,6 +12,17 @@ const { FORBIDDEN_KEYS } = require('./constants');
 const { assertSafeKeys } = require('./validate/common');
 const HINTS = require('../data/response-map.json');
 const CONFIDENCE = require('../data/confidence.json');
+const {
+  digestOf,
+  decisionsOf,
+  inventoryOf,
+  mergeInventory,
+  countsOf,
+  hintsOf,
+  quietOf,
+  mergeQuiet,
+  noisyFrom,
+} = require('./report');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
 const WEEK = 7 * 24 * 3600 * 1000;
@@ -913,6 +924,73 @@ class Sharded extends EventEmitter {
     return { ...parts[0], devices };
   }
 
+  /**
+   * @param {number} sinceTs
+   */
+  digest(sinceTs) {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) {
+      if (Array.isArray(engine._reports)) rows.push(...engine._reports);
+    }
+    return digestOf(rows, sinceTs);
+  }
+
+  /** @returns {object[]} */
+  inventory() {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) rows.push(...inventoryOf(engine));
+    return mergeInventory(rows);
+  }
+
+  /**
+   * @returns {string}
+   */
+  exportDecisions() {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) {
+      if (Array.isArray(engine._reports)) rows.push(...engine._reports);
+    }
+    return JSON.stringify({ decisions: decisionsOf(rows) });
+  }
+
+  /**
+   * @param {number} sinceTs
+   */
+  counts(sinceTs) {
+    return countsOf(reportRows(this.engines), sinceTs);
+  }
+
+  /**
+   * @param {number} sinceTs
+   */
+  hints(sinceTs) {
+    return hintsOf(reportRows(this.engines), sinceTs);
+  }
+
+  /** @returns {{ detector: string, fpRate: number, n: number }[]} */
+  noisy() {
+    /** @type {any[]} */
+    const rows = [];
+    for (const engine of this.engines) {
+      if (Array.isArray(engine._feedback)) rows.push(...engine._feedback);
+    }
+    return noisyFrom(rows);
+  }
+
+  /**
+   * @param {number} now
+   * @param {number} quietMs
+   */
+  quiet(now, quietMs) {
+    /** @type {{ device: string, lastSeen: number }[]} */
+    const rows = [];
+    for (const engine of this.engines) rows.push(...quietOf(engine, now, quietMs).devices);
+    return mergeQuiet(rows, now, quietMs);
+  }
+
   /** @returns {Promise<void>} */
   drain() {
     return Promise.resolve();
@@ -935,6 +1013,19 @@ class Sharded extends EventEmitter {
   _shardEngine(deviceId) {
     return this.engines[this._shard(deviceId)];
   }
+}
+
+/**
+ * @param {any[]} engines
+ * @returns {any[]}
+ */
+function reportRows(engines) {
+  /** @type {any[]} */
+  const rows = [];
+  for (const engine of engines) {
+    if (Array.isArray(engine._reports)) rows.push(...engine._reports);
+  }
+  return rows;
 }
 
 module.exports = { methods, createShardedEngine, zonedClock };

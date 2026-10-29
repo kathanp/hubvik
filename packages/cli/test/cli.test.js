@@ -30,7 +30,7 @@ test('rules check rejects a regex operator and replay uses the injected engine',
   );
   assert.strictEqual(
     html,
-    '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1><section><h2>cam</h2><ol><li>1000 fan-out<p>too many hosts</p></li><li>2000 incident</li></ol></section><h1>Incidents</h1><ul><li>cam 2000</li></ul><h1>Detectors</h1><ol><li>fan-out 1</li></ol></body></html>',
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:sans-serif}</style></head><body><h1>Timeline</h1><section><h2>cam</h2><ol><li>1000 fan-out<p>too many hosts</p></li><li>2000 incident</li></ol></section><h1>Incidents</h1><ul><li>cam 2000</li></ul><h1>Detectors</h1><ol><li>fan-out 1</li></ol><h1>Sentences</h1><ul><li>cam: fan-out: too many hosts</li></ul></body></html>',
   );
   assert.doesNotMatch(html, /src=/);
 });
