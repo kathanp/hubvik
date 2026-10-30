@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.0
+
+One read for a developer. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies.
+
+`overview(now, sinceTs)` returns the attacks, waves, open incidents, campaigns, shadow hits, and counts the engine already has. `sinceTs` left out is 0. The call does not emit. The detector catalog is `docs/features.md`.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## 3.1.0
 
 Where an attack went, which devices are tied together, and what shadow detectors already saw. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies. Core pack budget is 956 KiB. The unpacked tree measured 971688 bytes.

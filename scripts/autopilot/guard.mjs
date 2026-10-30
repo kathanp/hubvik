@@ -340,11 +340,11 @@ function verifyDocs() {
     else if (!readFileSync(f, 'utf8').includes(core.version))
       errors.push(`${f} does not mention the current core version ${core.version}`);
   }
-  if (existsSync('docs/DETECTORS.md')) {
-    const m = readFileSync('docs/DETECTORS.md', 'utf8').match(/Core (\d+\.\d+\.\d+)/);
+  if (existsSync('docs/features.md')) {
+    const m = readFileSync('docs/features.md', 'utf8').match(/Core (\d+\.\d+\.\d+)/);
     if (m && m[1] !== core.version)
       errors.push(
-        `docs/DETECTORS.md was generated for core ${m[1]}; the package is ${core.version}. Re-run scripts/spec-coverage.mjs`,
+        `docs/features.md was generated for core ${m[1]}; the package is ${core.version}. Re-run scripts/spec-coverage.mjs`,
       );
   }
 }

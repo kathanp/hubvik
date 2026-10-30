@@ -66,7 +66,7 @@ Workers never talk to each other. A worker receives only its card or brief, `doc
     "docs/DECISIONS.md",
     "docs/QUESTIONS.md",
     "docs/BENCHMARKS.md",
-    "docs/DETECTORS.md",
+    "docs/features.md",
     "**/CHANGELOG.md",
     "**/package.json",
     "package-lock.json",
@@ -336,7 +336,7 @@ Every doc a reader or the next agent opens must match the tree at x.y.z. The doc
 4. **Every package CHANGELOG** whose package source changed in this run: a `## <its version>` entry at the top.
 5. **`docs/DEVELOPERS.md`:** every public method, option, event, and warning code added in this run, with a short example.
 6. **`docs/OPERATIONS.md`, `docs/ARCHITECTURE.md`:** any change in what the host must send, defaults, budgets, or module layout.
-7. **Generated files:** re-run `node scripts/spec-coverage.mjs` so `docs/DETECTORS.md` matches.
+7. **Generated files:** re-run `node scripts/spec-coverage.mjs` so the catalog in `docs/features.md` matches.
 8. **Dated records** (`docs/DECISIONS.md`, `docs/BENCHMARKS.md`) get a new entry; old entries are never rewritten. A rename never edits a dated record.
 
 The changes go in one task commit `docs: sync to x.y.z`. Then:
@@ -350,7 +350,7 @@ It fails on:
 - a doc in `docs.versioned` with no version line at the top, or a version other than the core version;
 - a public name added to `packages/core/src/index.d.ts` in this run that `docs/DEVELOPERS.md` does not mention;
 - a package whose `src/` changed in this run with no `## <version>` entry at the top of its CHANGELOG, or a changed package whose README does not mention its version;
-- a stale name outside its allowed files, a doc that claims a future version, a "not implemented" bullet whose detector file exists, and a `docs/DETECTORS.md` generated for another version.
+- a stale name outside its allowed files, a doc that claims a future version, a "not implemented" bullet whose detector file exists, and a `docs/features.md` catalog generated for another version.
 
 ### Step 9 — One commit
 

@@ -634,6 +634,16 @@ Fix: pass a finite number of milliseconds. The library does not modify traffic.
 Cause: 'campaigns now is invalid'.
 Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
 
+## OVERVIEW_NOW_IS_INVALID
+
+Cause: 'overview now is invalid'.
+Fix: pass a finite timestamp in milliseconds. The library does not modify traffic.
+
+## OVERVIEW_SINCE_IS_INVALID
+
+Cause: 'overview sinceTs is invalid'.
+Fix: pass a finite number of milliseconds, or leave it out. The library does not modify traffic.
+
 ## WAVES_SINCE_IS_INVALID
 
 Cause: 'waves sinceTs is invalid'.

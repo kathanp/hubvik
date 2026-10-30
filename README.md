@@ -2,9 +2,9 @@
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **3.1.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 3.1.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `hubvik@3.0.1` is the version on npm until this tag is published. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. The new detectors are shadow only: `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp`. A default engine emits the same anomalies as 1.6.0.
+Status: **3.2.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `hubvik@3.1.0` is the version on npm until this tag is published. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. The new detectors are shadow only: `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp`. A default engine emits the same anomalies as 1.6.0.
 
-How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is [`docs/DETECTORS.md`](docs/DETECTORS.md).
+How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is in [`docs/features.md`](docs/features.md). `overview(now)` returns attacks, waves, incidents, campaigns, shadow hits, and counts in one call.
 
 ## Install
 

@@ -1,6 +1,6 @@
 # hubvik workout — how to measure what fails
 
-This playbook matches what the project already defines: **feedback**, **shadow mode**, and **pilots** (see [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md) and the shadow / C10 rules in [`docs/SPEC.md`](docs/SPEC.md)). Product boundary context: [`features2.md`](features2.md).
+This playbook matches what the project already defines: **feedback**, **shadow mode**, and **pilots** (see [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md) and the shadow / C10 rules in [`docs/SPEC.md`](docs/SPEC.md)). Product boundary context: [`docs/features.md`](docs/features.md).
 
 You don’t learn failures by guessing inside the npm package. You get them from **labeled live use** — and hubvik already has hooks for that. Core stays **offline** (no secret phone-home).
 
