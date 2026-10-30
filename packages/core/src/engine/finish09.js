@@ -29,6 +29,7 @@ const {
   shadowOf,
   campaignsOf,
   mergeCampaigns,
+  overviewOf,
 } = require('./report');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
@@ -1042,6 +1043,14 @@ class Sharded extends EventEmitter {
     const rows = [];
     for (const engine of this.engines) rows.push(...campaignsOf(engine, now).campaigns);
     return mergeCampaigns(rows, now);
+  }
+
+  /**
+   * @param {number} now
+   * @param {number} [sinceTs]
+   */
+  overview(now, sinceTs) {
+    return overviewOf(this, now, sinceTs);
   }
 
   /** @returns {Promise<void>} */

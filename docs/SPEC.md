@@ -61,7 +61,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ### Modules
 
-- [x] `hubvik` (`packages/core`) 3.1.0
+- [x] `hubvik` (`packages/core`) 3.2.0
   - [x] Engine
   - [x] Baseline version 2, with version 1 import
   - [x] Baseline version 3, with version 2 and version 1 import
@@ -484,6 +484,16 @@ Core is `3.1.0`. No new detector row. No threshold change. The live anomaly stre
 
 **Done when.** `attacks` keeps at most 8 destinations. A shadow ring of cap 2 keeps the two newest shadow rows and those rows are absent from `attacks`. `campaigns` rejects a bad `now`, does not emit, and drops a campaign whose `lastTs` is outside the incident window. The HTML report has no `<script`.
 
+## 0.18 One read (3.2.0)
+
+Core is `3.2.0`. No new detector row. No threshold change. The live anomaly stream of a default engine stays the 1.6.0 stream.
+
+- `overview(now, sinceTs)` returns the arrays already produced by `attacks`, `waves`, `openIncidents`, `campaigns`, `shadow`, and `counts`. `sinceTs` left out is 0. A non-finite `now` throws `OVERVIEW_NOW_IS_INVALID`. A non-finite `sinceTs` throws `OVERVIEW_SINCE_IS_INVALID`. The call does not emit.
+- A sharded engine uses the same merges as those six calls.
+- The detector catalog lives in `docs/features.md`. `scripts/spec-coverage.mjs` rewrites only the section between the detectors markers.
+
+**Done when.** `overview` matches `attacks` for a device that is `progressing`, does not emit, rejects a bad `now`, and on a sharded engine returns one row per shard that already fired.
+
 ---
 
 # PART A — ENGINE
@@ -659,6 +669,7 @@ const { createEngine, Engine, detectors, SEVERITY } = require('hubvik');
 | `campaigns(now)`                                                | Campaigns already open. Does not emit `campaign`.                                                                                                                                         |
 | `waves(sinceTs)`                                                | A detector that already fired on three or more devices. Does not change a threshold.                                                                                                      |
 | `openIncidents(now)`                                            | Incidents already open. Does not emit `incident`.                                                                                                                                         |
+| `overview(now, sinceTs?)`                                       | Attacks, waves, incidents, campaigns, shadow hits, and counts in one read. `sinceTs` left out is 0. Does not emit.                                                                        |
 
 Events:
 
@@ -1246,7 +1257,7 @@ What changed since spec 2.1, and what the package does about it:
 
 ### Catalog total
 
-Counts are **generated**, never typed. `scripts/spec-coverage.mjs` parses every table in Part B whose first column is a backticked id and whose header has a `Rel` column, and writes the per-group and total counts into `docs/DETECTORS.md`. It fails when:
+Counts are **generated**, never typed. `scripts/spec-coverage.mjs` parses every table in Part B whose first column is a backticked id and whose header has a `Rel` column, and writes the per-group and total counts into `docs/features.md`. It fails when:
 
 - a row with `Rel ≤` the current core minor has no `packages/core/src/detectors/<id>.js`;
 - a detector file exists with no spec row;
@@ -2155,7 +2166,7 @@ npm run gate && npm run demo
 - [x] `scripts/spec-coverage.mjs` as described under "Catalog total". Add to `npm run gate`.
 - [x] Add `meta` to every detector file. Values come from the SPEC rows; where a row and the code disagree, the code wins only for numbers listed in "Defaults shipped in 0.x"; anything else goes to `docs/QUESTIONS.md`.
 - [x] Accept `type: 'discovery'` in `validate.js` (A2.1a). Test: valid event accepted, bad `proto` dropped as `FIELD_DROPPED`.
-- [x] Generate `docs/DETECTORS.md` from `meta` + `defaults`.
+- [x] Generate the detector catalog in `docs/features.md` from `meta` + `defaults`.
 - [x] **Done when:** `spec-coverage` passes and lists `identity-change` and the B20 rows as "Rel 0.5, not yet implemented" without failing (they become failures once core is bumped to 0.5.0).
 
 ### WP-1 — All-tier benign matrix (D1). Highest-value item in this spec.

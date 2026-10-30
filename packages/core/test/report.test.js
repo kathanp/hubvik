@@ -177,6 +177,10 @@ test('a sharded engine merges digest rows from each shard', () => {
   assert.ok(engine.openIncidents(2_000).incidents.length >= 1);
   assert.deepStrictEqual(engine.shadow(0).devices, []);
   assert.deepStrictEqual(engine.campaigns(2_000).campaigns, []);
+  const view = engine.overview(2_000);
+  assert.strictEqual(view.sinceTs, 0);
+  assert.strictEqual(view.attacks.length, 2);
+  assert.ok(view.counts.some((row) => row.detector === 'spam-relay'));
   const counts = engine.counts(0);
   assert.deepStrictEqual(counts.detectors, [{ detector: 'spam-relay', count: 2, devices: 2 }]);
   assert.deepStrictEqual(engine.hints(0).hints, []);
@@ -252,6 +256,21 @@ test('attacks, waves, and open incidents read anomalies that already fired', () 
     open.incidents.some((row) => row.device === 'aa:bb:cc:dd:ee:ff' && row.stages.length >= 2),
   );
   assert.strictEqual(engine.openIncidents(1_020 + 31 * 60 * 1000).incidents.length, 0);
+  const view = engine.overview(1_020);
+  assert.strictEqual(incidents.length, before);
+  assert.strictEqual(view.sinceTs, 0);
+  assert.ok(view.attacks.some((row) => row.progressing && row.destinations.length > 0));
+  assert.ok(view.incidents.some((row) => row.device === 'aa:bb:cc:dd:ee:ff'));
+  assert.deepStrictEqual(view.campaigns, []);
+  assert.deepStrictEqual(view.shadow, []);
+  assert.throws(
+    () => engine.overview('now'),
+    (err) => err instanceof HubvikError && err.code === 'OVERVIEW_NOW_IS_INVALID',
+  );
+  assert.throws(
+    () => engine.overview(1, '0'),
+    (err) => err instanceof HubvikError && err.code === 'OVERVIEW_SINCE_IS_INVALID',
+  );
   assert.throws(
     () => engine.attacks(Number.NaN),
     (err) => err instanceof HubvikError && err.code === 'ATTACKS_SINCE_IS_INVALID',

@@ -568,6 +568,57 @@ export class Engine extends EventEmitter {
       lastTs: number;
     }>;
   };
+  overview(
+    now: number,
+    sinceTs?: number,
+  ): {
+    now: number;
+    sinceTs: number;
+    attacks: Array<{
+      device: string;
+      count: number;
+      firstTs: number;
+      lastTs: number;
+      detectors: string[];
+      stages: string[];
+      techniques: string[];
+      destinations: string[];
+      progressing: boolean;
+    }>;
+    waves: Array<{ detector: string; stage: string | null; devices: number; count: number }>;
+    incidents: Array<{
+      id: string;
+      device: string;
+      stages: string[];
+      score: number;
+      severity: string;
+      detectors: string[];
+      firstTs: number;
+      lastTs: number;
+    }>;
+    campaigns: Array<{
+      id: string;
+      devices: string[];
+      edges: Array<{ from: string; to: string; via: string; ts: number }>;
+      stages: string[];
+      score: number;
+      severity: string;
+      firstTs: number;
+      lastTs: number;
+    }>;
+    shadow: Array<{
+      device: string;
+      count: number;
+      firstTs: number;
+      lastTs: number;
+      detectors: string[];
+      stages: string[];
+      techniques: string[];
+      destinations: string[];
+      progressing: boolean;
+    }>;
+    counts: Array<{ detector: string; count: number; devices: number }>;
+  };
   waves(sinceTs: number): {
     sinceTs: number;
     waves: Array<{ detector: string; stage: string | null; devices: number; count: number }>;

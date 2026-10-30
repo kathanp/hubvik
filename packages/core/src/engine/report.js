@@ -294,6 +294,17 @@ const reportMethods = {
   campaigns(now) {
     return campaignsOf(this, now);
   },
+
+  /**
+   * Attacks, waves, incidents, campaigns, shadow hits, and counts in one read.
+   * Does not emit and does not run a detector.
+   * @this {any}
+   * @param {number} now
+   * @param {number} [sinceTs]
+   */
+  overview(now, sinceTs) {
+    return overviewOf(this, now, sinceTs);
+  },
 };
 
 /**
@@ -902,6 +913,33 @@ function campaignRow(campaign, now, windowMs) {
 }
 
 /**
+ * One object for the reads a host otherwise calls separately. Does not emit.
+ * `sinceTs` left out means 0.
+ * @param {any} engine
+ * @param {number} now
+ * @param {number} [sinceTs]
+ */
+function overviewOf(engine, now, sinceTs) {
+  if (typeof now !== 'number' || !Number.isFinite(now)) {
+    throw new HubvikError('OVERVIEW_NOW_IS_INVALID', 'overview now is invalid');
+  }
+  const since = sinceTs == null ? 0 : sinceTs;
+  if (typeof since !== 'number' || !Number.isFinite(since)) {
+    throw new HubvikError('OVERVIEW_SINCE_IS_INVALID', 'overview sinceTs is invalid');
+  }
+  return {
+    now,
+    sinceTs: since,
+    attacks: engine.attacks(since).devices,
+    waves: engine.waves(since).waves,
+    incidents: engine.openIncidents(now).incidents,
+    campaigns: engine.campaigns(now).campaigns,
+    shadow: engine.shadow(since).devices,
+    counts: engine.counts(since).detectors,
+  };
+}
+
+/**
  * @param {any[]} rows
  * @param {number} now
  */
@@ -941,5 +979,6 @@ module.exports = {
   shadowOf,
   campaignsOf,
   mergeCampaigns,
+  overviewOf,
   reportMethods,
 };

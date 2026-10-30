@@ -1112,7 +1112,7 @@ What changed since spec 2.1, and what the package does about it:
 
 ### Catalog total
 
-Counts are **generated**, never typed. `scripts/spec-coverage.mjs` parses every table in Part B whose first column is a backticked id and whose header has a `Rel` column, and writes the per-group and total counts into `docs/DETECTORS.md`. It fails when:
+Counts are **generated**, never typed. `scripts/spec-coverage.mjs` parses every table in Part B whose first column is a backticked id and whose header has a `Rel` column, and writes the per-group and total counts into `docs/features.md`. It fails when:
 
 - a row with `Rel ≤` the current core minor has no `packages/core/src/detectors/<id>.js`;
 - a detector file exists with no spec row;
@@ -1979,7 +1979,7 @@ npm run gate && npm run demo
 - [x] `scripts/spec-coverage.mjs` as described under "Catalog total". Add to `npm run gate`.
 - [x] Add `meta` to every detector file. Values come from the SPEC rows; where a row and the code disagree, the code wins only for numbers listed in "Defaults shipped in 0.x"; anything else goes to `docs/QUESTIONS.md`.
 - [x] Accept `type: 'discovery'` in `validate.js` (A2.1a). Test: valid event accepted, bad `proto` dropped as `FIELD_DROPPED`.
-- [x] Generate `docs/DETECTORS.md` from `meta` + `defaults`.
+- [x] Generate the detector catalog in `docs/features.md` from `meta` + `defaults`.
 - [x] **Done when:** `spec-coverage` passes and lists `identity-change` and the B20 rows as "Rel 0.5, not yet implemented" without failing (they become failures once core is bumped to 0.5.0).
 
 ### WP-1 — All-tier benign matrix (D1). Highest-value item in this spec.
