@@ -8,6 +8,22 @@ That boundary is normal for a serious npm package. Respected security packages o
 
 Status: **hubvik 3.2.0 prototype — not validated on real traffic.** On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
 
+## Roadmap (planned, not built)
+
+These items are a plan. None of them is in the tree. The detail is `docs/SPEC.md` section 0.20 and Part J.
+
+- [ ] 3.3.0 J1. Freeze the detector list so a new detector file fails the check while the 0.6 gate is open.
+- [ ] 3.3.0 J2. Split evaluation captures into tune and holdout, and write a per-detector scorecard that only proposes.
+- [ ] 3.3.0 J3. Add a profile option that defaults to today's detectors, plus an optional smaller core set.
+- [ ] 3.3.0 J4. Add an on-box pilot runner that follows local logs, takes labels, and writes a weekly report. It makes no network call.
+- [ ] 3.3.0 J5. Add a device bench that prints host facts and three bench lines, and says when the host is not a Raspberry Pi.
+- [ ] 3.4.0 J6. Optional detector families so an incident counts one overlapping behavior once. Off by default. The anomaly stream stays as it is today.
+- [ ] 3.4.0 J7. Every live detector explains what it compared.
+- [ ] 3.4.0 J8. Short plain-English advice for every live detector, with no detection-rate claims.
+- [ ] 3.5.0 J9. A coverage map and a self-test that show which attacks this host can catch with the logs it actually feeds.
+- [ ] 3.6.0 J10. A lock-readiness score. It suggests when a baseline is trustworthy. The engine never locks by itself.
+- [ ] Deferred, J11. Signed device-model profile packs wait for the 30-day pilot. Any new detector row waits until C10 row 0.6 is ticked.
+
 ## Validation status
 
 IoT-23 malware capture (`eval/results/iot23-malware/iot23.md`): Detection: n too small (17 detected, 17 attack instances). Strict detection: 9/17 = 52.9% (95% Wilson 31.0%–73.8%). False positives: 314 anomalies at medium or above, 72.7037175925926 benign device-days, 4.31889881834587 per benign device-day.
