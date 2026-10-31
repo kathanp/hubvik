@@ -1,5 +1,7 @@
 # @hubvik/adapter-unbound
 
+@hubvik/adapter-unbound 0.1.0.
+
 UNVERIFIED. Written from Unbound's documented `log-queries` / `log-replies` text, not from a capture.
 
 Accepts lines containing `query:` or `reply:`:

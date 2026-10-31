@@ -1,5 +1,7 @@
 # @hubvik/adapter-conntrack
 
+@hubvik/adapter-conntrack 0.3.1.
+
 Turns `conntrack -L` and `conntrack -E` lines into hubvik T1 flow events. No dependencies.
 
 ```js

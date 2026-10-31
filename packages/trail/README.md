@@ -1,5 +1,7 @@
 # @hubvik/trail
 
+@hubvik/trail 0.1.0.
+
 Reads a trail file you already have on disk. One host per line. `#` starts a comment. An IPv4 address, an IPv4 CIDR, or a domain name becomes a row for `loadIndicators()`.
 
 The package does not download a trail, does not ship indicator rows, and does not block traffic.

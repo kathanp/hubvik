@@ -1,5 +1,7 @@
 # @hubvik/rules-file
 
+@hubvik/rules-file 0.1.0.
+
 Reads a JSON array of site rules you already stored. Pass the result to `loadRules()`.
 
 Keys named `regex`, `regexp`, or `pcre` are rejected, including nested ones. The package does not execute a rule, does not spawn a process, and does not install a firewall rule.

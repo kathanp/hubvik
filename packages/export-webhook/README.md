@@ -1,5 +1,7 @@
 # @hubvik/export-webhook
 
+@hubvik/export-webhook 0.1.0.
+
 POSTs one hubvik anomaly as JSON. No dependencies. Pass your own `fetch` so the package never chooses a network stack.
 
 Failed responses are retried. The wait doubles each time (`backoffMs`, then `2 × backoffMs`). `sign` adds an `x-hubvik-signature` header: hex HMAC-SHA256 of the raw body.
