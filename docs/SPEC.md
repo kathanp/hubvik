@@ -1,18 +1,18 @@
 # hubvik — Package Specification (v3.4, sequential evidence and contagion)
 
-|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Spec version | 3.8.1 docs reconcile, 2026-10-31. Adds 0.19. No behavior change. 3.8 draft, 2026-10-25. Adds 0.13 and B25 (four shadow rows for 2.0.1). D-107 to D-110 are `[PROPOSED]`. 3.7 (2026-10-25) added 0.12 and B24. D-102 to D-106 are `[PROPOSED]`. 3.6 (2026-10-24) added 0.11 conntrack. 3.5 (2026-10-24) added 0.10 `correlate`. 3.4 (2026-10-23) added 0.9, Part H, B23, WP-52 to WP-58 and Q-26 to Q-28. D-112 and D-87 to D-94 are `[PROPOSED]`. 3.3 (2026-10-21) added 0.8, A2.1b, B22, Part G, WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
-| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Spec version | 3.9 draft, 2026-10-31. Adds 0.20, Part J, WP-61 onward. Planning only, no behavior change. 3.8.1 docs reconcile, 2026-10-31. Adds 0.19. No behavior change. 3.8 draft, 2026-10-25. Adds 0.13 and B25 (four shadow rows for 2.0.1). D-107 to D-110 are `[PROPOSED]`. 3.7 (2026-10-25) added 0.12 and B24. D-102 to D-106 are `[PROPOSED]`. 3.6 (2026-10-24) added 0.11 conntrack. 3.5 (2026-10-24) added 0.10 `correlate`. 3.4 (2026-10-23) added 0.9, Part H, B23, WP-52 to WP-58 and Q-26 to Q-28. D-112 and D-87 to D-94 are `[PROPOSED]`. 3.3 (2026-10-21) added 0.8, A2.1b, B22, Part G, WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
+| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
-**Start here (3.8.1).** Read 0.19 first. It records deviations as of 2026-10-31 and changes no behavior. Then read 0.6, 0.7, 0.8 and 0.9. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
+**Start here (3.9).** Read 0.20 first. It is the planned roadmap for 3.3.0 to 3.6.0. Nothing in it is built, and it changes no behavior. Then read 0.19. It records deviations as of 2026-10-31 and changes no behavior. Then read 0.6, 0.7, 0.8 and 0.9. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
 
-**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Appendix B lists the sources behind every threat claim in this file.
+**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Part J (planned) specifies evidence, noise, and operator intelligence for 3.3.0 to 3.6.0; its work packages are WP-61 to WP-70. Appendix B lists the sources behind every threat claim in this file.
 
 **Rule for the coding agent.** When a run is started with `AUTOPILOT.md`, that playbook decides how the work is split, tested, and committed, and this file decides what the behavior is (0.7). Without AUTOPILOT, work only from Part E, one work package at a time, in order. A work package is done when its Definition of Done and the gate pass. Then stop and wait for the human. If this spec and the code disagree and Part 0 does not already say which one wins, write the question in `docs/QUESTIONS.md` and stop.
 
@@ -507,6 +507,23 @@ These rows record what the tree contains while a gate or a question is still ope
 | npm dist-tag `latest` is 3.2.0, viewed 2026-10-31. D-41 says publish with tag `next` until 1.0.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Q-32     |
 | `hubvik` 3.2.0 is on npm while Q-14 is open and the release check lists a missing disclosure email as a blocker. `packages/core/SECURITY.md` has no disclosure email.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Q-36     |
 | The bogon-destination severity decision used the same IoT-23 malware capture the false-positive rate is measured on.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Q-35     |
+
+## 0.20 Roadmap 3.3.0 to 3.6.0 (planned, not built)
+
+This section is a plan. Nothing in it is in the tree. It adds no detector row. Rule 0.1 and the detector freeze stay in force: no new detector file until C10 row 0.6 is ticked.
+
+The goal is to make hubvik proven and useful, not larger. Evidence comes first (3.3.0). Noise and explanation come next (3.4.0). The features that make hubvik unique come after that (3.5.0, then 3.6.0). Each later version requires the earlier version's gate. Whether 3.5.0 and 3.6.0 also wait for the 30-day pilot is Q-43. This plan does not decide that.
+
+No sentence here is a detection rate or a false-positive rate. Targets below are behavior. They are not measurements.
+
+| Version | Work packages          | Gate                                                                                                 | Depends on                         |
+| ------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| 3.3.0   | WP-61 to WP-65 (J1–J5) | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds | the current tree. No detector rows |
+| 3.4.0   | WP-66 to WP-68 (J6–J8) | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                | 3.3.0                              |
+| 3.5.0   | WP-69 (J9)             | the 3.4.0 gate met; J9 done-when met                                                                 | 3.4.0                              |
+| 3.6.0   | WP-70 (J10)            | the 3.5.0 gate met; J10 done-when met                                                                | 3.5.0                              |
+
+Part J specifies each item. J11 is deferred and has no work package.
 
 # PART A — ENGINE
 
@@ -1546,6 +1563,10 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.5**   | Conntrack 0.3.0 (0.11): TCP state, reply counters, and a private-address direction when the caller does not pass one. No new detector row                                                                                                               | Inbound `SYN_SENT` is `no-response`; an established line keeps original `bytesOut` and adds reply `bytesIn`; three silent inbound ports and one established session fire shadow `port-knock`                            | [ ]                                                                                                                                                    |
 | **1.6**   | B24 (0.12): `dispersed-flood`, `txt-channel`, `inbound-lateral`, `short-lived-cert`. All shadow. `tls.cert.notBefore` is kept when it is a finite number. No change to the live anomaly stream while `shadow` is false                                  | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-102 to D-106 approved                                | [ ]                                                                                                                                                    |
 | **2.0.1** | B25 (0.13): `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. All shadow. The call surface is unchanged from 1.6.0                                                                                                                               | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-107 to D-110 approved                                | [ ]                                                                                                                                                    |
+| **3.3.0** | Planned, not built. WP-61 to WP-65 (J1–J5): detector freeze, holdout scorecard, profile `all` or `core`, on-box pilot, device bench. No new detector row                                                                                                | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds                                                                                                                    | [ ]                                                                                                                                                    |
+| **3.4.0** | Planned, not built. WP-66 to WP-68 (J6–J8): detector families default off, explain on every live detector, operator advice. No new detector row                                                                                                         | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                                                                                                                                   | [ ]                                                                                                                                                    |
+| **3.5.0** | Planned, not built. WP-69 (J9): coverage map and pipeline self-test. No new detector row                                                                                                                                                                | the 3.4.0 gate met; J9 done-when met                                                                                                                                                                                    | [ ]                                                                                                                                                    |
+| **3.6.0** | Planned, not built. WP-70 (J10): lock readiness score. The engine never calls `lock()`. No new detector row                                                                                                                                             | the 3.5.0 gate met; J10 done-when met                                                                                                                                                                                   | [ ]                                                                                                                                                    |
 
 ---
 
@@ -2120,6 +2141,402 @@ The numbers are D-95 to D-98 and they are `[PROPOSED]`. The implementation uses 
 
 ---
 
+# PART J — EVIDENCE, NOISE, AND OPERATOR INTELLIGENCE (planned)
+
+Part J is planned. It is not built. It adds no detector row. Every option below defaults to today's behavior unless the section says the call is new and opt-in. A default engine's anomaly stream stays the stream that ships today.
+
+## J1. Detector freeze guard
+
+### What it is
+
+A tracked list of every detector id that exists on 2026-10-31, and a check that refuses a new detector file while C10 row 0.6 is unticked.
+
+### Why (which weakness it fixes)
+
+Group C rows were added while row 0.6 was open (0.19, Q-34). The freeze makes the next extra file fail the gate instead of landing quietly.
+
+### API and options (exact names, defaults)
+
+No engine option. New file `scripts/autopilot/detector-freeze.json`: `{ "frozenAt": "2026-10-31", "coreVersion": "3.2.0", "ids": [ ... ] }` with every detector id that exists when the file is first committed, sorted. `scripts/spec-coverage.mjs` and `guard.mjs --verify-spec` both run the check.
+
+### Caps and budget
+
+The file is the id list. It does not add per-device state. D-85 is unchanged.
+
+### Behavior rules
+
+While C10 row 0.6 is unticked, a detector file whose id is not in the list fails with `detector <id> added while the 0.6 gate is open`. The list may grow only in a commit that also ticks C10 row 0.6. If the list grew and row 0.6 is still unticked, the check fails.
+
+### Tests required
+
+An extra fake detector file in a temp copy fails. The current tree passes. Ticking row 0.6 in a temp copy of SPEC makes that extra file pass.
+
+### Done when
+
+The freeze file is committed, both checks fail on an id that is not in the list, and both pass on this tree.
+
+### Out of scope
+
+Promoting a shadow row. Deleting a detector. Changing a threshold, default, severity, cap, or mode.
+
+## J2. Holdout evaluation and per-detector scorecard
+
+### What it is
+
+A named tune/holdout split for IoT-23 captures, and a scorecard that proposes a disposition per detector. The scorecard never edits SPEC, defaults, or detector files.
+
+### Why (which weakness it fixes)
+
+The bogon-destination severity decision and the published false-positive count use the same capture (Q-35). A later number needs a capture that was not used to choose the change.
+
+### API and options (exact names, defaults)
+
+`eval/splits/iot23.json` has two capture lists, `tune` and `holdout`. The `iot23-malware` capture is `tune`. Which captures go in `holdout` is not chosen in this plan (Q-35 is still open). The split file is committed alone, before any scorecard code.
+
+`eval/run.mjs --split tune|holdout` runs only the captures in that list. A holdout run refuses `--sweep`, `--cost`, and fit-lr.
+
+`eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md`. One row per detector: `mode` (`live` or `shadow`), `hardRule`, `fires`, `uniqueDetections`, `falsePositives`, `benignDeviceDays`, false positives per benign device-day with a 95% Wilson interval, `split` (`tune` or `holdout`), and `suggestion`.
+
+### Caps and budget
+
+No engine state. The scorecard is a report.
+
+### Behavior rules
+
+`suggestion` is one of `keep`, `review`, `propose-demote`, or `no-data`. A suggestion is a proposal. It never edits a default, a severity, or a detector file. This plan does not set a new numeric rule for which label a row gets. C6.3 already says a detector with zero unique detections and a false-positive rate above its gate gets a proposal. Fewer than 20 attack instances prints `n too small`, not a percentage. That 20 is the existing C6.2 rule, not a new threshold.
+
+### Tests required
+
+Fixture result files produce an exact scorecard JSON. Wilson math matches known values. The `n too small` path prints that text. Holdout refuses `--sweep`.
+
+### Done when
+
+The split file is committed before the scorecard code. The scorecard has been run on every results file that exists, and that output is committed. `numbers-check` accepts `scorecard.md` because every figure in it is in that file.
+
+### Out of scope
+
+Changing a detector default from a suggestion. Downloading captures. Claiming a holdout rate before a holdout capture exists.
+
+## J3. Option profile
+
+### What it is
+
+`createEngine({ profile })` chooses which live detectors run. Default `'all'` is today's set.
+
+### Why (which weakness it fixes)
+
+A pilot that turns on every live row will page on detectors that have no evidence. A named core set is the set the scorecard still supports, plus the rows that must always run.
+
+### API and options (exact names, defaults)
+
+`profile`: `'all'` | `'core'`. Default `'all'`. Any other value throws `HubvikError` `PROFILE_IS_INVALID`.
+
+`'all'` is byte-identical to today. `'core'` enables only the live detectors listed in `packages/core/src/data/profiles/core.json`. Shadow detectors still follow the `shadow` option. `detectors[id].enabled`, when set, wins over `profile`.
+
+`packages/core/src/data/profiles/core.json` is built by `scripts/build-core-profile.mjs` from the tune scorecard. Membership is [PROPOSED D-119]: every hard rule (B10), every engine-integrity detector (B11), and every live detector whose tune suggestion is `keep`. If the scorecard has no `keep` row, the file is hard rules plus integrity only. Approving that membership rule is Q-39.
+
+`stats().detectors` uses reason `"profile"` for a detector the profile turned off.
+
+### Caps and budget
+
+No new per-device state. With default `profile: 'all'`, D-85 still applies: the 1,000-device watching median may not rise by more than 0.5 µs. The bench budget is not raised.
+
+### Behavior rules
+
+`'all'` does not change which anomalies fire. `'core'` may emit only a subset. It does not add anomalies the `'all'` engine would not emit on the same input.
+
+### Tests required
+
+`profile: 'all'` leaves `test/diff/` byte-identical. `profile: 'core'` emits a subset of the `'all'` stream on the same input and adds none. Every hard rule still fires during learning under `'core'`. An unknown value throws `PROFILE_IS_INVALID`. `detectors[id].enabled` overrides the profile. Checkpoint and restore keep the profile behavior.
+
+### Done when
+
+Those tests pass, `index.d.ts` names `profile`, and a 1,000-device bench line with `profile: 'core'` is recorded. That line is not a gate.
+
+### Out of scope
+
+Editing a detector file to match the profile. Treating a `keep` suggestion as an approval.
+
+## J4. Package @hubvik/pilot
+
+### What it is
+
+`@hubvik/pilot` version 0.1.0, bin `hubvik-pilot`. One person can run a 30-day pilot on a Raspberry Pi 4 or an OpenWrt box with Node 22 or newer, using the conntrack and dnsmasq adapters, and get labels and a weekly count of anomalies per device-day out of it.
+
+### Why (which weakness it fixes)
+
+The 30-day pilot is an open gate and there is no on-box runner that checkpoints, labels, and writes a week file without a network call.
+
+### API and options (exact names, defaults)
+
+Package `packages/pilot`, bin `hubvik-pilot`, version 0.1.0. Commands: `run`, `label`, `report`, `export-labels`. The README stays UNVERIFIED until `run` has been used on a real device. The README includes Raspberry Pi OS setup, OpenWrt setup, and a privacy note: the package makes no network call, and the files it writes stay on the device.
+
+`run` follows the conntrack log and the dnsmasq log. It handles rotation and partial lines. The engine is created with `reorderMs` 5000 (the existing example value for merged sources, not a new core default), `shadow` true, and `alerts` true. `Date.now` is allowed in this host. It is not allowed in core.
+
+`label` appends a line to an inbox. The `run` process applies that inbox with `engine.feedback`.
+
+`report` writes a weekly markdown file. Every number in it is computed from the files on disk: false positives per detector with a 95% Wilson interval, and anomalies per device-day.
+
+`export-labels` writes the labels the inbox applied, in the shape `engine.exportLabels()` already uses, so a later eval can read the file. It does not open a network connection.
+
+### Caps and budget
+
+[PROPOSED D-120] the follower polls every 1000 ms from the last byte offset. [PROPOSED D-121] `flush(now)` every 60 s with the host clock. [PROPOSED D-122] `checkpointDelta` every 300 s to `<state>/deltas/<seq>.json`. [PROPOSED D-123] a full checkpoint every 6 h to `<state>/checkpoint-<ts>.json`, keep the newest 2, delete deltas older than the newest full. [PROPOSED D-124] daily JSONL files are kept 35 days. [PROPOSED D-125] `<state>/status.json` every 60 s. [PROPOSED D-126] the run process reads the label inbox every 60 s. [PROPOSED D-127] at most 1,000 inbox lines are processed per minute. [PROPOSED D-128] the events file stops at 100 MB per day. [PROPOSED D-129] the weekly report prints `n too small` when a detector has fewer than 10 labels.
+
+Writes are atomic: write a temp file, then rename. Core stays zero-dependency. This package does not add a core dependency.
+
+### Behavior rules
+
+The follower polls from the last byte offset. If the log shrinks or its inode changes, it reopens from byte 0. A partial last line is kept until it is complete. On start, the newest full checkpoint is restored, then newer deltas are applied. Daily event files are JSONL. SIGTERM flushes, writes a full checkpoint, and exits 0. The package does not open a socket.
+
+### Tests required
+
+Rotation, a partial line, restore on start, the label inbox applied by `engine.feedback`, a weekly report whose numbers come from the fixture files, the 35-day cleanup, the inbox and daily size caps, and a clean SIGTERM.
+
+### Done when
+
+Those tests pass, and pack-check, no-dynamic, publint-lite, knip, and api-snapshot cover the package. The README still says UNVERIFIED.
+
+### Out of scope
+
+A network upload. A Raspberry Pi measurement. Auto-lock. A new detector row.
+
+## J5. Device bench
+
+### What it is
+
+`bench/device.js` and `npm run bench:device`. A person pastes the printed block. The script does not write `docs/BENCHMARKS.md`.
+
+### Why (which weakness it fixes)
+
+The Raspberry Pi 4 row is still empty. An x86 number must not be pasted into it by mistake.
+
+### API and options (exact names, defaults)
+
+No engine option. The script prints one markdown block. The block has the host facts (`node` version, `os.platform`, `os.arch`, CPU model, total memory) and three bench lines: the 1,000-device watching line, the 200-device 7-day line, and the 200-device 7-day `shadow: true` line. `bench/run.js` also prints a 4-shard line. That line is not one of these three.
+
+### Caps and budget
+
+It does not change the bench budget. D-85 is unchanged. The printed line is not a gate.
+
+### Behavior rules
+
+On a host whose `os.arch` is not `arm64` or `arm`, the script also prints `This is not a Raspberry Pi measurement.`
+
+### Tests required
+
+The block contains the host facts and the three lines. A non-ARM run contains that sentence. The script does not write `docs/BENCHMARKS.md`.
+
+### Done when
+
+The command prints the block and the warning on a non-ARM host, and it does not modify `docs/BENCHMARKS.md`.
+
+### Out of scope
+
+Recording the x86 run as a Raspberry Pi result. Raising the 12 µs or 120 KB gate.
+
+## J6. Detector families
+
+### What it is
+
+Opt-in grouping so an incident counts one overlapping behavior once. The anomaly stream does not change.
+
+### Why (which weakness it fixes)
+
+Several detectors describe one behavior. An incident can add the same story more than once and page more than once.
+
+### API and options (exact names, defaults)
+
+`families`: `false` | `true`. Default `false`. With `false`, scoring stays as it is today and `test/diff/` stays byte-identical.
+
+Family membership lives in `src/data/families.json` [PROPOSED D-130]. The lists below are the proposed membership. Each id has a file in `packages/core/src/detectors/` on 2026-10-31.
+
+- `beacon`: `new-beacon`, `jitter-beacon`, `spectral-beacon`, `beacon-change`
+- `flood`: `packet-flood`, `egress-flood`, `dispersed-flood`, `scatter-udp`
+- `dns-channel`: `dns-tunnel`, `txt-channel`, `dga`, `dictionary-dga`, `nxdomain-burst`
+- `proxy`: `proxy-relay`, `proxy-backconnect`, `proxy-fanin`, `proxy-sdk-traffic`, `lan-via-proxy`
+- `scan`: `horizontal-scan`, `vertical-scan`, `slow-scan`, `fan-out`, `failed-connection-ratio`, `lan-sweep`
+
+With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window, the same way `dedupGroup` already counts once. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
+
+### Caps and budget
+
+One small JSON file. No new per-device map beyond the family id already stored on the anomaly when the option is on. Default `false` must not move the 1,000-device median by more than 0.5 µs (D-85).
+
+### Behavior rules
+
+The anomaly objects that fire with `families: false` are the ones that fire today. `families: true` does not drop an anomaly from the stream. It changes incident and alert accounting only. Staying opt-in until a pilot shows fewer alerts with no lost incident is Q-40.
+
+### Tests required
+
+`test/diff/` byte-identical with `false`. On the all-tier benign matrix and every replay, incident counts and alert counts with `true` are less than or equal to the counts with `false`, and no replay loses its incident.
+
+### Done when
+
+Those comparisons pass and the family file matches D-130.
+
+### Out of scope
+
+Removing a detector. Changing a severity. Turning families on by default.
+
+## J7. Explain coverage for every live detector
+
+### What it is
+
+Every live detector sets `meta.explains` so an operator can read test, observed, and threshold or learned.
+
+### Why (which weakness it fixes)
+
+`scripts/spec-coverage.mjs` reports `explains: 64 of 170 detectors` on 2026-10-31. A live row without `explains` cannot say what was compared.
+
+### API and options (exact names, defaults)
+
+No new option. `meta.explains` is already the flag. Each explain has `test`, `observed`, and `threshold` or `learned`.
+
+### Caps and budget
+
+No new state. [PROPOSED D-131] once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100%. That 100% is a target for the check. It is not a detection rate.
+
+### Behavior rules
+
+Shadow detectors are not required to explain. A live detector that already explains is unchanged. Filling a missing explain does not change the anomaly the detector emits.
+
+### Tests required
+
+`spec-coverage` fails a temp tree where one live detector has no explain, and passes when every live detector has `test`, `observed`, and `threshold` or `learned`.
+
+### Done when
+
+The live set is at that target and the check enforces it.
+
+### Out of scope
+
+New detector rows. Changing a threshold in order to write the explain text.
+
+## J8. Operator advice text
+
+### What it is
+
+Static plain-English notes returned by `explain(id).advice`. No detection logic changes.
+
+### Why (which weakness it fixes)
+
+An explain line names the comparison. It does not tell the operator what to check or what else could cause it.
+
+### API and options (exact names, defaults)
+
+`src/data/advice.json`: per live detector `{ "meaning": string, "check": string[], "benignCauses": string[] }`. `explain(id).advice` returns that object. Shadow detectors may omit an entry. No new engine option. Absent advice does not change the anomaly.
+
+### Caps and budget
+
+[PROPOSED D-132] `check` has at most 3 steps. [PROPOSED D-133] `benignCauses` has at most 3 strings. [PROPOSED D-134] each string is at most 200 characters. [PROPOSED D-135] the file is at most 40 KB and stays inside the existing 200 KB `src/data` cap. No detection-rate claim in any string.
+
+### Behavior rules
+
+The text is data. It does not affect scoring, alerts, or which detector fires.
+
+### Tests required
+
+A test fails if a live detector has no advice entry. A test fails if a string or the file breaks D-132 through D-135.
+
+### Done when
+
+Every live id has an entry inside those caps, and `explain(id).advice` returns it.
+
+### Out of scope
+
+Generated advice. A network lookup. Advice that cites a false-positive rate.
+
+## J9. Coverage map and pipeline self-test
+
+### What it is
+
+Two read-only calls. `coverage` says which techniques the logs already fed can support. `selftest` runs canned attacks on a throwaway engine.
+
+### Why (which weakness it fixes)
+
+A catalog of 170 ids does not say which of them can fire on the tiers this host actually sends. The host should see that before an incident.
+
+### API and options (exact names, defaults)
+
+`engine.coverage(now)` reads state the engine already has. It does not detect. It returns:
+
+- `tiers`: per tier `{ enabled, eventsSeen, lastTs, silent }`
+- `detectors`: per detector `{ active, reason, mode }`
+- `techniques`: per ATT&CK id in `attack-map.json` `{ detectors, coveredLive, coveredShadow, blockedBy }` where `blockedBy` names the missing input, for example `tier T2 never seen`
+- `summary`: counts of techniques covered live, shadow-only, and blind
+
+`engine.selftest({ scenarios?: string[] })` runs canned scenarios from `src/data/selftest.json` through a separate throwaway engine built with the same options and tiers. It does not touch the live engine's state and does not emit on the live engine. Each result is `{ scenario, expectedDetectors, fired, missing, missingReason }`.
+
+The scenario names in that file are: horizontal scan, egress flood, DNS tunnel, new beacon, ARP gateway claim, OT dangerous op, proxy backconnect.
+
+CLI, in `@hubvik/cli`, prints the same text: `hubvik coverage <events.jsonl>` and `hubvik selftest`.
+
+### Caps and budget
+
+[PROPOSED D-136] at most 16 scenarios. [PROPOSED D-137] at most 10,000 events per scenario. [PROPOSED D-139] synthetic devices use reserved ids `__selftest-<n>` and documentation addresses `192.0.2.0/24`, `198.51.100.0/24`, and `203.0.113.0/24`. The throwaway engine is discarded. Default calls do not change the live stream, so D-85 is unchanged for an engine that never calls `selftest`.
+
+### Behavior rules
+
+`coverage` and `selftest` are opt-in calls. They are not on the feed path. `exportBaseline()` and the anomaly stream of the live engine are unchanged by a selftest.
+
+### Tests required
+
+On a T0-only engine, T1 and T2 scenarios are `missing` and `missingReason` names the tier. On an all-tier engine every scenario fires. `exportBaseline()` and the anomaly stream are byte-identical before and after `selftest`.
+
+### Done when
+
+Those three checks pass. Approving the scenario list and the caps is Q-41.
+
+### Out of scope
+
+Running selftest against the live device table. Packet capture. A new detector row.
+
+## J10. Lock readiness score
+
+### What it is
+
+A score on learning quality that says whether the host should consider `lock()`. The engine never calls `lock()` itself.
+
+### Why (which weakness it fixes)
+
+Learn-then-watch treats traffic during learning as normal. A device that is already compromised during learning becomes the baseline. The operator needs a reason to wait.
+
+### API and options (exact names, defaults)
+
+No new option. `stats().learningQuality[device]` gains `readiness`: `{ score, reasons, suggestLock }`. `score` is an integer from 0 to 100. `reasons` is an array of strings. `suggestLock` is a boolean. Warning `LOCK_SUGGESTED` once per device when `suggestLock` becomes true. `lock()` is still only called by the host.
+
+The score is computed from data the engine already keeps: active days, active windows, the new-family rate over the last 48 h of learning, open `SUSPICIOUS_LEARNING` reasons, hard-rule anomalies during learning, and class-violation hits.
+
+### Caps and budget
+
+No new map. The fields sit on the learning-quality object that already exists. [PROPOSED D-138] `suggestLock` is true only when `score` ≥ 80, there is no open `SUSPICIOUS_LEARNING` reason, there is no hard-rule anomaly during learning, and the new-family rate in the last 48 h is ≤ 1 per day. Numeric weights that combine the inputs into the 0–100 score are not set in this plan. A person sets them before the code is written (Q-42). This plan does not invent those weights.
+
+### Behavior rules
+
+The warning is not an anomaly. It does not change the anomaly stream. It does not lock the device.
+
+### Tests required
+
+On the benign matrix every device reaches `suggestLock` by day 7. Every replay that has an attack during learning keeps `suggestLock` false, with a reason that names that attack.
+
+### Done when
+
+Those two checks pass and the weights, if any were chosen, are a new D-n accepted by a person. Until then D-138 records only the thresholds above.
+
+### Out of scope
+
+Automatic `lock()`. Shortening `learnMs`. A new detector row.
+
+## J11. Deferred until the 30-day pilot
+
+No work package.
+
+- Vetted device-model profile packs that shorten learning using signed profiles built from pilot data. Deferred because they need real pilot data and carry baseline-poisoning risk. See `fleet-baseline-poisoning` and A6 signing.
+- Any new detector row, until C10 row 0.6 is ticked.
+
+---
+
 # PART D — DELIBERATELY NOT INCLUDED
 
 | Idea                                                                | Why not                                                                                                                                                                                                                                                                                                              |
@@ -2601,6 +3018,78 @@ Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 
 
 - [x] `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. Each is `mode: 'shadow'`. Standard tests: attack, one step outside the threshold, 14-day benign for every simulated class, cap, export and import. None fires during learning.
 - **Done when:** `spec-coverage` lists the four rows at Rel 2.0 and core is `2.0.1`. D-107 to D-110 stay `[PROPOSED]` until a person accepts them.
+
+### Work packages for the 3.3.0–3.6.0 plan (WP-61 to WP-70)
+
+These packages are planned. None of them is built. Every box stays open. They add no detector row.
+
+#### WP-61 — Detector freeze guard (J1).
+
+- [ ] `scripts/autopilot/detector-freeze.json` lists every detector id that exists when it is first committed.
+- [ ] `scripts/spec-coverage.mjs` and `guard.mjs --verify-spec` fail when a detector file is not in that list and C10 row 0.6 is unticked.
+- [ ] The same checks fail when the list grows in a commit that does not tick C10 row 0.6.
+- **Done when:** J1's done-when holds. No new detector file is added by this package.
+
+#### WP-62 — Holdout evaluation and scorecard (J2).
+
+- [ ] `eval/splits/iot23.json` is committed with `tune` and `holdout` lists, and `iot23-malware` is `tune`, before any scorecard code.
+- [ ] `eval/run.mjs --split tune|holdout` runs that list. A holdout run refuses `--sweep`, `--cost`, and fit-lr.
+- [ ] `eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md` with the J2 fields. Suggestions do not edit defaults. Under 20 attack instances the report prints `n too small`.
+- **Done when:** a scorecard is committed for every existing results file, and J2's done-when holds.
+
+#### WP-63 — Option `profile` (J3).
+
+- [ ] `profile` is `'all'` or `'core'`. Default `'all'` stays byte-identical. Any other value throws `PROFILE_IS_INVALID`.
+- [ ] `'core'` is the live set in `packages/core/src/data/profiles/core.json`, built by `scripts/build-core-profile.mjs` under [PROPOSED D-119]. `detectors[id].enabled` wins. `stats().detectors` uses reason `"profile"`.
+- **Done when:** J3's done-when holds. D-119 stays `[PROPOSED]` until a person accepts it.
+
+#### WP-64 — `@hubvik/pilot` 0.1.0 (J4).
+
+- [ ] Bin `hubvik-pilot` with `run`, `label`, `report`, and `export-labels`. No network call.
+- [ ] `run` follows conntrack and dnsmasq logs, polls every 1000 ms [PROPOSED D-120], handles rotation and partial lines, uses `reorderMs` 5000, `shadow` true, `alerts` true, calls `flush(now)` every 60 s [PROPOSED D-121], writes `checkpointDelta` every 300 s [PROPOSED D-122], writes a full checkpoint every 6 h and keeps 2 [PROPOSED D-123], restores on start, keeps daily JSONL 35 days [PROPOSED D-124], writes `status.json` every 60 s [PROPOSED D-125], and exits cleanly on SIGTERM. Writes are atomic.
+- [ ] `label` appends to an inbox. `run` applies it with `engine.feedback` every 60 s [PROPOSED D-126]. Caps: 1,000 inbox lines per minute [PROPOSED D-127] and 100 MB of events per day [PROPOSED D-128].
+- [ ] `report` writes weekly markdown from those files, with a Wilson interval per detector and `n too small` under 10 labels [PROPOSED D-129], plus anomalies per device-day. The README says UNVERIFIED and includes Raspberry Pi OS setup, OpenWrt setup, and a privacy note.
+- **Done when:** J4's done-when holds. D-120 to D-129 stay `[PROPOSED]`.
+
+#### WP-65 — Device bench (J5).
+
+- [ ] `bench/device.js` and `npm run bench:device` print one markdown block: host facts (`node`, platform, arch, CPU model, memory) and the three bench lines (1,000-device watching, 200-device 7-day, 200-device 7-day `shadow: true`).
+- [ ] The script never writes `docs/BENCHMARKS.md`. On a non-ARM host it prints `This is not a Raspberry Pi measurement.`
+- **Done when:** J5's done-when holds.
+
+#### WP-66 — Detector families (J6).
+
+- [ ] Option `families` is `false` or `true`. Default `false`. With `false`, `test/diff/` stays byte-identical.
+- [ ] Membership is `src/data/families.json` [PROPOSED D-130]: `beacon`, `flood`, `dns-channel`, `proxy`, and `scan`, with the ids listed in J6.
+- [ ] With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window. The anomaly stream is unchanged. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
+- **Done when:** on the all-tier benign matrix and every replay, incident and alert counts with `true` are less than or equal to the counts with `false`, and no replay loses its incident. D-130 stays `[PROPOSED]`.
+
+#### WP-67 — Explain coverage (J7).
+
+- [ ] `meta.explains` is true on every live detector. Each explain has `test`, `observed`, and `threshold` or `learned`.
+- [ ] Once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100% [PROPOSED D-131]. That figure is a check target, not a detection rate.
+- **Done when:** J7's done-when holds. Shadow detectors are not required to explain.
+
+#### WP-68 — Operator advice (J8).
+
+- [ ] `src/data/advice.json` has one entry per live detector: `meaning`, `check` (at most 3 steps [PROPOSED D-132]), `benignCauses` (at most 3 [PROPOSED D-133]). Each string is at most 200 characters [PROPOSED D-134]. The file is at most 40 KB [PROPOSED D-135] and stays inside the 200 KB `src/data` cap. No detection-rate claim.
+- [ ] `explain(id).advice` returns that entry. A test fails if a live detector has no entry. Shadow detectors may have none.
+- **Done when:** J8's done-when holds. D-132 to D-135 stay `[PROPOSED]`.
+
+#### WP-69 — Coverage map and self-test (J9).
+
+- [ ] `engine.coverage(now)` returns `tiers`, `detectors`, `techniques`, and `summary` from state the engine already has. It does not detect.
+- [ ] `engine.selftest({ scenarios })` runs the J9 scenarios from `src/data/selftest.json` on a throwaway engine with the same options and tiers. It does not touch the live engine and does not emit on it.
+- [ ] Caps: 16 scenarios [PROPOSED D-136], 10,000 events per scenario [PROPOSED D-137]. Synthetic ids `__selftest-<n>` and documentation addresses `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` [PROPOSED D-139].
+- [ ] `@hubvik/cli` prints the same text for `hubvik coverage <events.jsonl>` and `hubvik selftest`.
+- **Done when:** a T0-only engine reports T1 and T2 scenarios as missing with `missingReason` naming the tier; an all-tier engine fires every scenario; `exportBaseline()` and the anomaly stream are byte-identical before and after `selftest`. D-136, D-137, and D-139 stay `[PROPOSED]`.
+
+#### WP-70 — Lock readiness score (J10).
+
+- [ ] `stats().learningQuality[device].readiness` is `{ score, reasons, suggestLock }`. `score` is 0–100. The engine never calls `lock()`.
+- [ ] `suggestLock` is true only under [PROPOSED D-138]: score ≥ 80, no open `SUSPICIOUS_LEARNING` reason, no hard-rule anomaly during learning, and the new-family rate in the last 48 h is ≤ 1 per day. Numeric weights for the score are not set in this plan (Q-42).
+- [ ] Warning `LOCK_SUGGESTED` once per device.
+- **Done when:** on the benign matrix every device reaches `suggestLock` by day 7, and every replay with an attack during learning keeps `suggestLock` false with a reason that names it. D-138 stays `[PROPOSED]`.
 
 ### Questions to put in `docs/QUESTIONS.md` before WP-60 starts
 

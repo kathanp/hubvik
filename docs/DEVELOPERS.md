@@ -6,6 +6,8 @@ hubvik is a library for a gateway. You feed it observations. It emits events. Yo
 
 Status: **hubvik 3.2.0 prototype — not validated on real traffic.** On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. Do not publish detection rates that this repository did not measure.
 
+Planned work that is not in this tree is `docs/SPEC.md` section 0.20.
+
 ## Install
 
 The publishable package is `packages/core` (`hubvik`). It has no runtime dependencies and needs Node.js 22 or newer.

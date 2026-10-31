@@ -17,6 +17,7 @@ Documentation only. No behavior change.
 - `docs/current/SPEC.md`: banner that this file is an old copy.
 - `packages/*/README.md`: each package states its `package.json` version.
 - `scripts/docs-facts-check.mjs`: drift check, run from the gate script after the existing gate.
+- Roadmap 3.3.0–3.6.0 planned in SPEC 0.20 and Part J. No behavior change.
 
 ## 3.2.0
 
