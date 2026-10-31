@@ -1,5 +1,7 @@
 # @hubvik/export-syslog
 
+@hubvik/export-syslog 0.1.1.
+
 Formats one hubvik anomaly as an RFC 5424 syslog line. The message is a CEF record. No dependencies. This package does not open a socket.
 
 ```js

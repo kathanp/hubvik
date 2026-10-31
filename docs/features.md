@@ -1,10 +1,28 @@
+> Version: 3.2.0 · Updated: 2026-10-31
+
 # hubvik — what it does and what it is not
 
 hubvik is a **detector library**, not a protection appliance. It watches per-device network behavior on a gateway, emits reports when that behavior looks wrong, and **never** changes the traffic itself.
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **3.2.0 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). The detector catalog is at the end of this file. Also: [`README.md`](../README.md), [`DEVELOPERS.md`](DEVELOPERS.md).
+Status: **hubvik 3.2.0 prototype — not validated on real traffic.** On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
+
+## Validation status
+
+IoT-23 malware capture (`eval/results/iot23-malware/iot23.md`): Detection: n too small (17 detected, 17 attack instances). Strict detection: 9/17 = 52.9% (95% Wilson 31.0%–73.8%). False positives: 314 anomalies at medium or above, 72.7037175925926 benign device-days, 4.31889881834587 per benign device-day.
+
+IoT-23 honeypot capture (`eval/results/iot23-honeypot/iot23.md`): Detection: no rate. Strict detection: no rate. False positives: 0 anomalies at medium or above, 0 benign device-days, no rate (0 device-days). That file has 0 benign device-days, so it states no false-positive rate.
+
+CICIoT2023: not run. `eval/results` has no CICIoT2023 result file.
+
+No 30-day pilot. No Raspberry Pi 4 measurement.
+
+The same malware file records the bogon-destination ablation as `bogon-destination: 0 unique detections, 307 false positives, zero unique` and the proposal `bogon-destination: zero unique detections and 307 medium false positives over 72.7037175925926 benign device-days, above the C6.3 gate. Proposal: set detectors.bogon-destination.enabled to false, or set severity to info` (`eval/results/iot23-malware/iot23.md`). `packages/core/CHANGELOG.md` for 2.1.0 says that severity is now info. The result file still counts those 307 as medium. Those two records disagree, so this page quotes the result file. The severity decision and that measurement use the same capture, so the rate above is not a holdout result.
+
+There is no alert-level false-positive rate in `eval/results/iot23-malware/iot23.md` or in the top-level fields of `eval/results/iot23-malware/iot23.json`.
+
+The detector catalog is at the end of this file. Also: [`README.md`](../README.md), [`DEVELOPERS.md`](DEVELOPERS.md).
 
 ---
 
@@ -177,9 +195,9 @@ These are the advanced pieces of those products that already fit the contract. S
 - [x] Adapters for conntrack, dnsmasq, Zeek, and Suricata EVE, plus OCSF, syslog, webhook, and Prometheus export. Several sibling packages are still marked UNVERIFIED in the spec.
 - [x] `@hubvik/cli` replay and a self-contained HTML report (inline CSS, no CDN): per-device timeline, incidents, top detectors, explain text. Snapshot test: `packages/cli/test/cli.test.js`.
 
-### Proposed
+### Report helpers (shipped in 2.2.0)
 
-These five shipped in `hubvik@2.2.0` and the two sibling packages. Each one reports or formats. None of them captures, blocks, phones home, or assigns a device class by itself.
+These five shipped in release 2.2.0 and the two sibling packages. Each one reports or formats. None of them captures, blocks, phones home, or assigns a device class by itself.
 
 1. [x] **`engine.digest(sinceTs)` in `hubvik`.** One plain-language summary per device since a timestamp. Built from live anomalies the engine already emitted. `packages/core/test/report.test.js`.
 2. [x] **`engine.inventory()` in `hubvik`.** Devices already seen, identity addresses, learned ports and protocols, and `suggestions` only when `classSuggest` is on. The host still calls `setDeviceClass`.

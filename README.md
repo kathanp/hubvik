@@ -1,8 +1,10 @@
+> Version: 3.2.0 · Updated: 2026-10-31
+
 # hubvik
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **3.2.0 prototype — not validated on real traffic.** The library only reports. It does not block, drop, or rewrite traffic. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `hubvik@3.1.0` is the version on npm until this tag is published. The 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot are open. The new detectors are shadow only: `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp`. A default engine emits the same anomalies as 1.6.0.
+Status: **hubvik 3.2.0 prototype — not validated on real traffic.** On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp` are shadow rows from 2.0.1.
 
 How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is in [`docs/features.md`](docs/features.md). `overview(now)` returns attacks, waves, incidents, campaigns, shadow hits, and counts in one call.
 
@@ -63,13 +65,21 @@ npm run demo
 - If the device is already compromised during learning, that behavior becomes normal. Use `lock()` after reviewing the baseline.
 - A compromised gateway defeats everything.
 
-## Evaluation
+## Validation status
 
-IoT-23 was scored by `eval/run.mjs`. The numbers below are copied from those result files. The C6.3 false-positive gate is not met. Harness: [eval/README.md](eval/README.md).
+IoT-23 malware capture (`eval/results/iot23-malware/iot23.md`): Detection: n too small (17 detected, 17 attack instances). Strict detection: 9/17 = 52.9% (95% Wilson 31.0%–73.8%). False positives: 314 anomalies at medium or above, 72.7037175925926 benign device-days, 4.31889881834587 per benign device-day.
 
-Malware capture (`eval/results/iot23-malware/iot23.md`): detection n too small (17 detected, 17 attack instances); strict detection 9/17 = 52.9% (95% Wilson 31.0%–73.8%); 4.31889881834587 false positives per benign device-day.
+IoT-23 honeypot capture (`eval/results/iot23-honeypot/iot23.md`): Detection: no rate. Strict detection: no rate. False positives: 0 anomalies at medium or above, 0 benign device-days, no rate (0 device-days). That file has 0 benign device-days, so it states no false-positive rate.
 
-Honeypot capture (`eval/results/iot23-honeypot/iot23.md`): detection no rate; strict detection no rate; 0 benign device-days.
+CICIoT2023: not run. `eval/results` has no CICIoT2023 result file.
+
+No 30-day pilot. No Raspberry Pi 4 measurement.
+
+The same malware file records the bogon-destination ablation as `bogon-destination: 0 unique detections, 307 false positives, zero unique` and the proposal `bogon-destination: zero unique detections and 307 medium false positives over 72.7037175925926 benign device-days, above the C6.3 gate. Proposal: set detectors.bogon-destination.enabled to false, or set severity to info` (`eval/results/iot23-malware/iot23.md`). `packages/core/CHANGELOG.md` for 2.1.0 says that severity is now info. The result file still counts those 307 as medium. Those two records disagree, so this page quotes the result file. The severity decision and that measurement use the same capture, so the rate above is not a holdout result.
+
+There is no alert-level false-positive rate in `eval/results/iot23-malware/iot23.md` or in the top-level fields of `eval/results/iot23-malware/iot23.json`.
+
+Harness: [eval/README.md](eval/README.md). The C6.3 false-positive gate is not met.
 
 ## License
 
