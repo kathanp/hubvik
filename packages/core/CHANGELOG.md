@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.0
+
+Scorecard, a core profile, an on-box pilot, and a device bench. `dictionary-dga` and `src/data/words.json` are removed. No new detector row. Thresholds, severities, and detector defaults are unchanged. `profile` defaults to `all`, and that stream matches the previous live anomalies.
+
+`eval/splits/iot23.json` names the tune and holdout captures. `eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md`. The suggestions are proposals. `createEngine({ profile: 'core' })` runs the live detectors in `src/data/profiles/core.json`. `@hubvik/pilot` 0.1.0 follows local conntrack and dnsmasq logs. It makes no network call and has not been run on a real device. `npm run bench:device` prints a host block and three bench lines. Disclosure mail is in `SECURITY.md`.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## Unreleased — docs
 
 Documentation only. No behavior change.

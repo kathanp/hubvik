@@ -4,7 +4,7 @@ Per-device network anomaly detection for **IoT gateways, smart-home hubs, buildi
 
 Every IoT device talks through a gateway. hubvik runs on that gateway, learns each device's normal network behavior, and raises an event when a device changes: a new server, a scan, a traffic flood, activity at the wrong time. No software on the devices, no cloud, zero dependencies.
 
-> Status: **hubvik 3.2.0 prototype — not validated on real traffic.** On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
+> Status: **hubvik 3.3.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
 
 ## Install
 
@@ -47,22 +47,23 @@ Default enabled tier is `T0`. Pass `tiers: ['T0', 'T1', 'T2']` to turn on flow a
 | `volume-spike`    | Far more data than normal: data theft, flooding               | high     |
 | `wrong-time`      | Activity in an hour the device was never active               | low      |
 
-0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. 0.5.0 adds `identity-change`, `tier-silent`, `egress-flood`, and `proxy-sdk-traffic`. 0.7.0 and 1.0.0 add shadow detectors, explain, identity, feedback, the rule language, long-horizon aggregates, and campaigns. The 1.0.0 notes add further shadow detectors, listed in `CHANGELOG.md`. `dictionary-dga` is included and stays shadow. Shadow detectors run only when `createEngine({ shadow: true })` or `shadow` lists their ids. Flow, DNS, TLS, and app detectors stay off until you enable the tier and send those events. The detector catalog is in [`docs/features.md`](../../docs/features.md). How to feed events is [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
+0.2.0 adds domain family, port, protocol, scans, volume by hour, DNS, threat indicators, bogons, inbound WAN, policy, ADB, MQTT, SMTP, TFTP, posture, and integrity detectors (`clock-jump`, `input-gap`, `state-cap`, `alert-storm`). 0.3.0 adds class priors, incidents, proxy relay, and the link-layer and tunnel detectors. 0.4.0 adds TLS metadata, building-protocol writes, MQTT topics, and fleet comparison. 0.5.0 adds `identity-change`, `tier-silent`, `egress-flood`, and `proxy-sdk-traffic`. 0.7.0 and 1.0.0 add shadow detectors, explain, identity, feedback, the rule language, long-horizon aggregates, and campaigns. The 1.0.0 notes add further shadow detectors, listed in `CHANGELOG.md`. `dictionary-dga` and its word list were removed in 3.3.0. Shadow detectors run only when `createEngine({ shadow: true })` or `shadow` lists their ids. Flow, DNS, TLS, and app detectors stay off until you enable the tier and send those events. The detector catalog is in [`docs/features.md`](../../docs/features.md). How to feed events is [`docs/DEVELOPERS.md`](../../docs/DEVELOPERS.md).
 
 ## Options
 
-| Option               | Default  | Meaning                                              |
-| -------------------- | -------- | ---------------------------------------------------- |
-| `learnMs`            | 7 days   | Learning period per device, from its first event     |
-| `windowMs`           | 60 s     | Traffic window size                                  |
-| `sigma`              | 4        | Volume spike sensitivity                             |
-| `minFanout`          | 10       | Never flag fan-out below this many hosts per window  |
-| `minBytes`           | 1 MB     | Never flag volume below this per window              |
-| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window             |
-| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed   |
-| `fanoutFactor`       | 3        | Fan-out limit is at least this times the learned max |
-| `peakFactor`         | 2        | Volume limit is at least this times the learned max  |
-| `tiers`              | `['T0']` | Event tiers the host is sending                      |
+| Option               | Default  | Meaning                                               |
+| -------------------- | -------- | ----------------------------------------------------- |
+| `learnMs`            | 7 days   | Learning period per device, from its first event      |
+| `windowMs`           | 60 s     | Traffic window size                                   |
+| `sigma`              | 4        | Volume spike sensitivity                              |
+| `minFanout`          | 10       | Never flag fan-out below this many hosts per window   |
+| `minBytes`           | 1 MB     | Never flag volume below this per window               |
+| `maxNewDstPerWindow` | 3        | Cap on new-destination alerts per window              |
+| `hourOf`             | UTC hour | Function `(ts) => hour`; pass local time if needed    |
+| `fanoutFactor`       | 3        | Fan-out limit is at least this times the learned max  |
+| `peakFactor`         | 2        | Volume limit is at least this times the learned max   |
+| `tiers`              | `['T0']` | Event tiers the host is sending                       |
+| `profile`            | `all`    | `core` runs the live set in `data/profiles/core.json` |
 
 ## Limits
 

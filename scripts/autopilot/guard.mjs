@@ -30,6 +30,7 @@
 // This script never pushes, publishes, tags, or logs in. .autopilot/ is local state and must be gitignored.
 
 import { execFileSync, execSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 import {
   readFileSync,
@@ -43,6 +44,8 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 
+const require = createRequire(import.meta.url);
+const { checkFreeze } = require('./freeze.js');
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n, d) => {
@@ -548,6 +551,7 @@ if (flag('--approve-spec')) {
 
 if (flag('--verify-spec')) {
   verifyApproval();
+  for (const problem of checkFreeze({ root: MAIN_ROOT })) errors.push(problem);
   const spec = readFileSync(SPEC, 'utf8');
   for (const [n, l] of proposedLines(spec))
     errors.push(`${SPEC}:${n} still [PROPOSED]: ${l.trim().slice(0, 80)}`);

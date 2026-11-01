@@ -6,6 +6,7 @@ const { EventEmitter } = require('node:events');
 const { ALL } = require('../detectors');
 const { LruSet } = require('./caps');
 const { validateOptions, validateIndicator } = require('./validate');
+const { profileStatus } = require('./profile');
 const { resolveIp } = require('./identity');
 const { recordFeedback, labelsOf, precisionOf } = require('./feedback');
 const { buildStats } = require('./stats');
@@ -159,11 +160,13 @@ class Engine extends EventEmitter {
       const consumes = consumesOf(det);
       const over = this.opts.detectors[det.id];
       let status;
+      const fromProfile = profileStatus(det, this.opts);
       const turnedOff =
         (over && over.enabled === false) ||
         /** @type {any} */ (this)._shadowBlocked(det) ||
         ((!over || over.enabled == null) && det.defaults && det.defaults.enabled === false);
-      if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
+      if (fromProfile) status = fromProfile;
+      else if (turnedOff) status = { active: false, reason: 'disabled by configuration' };
       else {
         const missing = det.requires.filter((/** @type {string} */ tier) => !enabled.has(tier));
         status = missing.length

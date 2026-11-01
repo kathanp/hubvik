@@ -321,6 +321,8 @@ export interface EngineOptions {
   classSuggest?: boolean;
   responseHints?: boolean;
   /** Default `additive`. `lr` scores incidents with the likelihood-ratio posterior. */
+  /** Default `'all'`. `'core'` runs the live set in `data/profiles/core.json`. */
+  profile?: 'all' | 'core';
   scoring?: 'additive' | 'lr';
   /** Default false. When true, the engine also emits `alert`. */
   alerts?: boolean;

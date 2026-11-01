@@ -1,0 +1,5 @@
+{
+  "tune": ["iot23-malware"],
+  "holdout": ["iot23-honeypot"],
+  "frozenAt": "2026-10-31"
+}

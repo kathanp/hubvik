@@ -1,0 +1,14 @@
+{
+  "name": "@hubvik/pilot",
+  "exports": [
+    "createRunner",
+    "queueLabel",
+    "writeReport"
+  ],
+  "methods": {
+    "createRunner": [],
+    "queueLabel": [],
+    "writeReport": []
+  },
+  "dts": "export function createRunner(opts: { stateDir: string; conntrack?: string; dnsmasq?: string }): {\n  engine: { feed: (event: object) => void; flush: (now: number) => void; stats: () => object };\n  step: (now: number) => void;\n  stop: (now: number) => void;\n};\n\nexport function writeReport(opts: {\n  stateDir: string;\n  weekStart: number;\n  weekEnd: number;\n  out: string;\n}): void;\n\nexport function queueLabel(\n  stateDir: string,\n  row: { key: string; verdict: string; note?: string; detector?: string },\n): void;\n"
+}
