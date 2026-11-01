@@ -1,8 +1,12 @@
+> Version: 3.3.0 · Updated: 2026-10-31
+
 # Building with hubvik
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status of the code in this repo: package `hubvik@3.2.0`, prototype. It has not been validated on real traffic. npm `latest` is `hubvik@3.1.0` until the 3.2.0 tag is published. Do not publish detection rates that this repository did not measure.
+Status: **hubvik 3.3.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. Do not publish detection rates that this repository did not measure.
+
+Planned work that is not in this tree is `docs/SPEC.md` section 0.20.
 
 ## Install
 
@@ -103,7 +107,7 @@ Call `flush(now)` or `tick(now)` from a timer. Do not call a bare `flush()` whil
 
 Learning starts at a device's first event and lasts `learnMs` (default 7 days), or until `lock(device)`. Hard-rule detectors still report during learning. Those shipped in this tree include threat-intel matches, telnet/ADB/TR-069 scans, packet floods, reflection, inbound telnet or ADB, policy violations, ADB on 5555, SMTP bursts, and TFTP to the WAN.
 
-During learning the engine can emit `warning` `SUSPICIOUS_LEARNING` for a GRE flow, outbound telnet, TCP 5555, an NXDOMAIN burst (10 in one window), more than 20 new registrable domains in a day after day two, a proxy shape, or a DHCP fingerprint change on a MAC that already has one (`identity-change`). The first fingerprint is kept. Those warnings are not anomalies. Review them before `lock()`.
+During learning the engine can emit `warning` `SUSPICIOUS_LEARNING` for a GRE flow, outbound telnet, TCP 5555, an NXDOMAIN burst (10 in one window), more than 20 new registrable domains in a day after day two, a proxy shape, or a DHCP fingerprint change on a MAC that already has one (`identity-change`). The first fingerprint is kept. Those warnings are not anomalies. Review them before `lock()`. It also warns `SUSPICIOUS_LEARNING` with reason `ramp`, `late-family-burst`, or `beacon-born-in-learning`. `ramp` compares mean bytes per active window in the last third of `learnMs` with the first third, and needs 100 active windows in each. `late-family-burst` fires when more than half of the learned families were first seen in the last 10% of `learnMs`. The first-seen map stops at `maxDestinations`. `beacon-born-in-learning` applies the `new-beacon` periodicity test to a destination whose first flow is after half of `learnMs`. It keeps 16 such destinations. Any of the three leaves `learningQuality.ready` false.
 
 `importBaseline` marks the imported devices as already watching. They do not learn from the import itself.
 
@@ -221,10 +225,6 @@ engine.feed({
 
 The core does not ship an IP-to-ASN database or a Tor relay list. Pass Tor relays as indicators with `type: 'tor'`. Ad domains use `type: 'ad'`. A newly registered name uses `type: 'young-domain'`.
 
-## Learning-poison warnings
-
-During learning the engine also warns `SUSPICIOUS_LEARNING` with reason `ramp`, `late-family-burst`, or `beacon-born-in-learning`. `ramp` compares mean bytes per active window in the last third of `learnMs` with the first third, and needs 100 active windows in each. `late-family-burst` fires when more than half of the learned families were first seen in the last 10% of `learnMs`. The first-seen map stops at `maxDestinations`. `beacon-born-in-learning` applies the `new-beacon` periodicity test to a destination whose first flow is after half of `learnMs`. It keeps 16 such destinations. Any of the three leaves `learningQuality.ready` false.
-
 ## Feedback and promotion
 
 `feedback(anomalyId or fingerprint, verdict, { operator, note })` appends one record. Verdicts are `tp`, `fp`, `benign-true`, and `unknown`. The ring holds 10,000 and is restored from `checkpoint().feedback`. `exportLabels()` is JSONL. `stats().precision[detector]` counts labels whose timestamp is inside the last 7 days of the watermark. `fpRate` is `fp / n`. `NOISY_DETECTOR` warns once when `fpRate > 0.5` and `n >= 10`.
@@ -264,7 +264,7 @@ Several of these stay quiet until the host supplies an input the core never deri
 
 A pilot that wants shadow evidence must opt in as above. Shadow anomalies are the only evidence the shadow rule accepts before a row can move to `live`. A site that leaves the default collects none.
 
-With `shadow: true` the x86 bench median was 10.38 µs, over the 10 µs line. It is not gated. Shadow mode is not claimed budget-safe on x86, or on a Raspberry Pi 4 until it is measured there.
+The newest bench entry, `## 2.1.0 — feed hot path, 2026-10-27` in `docs/BENCHMARKS.md`, records a `shadow: true` median of 5.50 µs. That median is not a gate. A Raspberry Pi 4 measurement is not in that entry.
 
 ## TLS, building protocols, and fleets
 
@@ -345,10 +345,14 @@ A first look in one process can pass `learnMs: 0` and call `lock()` before `feed
 | `correlate: true`                                             | Copies a DNS name, or a TLS SNI when no DNS name is stored, onto a later flow with the same `uid`. Cap 4,096 ids, 120 seconds. Default false         |
 | `annotate` / `loadTemplates` / `setDeviceCriticality`         | Maintenance windows, attack templates, and per-device alert thresholds. All default off                                                              |
 
-## What this tree does not do yet
+## Checkpoint, shadow rows, and open gates
 
 `checkpoint()` and `restore()` snapshot the baseline, the LAN scratch tables, the watermark, learning progress, and each detector's live state, including open-window counters that `exportBaseline()` does not store. An anomaly `fingerprint` is a hash of the detector, the device, and a stable dedup key, not the display text. `packages/core/test/metamorphic/` checks time shift, device rename, checkpoint equivalence, bounded reorder, attack monotonicity, benign idempotence, and shadow non-interference.
 
-`dictionary-dga` is a shadow detector. The B22, B23, B24, and B25 rows stay shadow. The package version is 2.1.0. Their notes are in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built. B24 is `dispersed-flood`, `txt-channel`, `inbound-lateral`, and `short-lived-cert`. B25 is `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp`.
+`dictionary-dga` and `src/data/words.json` were removed in 3.3.0. The B22, B23, B24, and B25 rows stay shadow. The package version is 3.3.0. `profile: 'core'` runs the live detectors in `packages/core/src/data/profiles/core.json`. The default `all` is unchanged. An explicit `detectors[id].enabled` wins. A detector turned off by the profile has reason `profile`. Their notes are in `packages/core/CHANGELOG.md`. The former 1.x rows ship as Rel 0.9 shadow detectors and are not live. Host-declared physical limits on `ot-value-out-of-range` and payload-size tracking on `mqtt-publish-rate` are not built. B24 is `dispersed-flood`, `txt-channel`, `inbound-lateral`, and `short-lived-cert`. B25 is `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp`.
 
 With default options the bench gate on x86 is 12 µs median `feed()` at 1,000 devices and 120 KB per device on the 7-day line. That gate is 20% above the 10 µs and 100 KB requirement. A Raspberry Pi 4 has not been measured. IoT-23 result files are `eval/results/iot23-malware/` and `eval/results/iot23-honeypot/`. Copy figures from those files. Do not treat the roadmap's dataset names as results.
+
+## Names from the type declarations
+
+`HubvikError` is the error class. `createEngine` is the usual constructor. `constructor` on `Engine` takes the same options. `feedBatch(events)` feeds an array. `forget(device)` drops that device's state. `annotations(query)` lists notes, and `removeAnnotation(id)` deletes one. `auditLog({ sinceSeq })` reads the chain, and `verifyAudit()` checks it. The `device-new` event fires when a device is first seen. `windowMs` defaults to 60 seconds. `sigma`, `minBytes`, `minFanout`, `fanoutFactor`, `peakFactor`, and `maxNewDstPerWindow` are the volume and fan-out options. `hourOf` and `dayOf` map a timestamp to an hour or a weekday. `maxDevices`, `maxDestinations`, `maxAlertKeys`, `maxWindows`, `maxWindowDestinations`, `maxIndicators`, and `maxBuffered` are caps. `incidentWindowMs` defaults to 30 minutes. `tierSilentMs` and `tierSilentByTier` time the `tier-silent` check. `linkMs` is the link-layer window. `ownBssids` lists mesh BSSIDs. Warning payloads on the `warning` event carry a `code` string. The type file does not enumerate those codes.

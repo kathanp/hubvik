@@ -1,3 +1,5 @@
+This file is an old copy of the specification (spec 3.4, core 1.0.0 in its header). The current specification is `docs/SPEC.md`.
+
 # hubvik — Package Specification (v3.4, sequential evidence and contagion)
 
 |              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |

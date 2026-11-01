@@ -1,5 +1,5 @@
 {
-  "ignoreDependencies": ["hubvik"],
+  "ignoreDependencies": ["hubvik", "@hubvik/adapter-conntrack", "@hubvik/adapter-dnsmasq"],
   "rules": {
     "exports": "off",
     "nsExports": "off"

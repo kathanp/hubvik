@@ -1,5 +1,32 @@
 # Changelog
 
+## 3.3.0
+
+Scorecard, a core profile, an on-box pilot, and a device bench. `dictionary-dga` and `src/data/words.json` are removed. No new detector row. Thresholds, severities, and detector defaults are unchanged. `profile` defaults to `all`, and that stream matches the previous live anomalies.
+
+`eval/splits/iot23.json` names the tune and holdout captures. `eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md`. The suggestions are proposals. `createEngine({ profile: 'core' })` runs the live detectors in `src/data/profiles/core.json`. `@hubvik/pilot` 0.1.0 follows local conntrack and dnsmasq logs. It makes no network call and has not been run on a real device. `npm run bench:device` prints a host block and three bench lines. Disclosure mail is in `SECURITY.md`.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
+## Unreleased — docs
+
+Documentation only. No behavior change.
+
+- `README.md`: status matches npm `latest` 3.2.0, and the validation section quotes the committed IoT-23 result files.
+- `docs/features.md`: same status and validation text. Report-helper heading renamed. Catalog regenerated.
+- `docs/DEVELOPERS.md`: status, shadow median from the 2.1.0 bench entry, learning warnings in one section, public names.
+- `docs/OPERATIONS.md`: status and the same shadow median.
+- `docs/ARCHITECTURE.md`: package layout matches the tree and package versions.
+- `docs/QUALITY.md`: coverage branches and the unpacked cap match the scripts.
+- `docs/SPEC.md`: module versions and npm state, section 0.19, fdr id D-112.
+- `docs/DECISIONS.md`: missing ids appended. D-86 left as the pack-cap entry.
+- `docs/QUESTIONS.md`: Q-32 through Q-38 appended.
+- `docs/ERRORS.md`: cause and fix lines taken from the throw sites.
+- `docs/current/SPEC.md`: banner that this file is an old copy.
+- `packages/*/README.md`: each package states its `package.json` version.
+- `scripts/docs-facts-check.mjs`: drift check, run from the gate script after the existing gate.
+- Roadmap 3.3.0–3.6.0 planned in SPEC 0.20 and Part J. No behavior change.
+
 ## 3.2.0
 
 One read for a developer. No new detector row. Thresholds, severities, and detector defaults are unchanged. A default engine still matches 1.6.0 live anomalies.

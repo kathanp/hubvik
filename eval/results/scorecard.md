@@ -1,0 +1,222 @@
+# Scorecard
+
+Suggestions are proposals. They do not edit a default.
+
+- new-destination holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-domain-family holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-port holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-protocol holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- fan-out holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- horizontal-scan holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- vertical-scan holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- failed-connection-ratio holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- lan-lateral holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- volume-spike holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- volume-spike-hourly holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- upload-ratio-shift holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- packet-flood holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- egress-flood holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- reflection-participation holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- coap-amplification holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- wrong-time holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- went-silent holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- tier-silent holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- nxdomain-burst holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- resolver-bypass holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- dns-rebinding holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- private-answer-for-public-name holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- threat-intel-match holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- bogon-destination holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- inbound-from-wan holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-device holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- policy-violation holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- adb-exposure holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- mqtt-new-broker holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- spam-relay holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- tftp-activity holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- posture-listening-risky holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- posture-wan-exposed holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- input-gap holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- clock-jump holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- state-cap holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- alert-storm holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- class-violation holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- supply-chain-suspect holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- proxy-relay holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- proxy-sdk-traffic holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- blockchain-c2 holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- direct-ip holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-asn holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-country holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- upnp-port-open holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- tor-or-proxy holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- lan-sweep holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- brute-force-out holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- brute-force-in holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- slow-exfil holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- protocol-mix-shift holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- connection-churn holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-beacon holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- long-connection holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- dga holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- dns-tunnel holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- arp-spoof holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- gratuitous-arp-flood holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- rogue-dhcp holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- identity-change holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- dhcp-starvation holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- rogue-ra holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- src-spoof holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- icmp-redirect holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- zone-violation holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- stream-to-new-destination holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- cryptomining holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-wan-exposure holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- tunnel-service holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- vpn-protocol holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- icmp-tunnel holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ipv6-tunnel holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ntp-rogue holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- update-from-new-source holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- update-over-cleartext holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- post-update-drift holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- posture-cleartext-auth holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-client-fingerprint holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- cert-change holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- sni-missing holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- tls-on-odd-port holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- cleartext-regression holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- browser-mimic holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- posture-weak-tls holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- proxy-backconnect holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- lan-via-proxy holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- p2p-pattern holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- credential-stuffing-out holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ad-fraud holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- quic-new holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- beacon-change holdout live suggestion review; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- answer-drift holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- fast-flux holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-new-master holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-write-new holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-dangerous-op holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-value-out-of-range holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-write-rate holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-recon holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-spoof holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- ot-error-burst holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- mqtt-wildcard-subscribe holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- mqtt-topic-new holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- mqtt-publish-rate holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- onvif-config-change holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- peer-divergence holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- fleet-wave holdout live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day no rate; no Wilson interval
+- new-destination tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-domain-family tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-port tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0.06877227417748201; Wilson 95% 0.029730746459768337 to 0.15109808063676294
+- new-protocol tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0.0137544548354964; Wilson 95% 0.0024320768671917837 to 0.07388349910430698
+- fan-out tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- horizontal-scan tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- vertical-scan tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- failed-connection-ratio tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- lan-lateral tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- volume-spike tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- volume-spike-hourly tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- upload-ratio-shift tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- packet-flood tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- egress-flood tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- reflection-participation tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- coap-amplification tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- wrong-time tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- went-silent tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- tier-silent tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- nxdomain-burst tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- resolver-bypass tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- dns-rebinding tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- private-answer-for-public-name tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- threat-intel-match tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- bogon-destination tune live suggestion propose-demote; unique n too small (0 unique detections); FP per benign device-day 4.222617634497395; no Wilson interval
+- inbound-from-wan tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-device tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- policy-violation tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- adb-exposure tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- mqtt-new-broker tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- spam-relay tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- tftp-activity tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- posture-listening-risky tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- posture-wan-exposed tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- input-gap tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- clock-jump tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- state-cap tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- alert-storm tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- class-violation tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- supply-chain-suspect tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- proxy-relay tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- proxy-sdk-traffic tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- blockchain-c2 tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- direct-ip tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-asn tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-country tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- upnp-port-open tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- tor-or-proxy tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- lan-sweep tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- brute-force-out tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- brute-force-in tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- slow-exfil tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- protocol-mix-shift tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- connection-churn tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-beacon tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- long-connection tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- dga tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- dns-tunnel tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- arp-spoof tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- gratuitous-arp-flood tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- rogue-dhcp tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- identity-change tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- dhcp-starvation tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- rogue-ra tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- src-spoof tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- icmp-redirect tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- zone-violation tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- stream-to-new-destination tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- cryptomining tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-wan-exposure tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- tunnel-service tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- vpn-protocol tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0.0137544548354964; Wilson 95% 0.0024320768671917837 to 0.07388349910430698
+- icmp-tunnel tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ipv6-tunnel tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ntp-rogue tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- update-from-new-source tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- update-over-cleartext tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- post-update-drift tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- posture-cleartext-auth tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- new-client-fingerprint tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- cert-change tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- sni-missing tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- tls-on-odd-port tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- cleartext-regression tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- browser-mimic tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- posture-weak-tls tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- proxy-backconnect tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- lan-via-proxy tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- p2p-pattern tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- credential-stuffing-out tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ad-fraud tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- quic-new tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- beacon-change tune live suggestion review; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- answer-drift tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- fast-flux tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-new-master tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-write-new tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-dangerous-op tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-value-out-of-range tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-write-rate tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-recon tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-spoof tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- ot-error-burst tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- mqtt-wildcard-subscribe tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- mqtt-topic-new tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- mqtt-publish-rate tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- onvif-config-change tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- peer-divergence tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625
+- fleet-wave tune live suggestion no-data; unique n too small (0 unique detections); FP per benign device-day 0; Wilson 95% 0 to 0.050187263190240625

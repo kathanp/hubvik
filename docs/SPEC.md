@@ -1,18 +1,18 @@
 # hubvik — Package Specification (v3.4, sequential evidence and contagion)
 
-|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Spec version | 3.8 draft, 2026-10-25. Adds 0.13 and B25 (four shadow rows for 2.0.1). D-107 to D-110 are `[PROPOSED]`. 3.7 (2026-10-25) added 0.12 and B24. D-102 to D-106 are `[PROPOSED]`. 3.6 (2026-10-24) added 0.11 conntrack. 3.5 (2026-10-24) added 0.10 `correlate`. 3.4 (2026-10-23) added 0.9, Part H, B23, WP-52 to WP-58 and Q-26 to Q-28. D-86 to D-94 are `[PROPOSED]`. 3.3 (2026-10-21) added 0.8, A2.1b, B22, Part G, WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
-| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package      | `hubvik` (chosen 2026-10-20, renamed from `iotwarden`; npm exact name unclaimed on 2026-10-20; trademark search still owed by the human)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Spec version | 3.9 draft, 2026-10-31. Adds 0.20, Part J, WP-61 onward. Planning only, no behavior change. 3.8.1 docs reconcile, 2026-10-31. Adds 0.19. No behavior change. 3.8 draft, 2026-10-25. Adds 0.13 and B25 (four shadow rows for 2.0.1). D-107 to D-110 are `[PROPOSED]`. 3.7 (2026-10-25) added 0.12 and B24. D-102 to D-106 are `[PROPOSED]`. 3.6 (2026-10-24) added 0.11 conntrack. 3.5 (2026-10-24) added 0.10 `correlate`. 3.4 (2026-10-23) added 0.9, Part H, B23, WP-52 to WP-58 and Q-26 to Q-28. D-112 and D-87 to D-94 are `[PROPOSED]`. 3.3 (2026-10-21) added 0.8, A2.1b, B22, Part G, WP-39 to WP-51 and Q-20 to Q-25. D-45 to D-84 and the CPU cap D-85 were approved as starting values on 2026-10-21. D-44 stays the shadow-median gate. 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38 and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6 and Part E |
+| Supersedes   | 3.2, 3.1, 3.0 and 2.1. Everything earlier that is not changed here still applies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Covers       | Core engine 0.1 → 1.0, plus the full detector catalog through 1.x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Runtime      | Node.js ≥ 22 (18 and 20 are end-of-life), CommonJS + `.d.ts`, zero runtime dependencies in core                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| License      | Apache-2.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Author       | Kathan Patel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
-**Start here (3.4).** Read 0.6, 0.7, 0.8 and 0.9 first. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
+**Start here (3.9).** Read 0.20 first. It is the planned roadmap for 3.3.0 to 3.6.0. Nothing in it is built, and it changes no behavior. Then read 0.19. It records deviations as of 2026-10-31 and changes no behavior. Then read 0.6, 0.7, 0.8 and 0.9. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
 
-**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Appendix B lists the sources behind every threat claim in this file.
+**How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Part J (planned) specifies evidence, noise, and operator intelligence for 3.3.0 to 3.6.0; its work packages are WP-61 to WP-70. Appendix B lists the sources behind every threat claim in this file.
 
 **Rule for the coding agent.** When a run is started with `AUTOPILOT.md`, that playbook decides how the work is split, tested, and committed, and this file decides what the behavior is (0.7). Without AUTOPILOT, work only from Part E, one work package at a time, in order. A work package is done when its Definition of Done and the gate pass. Then stop and wait for the human. If this spec and the code disagree and Part 0 does not already say which one wins, write the question in `docs/QUESTIONS.md` and stop.
 
@@ -57,7 +57,7 @@ These are not new features. They are places where the shipped behavior cannot do
 
 ## 0.4 Modules and phases
 
-`[X]` is in the tree. `[ ]` is not. Versions are the local packages. Nothing is published.
+`[X]` is in the tree. `[ ]` is not. Versions below are the local `package.json` versions. On 2026-10-31, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published).
 
 ### Modules
 
@@ -71,7 +71,7 @@ These are not new features. They are places where the shipped behavior cannot do
   - [x] B21 rows through WP-21, all `mode: 'shadow'`
   - [x] B24 rows, all `mode: 'shadow'`, off unless `shadow` selects them
   - [x] B25 rows, all `mode: 'shadow'`, off unless `shadow` selects them
-  - [x] Published to npm (`hubvik@2.0.4`; `2.1.0` waits for its tag)
+  - [x] npm dist-tag `latest` is 3.2.0, viewed 2026-10-31. That output has no `next` tag. Scoped packages returned 404
 - [x] `@hubvik/adapter-conntrack` 0.3.1 — `conntrack` lines to flow events
 - [x] `@hubvik/adapter-dnsmasq` 0.2.1 — dnsmasq query lines to DNS events
 - [x] `@hubvik/adapter-zeek` 0.2.1 — Zeek JSON logs
@@ -364,7 +364,7 @@ An agent asked to start a B23 row while C10 row 0.6 is unticked writes the reque
 
 ### 0.9.2 Numbers
 
-D-86 to D-94 are `[PROPOSED]`. The implementation that is in the tree uses these values so the tests have a fixed target. Those marks do not stop a release. The Approve button on the npm website is not a step in Cursor.
+D-112 and D-87 to D-94 are `[PROPOSED]`. The implementation that is in the tree uses these values so the tests have a fixed target. Those marks do not stop a release. The Approve button on the npm website is not a step in Cursor.
 
 - **Budget.** H1 state is one number and a 64-entry ring per device that has had a live anomaly since UTC midnight. H2, when a future row uses it, is at most 32 timestamps per tracked series and must stay inside the 2 KB shadow cap. Neither may raise the 1,000-device watching median by more than 0.5 µs with the option left off (D-85). With `fdr: true` the median is recorded and is not a new gate.
 - **Success metric.** Not a new detector count. The metric is alerts per benign device-day against anomalies per benign device-day, on the same capture, with `fdr: false` and `fdr: true`. WP-31 still owns the C6.3 gate. H1 does not tune a detector.
@@ -495,6 +495,35 @@ Core is `3.2.0`. No new detector row. No threshold change. The live anomaly stre
 **Done when.** `overview` matches `attacks` for a device that is `progressing`, does not emit, rejects a bad `now`, and on a sharded engine returns one row per shard that already fired.
 
 ---
+
+## 0.19 Record of deviations (2026-10-31)
+
+These rows record what the tree contains while a gate or a question is still open. They do not change the rule text in 0.1, 0.8.1, 0.9.1, or 0.5. C10 rows 1.1, 1.2, 1.6, and 2.0.1 stay unticked: their gates are not met. The detector files for those rows are in the tree.
+
+| Fact                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Question |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| B22, B23, B24, and B25 rows were built while C10 row 0.6 is open. B22 shipped in 1.0.0 (`dhcp-route-injection`, `wpad-hijack`, `ra-flood`, `karma-responder`, `cname-cloak`, `ja4-churn`, `lan-first-seen-domain`, `multivariate-outlier`, `sequence-surprise`, `flow-shape-change`, `dormant-reactivation`, `firmware-size-divergence`, `stun-turn-relay`, `port-knock`, `bacnet-bbmd-write`, `modbus-unit-sweep`, `mqtt-retained-command`, `rtsp-new-viewer`, `suppression-abuse`) and `dictionary-dga` shipped in 1.3.1. B23 shipped in 1.3.1 (`graph-contagion`, `doh-bypass`, `spectral-beacon`, `modbus-address-sweep`, `mqtt-will-takeover`). B24 shipped in 1.6.0 (`dispersed-flood`, `txt-channel`, `inbound-lateral`, `short-lived-cert`). B25 shipped in 2.0.1 (`h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`). | Q-34     |
+| `dictionary-dga` and `packages/core/src/data/words.json` shipped in 1.3.1 while Q-23 is open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Q-33     |
+| npm dist-tag `latest` is 3.2.0, viewed 2026-10-31. D-41 says publish with tag `next` until 1.0.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Q-32     |
+| `hubvik` 3.2.0 is on npm while Q-14 is open and the release check lists a missing disclosure email as a blocker. `packages/core/SECURITY.md` has no disclosure email.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Q-36     |
+| The bogon-destination severity decision used the same IoT-23 malware capture the false-positive rate is measured on.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Q-35     |
+
+## 0.20 Roadmap 3.3.0 to 3.6.0 (planned, not built)
+
+This section is a plan. Nothing in it is in the tree. It adds no detector row. Rule 0.1 and the detector freeze stay in force: no new detector file until C10 row 0.6 is ticked.
+
+The goal is to make hubvik proven and useful, not larger. Evidence comes first (3.3.0). Noise and explanation come next (3.4.0). The features that make hubvik unique come after that (3.5.0, then 3.6.0). Each later version requires the earlier version's gate. 3.5.0 and 3.6.0 do not wait for the 30-day pilot (D-147). Each waits only for the previous version's gate. Families stay opt-in until that pilot.
+
+No sentence here is a detection rate or a false-positive rate. Targets below are behavior. They are not measurements.
+
+| Version | Work packages          | Gate                                                                                                 | Depends on                         |
+| ------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| 3.3.0   | WP-61 to WP-65 (J1–J5) | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds | the current tree. No detector rows |
+| 3.4.0   | WP-66 to WP-68 (J6–J8) | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                | 3.3.0                              |
+| 3.5.0   | WP-69 (J9)             | the 3.4.0 gate met; J9 done-when met                                                                 | 3.4.0                              |
+| 3.6.0   | WP-70 (J10)            | the 3.5.0 gate met; J10 done-when met                                                                | 3.5.0                              |
+
+Part J specifies each item. J11 is deferred and has no work package.
 
 # PART A — ENGINE
 
@@ -1297,28 +1326,28 @@ Every row here ships `meta.mode: 'shadow'` (see 0.5 and F1). **Sev** is the seve
 
 **Why these rows.** Each covers an attack path no current row reads, chosen from three gaps: (1) LAN control-plane attacks that redirect traffic without touching ARP (DHCP route injection, WPAD, RA floods, rogue Wi-Fi responders); (2) evasions of the existing DNS and TLS detectors (dictionary DGAs that pass entropy tests, CNAME cloaking, randomized ClientHellos, ECH hiding SNI); (3) OT and IoT application abuse the B13/B14 rows miss (BBMD table writes, Modbus unit sweeps, retained MQTT commands, new RTSP viewers). Three rows (`multivariate-outlier`, `sequence-surprise`, `flow-shape-change`) are the detector faces of the G5, G6 and G11 models.
 
-| ID                         | Catches                                                                                                                                               | Needs                              | Method                                                                                                                                                                                                                                                                                                                                                                                       | Sev      | FP risk                                                                                                          | Rel |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- | --- |
-| `dhcp-route-injection`     | DHCP option 121/249 classless static routes that pull traffic around a VPN or onto an attacker host (TunnelVision, CVE-2024-3661)                     | T4 (`dhcp.options`, `dhcp.routes`) | Learn per DHCP server the option codes it sends in OFFER/ACK. While watching, fire when an OFFER/ACK carries 121 or 249 from a server whose learned set lacks it, or when any route is a `/0` or `/1` prefix (a split default route), or when a route covers a learned public destination family of a client. Reports `serverIp` and the routes. LAN table on scratch, cap 64 servers (D-65) | high     | Low. Enterprise networks that push 121 legitimately are absorbed by the learned set                              | 1.1 |
-| `wpad-hijack`              | Proxy auto-config hijack: WPAD offered by DHCP option 252 or answered over DNS by a host that never served it                                         | T2 + T4                            | Fire when a DHCP OFFER/ACK newly carries option 252 or `wpadUrl` from a server that never sent it, or when a `wpad` or `wpad.<suffix>` query gets a NOERROR answer after learning recorded only NXDOMAIN for that name. Once per (server or answer address) per 24 h (D-66)                                                                                                                  | high     | Low. Most home and building networks never answer WPAD                                                           | 1.1 |
-| `ra-flood`                 | IPv6 Router Advertisement flood (CPU and address exhaustion on every IPv6 host on the segment)                                                        | T4 (`ra`)                          | LAN-wide counter on scratch: Σ `ra.count` ≥ 50 per window, or ≥ 20 distinct (`srcMac`, prefix) pairs per window. Reports the top 3 source MACs (D-67)                                                                                                                                                                                                                                        | high     | Low                                                                                                              | 1.1 |
-| `karma-responder`          | Rogue access point that answers probe requests for any SSID (Karma / MANA), luring devices to auto-join                                               | T4 (`wifi`)                        | One `bssid` sends `probe-resp` for ≥ 5 distinct SSIDs in one window. BSSIDs in `ownBssids` are skipped. Cap 256 tracked BSSIDs, LRU (D-68)                                                                                                                                                                                                                                                   | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | 1.1 |
-| `dictionary-dga`           | Wordlist DGAs (Suppobox and Matsnu style) that join dictionary words, which `dga` entropy and bigram tests pass as benign                             | T2                                 | A leftmost label of 8–30 letters that segments fully into 2–4 words from `src/data/words.json` (dynamic programming over the label), in a registrable family the device never learned, with rcode NXDOMAIN or answer TTL ≤ 300. Fires on ≥ 8 such names per device per window (D-69)                                                                                                         | medium   | Medium per name (brand and marketing domains), low per burst because NXDOMAIN or low TTL is required             | 1.1 |
-| `cname-cloak`              | A first-party-looking name whose CNAME chain lands on an ad, tracker or proxy-SDK service (hides third-party traffic behind the vendor's domain)      | T2 + host lists                    | The CNAME chain in `answers` starts in a family learned for the device and ends in a family that matches an indicator of type `ad`, `tracker` (new indicator type) or `proxy-sdk`. Once per (device, final family) per 24 h. No list loaded means no alert (D-70)                                                                                                                            | medium   | Depends on the host's lists                                                                                      | 1.1 |
-| `ja4-churn`                | Randomized ClientHellos (uTLS-style) used to slip past JA4 allowlists and `new-client-fingerprint`                                                    | T3                                 | ≥ 4 distinct JA4 strings to the same (`dstIp`, `sni`) from one device in one window, when the learned maximum distinct JA4 per window for that device is ≤ 1. Skipped for classes whose `allowsBrowserJa4` is true (D-71)                                                                                                                                                                    | high     | Low on single-stack IoT                                                                                          | 1.1 |
-| `lan-first-seen-domain`    | A registrable family that no device on this network has contacted in 30 days (network-scope newly observed domain)                                    | T2                                 | Two engine-wide rotating Bloom filters (G0), 15 days each, of families seen by any device. A miss in both is a hit. Severity `low`; exists as evidence for G1 and G12, never to page alone. At most 20 per device per UTC day (D-72)                                                                                                                                                         | low      | High alone; that is why it is `low` and capped                                                                   | 1.1 |
-| `dormant-reactivation`     | A device that was silent for days wakes up and immediately contacts something new (sleeper implant, re-flashed device, swapped hardware)              | T0/T1                              | A device with ≥ 3 learned active days and no events for ≥ 7 days sends again, and within its first 60 minutes back contacts a family not in its baseline (D-73)                                                                                                                                                                                                                              | high     | Medium: seasonal devices that update firmware on wake. A G3 `firmware-update` annotation removes it from scoring | 1.1 |
-| `firmware-size-divergence` | One device in a fleet downloads an "update" of a different size than its peers from the same source (tampered or targeted image)                      | T1 + peer group                    | For inbound downloads ≥ 1 MB from the same source family within 72 h on ≥ 3 peers, take the mode of sizes rounded to 64 KB. Fire on a peer whose size differs from the mode by > 10 % and > 256 KB. No group means no alert (D-74)                                                                                                                                                           | high     | Low once peer groups are right (G10 helps)                                                                       | 1.1 |
-| `stun-turn-relay`          | Bulk upload relayed through STUN/TURN (WebRTC relay used as a covert exfil or remote-control path)                                                    | T1                                 | TCP/UDP to 3478 or 5349, or a `dstName` with a leftmost label `stun` or `turn`, to a host not in the baseline, with ≥ 5 MB `bytesOut` in one hour (D-75)                                                                                                                                                                                                                                     | medium   | Medium: video doorbells use WebRTC. The baseline absorbs their relays                                            | 1.1 |
-| `port-knock`               | A port-knocking sequence that opens a hidden backdoor listener                                                                                        | T1                                 | From one public source: ≥ 3 inbound attempts to distinct ports that end `rejected` or `no-response` within 10 s, followed within 30 s by an `established` inbound session on a different port from the same source. Cap 256 sources per device, LRU (D-76)                                                                                                                                   | high     | Low                                                                                                              | 1.1 |
-| `bacnet-bbmd-write`        | A LAN client rewrites the BACnet Broadcast Distribution Table or registers as a foreign device, extending the BACnet network to an attacker           | T5                                 | `op` `Write-Broadcast-Distribution-Table` or `Register-Foreign-Device` from a client not in the learned set for that device. `ot-wan-exposure` still covers the public-address case (D-77)                                                                                                                                                                                                   | critical | Very low                                                                                                         | 1.1 |
-| `modbus-unit-sweep`        | Enumeration of the serial devices behind a Modbus gateway by cycling unit identifiers                                                                 | T5 (`app.unitId`)                  | One client sends requests to ≥ 16 distinct `unitId` values on one server in one window, when the learned maximum for that pair is ≤ 2 (D-78)                                                                                                                                                                                                                                                 | high     | Low                                                                                                              | 1.1 |
-| `mqtt-retained-command`    | A retained MQTT publish to a command topic, which replays to every device that reconnects (persistent takeover)                                       | T5 (`app.flags`)                   | `op` `PUBLISH`, `flags` includes `retain`, the topic has a segment `cmd`, `command`, `set`, `ota`, `config` or `firmware`, and the client (`peerIp`) was never learned publishing to that topic prefix (D-79)                                                                                                                                                                                | high     | Low. Legitimate retained command topics are learned                                                              | 1.1 |
-| `rtsp-new-viewer`          | A new client pulls a camera's stream (someone is watching), the inbound mirror of `stream-to-new-destination`                                         | T5 or T1                           | Inbound RTSP `DESCRIBE`/`SETUP`/`PLAY`, or an `established` inbound flow to 554 or 8554, on a device from a client never learned. Once per (device, client) per 24 h (D-80)                                                                                                                                                                                                                  | high     | Low. NVRs and hubs are learned                                                                                   | 1.1 |
-| `suppression-abuse`        | Someone with access to the host's API silences hubvik: mass `allow`/`suppress`, long suppressions of hard rules, or annotations covering most devices | Engine (G9)                        | Needs `audit: true`. Per operator id in one hour: ≥ 20 `allow` or `suppress` calls; or any `suppress` of a hard-rule detector (clamped to 24 h by F4); or an `annotate` covering ≥ 50 % of devices for > 6 h. Reported against device id `__engine__` (D-81)                                                                                                                                 | medium   | Medium after a large initial tuning session; that is why it is `medium`                                          | 1.1 |
-| `multivariate-outlier`     | A device window that is unusual in combination although no single feature crosses its own threshold                                                   | T0–T2 + G5                         | See G5. Fires when the window score is below the model's learned 0.1 percentile for 3 consecutive windows. Data carries the top 3 contributing features (D-82)                                                                                                                                                                                                                               | medium   | Medium. Shadow until evidence says otherwise                                                                     | 1.1 |
-| `sequence-surprise`        | A device doing familiar things in an unfamiliar order (new command sequence, staged attack)                                                           | T0–T3 + G6                         | See G6. Fires when mean surprise per window exceeds the learned 99.9 percentile for 3 consecutive windows with ≥ 20 transitions each (D-83)                                                                                                                                                                                                                                                  | medium   | Medium                                                                                                           | 1.1 |
-| `flow-shape-change`        | The first-packet shape to a known destination changes (different client stack, tunnel inside the usual port), visible even when ECH hides SNI         | T1 (`flow.splt`) + G11             | See G11. Jensen–Shannon divergence between the learned and the last 20 flows' histograms > 0.4, with ≥ 20 flows (D-84)                                                                                                                                                                                                                                                                       | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | 1.1 |
+| ID                         | Catches                                                                                                                                                   | Needs                              | Method                                                                                                                                                                                                                                                                                                                                                                                       | Sev      | FP risk                                                                                                          | Rel |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- | --- |
+| `dhcp-route-injection`     | DHCP option 121/249 classless static routes that pull traffic around a VPN or onto an attacker host (TunnelVision, CVE-2024-3661)                         | T4 (`dhcp.options`, `dhcp.routes`) | Learn per DHCP server the option codes it sends in OFFER/ACK. While watching, fire when an OFFER/ACK carries 121 or 249 from a server whose learned set lacks it, or when any route is a `/0` or `/1` prefix (a split default route), or when a route covers a learned public destination family of a client. Reports `serverIp` and the routes. LAN table on scratch, cap 64 servers (D-65) | high     | Low. Enterprise networks that push 121 legitimately are absorbed by the learned set                              | 1.1 |
+| `wpad-hijack`              | Proxy auto-config hijack: WPAD offered by DHCP option 252 or answered over DNS by a host that never served it                                             | T2 + T4                            | Fire when a DHCP OFFER/ACK newly carries option 252 or `wpadUrl` from a server that never sent it, or when a `wpad` or `wpad.<suffix>` query gets a NOERROR answer after learning recorded only NXDOMAIN for that name. Once per (server or answer address) per 24 h (D-66)                                                                                                                  | high     | Low. Most home and building networks never answer WPAD                                                           | 1.1 |
+| `ra-flood`                 | IPv6 Router Advertisement flood (CPU and address exhaustion on every IPv6 host on the segment)                                                            | T4 (`ra`)                          | LAN-wide counter on scratch: Σ `ra.count` ≥ 50 per window, or ≥ 20 distinct (`srcMac`, prefix) pairs per window. Reports the top 3 source MACs (D-67)                                                                                                                                                                                                                                        | high     | Low                                                                                                              | 1.1 |
+| `karma-responder`          | Rogue access point that answers probe requests for any SSID (Karma / MANA), luring devices to auto-join                                                   | T4 (`wifi`)                        | One `bssid` sends `probe-resp` for ≥ 5 distinct SSIDs in one window. BSSIDs in `ownBssids` are skipped. Cap 256 tracked BSSIDs, LRU (D-68)                                                                                                                                                                                                                                                   | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | 1.1 |
+| `dictionary-dga`           | Wordlist DGAs (Suppobox and Matsnu style) that join dictionary words, which `dga` entropy and bigram tests pass as benign. Removed in 3.3.0 (decision b). | T2                                 | A leftmost label of 8–30 letters that segments fully into 2–4 words from `src/data/words.json` (dynamic programming over the label), in a registrable family the device never learned, with rcode NXDOMAIN or answer TTL ≤ 300. Fires on ≥ 8 such names per device per window (D-69)                                                                                                         | medium   | Medium per name (brand and marketing domains), low per burst because NXDOMAIN or low TTL is required             | 1.1 |
+| `cname-cloak`              | A first-party-looking name whose CNAME chain lands on an ad, tracker or proxy-SDK service (hides third-party traffic behind the vendor's domain)          | T2 + host lists                    | The CNAME chain in `answers` starts in a family learned for the device and ends in a family that matches an indicator of type `ad`, `tracker` (new indicator type) or `proxy-sdk`. Once per (device, final family) per 24 h. No list loaded means no alert (D-70)                                                                                                                            | medium   | Depends on the host's lists                                                                                      | 1.1 |
+| `ja4-churn`                | Randomized ClientHellos (uTLS-style) used to slip past JA4 allowlists and `new-client-fingerprint`                                                        | T3                                 | ≥ 4 distinct JA4 strings to the same (`dstIp`, `sni`) from one device in one window, when the learned maximum distinct JA4 per window for that device is ≤ 1. Skipped for classes whose `allowsBrowserJa4` is true (D-71)                                                                                                                                                                    | high     | Low on single-stack IoT                                                                                          | 1.1 |
+| `lan-first-seen-domain`    | A registrable family that no device on this network has contacted in 30 days (network-scope newly observed domain)                                        | T2                                 | Two engine-wide rotating Bloom filters (G0), 15 days each, of families seen by any device. A miss in both is a hit. Severity `low`; exists as evidence for G1 and G12, never to page alone. At most 20 per device per UTC day (D-72)                                                                                                                                                         | low      | High alone; that is why it is `low` and capped                                                                   | 1.1 |
+| `dormant-reactivation`     | A device that was silent for days wakes up and immediately contacts something new (sleeper implant, re-flashed device, swapped hardware)                  | T0/T1                              | A device with ≥ 3 learned active days and no events for ≥ 7 days sends again, and within its first 60 minutes back contacts a family not in its baseline (D-73)                                                                                                                                                                                                                              | high     | Medium: seasonal devices that update firmware on wake. A G3 `firmware-update` annotation removes it from scoring | 1.1 |
+| `firmware-size-divergence` | One device in a fleet downloads an "update" of a different size than its peers from the same source (tampered or targeted image)                          | T1 + peer group                    | For inbound downloads ≥ 1 MB from the same source family within 72 h on ≥ 3 peers, take the mode of sizes rounded to 64 KB. Fire on a peer whose size differs from the mode by > 10 % and > 256 KB. No group means no alert (D-74)                                                                                                                                                           | high     | Low once peer groups are right (G10 helps)                                                                       | 1.1 |
+| `stun-turn-relay`          | Bulk upload relayed through STUN/TURN (WebRTC relay used as a covert exfil or remote-control path)                                                        | T1                                 | TCP/UDP to 3478 or 5349, or a `dstName` with a leftmost label `stun` or `turn`, to a host not in the baseline, with ≥ 5 MB `bytesOut` in one hour (D-75)                                                                                                                                                                                                                                     | medium   | Medium: video doorbells use WebRTC. The baseline absorbs their relays                                            | 1.1 |
+| `port-knock`               | A port-knocking sequence that opens a hidden backdoor listener                                                                                            | T1                                 | From one public source: ≥ 3 inbound attempts to distinct ports that end `rejected` or `no-response` within 10 s, followed within 30 s by an `established` inbound session on a different port from the same source. Cap 256 sources per device, LRU (D-76)                                                                                                                                   | high     | Low                                                                                                              | 1.1 |
+| `bacnet-bbmd-write`        | A LAN client rewrites the BACnet Broadcast Distribution Table or registers as a foreign device, extending the BACnet network to an attacker               | T5                                 | `op` `Write-Broadcast-Distribution-Table` or `Register-Foreign-Device` from a client not in the learned set for that device. `ot-wan-exposure` still covers the public-address case (D-77)                                                                                                                                                                                                   | critical | Very low                                                                                                         | 1.1 |
+| `modbus-unit-sweep`        | Enumeration of the serial devices behind a Modbus gateway by cycling unit identifiers                                                                     | T5 (`app.unitId`)                  | One client sends requests to ≥ 16 distinct `unitId` values on one server in one window, when the learned maximum for that pair is ≤ 2 (D-78)                                                                                                                                                                                                                                                 | high     | Low                                                                                                              | 1.1 |
+| `mqtt-retained-command`    | A retained MQTT publish to a command topic, which replays to every device that reconnects (persistent takeover)                                           | T5 (`app.flags`)                   | `op` `PUBLISH`, `flags` includes `retain`, the topic has a segment `cmd`, `command`, `set`, `ota`, `config` or `firmware`, and the client (`peerIp`) was never learned publishing to that topic prefix (D-79)                                                                                                                                                                                | high     | Low. Legitimate retained command topics are learned                                                              | 1.1 |
+| `rtsp-new-viewer`          | A new client pulls a camera's stream (someone is watching), the inbound mirror of `stream-to-new-destination`                                             | T5 or T1                           | Inbound RTSP `DESCRIBE`/`SETUP`/`PLAY`, or an `established` inbound flow to 554 or 8554, on a device from a client never learned. Once per (device, client) per 24 h (D-80)                                                                                                                                                                                                                  | high     | Low. NVRs and hubs are learned                                                                                   | 1.1 |
+| `suppression-abuse`        | Someone with access to the host's API silences hubvik: mass `allow`/`suppress`, long suppressions of hard rules, or annotations covering most devices     | Engine (G9)                        | Needs `audit: true`. Per operator id in one hour: ≥ 20 `allow` or `suppress` calls; or any `suppress` of a hard-rule detector (clamped to 24 h by F4); or an `annotate` covering ≥ 50 % of devices for > 6 h. Reported against device id `__engine__` (D-81)                                                                                                                                 | medium   | Medium after a large initial tuning session; that is why it is `medium`                                          | 1.1 |
+| `multivariate-outlier`     | A device window that is unusual in combination although no single feature crosses its own threshold                                                       | T0–T2 + G5                         | See G5. Fires when the window score is below the model's learned 0.1 percentile for 3 consecutive windows. Data carries the top 3 contributing features (D-82)                                                                                                                                                                                                                               | medium   | Medium. Shadow until evidence says otherwise                                                                     | 1.1 |
+| `sequence-surprise`        | A device doing familiar things in an unfamiliar order (new command sequence, staged attack)                                                               | T0–T3 + G6                         | See G6. Fires when mean surprise per window exceeds the learned 99.9 percentile for 3 consecutive windows with ≥ 20 transitions each (D-83)                                                                                                                                                                                                                                                  | medium   | Medium                                                                                                           | 1.1 |
+| `flow-shape-change`        | The first-packet shape to a known destination changes (different client stack, tunnel inside the usual port), visible even when ECH hides SNI             | T1 (`flow.splt`) + G11             | See G11. Jensen–Shannon divergence between the learned and the last 20 flows' histograms > 0.4, with ≥ 20 flows (D-84)                                                                                                                                                                                                                                                                       | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | 1.1 |
 
 **ATT&CK for B22** (added to `src/data/attack-map.json` in the row's commit): `dhcp-route-injection` T1557, `wpad-hijack` T1557, `ra-flood` T1498, `karma-responder` T1557, `dictionary-dga` T1568.002, `cname-cloak` T1090, `ja4-churn` T1027, `lan-first-seen-domain` T1071, `dormant-reactivation` T1195, `firmware-size-divergence` T1195.002, `stun-turn-relay` T1090, `port-knock` T1205.001, `bacnet-bbmd-write` T0836 (ICS), `modbus-unit-sweep` T0846 (ICS), `mqtt-retained-command` T0855 (ICS), `rtsp-new-viewer` T1125, `suppression-abuse` T1562.001. The three model rows carry no technique id.
 
@@ -1403,7 +1432,7 @@ Every anomaly carries `attack` IDs where a clear mapping exists. Examples: `T104
 
 Core emits native objects. Optional packages convert:
 
-`@hubvik/export-ocsf` (OCSF Detection Finding), `-syslog` (RFC 5424 / CEF), `-webhook`, and later `-ecs` (Elastic) and `-mqtt` (for home-automation hubs). `-ecs` and `-mqtt` also exist at 0.1.0, UNVERIFIED.
+`@hubvik/export-ocsf` (OCSF Detection Finding), `-syslog` (RFC 5424 / CEF), `-webhook`, and later `-ecs` (Elastic) and `-mqtt` (for home-automation hubs). `-ecs` exists at 0.1.0 and `-mqtt` exists at 0.1.1. Both are UNVERIFIED.
 
 **OCSF version is an option, not a constant.** Consumers pin versions: Cisco XDR's findings intake accepts OCSF 1.4.0 Detection Findings, and AWS Security Hub uses OCSF 1.6. `export-ocsf` takes `{ ocsfVersion: '1.4.0' }` (default `'1.4.0'`) and writes it into `metadata.version`. Fixed mapping:
 
@@ -1504,7 +1533,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @hubvik/adapter-*, @hubvik/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap is 900 KB, raised from 750 KB on 2026-10-22. The measured unpacked size on that day was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap in `scripts/pack-check.mjs` is 956 * 1024 bytes. D-86 recorded 900 KB. D-111 records the 956 KiB cap and the 3.1.0 changelog figure of 971688 bytes unpacked. The measured unpacked size on 2026-10-22 was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 ## C9. Versioning
 
@@ -1529,11 +1558,15 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.0**   | MUD input, API freeze, security review, B21 promotions decided from eval and pilot labels                                                                                                                                                               | 0.6 gate met; 30-day pilot on ≥ 1 home and ≥ 1 building with FP per device-day published; one minor release with no API change                                                                                          | [ ]                                                                                                                                                    |
 | **1.x**   | `day-of-week-drift`, `sni-ip-mismatch`, `discovery-spoof`, `fleet-baseline-poisoning`, `mac-randomization-churn`, `ot-schedule-drift`, `reverse-shell-shape`, `llmnr-nbns-poison`, `dns-answer-mismatch`. Numeric defaults are now in Part B            | Shipped as Rel 0.9 shadow. Each still needs a benign all-tier run + an eval or replay result before going live                                                                                                          | [ ]                                                                                                                                                    |
 | **1.1**   | WP-47 to WP-51 (spec 3.3 group C): Bloom filter, half-space trees, sequence model, flow-shape fingerprints, every B22 row in shadow                                                                                                                     | C10 row 0.6 ticked. Every B22 row: holdout or replay result, standard four tests, zero `shadow-anomaly` ≥ medium on the all-tier benign matrix, ≤ 2 KB per device on the 7-day `shadow: true` sweep. No B22 row is live | [ ]                                                                                                                                                    |
-| **1.2**   | WP-52 and WP-53 (spec 3.4 group A): alpha-investing alerts, Hawkes primitive. B23 rows only after this row's gate and after C10 row 0.6                                                                                                                 | `fdr` default off; `test/diff/` byte-identical with `fdr` off; H1 and H2 tests in Part H; D-86 to D-94 approved; no B23 file until C10 row 0.6 is ticked                                                                | [ ]                                                                                                                                                    |
+| **1.2**   | WP-52 and WP-53 (spec 3.4 group A): alpha-investing alerts, Hawkes primitive. B23 rows only after this row's gate and after C10 row 0.6                                                                                                                 | `fdr` default off; `test/diff/` byte-identical with `fdr` off; H1 and H2 tests in Part H; D-112 and D-87 to D-94 approved; no B23 file until C10 row 0.6 is ticked                                                      | [ ]                                                                                                                                                    |
 | **1.4**   | `correlate` (0.10): join a DNS or TLS name onto a later flow by sensor id. Zeek 0.2.0 and Suricata EVE 0.2.0 emit `uid`, `tcpOutcome`, direction, and device `bytesOut`. No new detector row                                                            | `correlate` default off; cap 4,096; 120 s; Zeek conn drives `port-knock`; joined logs drive `cloud-storage-exfil` only when the option is on                                                                            | [x] npm `hubvik@1.4.0`                                                                                                                                 |
 | **1.5**   | Conntrack 0.3.0 (0.11): TCP state, reply counters, and a private-address direction when the caller does not pass one. No new detector row                                                                                                               | Inbound `SYN_SENT` is `no-response`; an established line keeps original `bytesOut` and adds reply `bytesIn`; three silent inbound ports and one established session fire shadow `port-knock`                            | [ ]                                                                                                                                                    |
 | **1.6**   | B24 (0.12): `dispersed-flood`, `txt-channel`, `inbound-lateral`, `short-lived-cert`. All shadow. `tls.cert.notBefore` is kept when it is a finite number. No change to the live anomaly stream while `shadow` is false                                  | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-102 to D-106 approved                                | [ ]                                                                                                                                                    |
 | **2.0.1** | B25 (0.13): `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. All shadow. The call surface is unchanged from 1.6.0                                                                                                                               | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-107 to D-110 approved                                | [ ]                                                                                                                                                    |
+| **3.3.0** | Planned, not built. WP-61 to WP-65 (J1–J5): detector freeze, holdout scorecard, profile `all` or `core`, on-box pilot, device bench. No new detector row                                                                                                | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds                                                                                                                    | [ ]                                                                                                                                                    |
+| **3.4.0** | Planned, not built. WP-66 to WP-68 (J6–J8): detector families default off, explain on every live detector, operator advice. No new detector row                                                                                                         | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                                                                                                                                   | [ ]                                                                                                                                                    |
+| **3.5.0** | Planned, not built. WP-69 (J9): coverage map and pipeline self-test. No new detector row                                                                                                                                                                | the 3.4.0 gate met; J9 done-when met                                                                                                                                                                                    | [ ]                                                                                                                                                    |
+| **3.6.0** | Planned, not built. WP-70 (J10): lock readiness score. The engine never calls `lock()`. No new detector row                                                                                                                                             | the 3.5.0 gate met; J10 done-when met                                                                                                                                                                                   | [ ]                                                                                                                                                    |
 
 ---
 
@@ -2047,9 +2080,9 @@ Part H is engine work. It adds no detector row. B23 is the detector face and it 
 
 Foster and Stine, 2008, constant relative bet. This is a wealth rule for which alerts are eligible. It is not a measured false-discovery rate on IoT-23. WP-31 still measures that rate. The procedure does not drop, block, or rewrite traffic. It does not change a detector threshold.
 
-**Option.** `createEngine({ fdr: false })`. Default `false` (D-86 `[PROPOSED]`). `true` runs the rule below. Any other value throws `MUST_BE_A_BOOLEAN`.
+**Option.** `createEngine({ fdr: false })`. Default `false` (D-112 `[PROPOSED]`). `true` runs the rule below. Any other value throws `MUST_BE_A_BOOLEAN`.
 
-**Wealth.** Stored in thousandths so the arithmetic is exact. `wealth0 = 100` (0.10). Payout on a discovery is `40` (0.04). The bet is `phi = floor(wealth / 2)`. Wealth never exceeds 100 and never goes below 0 (D-86 `[PROPOSED]`).
+**Wealth.** Stored in thousandths so the arithmetic is exact. `wealth0 = 100` (0.10). Payout on a discovery is `40` (0.04). The bet is `phi = floor(wealth / 2)`. Wealth never exceeds 100 and never goes below 0 (D-112 `[PROPOSED]`).
 
 **p-weights**, in the same thousandths (D-87 `[PROPOSED]`). These are ranks, not calibrated probabilities.
 
@@ -2105,6 +2138,402 @@ Named in B23. Not loaded, and not a file, until Q-26 is answered and the 0.6 gat
 Part I is the `correlate` option in 0.10. It adds no detector row. The F0 constraints apply. `correlate` defaults off. With it off, the anomaly stream and `exportBaseline()` stay as they are in 1.3.1.
 
 The numbers are D-95 to D-98 and they are `[PROPOSED]`. The implementation uses them so the tests have one target.
+
+---
+
+# PART J — EVIDENCE, NOISE, AND OPERATOR INTELLIGENCE (planned)
+
+Part J is planned. It is not built. It adds no detector row. Every option below defaults to today's behavior unless the section says the call is new and opt-in. A default engine's anomaly stream stays the stream that ships today.
+
+## J1. Detector freeze guard
+
+### What it is
+
+A tracked list of every detector id that exists on 2026-10-31, and a check that refuses a new detector file while C10 row 0.6 is unticked.
+
+### Why (which weakness it fixes)
+
+Group C rows were added while row 0.6 was open (0.19, Q-34). The freeze makes the next extra file fail the gate instead of landing quietly.
+
+### API and options (exact names, defaults)
+
+No engine option. New file `scripts/autopilot/detector-freeze.json`: `{ "frozenAt": "2026-10-31", "coreVersion": "3.2.0", "ids": [ ... ] }` with every detector id that exists when the file is first committed, sorted. `scripts/spec-coverage.mjs` and `guard.mjs --verify-spec` both run the check.
+
+### Caps and budget
+
+The file is the id list. It does not add per-device state. D-85 is unchanged.
+
+### Behavior rules
+
+While C10 row 0.6 is unticked, a detector file whose id is not in the list fails with `detector <id> added while the 0.6 gate is open`. The list may grow only in a commit that also ticks C10 row 0.6. If the list grew and row 0.6 is still unticked, the check fails.
+
+### Tests required
+
+An extra fake detector file in a temp copy fails. The current tree passes. Ticking row 0.6 in a temp copy of SPEC makes that extra file pass.
+
+### Done when
+
+The freeze file is committed, both checks fail on an id that is not in the list, and both pass on this tree.
+
+### Out of scope
+
+Promoting a shadow row. Deleting a detector. Changing a threshold, default, severity, cap, or mode.
+
+## J2. Holdout evaluation and per-detector scorecard
+
+### What it is
+
+A named tune/holdout split for IoT-23 captures, and a scorecard that proposes a disposition per detector. The scorecard never edits SPEC, defaults, or detector files.
+
+### Why (which weakness it fixes)
+
+The bogon-destination severity decision and the published false-positive count use the same capture (Q-35). A later number needs a capture that was not used to choose the change.
+
+### API and options (exact names, defaults)
+
+`eval/splits/iot23.json` has two capture lists, `tune` and `holdout`. The `iot23-malware` capture is `tune`. Every other IoT-23 capture on disk is `holdout` (D-150). On 2026-10-31 that list is `iot23-honeypot`. Q-35 is resolved by this split: re-measure on holdout before the 0.6 gate. The split file is committed alone, before any scorecard code.
+
+`eval/run.mjs --split tune|holdout` runs only the captures in that list. A holdout run refuses `--sweep`, `--cost`, and fit-lr.
+
+`eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md`. One row per detector: `mode` (`live` or `shadow`), `hardRule`, `fires`, `uniqueDetections`, `falsePositives`, `benignDeviceDays`, false positives per benign device-day with a 95% Wilson interval, `split` (`tune` or `holdout`), and `suggestion`.
+
+### Caps and budget
+
+No engine state. The scorecard is a report.
+
+### Behavior rules
+
+`suggestion` is one of `keep`, `review`, `propose-demote`, or `no-data`. A suggestion is a proposal. It never edits a default, a severity, or a detector file. The rule is D-149, approved 2026-10-31. The gate for a detector is its default severity's C6.3 gate: medium is under 1 false positive per benign device-day; high and critical are under 1 false positive per benign device-week, which is under 1/7 per device-day; info and low have no gate. `keep` means `uniqueDetections` is at least 1 and the false-positive rate is under that gate. `review` means `uniqueDetections` is 0 and the rate is under the gate, or the severity has no gate. `propose-demote` means `uniqueDetections` is 0 and the rate is at or over the gate. `no-data` means the detector was never active in any results file. Fewer than 20 attack instances prints `n too small`, not a percentage. That 20 is the existing C6.2 rule. `uniqueDetections` is still counted, and it is printed with that label.
+
+### Tests required
+
+Fixture result files produce an exact scorecard JSON. Wilson math matches known values. The `n too small` path prints that text. Holdout refuses `--sweep`.
+
+### Done when
+
+The split file is committed before the scorecard code. The scorecard has been run on every results file that exists, and that output is committed. `numbers-check` accepts `scorecard.md` because every figure in it is in that file.
+
+### Out of scope
+
+Changing a detector default from a suggestion. Downloading captures. Claiming a holdout rate before a holdout capture exists.
+
+## J3. Option profile
+
+### What it is
+
+`createEngine({ profile })` chooses which live detectors run. Default `'all'` is today's set.
+
+### Why (which weakness it fixes)
+
+A pilot that turns on every live row will page on detectors that have no evidence. A named core set is the set the scorecard still supports, plus the rows that must always run.
+
+### API and options (exact names, defaults)
+
+`profile`: `'all'` | `'core'`. Default `'all'`. Any other value throws `HubvikError` `PROFILE_IS_INVALID`.
+
+`'all'` is byte-identical to today. `'core'` enables only the live detectors listed in `packages/core/src/data/profiles/core.json`. Shadow detectors still follow the `shadow` option. `detectors[id].enabled`, when set, wins over `profile`.
+
+`packages/core/src/data/profiles/core.json` is built by `scripts/build-core-profile.mjs` from the tune scorecard. Membership is D-119: every hard rule (B10), every engine-integrity detector (B11), and every live detector whose tune suggestion is `keep`. If the scorecard has no `keep` row, the file is hard rules plus integrity only. Approving that membership rule is Q-39.
+
+`stats().detectors` uses reason `"profile"` for a detector the profile turned off.
+
+### Caps and budget
+
+No new per-device state. With default `profile: 'all'`, D-85 still applies: the 1,000-device watching median may not rise by more than 0.5 µs. The bench budget is not raised.
+
+### Behavior rules
+
+`'all'` does not change which anomalies fire. `'core'` may emit only a subset. It does not add anomalies the `'all'` engine would not emit on the same input.
+
+### Tests required
+
+`profile: 'all'` leaves `test/diff/` byte-identical. `profile: 'core'` emits a subset of the `'all'` stream on the same input and adds none. Every hard rule still fires during learning under `'core'`. An unknown value throws `PROFILE_IS_INVALID`. `detectors[id].enabled` overrides the profile. Checkpoint and restore keep the profile behavior.
+
+### Done when
+
+Those tests pass, `index.d.ts` names `profile`, and a 1,000-device bench line with `profile: 'core'` is recorded. That line is not a gate.
+
+### Out of scope
+
+Editing a detector file to match the profile. Treating a `keep` suggestion as an approval.
+
+## J4. Package @hubvik/pilot
+
+### What it is
+
+`@hubvik/pilot` version 0.1.0, bin `hubvik-pilot`. One person can run a 30-day pilot on a Raspberry Pi 4 or an OpenWrt box with Node 22 or newer, using the conntrack and dnsmasq adapters, and get labels and a weekly count of anomalies per device-day out of it.
+
+### Why (which weakness it fixes)
+
+The 30-day pilot is an open gate and there is no on-box runner that checkpoints, labels, and writes a week file without a network call.
+
+### API and options (exact names, defaults)
+
+Package `packages/pilot`, bin `hubvik-pilot`, version 0.1.0. Commands: `run`, `label`, `report`, `export-labels`. The README stays UNVERIFIED until `run` has been used on a real device. The README includes Raspberry Pi OS setup, OpenWrt setup, and a privacy note: the package makes no network call, and the files it writes stay on the device.
+
+`run` follows the conntrack log and the dnsmasq log. It handles rotation and partial lines. The engine is created with `reorderMs` 5000 (the existing example value for merged sources, not a new core default), `shadow` true, and `alerts` true. `Date.now` is allowed in this host. It is not allowed in core.
+
+`label` appends a line to an inbox. The `run` process applies that inbox with `engine.feedback`.
+
+`report` writes a weekly markdown file. Every number in it is computed from the files on disk: false positives per detector with a 95% Wilson interval, and anomalies per device-day.
+
+`export-labels` writes the labels the inbox applied, in the shape `engine.exportLabels()` already uses, so a later eval can read the file. It does not open a network connection.
+
+### Caps and budget
+
+D-120 the follower polls every 1000 ms from the last byte offset. D-121 `flush(now)` every 60 s with the host clock. D-122 `checkpointDelta` every 300 s to `<state>/deltas/<seq>.json`. D-123 a full checkpoint every 6 h to `<state>/checkpoint-<ts>.json`, keep the newest 2, delete deltas older than the newest full. D-124 daily JSONL files are kept 35 days. D-125 `<state>/status.json` every 60 s. D-126 the run process reads the label inbox every 60 s. D-127 at most 1,000 inbox lines are processed per minute. D-128 the events file stops at 100 MB per day. D-129 the weekly report prints `n too small` when a detector has fewer than 10 labels.
+
+Writes are atomic: write a temp file, then rename. Core stays zero-dependency. This package does not add a core dependency.
+
+### Behavior rules
+
+The follower polls from the last byte offset. If the log shrinks or its inode changes, it reopens from byte 0. A partial last line is kept until it is complete. On start, the newest full checkpoint is restored, then newer deltas are applied. Daily event files are JSONL. SIGTERM flushes, writes a full checkpoint, and exits 0. The package does not open a socket.
+
+### Tests required
+
+Rotation, a partial line, restore on start, the label inbox applied by `engine.feedback`, a weekly report whose numbers come from the fixture files, the 35-day cleanup, the inbox and daily size caps, and a clean SIGTERM.
+
+### Done when
+
+Those tests pass, and pack-check, no-dynamic, publint-lite, knip, and api-snapshot cover the package. The README still says UNVERIFIED.
+
+### Out of scope
+
+A network upload. A Raspberry Pi measurement. Auto-lock. A new detector row.
+
+## J5. Device bench
+
+### What it is
+
+`bench/device.js` and `npm run bench:device`. A person pastes the printed block. The script does not write `docs/BENCHMARKS.md`.
+
+### Why (which weakness it fixes)
+
+The Raspberry Pi 4 row is still empty. An x86 number must not be pasted into it by mistake.
+
+### API and options (exact names, defaults)
+
+No engine option. The script prints one markdown block. The block has the host facts (`node` version, `os.platform`, `os.arch`, CPU model, total memory) and three bench lines: the 1,000-device watching line, the 200-device 7-day line, and the 200-device 7-day `shadow: true` line. `bench/run.js` also prints a 4-shard line. That line is not one of these three.
+
+### Caps and budget
+
+It does not change the bench budget. D-85 is unchanged. The printed line is not a gate.
+
+### Behavior rules
+
+On a host whose `os.arch` is not `arm64` or `arm`, the script also prints `This is not a Raspberry Pi measurement.`
+
+### Tests required
+
+The block contains the host facts and the three lines. A non-ARM run contains that sentence. The script does not write `docs/BENCHMARKS.md`.
+
+### Done when
+
+The command prints the block and the warning on a non-ARM host, and it does not modify `docs/BENCHMARKS.md`.
+
+### Out of scope
+
+Recording the x86 run as a Raspberry Pi result. Raising the 12 µs or 120 KB gate.
+
+## J6. Detector families
+
+### What it is
+
+Opt-in grouping so an incident counts one overlapping behavior once. The anomaly stream does not change.
+
+### Why (which weakness it fixes)
+
+Several detectors describe one behavior. An incident can add the same story more than once and page more than once.
+
+### API and options (exact names, defaults)
+
+`families`: `false` | `true`. Default `false`. With `false`, scoring stays as it is today and `test/diff/` stays byte-identical.
+
+Family membership lives in `src/data/families.json` D-130. The lists below are the proposed membership. Each id has a file in `packages/core/src/detectors/` on 2026-10-31.
+
+- `beacon`: `new-beacon`, `jitter-beacon`, `spectral-beacon`, `beacon-change`
+- `flood`: `packet-flood`, `egress-flood`, `dispersed-flood`, `scatter-udp`
+- `dns-channel`: `dns-tunnel`, `txt-channel`, `dga`, `nxdomain-burst`
+- `proxy`: `proxy-relay`, `proxy-backconnect`, `proxy-fanin`, `proxy-sdk-traffic`, `lan-via-proxy`
+- `scan`: `horizontal-scan`, `vertical-scan`, `slow-scan`, `fan-out`, `failed-connection-ratio`, `lan-sweep`
+
+With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window, the same way `dedupGroup` already counts once. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
+
+### Caps and budget
+
+One small JSON file. No new per-device map beyond the family id already stored on the anomaly when the option is on. Default `false` must not move the 1,000-device median by more than 0.5 µs (D-85).
+
+### Behavior rules
+
+The anomaly objects that fire with `families: false` are the ones that fire today. `families: true` does not drop an anomaly from the stream. It changes incident and alert accounting only. Staying opt-in until a pilot shows fewer alerts with no lost incident is Q-40.
+
+### Tests required
+
+`test/diff/` byte-identical with `false`. On the all-tier benign matrix and every replay, incident counts and alert counts with `true` are less than or equal to the counts with `false`, and no replay loses its incident.
+
+### Done when
+
+Those comparisons pass and the family file matches D-130.
+
+### Out of scope
+
+Removing a detector. Changing a severity. Turning families on by default.
+
+## J7. Explain coverage for every live detector
+
+### What it is
+
+Every live detector sets `meta.explains` so an operator can read test, observed, and threshold or learned.
+
+### Why (which weakness it fixes)
+
+`scripts/spec-coverage.mjs` reports `explains: 64 of 170 detectors` on 2026-10-31. A live row without `explains` cannot say what was compared.
+
+### API and options (exact names, defaults)
+
+No new option. `meta.explains` is already the flag. Each explain has `test`, `observed`, and `threshold` or `learned`.
+
+### Caps and budget
+
+No new state. D-131 once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100%. That 100% is a target for the check. It is not a detection rate.
+
+### Behavior rules
+
+Shadow detectors are not required to explain. A live detector that already explains is unchanged. Filling a missing explain does not change the anomaly the detector emits.
+
+### Tests required
+
+`spec-coverage` fails a temp tree where one live detector has no explain, and passes when every live detector has `test`, `observed`, and `threshold` or `learned`.
+
+### Done when
+
+The live set is at that target and the check enforces it.
+
+### Out of scope
+
+New detector rows. Changing a threshold in order to write the explain text.
+
+## J8. Operator advice text
+
+### What it is
+
+Static plain-English notes returned by `explain(id).advice`. No detection logic changes.
+
+### Why (which weakness it fixes)
+
+An explain line names the comparison. It does not tell the operator what to check or what else could cause it.
+
+### API and options (exact names, defaults)
+
+`src/data/advice.json`: per live detector `{ "meaning": string, "check": string[], "benignCauses": string[] }`. `explain(id).advice` returns that object. Shadow detectors may omit an entry. No new engine option. Absent advice does not change the anomaly.
+
+### Caps and budget
+
+D-132 `check` has at most 3 steps. D-133 `benignCauses` has at most 3 strings. D-134 each string is at most 200 characters. D-135 the file is at most 40 KB and stays inside the existing 200 KB `src/data` cap. No detection-rate claim in any string.
+
+### Behavior rules
+
+The text is data. It does not affect scoring, alerts, or which detector fires.
+
+### Tests required
+
+A test fails if a live detector has no advice entry. A test fails if a string or the file breaks D-132 through D-135.
+
+### Done when
+
+Every live id has an entry inside those caps, and `explain(id).advice` returns it.
+
+### Out of scope
+
+Generated advice. A network lookup. Advice that cites a false-positive rate.
+
+## J9. Coverage map and pipeline self-test
+
+### What it is
+
+Two read-only calls. `coverage` says which techniques the logs already fed can support. `selftest` runs canned attacks on a throwaway engine.
+
+### Why (which weakness it fixes)
+
+A catalog of 170 ids does not say which of them can fire on the tiers this host actually sends. The host should see that before an incident.
+
+### API and options (exact names, defaults)
+
+`engine.coverage(now)` reads state the engine already has. It does not detect. It returns:
+
+- `tiers`: per tier `{ enabled, eventsSeen, lastTs, silent }`
+- `detectors`: per detector `{ active, reason, mode }`
+- `techniques`: per ATT&CK id in `attack-map.json` `{ detectors, coveredLive, coveredShadow, blockedBy }` where `blockedBy` names the missing input, for example `tier T2 never seen`
+- `summary`: counts of techniques covered live, shadow-only, and blind
+
+`engine.selftest({ scenarios?: string[] })` runs canned scenarios from `src/data/selftest.json` through a separate throwaway engine built with the same options and tiers. It does not touch the live engine's state and does not emit on the live engine. Each result is `{ scenario, expectedDetectors, fired, missing, missingReason }`.
+
+The scenario names in that file are: horizontal scan, egress flood, DNS tunnel, new beacon, ARP gateway claim, OT dangerous op, proxy backconnect.
+
+CLI, in `@hubvik/cli`, prints the same text: `hubvik coverage <events.jsonl>` and `hubvik selftest`.
+
+### Caps and budget
+
+D-136 at most 16 scenarios. D-137 at most 10,000 events per scenario. D-139 synthetic devices use reserved ids `__selftest-<n>` and documentation addresses `192.0.2.0/24`, `198.51.100.0/24`, and `203.0.113.0/24`. The throwaway engine is discarded. Default calls do not change the live stream, so D-85 is unchanged for an engine that never calls `selftest`.
+
+### Behavior rules
+
+`coverage` and `selftest` are opt-in calls. They are not on the feed path. `exportBaseline()` and the anomaly stream of the live engine are unchanged by a selftest.
+
+### Tests required
+
+On a T0-only engine, T1 and T2 scenarios are `missing` and `missingReason` names the tier. On an all-tier engine every scenario fires. `exportBaseline()` and the anomaly stream are byte-identical before and after `selftest`.
+
+### Done when
+
+Those three checks pass. Approving the scenario list and the caps is Q-41.
+
+### Out of scope
+
+Running selftest against the live device table. Packet capture. A new detector row.
+
+## J10. Lock readiness score
+
+### What it is
+
+A score on learning quality that says whether the host should consider `lock()`. The engine never calls `lock()` itself.
+
+### Why (which weakness it fixes)
+
+Learn-then-watch treats traffic during learning as normal. A device that is already compromised during learning becomes the baseline. The operator needs a reason to wait.
+
+### API and options (exact names, defaults)
+
+No new option. `stats().learningQuality[device]` gains `readiness`: `{ score, reasons, suggestLock }`. `score` is an integer from 0 to 100. `reasons` is an array of strings. `suggestLock` is a boolean. Warning `LOCK_SUGGESTED` once per device when `suggestLock` becomes true. `lock()` is still only called by the host.
+
+The score is computed from data the engine already keeps: active days, active windows, the new-family rate over the last 48 h of learning, open `SUSPICIOUS_LEARNING` reasons, hard-rule anomalies during learning, and class-violation hits.
+
+### Caps and budget
+
+No new map. The fields sit on the learning-quality object that already exists. D-138 `suggestLock` is true only when `score` ≥ 80, there is no open `SUSPICIOUS_LEARNING` reason, there is no hard-rule anomaly during learning, and the new-family rate in the last 48 h is ≤ 1 per day. Numeric weights that combine the inputs into the 0–100 score are not set. D-138 is approved as the suggestLock rule (D-146). The weights stay open because J10 is 3.6.0.
+
+### Behavior rules
+
+The warning is not an anomaly. It does not change the anomaly stream. It does not lock the device.
+
+### Tests required
+
+On the benign matrix every device reaches `suggestLock` by day 7. Every replay that has an attack during learning keeps `suggestLock` false, with a reason that names that attack.
+
+### Done when
+
+Those two checks pass and the weights, if any were chosen, are a new D-n accepted by a person. Until then D-138 records only the thresholds above.
+
+### Out of scope
+
+Automatic `lock()`. Shortening `learnMs`. A new detector row.
+
+## J11. Deferred until the 30-day pilot
+
+No work package.
+
+- Vetted device-model profile packs that shorten learning using signed profiles built from pilot data. Deferred because they need real pilot data and carry baseline-poisoning risk. See `fleet-baseline-poisoning` and A6 signing.
+- Any new detector row, until C10 row 0.6 is ticked.
 
 ---
 
@@ -2537,7 +2966,7 @@ Every WP in this group also keeps `test/diff/` byte-identical with its option of
 
 ### Work packages for spec 3.4 (WP-52 to WP-58)
 
-Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 0.6 is open. On 2026-10-23 the human ordered WP-54 to WP-58 written while that gate and Q-26 stay open. The rows stay `shadow`, and D-86 to D-94 stay `[PROPOSED]` until a person accepts them. A release commit still waits for the marks to be removed.
+Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 0.6 is open. On 2026-10-23 the human ordered WP-54 to WP-58 written while that gate and Q-26 stay open. The rows stay `shadow`, and D-112 and D-87 to D-94 stay `[PROPOSED]` until a person accepts them. A release commit still waits for the marks to be removed.
 
 #### WP-52 — Alpha-investing alert gate (H1). Group A.
 
@@ -2590,6 +3019,78 @@ Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 
 - [x] `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. Each is `mode: 'shadow'`. Standard tests: attack, one step outside the threshold, 14-day benign for every simulated class, cap, export and import. None fires during learning.
 - **Done when:** `spec-coverage` lists the four rows at Rel 2.0 and core is `2.0.1`. D-107 to D-110 stay `[PROPOSED]` until a person accepts them.
 
+### Work packages for the 3.3.0–3.6.0 plan (WP-61 to WP-70)
+
+These packages are planned. None of them is built. Every box stays open. They add no detector row.
+
+#### WP-61 — Detector freeze guard (J1).
+
+- [ ] `scripts/autopilot/detector-freeze.json` lists every detector id that exists when it is first committed.
+- [ ] `scripts/spec-coverage.mjs` and `guard.mjs --verify-spec` fail when a detector file is not in that list and C10 row 0.6 is unticked.
+- [ ] The same checks fail when the list grows in a commit that does not tick C10 row 0.6.
+- **Done when:** J1's done-when holds. No new detector file is added by this package.
+
+#### WP-62 — Holdout evaluation and scorecard (J2).
+
+- [ ] `eval/splits/iot23.json` is committed with `tune` and `holdout` lists, and `iot23-malware` is `tune`, before any scorecard code.
+- [ ] `eval/run.mjs --split tune|holdout` runs that list. A holdout run refuses `--sweep`, `--cost`, and fit-lr.
+- [ ] `eval/scorecard.mjs` writes `eval/results/scorecard.json` and `eval/results/scorecard.md` with the J2 fields. Suggestions do not edit defaults. Under 20 attack instances the report prints `n too small`.
+- **Done when:** a scorecard is committed for every existing results file, and J2's done-when holds.
+
+#### WP-63 — Option `profile` (J3).
+
+- [ ] `profile` is `'all'` or `'core'`. Default `'all'` stays byte-identical. Any other value throws `PROFILE_IS_INVALID`.
+- [ ] `'core'` is the live set in `packages/core/src/data/profiles/core.json`, built by `scripts/build-core-profile.mjs` under D-119. `detectors[id].enabled` wins. `stats().detectors` uses reason `"profile"`.
+- **Done when:** J3's done-when holds. D-119 is approved (D-143).
+
+#### WP-64 — `@hubvik/pilot` 0.1.0 (J4).
+
+- [ ] Bin `hubvik-pilot` with `run`, `label`, `report`, and `export-labels`. No network call.
+- [ ] `run` follows conntrack and dnsmasq logs, polls every 1000 ms D-120, handles rotation and partial lines, uses `reorderMs` 5000, `shadow` true, `alerts` true, calls `flush(now)` every 60 s D-121, writes `checkpointDelta` every 300 s D-122, writes a full checkpoint every 6 h and keeps 2 D-123, restores on start, keeps daily JSONL 35 days D-124, writes `status.json` every 60 s D-125, and exits cleanly on SIGTERM. Writes are atomic.
+- [ ] `label` appends to an inbox. `run` applies it with `engine.feedback` every 60 s D-126. Caps: 1,000 inbox lines per minute D-127 and 100 MB of events per day D-128.
+- [ ] `report` writes weekly markdown from those files, with a Wilson interval per detector and `n too small` under 10 labels D-129, plus anomalies per device-day. The README says UNVERIFIED and includes Raspberry Pi OS setup, OpenWrt setup, and a privacy note.
+- **Done when:** J4's done-when holds. D-120 to D-129 are approved as starting values (D-148).
+
+#### WP-65 — Device bench (J5).
+
+- [ ] `bench/device.js` and `npm run bench:device` print one markdown block: host facts (`node`, platform, arch, CPU model, memory) and the three bench lines (1,000-device watching, 200-device 7-day, 200-device 7-day `shadow: true`).
+- [ ] The script never writes `docs/BENCHMARKS.md`. On a non-ARM host it prints `This is not a Raspberry Pi measurement.`
+- **Done when:** J5's done-when holds.
+
+#### WP-66 — Detector families (J6).
+
+- [ ] Option `families` is `false` or `true`. Default `false`. With `false`, `test/diff/` stays byte-identical.
+- [ ] Membership is `src/data/families.json` D-130: `beacon`, `flood`, `dns-channel`, `proxy`, and `scan`, with the ids listed in J6.
+- [ ] With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window. The anomaly stream is unchanged. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
+- **Done when:** on the all-tier benign matrix and every replay, incident and alert counts with `true` are less than or equal to the counts with `false`, and no replay loses its incident. D-130 is approved (D-144). Families stay opt-in until a pilot shows fewer alerts with no lost incident.
+
+#### WP-67 — Explain coverage (J7).
+
+- [ ] `meta.explains` is true on every live detector. Each explain has `test`, `observed`, and `threshold` or `learned`.
+- [ ] Once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100% D-131. That figure is a check target, not a detection rate.
+- **Done when:** J7's done-when holds. Shadow detectors are not required to explain.
+
+#### WP-68 — Operator advice (J8).
+
+- [ ] `src/data/advice.json` has one entry per live detector: `meaning`, `check` (at most 3 steps D-132), `benignCauses` (at most 3 D-133). Each string is at most 200 characters D-134. The file is at most 40 KB D-135 and stays inside the 200 KB `src/data` cap. No detection-rate claim.
+- [ ] `explain(id).advice` returns that entry. A test fails if a live detector has no entry. Shadow detectors may have none.
+- **Done when:** J8's done-when holds. D-132 to D-135 are approved as starting values (D-148).
+
+#### WP-69 — Coverage map and self-test (J9).
+
+- [ ] `engine.coverage(now)` returns `tiers`, `detectors`, `techniques`, and `summary` from state the engine already has. It does not detect.
+- [ ] `engine.selftest({ scenarios })` runs the J9 scenarios from `src/data/selftest.json` on a throwaway engine with the same options and tiers. It does not touch the live engine and does not emit on it.
+- [ ] Caps: 16 scenarios D-136, 10,000 events per scenario D-137. Synthetic ids `__selftest-<n>` and documentation addresses `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` D-139.
+- [ ] `@hubvik/cli` prints the same text for `hubvik coverage <events.jsonl>` and `hubvik selftest`.
+- **Done when:** a T0-only engine reports T1 and T2 scenarios as missing with `missingReason` naming the tier; an all-tier engine fires every scenario; `exportBaseline()` and the anomaly stream are byte-identical before and after `selftest`. D-136, D-137, and D-139 are approved (D-145).
+
+#### WP-70 — Lock readiness score (J10).
+
+- [ ] `stats().learningQuality[device].readiness` is `{ score, reasons, suggestLock }`. `score` is 0–100. The engine never calls `lock()`.
+- [ ] `suggestLock` is true only under D-138: score ≥ 80, no open `SUSPICIOUS_LEARNING` reason, no hard-rule anomaly during learning, and the new-family rate in the last 48 h is ≤ 1 per day. Numeric weights for the score are not set in this plan (Q-42).
+- [ ] Warning `LOCK_SUGGESTED` once per device.
+- **Done when:** on the benign matrix every device reaches `suggestLock` by day 7, and every replay with an attack during learning keeps `suggestLock` false with a reason that names it. D-138 is approved as a rule (D-146). The numeric score weights stay open.
+
 ### Questions to put in `docs/QUESTIONS.md` before WP-60 starts
 
 - [ ] **Q-30** Accept D-107 to D-110 as the starting values for the four B25 rows? Open. The tree uses them so the tests have one target. The rows stay shadow, and the 0.6 gate stays open.
@@ -2601,7 +3102,7 @@ Same rules as WP-39 to WP-51, plus 0.9. WP-52 and WP-53 may start while C10 row 
 ### Questions to put in `docs/QUESTIONS.md` before WP-52 starts
 
 - [ ] **Q-26** Is the H3 DoH suffix list (`dns.google`, `dns.cloudflare.com`, `mozilla.cloudflare-dns.com`, `dns.quad9.net`, `doh.opendns.com`) acceptable as a fixed name list, not a feed? Open. Blocks only `doh-bypass`.
-- [ ] **Q-27** H1 holds alerts when `fdr` is on and does not change detector thresholds. Accept D-86 to D-89 as the starting wealth, weights, ring, and alert rule? Open. The tree already uses them so the tests have one target.
+- [ ] **Q-27** H1 holds alerts when `fdr` is on and does not change detector thresholds. Accept D-112 and D-87 to D-89 as the starting wealth, weights, ring, and alert rule? Open. The tree already uses them so the tests have one target.
 - [ ] **Q-28** H2 constants in D-90, and the B23 caps in D-91 to D-94: accept as starting values, with no B23 file until the 0.6 gate? Open.
 
 ### Questions to put in `docs/QUESTIONS.md` before WP-39 starts

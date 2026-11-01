@@ -30,6 +30,7 @@ const { runSweep } = require('./sweep.js');
  */
 function main(argv, opts = {}) {
   const args = parseArgs(argv);
+  assertSplit(args);
   if (args.sweep) return runSweep(args, opts);
   const loaded = loadDataset(args.dataset, args.zeekLogs);
   const result = evaluate(loaded.rows, {
@@ -106,11 +107,29 @@ function loadDataset(dataset, zeekLogs) {
 }
 
 /**
+ * A named split may run only the captures in that list.
+ * @param {{ split?: string, splitFile?: string, dataset?: string }} args
+ * @returns {void}
+ */
+function assertSplit(args) {
+  if (!args.split) return;
+  if (args.split !== 'tune' && args.split !== 'holdout') {
+    throw new TypeError('split must be tune or holdout');
+  }
+  const file = args.splitFile || path.join(__dirname, 'splits', 'iot23.json');
+  const lists = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const allowed = lists[args.split] || [];
+  if (args.dataset && !allowed.includes(args.dataset)) {
+    throw new TypeError(`${args.dataset} is not in the ${args.split} split`);
+  }
+}
+
+/**
  * @param {string[]} argv
- * @returns {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown: boolean, sweep?: string, cost?: string }}
+ * @returns {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown: boolean, sweep?: string, cost?: string, split?: string, splitFile?: string, fitLr?: boolean }}
  */
 function parseArgs(argv) {
-  /** @type {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown?: boolean, sweep?: string, cost?: string }} */
+  /** @type {{ dataset?: string, zeekLogs?: string, labels?: string, fpBreakdown?: boolean, sweep?: string, cost?: string, split?: string, splitFile?: string, fitLr?: boolean }} */
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -120,9 +139,15 @@ function parseArgs(argv) {
     else if (arg === '--fp-breakdown') out.fpBreakdown = true;
     else if (arg === '--sweep') out.sweep = argv[(i += 1)];
     else if (arg === '--cost') out.cost = argv[(i += 1)];
+    else if (arg === '--split') out.split = argv[(i += 1)];
+    else if (arg === '--split-file') out.splitFile = argv[(i += 1)];
+    else if (arg === '--fit-lr') out.fitLr = true;
     else throw new TypeError(`unknown argument ${arg}`);
-    if (arg !== '--fp-breakdown' && argv[i] == null)
+    if (arg !== '--fp-breakdown' && arg !== '--fit-lr' && argv[i] == null)
       throw new TypeError(`missing value for ${arg}`);
+  }
+  if (out.split === 'holdout' && (out.sweep || out.cost || out.fitLr)) {
+    throw new TypeError('holdout refuses --sweep, --cost, and fit-lr');
   }
   if (out.cost && !out.sweep) throw new TypeError('--cost requires --sweep');
   if (out.sweep) {
@@ -133,6 +158,8 @@ function parseArgs(argv) {
       zeekLogs: out.zeekLogs,
       sweep: out.sweep,
       cost: out.cost,
+      split: out.split,
+      splitFile: out.splitFile,
       fpBreakdown: false,
     };
   }
@@ -141,6 +168,8 @@ function parseArgs(argv) {
     dataset: out.dataset,
     zeekLogs: out.zeekLogs,
     labels: out.labels,
+    split: out.split,
+    splitFile: out.splitFile,
     fpBreakdown: out.fpBreakdown === true,
   };
 }

@@ -1,5 +1,7 @@
 # @hubvik/adapter-dnsmasq
 
+@hubvik/adapter-dnsmasq 0.2.1.
+
 Turns dnsmasq `log-queries=extra` lines into hubvik DNS events. No dependencies.
 
 ```js

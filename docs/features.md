@@ -1,10 +1,44 @@
+> Version: 3.3.0 · Updated: 2026-10-31
+
 # hubvik — what it does and what it is not
 
 hubvik is a **detector library**, not a protection appliance. It watches per-device network behavior on a gateway, emits reports when that behavior looks wrong, and **never** changes the traffic itself.
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **3.2.0 prototype — not validated on real traffic.** Package: `hubvik` (`packages/core`). The detector catalog is at the end of this file. Also: [`README.md`](../README.md), [`DEVELOPERS.md`](DEVELOPERS.md).
+Status: **hubvik 3.3.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.2.0" }`. Every `@hubvik/*` package returned 404 (not published). The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
+
+## Roadmap (planned, not built)
+
+These items are a plan. None of them is in the tree. The detail is `docs/SPEC.md` section 0.20 and Part J.
+
+- [ ] 3.3.0 J1. Freeze the detector list so a new detector file fails the check while the 0.6 gate is open.
+- [ ] 3.3.0 J2. Split evaluation captures into tune and holdout, and write a per-detector scorecard that only proposes.
+- [ ] 3.3.0 J3. Add a profile option that defaults to today's detectors, plus an optional smaller core set.
+- [ ] 3.3.0 J4. Add an on-box pilot runner that follows local logs, takes labels, and writes a weekly report. It makes no network call.
+- [ ] 3.3.0 J5. Add a device bench that prints host facts and three bench lines, and says when the host is not a Raspberry Pi.
+- [ ] 3.4.0 J6. Optional detector families so an incident counts one overlapping behavior once. Off by default. The anomaly stream stays as it is today.
+- [ ] 3.4.0 J7. Every live detector explains what it compared.
+- [ ] 3.4.0 J8. Short plain-English advice for every live detector, with no detection-rate claims.
+- [ ] 3.5.0 J9. A coverage map and a self-test that show which attacks this host can catch with the logs it actually feeds.
+- [ ] 3.6.0 J10. A lock-readiness score. It suggests when a baseline is trustworthy. The engine never locks by itself.
+- [ ] Deferred, J11. Signed device-model profile packs wait for the 30-day pilot. Any new detector row waits until C10 row 0.6 is ticked.
+
+## Validation status
+
+IoT-23 malware capture (`eval/results/iot23-malware/iot23.md`): Detection: n too small (17 detected, 17 attack instances). Strict detection: 9/17 = 52.9% (95% Wilson 31.0%–73.8%). False positives: 314 anomalies at medium or above, 72.7037175925926 benign device-days, 4.31889881834587 per benign device-day.
+
+IoT-23 honeypot capture (`eval/results/iot23-honeypot/iot23.md`): Detection: no rate. Strict detection: no rate. False positives: 0 anomalies at medium or above, 0 benign device-days, no rate (0 device-days). That file has 0 benign device-days, so it states no false-positive rate.
+
+CICIoT2023: not run. `eval/results` has no CICIoT2023 result file.
+
+No 30-day pilot. No Raspberry Pi 4 measurement.
+
+The same malware file records the bogon-destination ablation as `bogon-destination: 0 unique detections, 307 false positives, zero unique` and the proposal `bogon-destination: zero unique detections and 307 medium false positives over 72.7037175925926 benign device-days, above the C6.3 gate. Proposal: set detectors.bogon-destination.enabled to false, or set severity to info` (`eval/results/iot23-malware/iot23.md`). `packages/core/CHANGELOG.md` for 2.1.0 says that severity is now info. The result file still counts those 307 as medium. Those two records disagree, so this page quotes the result file. The severity decision and that measurement use the same capture, so the rate above is not a holdout result.
+
+There is no alert-level false-positive rate in `eval/results/iot23-malware/iot23.md` or in the top-level fields of `eval/results/iot23-malware/iot23.json`.
+
+The detector catalog is at the end of this file. Also: [`README.md`](../README.md), [`DEVELOPERS.md`](DEVELOPERS.md).
 
 ---
 
@@ -177,9 +211,9 @@ These are the advanced pieces of those products that already fit the contract. S
 - [x] Adapters for conntrack, dnsmasq, Zeek, and Suricata EVE, plus OCSF, syslog, webhook, and Prometheus export. Several sibling packages are still marked UNVERIFIED in the spec.
 - [x] `@hubvik/cli` replay and a self-contained HTML report (inline CSS, no CDN): per-device timeline, incidents, top detectors, explain text. Snapshot test: `packages/cli/test/cli.test.js`.
 
-### Proposed
+### Report helpers (shipped in 2.2.0)
 
-These five shipped in `hubvik@2.2.0` and the two sibling packages. Each one reports or formats. None of them captures, blocks, phones home, or assigns a device class by itself.
+These five shipped in release 2.2.0 and the two sibling packages. Each one reports or formats. None of them captures, blocks, phones home, or assigns a device class by itself.
 
 1. [x] **`engine.digest(sinceTs)` in `hubvik`.** One plain-language summary per device since a timestamp. Built from live anomalies the engine already emitted. `packages/core/test/report.test.js`.
 2. [x] **`engine.inventory()` in `hubvik`.** Devices already seen, identity addresses, learned ports and protocols, and `suggestions` only when `classSuggest` is on. The host still calls `setDeviceClass`.
@@ -226,6 +260,15 @@ Readers over destinations, campaigns, and shadow hits the engine already has. No
 One read for a developer. No new detector row. No threshold change.
 
 23. [x] **`engine.overview(now, sinceTs)`.** Attacks, waves, open incidents, campaigns, shadow hits, and counts in one object. Leave `sinceTs` out and it is 0. The call does not emit.
+
+### 3.3.0
+
+Scorecard, core profile, on-box pilot, and the device bench. `dictionary-dga` and its word list are removed. No new detector row. No threshold change.
+
+24. [x] **IoT-23 split and scorecard.** `eval/splits/iot23.json` names tune and holdout. `eval/scorecard.mjs` writes proposals. It does not edit a default.
+25. [x] **`profile: 'core'`.** Default `all` is unchanged. `core` runs the live set in `packages/core/src/data/profiles/core.json`.
+26. [x] **`@hubvik/pilot` 0.1.0.** Follows local logs and writes a weekly report. No network call. Not run on a real device.
+27. [x] **Detector freeze.** `scripts/autopilot/detector-freeze.json` lists the detector ids. A new id fails while C10 row 0.6 is open.
 
 ### Stays outside the hubvik package
 
@@ -294,7 +337,7 @@ That’s how you learn **which** detectors fail in the wild without turning npm 
 
 ## Detector catalog
 
-Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 3.2.0. Do not edit this section by hand.
+Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 3.3.0. Do not edit this section by hand.
 
 The last column is yes when the row Rel is at or below this package version. A later Rel is no even when its file is already in the tree. Those files are absent from "Not yet implemented".
 
@@ -543,7 +586,6 @@ The last column is yes when the row Rel is at or below this package version. A l
 | `wpad-hijack`              | 1.1 | high     | Low. Most home and building networks never answer WPAD                                                           | yes             |
 | `ra-flood`                 | 1.1 | high     | Low                                                                                                              | yes             |
 | `karma-responder`          | 1.1 | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | yes             |
-| `dictionary-dga`           | 1.1 | medium   | Medium per name (brand and marketing domains), low per burst because NXDOMAIN or low TTL is required             | yes             |
 | `cname-cloak`              | 1.1 | medium   | Depends on the host's lists                                                                                      | yes             |
 | `ja4-churn`                | 1.1 | high     | Low on single-stack IoT                                                                                          | yes             |
 | `lan-first-seen-domain`    | 1.1 | low      | High alone; that is why it is `low` and capped                                                                   | yes             |
@@ -614,10 +656,10 @@ The last column is yes when the row Rel is at or below this package version. A l
 | B19. Posture and device-class priors                                    | 5    |
 | B20. 2026 threat update (new rows for 0.5)                              | 2    |
 | B21. Shadow detectors (new rows for 0.8)                                | 15   |
-| B22. Shadow detectors (new rows for 1.1, spec 3.3)                      | 20   |
+| B22. Shadow detectors (new rows for 1.1, spec 3.3)                      | 19   |
 | B23. Shadow detectors (new rows for 1.2, spec 3.4)                      | 5    |
 | B24. Shadow detectors (new rows for 1.6, spec 3.7)                      | 4    |
 | B25. Shadow detectors (new rows for 2.0, spec 3.8)                      | 4    |
-| Total                                                                   | 170  |
+| Total                                                                   | 169  |
 
 <!-- detectors:end -->

@@ -1,5 +1,7 @@
 # @hubvik/adapter-suricata-eve
 
+@hubvik/adapter-suricata-eve 0.2.1.
+
 Version 0.2.1. Turns Suricata EVE JSON lines into hubvik events. No dependencies.
 
 `flow`, `dns`, `tls`, and `http` are safe to pass to `engine.feed`. `alert` is returned as `{ type: 'alert', signature, category, severity, ... }` for the host product. The engine does not accept that object.

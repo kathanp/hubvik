@@ -22,6 +22,7 @@ const CATALOG_END = '<!-- detectors:end -->';
 const DETECTOR_DIR = join(ROOT, 'packages/core/src/detectors');
 const SKIP_FILES = new Set(['index.js', 'lib.js', 'state.js', 'samples.js']);
 const { EVENT_TYPE_SET } = require(join(ROOT, 'packages/core/src/engine/constants.js'));
+const { checkFreeze } = require(join(ROOT, 'scripts/autopilot/freeze.js'));
 const SEVERITIES = new Set(['info', 'low', 'medium', 'high', 'critical']);
 
 const pkg = JSON.parse(readFileSync(join(ROOT, 'packages/core/package.json'), 'utf8'));
@@ -190,6 +191,7 @@ const pending = [];
 const groups = new Map();
 
 for (const row of rows) {
+  if (row.text.includes('Removed in 3.3.0')) continue;
   const list = groups.get(row.group) || [];
   list.push(row);
   groups.set(row.group, list);
@@ -266,7 +268,9 @@ lines.push('## Counts', '');
 lines.push('| Group | Rows |');
 lines.push('| --- | --- |');
 for (const [group, list] of groups) lines.push(`| ${group} | ${list.length} |`);
-lines.push(`| Total | ${rows.length} |`);
+let catalogTotal = 0;
+for (const list of groups.values()) catalogTotal += list.length;
+lines.push(`| Total | ${catalogTotal} |`);
 lines.push('');
 
 const previous = readFileSync(OUT, 'utf8');
@@ -278,6 +282,8 @@ else {
   writeFileSync(OUT, next.endsWith('\n') ? next : `${next}\n`);
   execFileSync(join(ROOT, 'node_modules/.bin/prettier'), ['--write', OUT], { stdio: 'ignore' });
 }
+
+for (const problem of checkFreeze({ root: ROOT })) fail(problem);
 
 if (!process.exitCode) {
   let explains = 0;

@@ -1,5 +1,7 @@
 # @hubvik/adapter-openwrt
 
+@hubvik/adapter-openwrt 0.1.0.
+
 UNVERIFIED. Reads logread lines:
 
 - `DHCPACK(br-lan) 192.0.2.10 aa:bb:cc:dd:ee:ff host` → dhcp

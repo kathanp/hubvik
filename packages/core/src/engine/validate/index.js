@@ -232,6 +232,8 @@ function validateOptions(raw) {
         : bool(input.calibratedConfidence, 'calibratedConfidence'),
     classSuggest: input.classSuggest == null ? false : bool(input.classSuggest, 'classSuggest'),
     responseHints: input.responseHints == null ? false : bool(input.responseHints, 'responseHints'),
+    profile: parseProfile(input.profile),
+    coreIds: coreIdSet(input.profile),
     scoring: parseScoring(input.scoring),
     alerts: input.alerts == null ? false : bool(input.alerts, 'alerts'),
     drift: input.drift == null ? false : bool(input.drift, 'drift'),
@@ -324,6 +326,29 @@ function parseBudget(value) {
         : num(input.recoverWindows, 'budget.recoverWindows', { min: 1, integer: true }),
     clock: input.clock || (() => process.hrtime.bigint()),
   };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {'all' | 'core'}
+ */
+function parseProfile(value) {
+  if (value == null) return 'all';
+  if (value === 'all' || value === 'core') return value;
+  throw new HubvikError('PROFILE_IS_INVALID', 'profile is invalid');
+}
+
+/**
+ * @param {unknown} value
+ * @returns {Set<string>}
+ */
+function coreIdSet(value) {
+  if (parseProfile(value) !== 'core') return new Set();
+  const file = require('../../data/profiles/core.json');
+  if (!file || !Array.isArray(file.ids)) {
+    throw new HubvikError('PROFILE_IS_INVALID', 'profile is invalid');
+  }
+  return new Set(file.ids);
 }
 
 /**

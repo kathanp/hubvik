@@ -16,8 +16,8 @@ hubvik is a detector. It does not block, drop, or modify traffic.
 
 ## Reporting a vulnerability
 
-Disclosure email: not set. Q-14 is still open, so this file has no address and a release check reports that as a blocker. Do not open a public issue for a vulnerability. Use GitHub private vulnerability reporting once the repository exists.
+Disclosure email: patelkathan244@gmail.com. Do not open a public issue for a vulnerability. Use GitHub private vulnerability reporting as well.
 
 ## Response
 
-Acknowledge within 5 business days (PROPOSED until a person accepts this response time). Publish a fix or a mitigation note within 90 days.
+Acknowledge within 5 business days (D-142). Publish a fix or a mitigation note within 90 days.
