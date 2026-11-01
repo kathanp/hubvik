@@ -287,6 +287,11 @@ const learningMethods = {
     device.mode = 'watching';
     device.frozen = true;
     this.emit('learned', { device: device.id, ts });
+    const readiness = readinessOf(this, device);
+    if (readiness.suggestLock && !device.lockSuggested) {
+      device.lockSuggested = true;
+      this._warn('LOCK_SUGGESTED', 'baseline looks ready to lock', device.id, { ts });
+    }
   },
 
   /**
@@ -330,6 +335,7 @@ const learningMethods = {
       suspicious,
       ready:
         suspicious.length === 0 && windowsActive >= this.opts.minLearnWindows && !device.shedLearn,
+      readiness: readinessOf(this, device),
     };
   },
 
@@ -426,5 +432,48 @@ const learningMethods = {
     this._special('input-gap', device, { ts: now, gapMs: gap }, { kind: 'input-gap' }, false);
   },
 };
+
+/**
+ * Score is 100 or 0. Partial weights are not used (D-159).
+ * 100 means the device is watching and every approved blocker is clear.
+ * @param {any} engine
+ * @param {any} device
+ */
+function readinessOf(engine, device) {
+  /** @type {string[]} */
+  const reasons = [];
+  if (device.mode !== 'watching') reasons.push('still learning');
+  const suspicious = device.suspicious || [];
+  for (const reason of suspicious) reasons.push(reason);
+  const hard = device.learnHard || [];
+  for (const id of hard) reasons.push(`hard-rule ${id}`);
+  if ((device.classViolations || 0) > 0) reasons.push('class-violation');
+  const now = engine.watermark || device.lastTs || 0;
+  const recent = recentFamilies(device, now);
+  if (recent > 2) reasons.push('new-family rate');
+  if ((device.windowsActive || 0) < engine.opts.minLearnWindows || device.shedLearn) {
+    reasons.push('too few windows');
+  }
+  const score = reasons.length === 0 ? 100 : 0;
+  const suggestLock = score >= 80 && suspicious.length === 0 && hard.length === 0 && recent <= 2;
+  return { score, reasons, suggestLock };
+}
+
+/**
+ * Families first seen in the last 48 hours. One per day is two in that window.
+ * @param {any} device
+ * @param {number} now
+ * @returns {number}
+ */
+function recentFamilies(device, now) {
+  const first = device.familyFirst;
+  if (!first) return 0;
+  const cut = now - 2 * DAY;
+  let count = 0;
+  for (const ts of first.values()) {
+    if (ts >= cut) count += 1;
+  }
+  return count;
+}
 
 module.exports = { noteLearning, mark, learningMethods };

@@ -83,7 +83,41 @@ function main(argv) {
     process.stdout.write(`${changes.join('\n')}\n`);
     return 0;
   }
-  process.stderr.write('usage: hubvik replay|report|doctor|baseline|rules\n');
+  if (command === 'coverage' || command === 'selftest') {
+    let createEngine;
+    try {
+      createEngine = require('hubvik').createEngine;
+    } catch {
+      process.stderr.write('hubvik is not installed\n');
+      return 1;
+    }
+    const tiers = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
+    const engine = createEngine({
+      tiers,
+      learnMs: learnMs(parsed.values.learn),
+    });
+    if (command === 'coverage') {
+      const text = readFileSync(sub, 'utf8');
+      /** @type {number | undefined} */
+      let last;
+      for (const line of text.split('\n')) {
+        if (!line.trim()) continue;
+        try {
+          const event = JSON.parse(line);
+          if (typeof event.ts === 'number') last = event.ts;
+          engine.feed(event);
+        } catch {
+          /* a bad line is not a coverage input */
+        }
+      }
+      if (last != null) engine.flush(last);
+      process.stdout.write(`${JSON.stringify(engine.coverage(last))}\n`);
+      return 0;
+    }
+    process.stdout.write(`${JSON.stringify(engine.selftest())}\n`);
+    return 0;
+  }
+  process.stderr.write('usage: hubvik replay|report|doctor|baseline|rules|coverage|selftest\n');
   return 1;
 }
 

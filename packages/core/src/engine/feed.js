@@ -81,6 +81,8 @@ module.exports = {
     if (event.tier) {
       if (!this.tierSeen) this.tierSeen = Object.create(null);
       this.tierSeen[event.tier] = event.ts;
+      if (!this.tierCounts) this.tierCounts = Object.create(null);
+      this.tierCounts[event.tier] = (this.tierCounts[event.tier] || 0) + 1;
     }
     if (device.mode === 'learning') {
       if (device.qualityWindow !== start) {

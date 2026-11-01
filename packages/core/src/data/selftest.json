@@ -1,0 +1,11 @@
+{
+  "scenarios": [
+    { "name": "horizontal scan", "expectedDetectors": ["horizontal-scan"], "tier": "T1" },
+    { "name": "egress flood", "expectedDetectors": ["egress-flood"], "tier": "T1" },
+    { "name": "DNS tunnel", "expectedDetectors": ["dns-tunnel"], "tier": "T2" },
+    { "name": "new beacon", "expectedDetectors": ["new-beacon"], "tier": "T1" },
+    { "name": "ARP gateway claim", "expectedDetectors": ["arp-spoof"], "tier": "T4" },
+    { "name": "OT dangerous op", "expectedDetectors": ["ot-dangerous-op"], "tier": "T5" },
+    { "name": "proxy backconnect", "expectedDetectors": ["proxy-backconnect"], "tier": "T1" }
+  ]
+}

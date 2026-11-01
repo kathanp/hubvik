@@ -848,6 +848,48 @@ class Sharded extends EventEmitter {
   }
 
   /**
+   * Merge tier counts. Detector rows match because every shard has the same options.
+   * @param {number} [now]
+   */
+  coverage(now) {
+    const parts = this.engines.map((/** @type {any} */ engine) => engine.coverage(now));
+    const first = parts[0];
+    for (const tier of Object.keys(first.tiers)) {
+      let eventsSeen = 0;
+      /** @type {number | null} */
+      let lastTs = null;
+      for (const part of parts) {
+        eventsSeen += part.tiers[tier].eventsSeen;
+        const last = part.tiers[tier].lastTs;
+        if (typeof last === 'number' && (lastTs == null || last > lastTs)) lastTs = last;
+      }
+      first.tiers[tier].eventsSeen = eventsSeen;
+      first.tiers[tier].lastTs = lastTs;
+      const at = typeof now === 'number' && Number.isFinite(now) ? now : 0;
+      first.tiers[tier].silent =
+        first.tiers[tier].enabled &&
+        (lastTs == null || at - lastTs >= this.engines[0].opts.tierSilentMs);
+    }
+    return first;
+  }
+
+  /**
+   * @param {{ scenarios?: string[] }} [opts]
+   */
+  selftest(opts) {
+    return this.engines[0].selftest(opts);
+  }
+
+  /**
+   * @param {any} pack
+   * @param {{ verify?: string | Buffer }} [opts]
+   * @returns {void}
+   */
+  loadModelPack(pack, opts) {
+    for (const engine of this.engines) engine.loadModelPack(pack, opts);
+  }
+
+  /**
    * Indicators are matched on whichever shard sees the event.
    * @param {any[]} indicators
    * @returns {void}

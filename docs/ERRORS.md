@@ -1877,6 +1877,21 @@ Fix: Correct the input so this passes: "minhash state must be an object". The li
 Cause: `add()` in `packages/core/src/engine/stats/minhash.js` throws it when `typeof token !== 'string'`. The message is "minhash token must be a string".
 Fix: Pass a string. The check says "minhash token must be a string".
 
+## MODEL_PACK_IS_OFF
+
+Cause: `loadModelPack()` in `packages/core/src/engine/modelpack.js` throws it when `modelPack` is not `true`. The message is "model pack is off".
+Fix: Pass `modelPack: true`, or do not call `loadModelPack`.
+
+## MODEL_PACK_IS_INVALID
+
+Cause: `loadModelPack()` in `packages/core/src/engine/modelpack.js` throws it when the pack is missing, the version is not 3, `model` is not an existing class id, `verify` is missing, or a forbidden key is present. `parseModelPack()` throws the same code when the option is not `true` or `false`. The message is "model pack is invalid". `selftest()` throws `SELFTEST_IS_INVALID` separately.
+Fix: Pass a version-3 baseline signed with the A6 HMAC-SHA256 signature, a `model` string that is an existing class id, and `{ verify: key }`.
+
+## SELFTEST_IS_INVALID
+
+Cause: `selftest()` in `packages/core/src/engine/coverage.js` throws it when the scenario file is over 16 scenarios, a scenario is over 10,000 events, or a requested scenario name is not in the file. The message is "selftest is invalid".
+Fix: Pass scenario names from `src/data/selftest.json`, or omit the filter.
+
 ## FAMILIES_IS_INVALID
 
 Cause: `parseFamilies()` in `packages/core/src/engine/validate/index.js` throws it when `families` is not `true` or `false`. The message is "families is invalid".

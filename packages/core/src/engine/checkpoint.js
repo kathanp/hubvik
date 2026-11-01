@@ -311,6 +311,9 @@ function progressOf(device) {
     windowsActive: device.windowsActive || 0,
     suspicious: device.suspicious ? device.suspicious.slice() : [],
     learningExtended: Boolean(device.learningExtended),
+    learnHard: device.learnHard ? device.learnHard.slice() : [],
+    classViolations: device.classViolations || 0,
+    lockSuggested: Boolean(device.lockSuggested),
   };
   if (typeof device.lastTs === 'number') out.lastTs = device.lastTs;
   const horizon = exportHorizon(device);
@@ -399,6 +402,10 @@ function applyProgress(device, progress) {
   if (Array.isArray(progress.suspicious)) device.suspicious = progress.suspicious.slice();
   if (typeof progress.learningExtended === 'boolean')
     device.learningExtended = progress.learningExtended;
+  if (Array.isArray(progress.learnHard)) device.learnHard = progress.learnHard.slice();
+  if (typeof progress.classViolations === 'number')
+    device.classViolations = progress.classViolations;
+  if (typeof progress.lockSuggested === 'boolean') device.lockSuggested = progress.lockSuggested;
   if (typeof progress.lastTs === 'number' && Number.isFinite(progress.lastTs)) {
     device.lastTs = progress.lastTs;
   }

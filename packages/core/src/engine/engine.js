@@ -26,6 +26,8 @@ const { learningMethods } = require('./learning');
 const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = require('./finish09');
 const { partgMethods } = require('./partg');
 const { reportMethods } = require('./report');
+const { coverage, selftest } = require('./coverage');
+const { loadModelPack, applyStoredPack } = require('./modelpack');
 
 class Engine extends EventEmitter {
   /**
@@ -293,6 +295,7 @@ class Engine extends EventEmitter {
       this.devices.set(deviceId, device);
     }
     device.deviceClass = classId;
+    applyStoredPack(this, device);
     if (this.opts.audit)
       /** @type {any} */ (this)._auditCall('setDeviceClass', deviceId, { classId });
   }
@@ -835,6 +838,7 @@ Object.assign(
   finishMethods,
   partgMethods,
   reportMethods,
+  { coverage, selftest, loadModelPack },
 );
 
 /**
