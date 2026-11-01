@@ -2,7 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'lan-lateral',
@@ -12,6 +12,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Low on IoT (devices rarely talk east-west except hub ↔ device)',
     stage: 'spread',
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -53,6 +54,7 @@ const detector = {
       actual: ev.dstIp,
       expected: `${dev.peers.size} known LAN peers`,
       data: { peer: ev.dstIp },
+      explain: explainNewMember({ observed: ev.dstIp, learnedCount: dev.peers.size }),
     };
   },
 

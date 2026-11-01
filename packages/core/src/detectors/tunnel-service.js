@@ -1,6 +1,13 @@
 'use strict';
 
-const { listed, seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const {
+  listed,
+  seenState,
+  exportSeen,
+  importSeen,
+  memorySeen,
+  explainNewMember,
+} = require('./lib');
 const TUNNELS = require('../data/tunnels.json');
 
 const detector = {
@@ -24,6 +31,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1572'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T2'],
   category: 'tunnel',
@@ -57,6 +65,7 @@ const detector = {
       actual: hit,
       expected: 'no new tunnel or remote-access service',
       data: { name: hit },
+      explain: explainNewMember({ observed: hit, learnedCount: dev.seen.size }),
     };
   },
 

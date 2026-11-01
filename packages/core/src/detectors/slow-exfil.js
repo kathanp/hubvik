@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const HOUR = 3600e3;
 
@@ -13,6 +14,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Medium',
+    explains: true,
     attack: ['T1041'],
     stage: 'impact',
   },
@@ -127,6 +129,12 @@ function cusum(dev, value, ctx, ts, commit) {
     actual: `${Math.round(value)} bytes uploaded this hour`,
     expected: `uploads near ${Math.round(mean)} bytes/hour`,
     data: { cusum: dev.cusum, mean, value },
+    explain: explainThreshold({
+      test: 'gt',
+      observed: next,
+      threshold: limit,
+      formula: `max(5 × mean=${mean}, 1e6) = ${limit}`,
+    }),
   };
 }
 

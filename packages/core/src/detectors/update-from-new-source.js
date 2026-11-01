@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'update-from-new-source',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'supply',
@@ -48,6 +49,12 @@ const detector = {
       actual: `${ev.bytesIn} bytes from ${dst}`,
       expected: `downloads <= ${Math.round(limit)} from a known host`,
       data: { dst, bytesIn: ev.bytesIn },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ev.bytesIn || 0,
+        threshold: limit,
+        formula: `max(minBytes=${ctx.options.minBytes}, learned p99) = ${limit}`,
+      }),
     };
   },
 

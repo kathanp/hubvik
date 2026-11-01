@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { domainFamily } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainNewMember } = require('./lib');
 
 const detector = {
   id: 'new-domain-family',
@@ -25,6 +26,7 @@ const detector = {
     fpRisk: 'Low: removes CDN-subdomain noise',
     attack: ['T1071'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T0'],
   category: 'destination',
@@ -67,6 +69,7 @@ const detector = {
       actual: family,
       expected: `${dev.families.size} known families`,
       data: { family, known: dev.families.size },
+      explain: explainNewMember({ observed: family, learnedCount: dev.families.size }),
     };
   },
 

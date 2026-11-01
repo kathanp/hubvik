@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const CLEAR = new Set([21, 23, 80, 1883]);
 
@@ -12,6 +12,7 @@ const detector = {
     rel: '0.4',
     fpRisk: 'Low; downgrade attack or tampered firmware',
     attack: ['T1600'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'tls',
@@ -42,6 +43,7 @@ const detector = {
       actual: `cleartext to ${dst}`,
       expected: 'TLS to a host that used to be encrypted',
       data: { dst },
+      explain: explainMatch({ observed: dst, matched: dst, source: 'protocol' }),
     };
   },
 

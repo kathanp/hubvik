@@ -3,7 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const PORTS = require('../data/ports.json');
 const { assertState, readStrings, fillSet } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainMatch } = require('./lib');
 
 const LISTEN = new Set(PORTS.listen);
 
@@ -14,6 +14,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'posture',
@@ -49,6 +50,7 @@ const detector = {
       actual: `accepts tcp/${ev.dstPort}`,
       expected: 'no listening risky service',
       data: { port: ev.dstPort, direction: ev.direction },
+      explain: explainMatch({ observed: ev.dstPort, matched: ev.dstPort, source: 'listen' }),
     };
   },
 

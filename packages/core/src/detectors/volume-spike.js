@@ -2,6 +2,7 @@
 
 const { emptyStats, pushSample, statsOf } = require('../engine/math');
 const { readStreamState } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'volume-spike',
@@ -12,6 +13,7 @@ const detector = {
     fpRisk: 'Medium for cameras',
     attack: ['T1498'],
     stage: 'impact',
+    explains: true,
   },
   requires: ['T0'],
   category: 'volume',
@@ -45,6 +47,12 @@ const detector = {
         expected: `<= ${Math.round(limit)}`,
         data: { bytes: win.bytes, limit },
         attack: ['T1498'],
+        explain: explainThreshold({
+          test: 'gt',
+          observed: win.bytes,
+          threshold: limit,
+          formula: `max(minBytes=${ctx.options.minBytes}, mean + sigma=${ctx.options.sigma} × std, max × peakFactor=${ctx.options.peakFactor})`,
+        }),
       };
     }
   },

@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const CAP = 5000;
 
@@ -13,6 +14,7 @@ const detector = {
     consumes: ['dhcp'],
     rel: '0.5',
     fpRisk: 'Low; signals MAC cloning or firmware swap',
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -80,6 +82,7 @@ const detector = {
       actual: `${row.mac} fingerprint changed`,
       expected: known,
       data: { mac: row.mac, fingerprint: row.fingerprint, previous: known },
+      explain: explainChanged({ observed: row.fingerprint, previous: known }),
     };
   },
 

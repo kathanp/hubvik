@@ -23,6 +23,7 @@ const DETECTOR_DIR = join(ROOT, 'packages/core/src/detectors');
 const SKIP_FILES = new Set(['index.js', 'lib.js', 'state.js', 'samples.js']);
 const { EVENT_TYPE_SET } = require(join(ROOT, 'packages/core/src/engine/constants.js'));
 const { checkFreeze } = require(join(ROOT, 'scripts/autopilot/freeze.js'));
+const { liveExplainProblems } = require(join(ROOT, 'scripts/autopilot/explains.js'));
 const SEVERITIES = new Set(['info', 'low', 'medium', 'high', 'critical']);
 
 const pkg = JSON.parse(readFileSync(join(ROOT, 'packages/core/package.json'), 'utf8'));
@@ -286,14 +287,12 @@ else {
 for (const problem of checkFreeze({ root: ROOT })) fail(problem);
 
 if (!process.exitCode) {
-  let explains = 0;
-  for (const detector of code.values()) {
-    if (detector.meta && detector.meta.explains === true) explains += 1;
-  }
+  const explainReport = liveExplainProblems(DETECTOR_DIR, require);
+  for (const problem of explainReport.problems) fail(problem);
   console.log(
     `spec-coverage: ${rows.length} rows, ${code.size} detector files, core ${pkg.version}`,
   );
-  console.log(`explains: ${explains} of ${code.size} detectors`);
+  console.log(`explains: ${explainReport.explained} of ${explainReport.live} live detectors`);
   for (const line of pending) {
     if (line.includes('Rel 0.5')) console.log(line.replace(/^- /, 'pending: '));
   }

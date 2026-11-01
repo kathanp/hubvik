@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const WEAK = new Set(['TLSv1.0', 'TLSv1.1', 'SSLv3', 'SSLv2']);
 
@@ -11,6 +11,7 @@ const detector = {
     consumes: ['tls'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T3'],
   category: 'posture',
@@ -36,6 +37,7 @@ const detector = {
       actual: reason,
       expected: 'TLS 1.2 or newer, with a currently valid certificate',
       data: { dstIp: ev.dstIp, reason },
+      explain: explainMatch({ observed: reason, matched: reason, source: 'tls' }),
     };
   },
 

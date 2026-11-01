@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const PORTS = new Set([80, 21, 69]);
 
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'supply',
@@ -42,6 +44,12 @@ const detector = {
       actual: `${ev.bytesIn} bytes on port ${ev.dstPort}`,
       expected: 'large downloads over TLS',
       data: { bytesIn: ev.bytesIn, port: ev.dstPort },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: ev.bytesIn || 0,
+        threshold: ctx.options.minBytes,
+        formula: `minBytes=${ctx.options.minBytes}`,
+      }),
     };
   },
 

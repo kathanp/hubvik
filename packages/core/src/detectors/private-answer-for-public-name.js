@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { isPrivateAnswer, isIpName } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'private-answer-for-public-name',
@@ -13,6 +14,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1557'],
     dedupGroup: 'private-answer',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -38,6 +40,7 @@ const detector = {
         actual: `${ev.qname} -> ${answer.value}`,
         expected: 'public names do not resolve to private, loopback, or 0.0.0.0',
         data: { qname: ev.qname, answer: answer.value },
+        explain: explainMatch({ observed: ev.qname, matched: answer.value, source: 'bogon' }),
       };
     }
   },

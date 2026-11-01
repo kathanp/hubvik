@@ -1,0 +1,20 @@
+{
+  "beacon": ["new-beacon", "jitter-beacon", "spectral-beacon", "beacon-change"],
+  "flood": ["packet-flood", "egress-flood", "dispersed-flood", "scatter-udp"],
+  "dns-channel": ["dns-tunnel", "txt-channel", "dga", "nxdomain-burst"],
+  "proxy": [
+    "proxy-relay",
+    "proxy-backconnect",
+    "proxy-fanin",
+    "proxy-sdk-traffic",
+    "lan-via-proxy"
+  ],
+  "scan": [
+    "horizontal-scan",
+    "vertical-scan",
+    "slow-scan",
+    "fan-out",
+    "failed-connection-ratio",
+    "lan-sweep"
+  ]
+}

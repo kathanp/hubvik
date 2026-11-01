@@ -1,7 +1,7 @@
 'use strict';
 
 const { ipv4, inBlock } = require('../engine/net');
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const detector = {
   id: 'zone-violation',
@@ -10,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'policy',
@@ -37,6 +38,7 @@ const detector = {
       actual: `${src} to ${dst}`,
       expected: 'traffic stays inside one zone',
       data: { srcZone: src, dstZone: dst },
+      explain: explainMatch({ observed: key, matched: key, source: 'zone' }),
     };
   },
 

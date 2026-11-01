@@ -2,7 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainNewMember } = require('./lib');
 
 /** @param {any} ev */
 function key(ev) {
@@ -18,6 +18,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low for IoT',
+    explains: true,
   },
   requires: ['T1'],
   category: 'destination',
@@ -56,6 +57,7 @@ const detector = {
       actual: id,
       expected: `${dev.ports.size} known ports`,
       data: { port: ev.dstPort, direction: ev.direction },
+      explain: explainNewMember({ observed: id, learnedCount: dev.ports.size }),
     };
   },
 

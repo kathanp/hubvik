@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'mqtt-publish-rate',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'app',
@@ -37,6 +39,12 @@ const detector = {
       actual: `${dev.count} publishes/window`,
       expected: `<= ${ctx.options.minPublishes}`,
       data: { count: dev.count },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.count,
+        threshold: ctx.options.minPublishes,
+        formula: `minPublishes=${ctx.options.minPublishes}`,
+      }),
     };
   },
 

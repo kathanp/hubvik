@@ -3,7 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'vertical-scan',
@@ -14,6 +14,7 @@ const detector = {
     fpRisk: 'Low',
     attack: ['T1046'],
     stage: 'recon',
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -49,6 +50,12 @@ const detector = {
       actual: `${count} ports on ${ev.dstIp}`,
       expected: `<= ${limit} ports/window`,
       data: { dstIp: ev.dstIp, ports: count, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: count,
+        threshold: limit,
+        formula: `max(minPorts=${ctx.options.minPorts}, factor=${ctx.options.factor} × learnedMax=${dev.max}) = ${limit}`,
+      }),
     };
   },
 

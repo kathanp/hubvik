@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'proxy-backconnect',
@@ -11,6 +12,7 @@ const detector = {
     fpRisk: '',
     attack: ['T1090'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T1'],
   category: 'proxy',
@@ -40,6 +42,12 @@ const detector = {
       actual: `${dev.dsts.size} short flows after a long session`,
       expected: 'no burst of new flows tied to one control session',
       data: { destinations: dev.dsts.size },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.dsts.size,
+        threshold: ctx.options.minBursts,
+        formula: `minBursts=${ctx.options.minBursts}`,
+      }),
     };
   },
 

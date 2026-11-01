@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'p2p-pattern',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.4',
     fpRisk: 'Medium (some cameras use P2P relay legitimately; baseline catches that)',
+    explains: true,
   },
   requires: ['T1'],
   category: 'proxy',
@@ -42,6 +44,12 @@ const detector = {
       actual: `${dev.peers.size} high-port peers, both directions`,
       expected: `< ${ctx.options.minPeers} residential peers`,
       data: { peers: dev.peers.size, inboundShare: dev.inbound / dev.total },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.peers.size,
+        threshold: ctx.options.minPeers,
+        formula: `minPeers=${ctx.options.minPeers}, inbound/total >= minInboundShare=${ctx.options.minInboundShare}`,
+      }),
     };
   },
 

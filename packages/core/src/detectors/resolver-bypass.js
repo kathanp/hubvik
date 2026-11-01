@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { isPublic } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainNewMember } = require('./lib');
 
 const detector = {
   id: 'resolver-bypass',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['flow', 'dns'],
     rel: '0.2',
     fpRisk: 'Low on IoT, though some devices hard-code 8.8.8.8, which the baseline absorbs',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -85,6 +87,7 @@ function alert(ctx, ts, actual, known) {
     actual,
     expected: `${known} known resolvers`,
     data: { resolver: actual },
+    explain: explainNewMember({ observed: actual, learnedCount: known }),
   };
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'vpn-protocol',
@@ -10,6 +10,7 @@ const detector = {
     rel: '0.3',
     fpRisk: '',
     attack: ['T1572'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'tunnel',
@@ -43,6 +44,7 @@ const detector = {
       actual: kind,
       expected: 'no new VPN or SSH protocol',
       data: { kind, port: ev.dstPort },
+      explain: explainNewMember({ observed: kind, learnedCount: dev.seen.size }),
     };
   },
 

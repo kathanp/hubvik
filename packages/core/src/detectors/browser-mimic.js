@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'browser-mimic',
@@ -10,6 +11,7 @@ const detector = {
     rel: '0.4',
     fpRisk: '',
     attack: ['T1036'],
+    explains: true,
   },
   requires: ['T3'],
   category: 'proxy',
@@ -34,6 +36,7 @@ const detector = {
       actual: ev.ja4,
       expected: `${classId} does not speak with a browser fingerprint`,
       data: { ja4: ev.ja4, classId },
+      explain: explainMatch({ observed: ev.ja4, matched: classId, source: 'class' }),
     };
   },
 

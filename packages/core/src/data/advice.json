@@ -1,0 +1,922 @@
+{
+  "ad-fraud": {
+    "meaning": "This device looked up several ad domains in one window.",
+    "check": [
+      "Compare the names with the loaded ad indicators.",
+      "See which app or page on the device loads those names."
+    ],
+    "benignCauses": ["A display loads an ad-funded page.", "A vendor SDK fetches an ad network."]
+  },
+  "adb-exposure": {
+    "meaning": "Android debug access was reachable.",
+    "check": [
+      "See whether the device is in a maintenance window.",
+      "Check who can reach the debug port."
+    ],
+    "benignCauses": [
+      "A technician enabled debugging for a repair.",
+      "A lab image ships with debugging on."
+    ]
+  },
+  "alert-storm": {
+    "meaning": "This device produced more anomalies than its per-minute cap.",
+    "check": [
+      "Read the detectors named in the recent anomalies.",
+      "See whether one event fan-out caused the burst."
+    ],
+    "benignCauses": [
+      "A firmware update touches many new destinations at once.",
+      "A clock correction replays a burst of events."
+    ]
+  },
+  "answer-drift": {
+    "meaning": "A name resolved to an address it had not used before.",
+    "check": [
+      "Compare the new answer with the resolver and the previous address.",
+      "See whether the name is a CDN or the device vendor."
+    ],
+    "benignCauses": [
+      "A CDN rotates addresses.",
+      "A resolver returns a different site in a anycast set."
+    ]
+  },
+  "arp-spoof": {
+    "meaning": "Two different MAC addresses claimed the same IP.",
+    "check": [
+      "Check the DHCP lease for that IP.",
+      "See whether a phone or laptop just joined the LAN."
+    ],
+    "benignCauses": [
+      "A device renewed a lease and changed NIC.",
+      "A virtual machine moved to another host."
+    ]
+  },
+  "beacon-change": {
+    "meaning": "A regular destination changed its timing or peer.",
+    "check": [
+      "Compare the new interval with the learned beacon.",
+      "See whether a firmware update shipped today."
+    ],
+    "benignCauses": [
+      "A vendor changed the check-in interval.",
+      "The device rebooted and picked a new timer."
+    ]
+  },
+  "blockchain-c2": {
+    "meaning": "Traffic matched a known cryptocurrency or chain endpoint.",
+    "check": [
+      "Confirm the destination against the indicator source.",
+      "See whether the device is a miner or a compromised camera."
+    ],
+    "benignCauses": [
+      "A wallet app on a general-purpose device.",
+      "A lab host running a chain client."
+    ]
+  },
+  "bogon-destination": {
+    "meaning": "Outbound traffic went to an address that is not globally routable.",
+    "check": [
+      "Check the destination against the bogon list.",
+      "See whether the device meant a LAN address."
+    ],
+    "benignCauses": [
+      "A misconfigured DNS answer returned a private address.",
+      "A test harness uses a documentation address."
+    ]
+  },
+  "browser-mimic": {
+    "meaning": "A device class that is not a browser used a browser TLS fingerprint.",
+    "check": [
+      "Confirm the device class is still correct.",
+      "See which process opened the TLS session."
+    ],
+    "benignCauses": [
+      "A camera firmware added a browser-like stack.",
+      "The class tag is wrong for a tablet."
+    ]
+  },
+  "brute-force-in": {
+    "meaning": "Many short inbound attempts hit a login port.",
+    "check": [
+      "See which source address sent the attempts.",
+      "Check whether that port is meant to be open."
+    ],
+    "benignCauses": [
+      "A management scan from the operator.",
+      "A NAT hairpin retrying a closed service."
+    ]
+  },
+  "brute-force-out": {
+    "meaning": "This device made many short outbound attempts to a login port.",
+    "check": [
+      "See the destination addresses and port.",
+      "Check whether the device should administer other hosts."
+    ],
+    "benignCauses": [
+      "A controller polling several managed devices.",
+      "A mis-set port on a health check."
+    ]
+  },
+  "cert-change": {
+    "meaning": "The certificate issuer for a known name changed.",
+    "check": [
+      "Compare the old and new issuer on that name.",
+      "See whether the vendor rotated certificates today."
+    ],
+    "benignCauses": ["A planned certificate rotation.", "A CDN presented a different intermediate."]
+  },
+  "class-violation": {
+    "meaning": "The device did something its class prior does not allow.",
+    "check": [
+      "Confirm the class set with setDeviceClass.",
+      "See which destination or port broke the prior."
+    ],
+    "benignCauses": [
+      "The class tag is too narrow.",
+      "A new feature of the product uses an extra destination."
+    ]
+  },
+  "cleartext-regression": {
+    "meaning": "A host that had been using TLS was contacted in cleartext.",
+    "check": [
+      "See the host and the port of the cleartext session.",
+      "Check whether a firmware update dropped TLS."
+    ],
+    "benignCauses": [
+      "A local status page on port 80.",
+      "A captive portal before the encrypted session."
+    ]
+  },
+  "clock-jump": {
+    "meaning": "The event clock moved backward.",
+    "check": ["Check the sensor clock and NTP.", "See whether events were replayed from a file."],
+    "benignCauses": [
+      "The gateway clock stepped during boot.",
+      "A test replay used an earlier timestamp."
+    ]
+  },
+  "coap-amplification": {
+    "meaning": "This device answered a CoAP query in a way that can amplify.",
+    "check": [
+      "See the source of the query and the response size.",
+      "Check whether CoAP is meant to face the WAN."
+    ],
+    "benignCauses": ["A local controller polling sensors.", "A discovery burst on the LAN."]
+  },
+  "connection-churn": {
+    "meaning": "This device opened far more connections than its learned window.",
+    "check": [
+      "Compare the count with the learned maximum.",
+      "See whether a retry loop is running."
+    ],
+    "benignCauses": [
+      "A cloud reconnect after a WAN blip.",
+      "An app refresh that opens many short calls."
+    ]
+  },
+  "credential-stuffing-out": {
+    "meaning": "This device contacted many distinct login sites in one window.",
+    "check": [
+      "List the site names in the anomaly.",
+      "See whether a person is using the device as a browser."
+    ],
+    "benignCauses": [
+      "A smart display loading several account pages.",
+      "A test that walks a list of hostnames."
+    ]
+  },
+  "cryptomining": {
+    "meaning": "Traffic matched a mining protocol or pool.",
+    "check": [
+      "Confirm the peer and the operation name.",
+      "See whether the device CPU is unexpectedly busy."
+    ],
+    "benignCauses": [
+      "A lab host running a miner on purpose.",
+      "A general-purpose PC tagged as an appliance."
+    ]
+  },
+  "dga": {
+    "meaning": "Several generated-looking DNS names appeared in one window.",
+    "check": [
+      "Read the sample name in the anomaly.",
+      "See whether the device should only use vendor names."
+    ],
+    "benignCauses": ["A CDN uses high-entropy labels.", "A captive portal uses random hostnames."]
+  },
+  "dhcp-starvation": {
+    "meaning": "Many different MAC addresses sent DHCP discovers.",
+    "check": [
+      "See whether a new switch or Wi-Fi client burst joined.",
+      "Check the DHCP server log for the same minute."
+    ],
+    "benignCauses": [
+      "A classroom of devices booting together.",
+      "A phone randomizing its MAC on each probe."
+    ]
+  },
+  "direct-ip": {
+    "meaning": "Outbound traffic went to a public IP this device has not resolved.",
+    "check": [
+      "See whether a later DNS answer explains the address.",
+      "Check the address against a threat feed if you have one."
+    ],
+    "benignCauses": [
+      "A device with a hard-coded vendor address.",
+      "DNS happened on a resolver this sensor did not see."
+    ]
+  },
+  "dns-rebinding": {
+    "meaning": "A public name answered with a bogon address.",
+    "check": [
+      "Compare the name and the answer address.",
+      "See whether the resolver is the one the device should use."
+    ],
+    "benignCauses": [
+      "Split-horizon DNS for a local name.",
+      "A test resolver returning a lab address."
+    ]
+  },
+  "dns-tunnel": {
+    "meaning": "DNS queries carried more payload than a normal lookup.",
+    "check": [
+      "Read the query name length and type.",
+      "See whether the device should only use short vendor names."
+    ],
+    "benignCauses": ["A security tool using DNS for telemetry.", "A long TXT record from a vendor."]
+  },
+  "egress-flood": {
+    "meaning": "Outbound volume exceeded the flood limit.",
+    "check": [
+      "Compare bytes and packets with the device baseline.",
+      "See whether a backup or camera upload is scheduled."
+    ],
+    "benignCauses": [
+      "A camera uploading a clip.",
+      "A firmware download counted on the wrong direction."
+    ]
+  },
+  "failed-connection-ratio": {
+    "meaning": "Most connection attempts in the window failed.",
+    "check": [
+      "See the destinations and the TCP outcome.",
+      "Check whether the remote service is down."
+    ],
+    "benignCauses": [
+      "A service outage causing retries.",
+      "A scan of closed ports by a management tool."
+    ]
+  },
+  "fan-out": {
+    "meaning": "One window contacted more hosts than the learned limit.",
+    "check": [
+      "List the hosts if the sensor still has them.",
+      "See whether a directory or cloud API fans out."
+    ],
+    "benignCauses": [
+      "A hub talking to every paired device.",
+      "A DNS resolver contacting many authorities."
+    ]
+  },
+  "fast-flux": {
+    "meaning": "One name returned many short-lived addresses.",
+    "check": [
+      "Compare the answer set and TTLs with earlier lookups.",
+      "See whether the name is a CDN."
+    ],
+    "benignCauses": ["A CDN with a low TTL.", "A load balancer rotating backends."]
+  },
+  "fleet-wave": {
+    "meaning": "Several devices contacted the same new destination together.",
+    "check": ["See which devices share the destination.", "Check whether a vendor push went out."],
+    "benignCauses": [
+      "A firmware update rolling across a product line.",
+      "Devices booting and calling the same setup host."
+    ]
+  },
+  "gratuitous-arp-flood": {
+    "meaning": "Gratuitous ARP announcements exceeded the count limit.",
+    "check": ["See the IP and MAC in the announcements.", "Check for a failover or a loop."],
+    "benignCauses": [
+      "A clustered gateway failing over.",
+      "A device announcing itself after link up."
+    ]
+  },
+  "horizontal-scan": {
+    "meaning": "One port was touched on many hosts.",
+    "check": ["See the port and the host count.", "Check whether a management scan is scheduled."],
+    "benignCauses": ["An inventory scan.", "A controller probing paired devices."]
+  },
+  "icmp-redirect": {
+    "meaning": "An ICMP redirect tried to change a route.",
+    "check": [
+      "See the source of the redirect.",
+      "Check the gateway address the device should use."
+    ],
+    "benignCauses": [
+      "A router sending a legitimate redirect.",
+      "A lab topology with asymmetric routes."
+    ]
+  },
+  "icmp-tunnel": {
+    "meaning": "ICMP packets were large enough to carry a tunnel.",
+    "check": ["Compare bytes per packet with a normal ping.", "See the peer address."],
+    "benignCauses": ["A path-MTU probe with a large packet.", "A monitoring tool using ICMP echo."]
+  },
+  "identity-change": {
+    "meaning": "A MAC address presented a new DHCP fingerprint.",
+    "check": [
+      "Compare the old and new fingerprints for that MAC.",
+      "See whether the NIC or the OS changed."
+    ],
+    "benignCauses": [
+      "A firmware update changed the DHCP client.",
+      "A dock or USB ethernet adapter was inserted."
+    ]
+  },
+  "inbound-from-wan": {
+    "meaning": "A public address connected inbound.",
+    "check": [
+      "See the source address and destination port.",
+      "Check whether a port forward is intentional."
+    ],
+    "benignCauses": [
+      "A vendor cloud connecting to a camera.",
+      "A person reaching a published service."
+    ]
+  },
+  "input-gap": {
+    "meaning": "The sensor stopped delivering events for this device.",
+    "check": [
+      "Check the sensor and the span named in the anomaly.",
+      "See whether the device was powered off."
+    ],
+    "benignCauses": ["A planned maintenance window.", "The device sleeping with no traffic."]
+  },
+  "ipv6-tunnel": {
+    "meaning": "Traffic used an IPv6 transition tunnel this device had not used.",
+    "check": [
+      "See whether the kind is 6in4 or Teredo.",
+      "Check if the OS enabled IPv6 transition."
+    ],
+    "benignCauses": ["An OS update enabling Teredo.", "A VPN client using 6in4."]
+  },
+  "lan-lateral": {
+    "meaning": "This device contacted a LAN peer it had not learned.",
+    "check": ["See the peer address.", "Check whether a new device was paired."],
+    "benignCauses": ["A new phone on the LAN.", "A hub talking to a newly installed sensor."]
+  },
+  "lan-sweep": {
+    "meaning": "ICMP or similar probes covered many LAN addresses.",
+    "check": ["See the address range.", "Check whether an inventory tool is running."],
+    "benignCauses": ["A controller discovering devices.", "A person running a LAN scan."]
+  },
+  "lan-via-proxy": {
+    "meaning": "After a proxy-like session, the device reached a LAN host.",
+    "check": [
+      "Read the proxy peer and the later LAN peer.",
+      "See whether a remote support tool is installed."
+    ],
+    "benignCauses": [
+      "A support session that then touches a local device.",
+      "A hub relaying a cloud command to a sensor."
+    ]
+  },
+  "long-connection": {
+    "meaning": "A single connection stayed open past the long-session limit.",
+    "check": ["See the peer and the duration.", "Check whether a stream or tunnel is expected."],
+    "benignCauses": ["A camera stream.", "A persistent cloud socket."]
+  },
+  "mqtt-new-broker": {
+    "meaning": "This device contacted an MQTT broker it had not used.",
+    "check": ["See the broker address and port.", "Check whether the broker is the house broker."],
+    "benignCauses": [
+      "A new hub broker after a migration.",
+      "A device shipped with a vendor broker."
+    ]
+  },
+  "mqtt-publish-rate": {
+    "meaning": "MQTT publishes exceeded the rate limit.",
+    "check": ["See the topic and the count.", "Check whether a sensor is stuck in a loop."],
+    "benignCauses": [
+      "A burst of retained status messages.",
+      "A controller pushing a configuration."
+    ]
+  },
+  "mqtt-topic-new": {
+    "meaning": "A publish used a topic this device had not used.",
+    "check": ["Read the topic.", "See whether a new automation was added."],
+    "benignCauses": [
+      "A new scene or device in the broker.",
+      "A firmware update adding a status topic."
+    ]
+  },
+  "mqtt-wildcard-subscribe": {
+    "meaning": "A client subscribed with a wildcard topic.",
+    "check": [
+      "See which client and which pattern.",
+      "Check whether that client should see every topic."
+    ],
+    "benignCauses": ["An admin console subscribing to #.", "A bridge mirroring the broker."]
+  },
+  "new-asn": {
+    "meaning": "Traffic went to an autonomous system this device had not used.",
+    "check": ["See the ASN and the destination.", "Check whether a CDN or cloud region is new."],
+    "benignCauses": [
+      "A vendor moved to another cloud ASN.",
+      "Anycast shifted to a different network."
+    ]
+  },
+  "new-beacon": {
+    "meaning": "A new regular destination appeared.",
+    "check": [
+      "See the destination and the interval.",
+      "Check whether a vendor check-in was added."
+    ],
+    "benignCauses": [
+      "A new telemetry host after an update.",
+      "A device that only beacons after provisioning."
+    ]
+  },
+  "new-client-fingerprint": {
+    "meaning": "A TLS client fingerprint this device had not used appeared.",
+    "check": ["Compare the JA4 with the learned set.", "See whether the firmware or OS changed."],
+    "benignCauses": ["A firmware update changed the TLS stack.", "A library update on the device."]
+  },
+  "new-country": {
+    "meaning": "Traffic went to a country this device had not used.",
+    "check": [
+      "See the country and the destination address.",
+      "Check whether a CDN edge is in a new region."
+    ],
+    "benignCauses": ["A CDN edge in another country.", "A vendor support site hosted abroad."]
+  },
+  "new-destination": {
+    "meaning": "A destination name or address was not in the learned set.",
+    "check": ["See the destination.", "Check whether it belongs to the vendor or a CDN."],
+    "benignCauses": ["A CDN hostname rotation.", "A one-time firmware host."]
+  },
+  "new-device": {
+    "meaning": "A device identifier was seen for the first time.",
+    "check": ["Confirm the identifier is a device you installed.", "See the first event time."],
+    "benignCauses": ["A new phone or sensor on the LAN.", "A MAC change after a factory reset."]
+  },
+  "new-domain-family": {
+    "meaning": "A registrable domain family was not in the learned set.",
+    "check": [
+      "See the family name.",
+      "Check whether a sibling of a known vendor domain is expected."
+    ],
+    "benignCauses": [
+      "A vendor adding a new product domain.",
+      "A CDN family the device had not needed yet."
+    ]
+  },
+  "new-port": {
+    "meaning": "A destination port was not in the learned set.",
+    "check": ["See the port and the peer.", "Check whether a new service was enabled."],
+    "benignCauses": [
+      "A vendor moving from one TLS port to another.",
+      "A local admin page on a high port."
+    ]
+  },
+  "new-protocol": {
+    "meaning": "A protocol this device had not used appeared.",
+    "check": ["See the protocol.", "Check whether a feature such as a tunnel was turned on."],
+    "benignCauses": [
+      "An OS update enabling a new transport.",
+      "A paired accessory using a new protocol."
+    ]
+  },
+  "ntp-rogue": {
+    "meaning": "Time queries went to an NTP server this device had not used.",
+    "check": ["See the server address.", "Check the gateway NTP setting."],
+    "benignCauses": [
+      "A new router advertising itself as NTP.",
+      "A device falling back to a public NTP pool."
+    ]
+  },
+  "nxdomain-burst": {
+    "meaning": "Failed DNS lookups exceeded the learned count.",
+    "check": ["Read the sample names.", "See whether a suffix or search list is wrong."],
+    "benignCauses": [
+      "A device retrying a retired vendor name.",
+      "A search domain appending a local suffix."
+    ]
+  },
+  "onvif-config-change": {
+    "meaning": "An ONVIF call changed configuration.",
+    "check": [
+      "See the operation and the caller.",
+      "Check whether a technician is in the camera UI."
+    ],
+    "benignCauses": ["A person editing the camera.", "A VMS applying a profile."]
+  },
+  "ot-dangerous-op": {
+    "meaning": "An operational-technology call used a dangerous operation.",
+    "check": [
+      "See the operation, target, and peer.",
+      "Check whether a maintenance window is open."
+    ],
+    "benignCauses": ["A technician writing a setpoint.", "A programmed control sequence."]
+  },
+  "ot-error-burst": {
+    "meaning": "Operational-technology errors exceeded the burst limit.",
+    "check": [
+      "See the operation and the error count.",
+      "Check the controller log for the same minute."
+    ],
+    "benignCauses": [
+      "A sensor offline causing repeated reads.",
+      "A scan of points that are not installed."
+    ]
+  },
+  "ot-new-master": {
+    "meaning": "A new peer acted as an OT master.",
+    "check": ["See the peer address.", "Check whether a new engineering station was connected."],
+    "benignCauses": ["A backup controller coming online.", "A technician laptop on the OT network."]
+  },
+  "ot-recon": {
+    "meaning": "OT discovery or enumeration exceeded the recon limit.",
+    "check": ["See the operations and the peer.", "Check whether an asset inventory is running."],
+    "benignCauses": [
+      "A controller browsing points at startup.",
+      "An engineering tool listing devices."
+    ]
+  },
+  "ot-spoof": {
+    "meaning": "An OT identity was claimed from a new peer address.",
+    "check": [
+      "Compare the peer with the learned owner of that target.",
+      "See whether a controller failed over."
+    ],
+    "benignCauses": [
+      "A redundant controller taking the identity.",
+      "A device that changed address after a reboot."
+    ]
+  },
+  "ot-value-out-of-range": {
+    "meaning": "A written value fell outside the learned range.",
+    "check": [
+      "See the target, the value, and the learned min and max.",
+      "Check whether the process setpoint was changed on purpose."
+    ],
+    "benignCauses": ["A seasonal setpoint change.", "A commissioning step writing a new range."]
+  },
+  "ot-wan-exposure": {
+    "meaning": "An OT port was reachable from outside the plant LAN.",
+    "check": ["See the port and the source.", "Check firewall rules for that port."],
+    "benignCauses": ["A remote support path left open.", "A VPN address classified as outside."]
+  },
+  "ot-write-new": {
+    "meaning": "A write targeted a point this device had not written.",
+    "check": ["See the target name.", "Check whether a new control point was added."],
+    "benignCauses": ["A new schedule or scene.", "Commissioning of a new point."]
+  },
+  "ot-write-rate": {
+    "meaning": "Writes exceeded the learned rate.",
+    "check": ["See the target and the count.", "Check for a control loop that is oscillating."],
+    "benignCauses": ["A startup sequence writing many points.", "A person jogging a setpoint."]
+  },
+  "p2p-pattern": {
+    "meaning": "The flow pattern matched peer-to-peer relay behavior.",
+    "check": ["See the peers and ports.", "Check whether the camera uses a vendor P2P cloud."],
+    "benignCauses": [
+      "A camera vendor P2P relay.",
+      "A game or voice app on a general-purpose device."
+    ]
+  },
+  "packet-flood": {
+    "meaning": "Packet rate exceeded the flood limit.",
+    "check": ["Compare packets with the device baseline.", "See the peer and protocol."],
+    "benignCauses": ["A camera stream.", "A burst of discovery packets."]
+  },
+  "peer-divergence": {
+    "meaning": "This device contacted a destination its peer group does not use.",
+    "check": [
+      "See the destination and the group.",
+      "Check whether this unit is a different product revision."
+    ],
+    "benignCauses": ["One unit on a newer firmware.", "A device placed in the wrong peer group."]
+  },
+  "policy-violation": {
+    "meaning": "Traffic matched a policy the operator loaded.",
+    "check": ["Read the policy id in the anomaly.", "See whether that policy is still intended."],
+    "benignCauses": [
+      "A policy that is broader than the network.",
+      "A test that hits the blocked port."
+    ]
+  },
+  "post-update-drift": {
+    "meaning": "Behavior shifted after an update marker.",
+    "check": [
+      "See what changed after the update event.",
+      "Check the firmware version if the sensor has it."
+    ],
+    "benignCauses": [
+      "A firmware update that adds a destination.",
+      "A configuration push after an update."
+    ]
+  },
+  "posture-cleartext-auth": {
+    "meaning": "A login protocol ran in cleartext.",
+    "check": [
+      "See the port. Telnet is 23 and FTP is 21.",
+      "Check whether the device can use SSH or TLS instead."
+    ],
+    "benignCauses": ["A legacy printer that only speaks FTP.", "A lab device left on telnet."]
+  },
+  "posture-listening-risky": {
+    "meaning": "A risky port accepted a connection.",
+    "check": ["See the port and the direction.", "Check whether that service should be bound."],
+    "benignCauses": [
+      "A camera admin port used by the VMS.",
+      "A building controller listening on a vendor port."
+    ]
+  },
+  "posture-wan-exposed": {
+    "meaning": "A public address reached an open port on this device.",
+    "check": ["See the port and the source address.", "Check the port-forward and firewall rules."],
+    "benignCauses": ["A published camera or web UI.", "A cloud provider health check."]
+  },
+  "posture-weak-tls": {
+    "meaning": "A TLS session used an old version or a weak certificate.",
+    "check": ["See the reason in the anomaly.", "Check whether the peer can be upgraded."],
+    "benignCauses": [
+      "An old printer that only offers TLS 1.0.",
+      "A self-signed device certificate."
+    ]
+  },
+  "private-answer-for-public-name": {
+    "meaning": "A public name resolved to a private address.",
+    "check": ["Compare the name and the answer.", "See whether split-horizon DNS is intentional."],
+    "benignCauses": [
+      "Split-horizon DNS for an internal site.",
+      "A resolver rewriting a name to a local cache."
+    ]
+  },
+  "protocol-mix-shift": {
+    "meaning": "The mix of protocols departed from the learned mix.",
+    "check": ["See which protocol grew.", "Check for a new feature or a tunnel."],
+    "benignCauses": ["A firmware update adding UDP.", "A backup path using a different transport."]
+  },
+  "proxy-backconnect": {
+    "meaning": "A long control session was followed by many short outbound bursts.",
+    "check": [
+      "See the control peer and the later destinations.",
+      "Check for a remote-access tool."
+    ],
+    "benignCauses": [
+      "A support agent connected, then the device checked in.",
+      "A cloud command channel with fan-out."
+    ]
+  },
+  "proxy-relay": {
+    "meaning": "Traffic matched a known proxy or relay.",
+    "check": [
+      "Confirm the indicator or the port.",
+      "See whether the device should use a corporate proxy."
+    ],
+    "benignCauses": ["An intentional HTTP proxy.", "A vendor relay for a camera."]
+  },
+  "proxy-sdk-traffic": {
+    "meaning": "A name matched the proxy-SDK indicator list.",
+    "check": [
+      "Confirm the name against the list source.",
+      "See which application on the device uses it."
+    ],
+    "benignCauses": ["A smart-TV SDK the vendor ships.", "A test indicator loaded for a lab."]
+  },
+  "quic-new": {
+    "meaning": "QUIC appeared to a peer this device had not used.",
+    "check": ["See the peer address.", "Check whether a browser or app update enabled QUIC."],
+    "benignCauses": ["A CDN turning on HTTP/3.", "An app update using QUIC."]
+  },
+  "reflection-participation": {
+    "meaning": "This device answered a query that can be used for reflection.",
+    "check": [
+      "See the protocol and the source of the query.",
+      "Check whether that service should face untrusted hosts."
+    ],
+    "benignCauses": ["A local resolver answering LAN clients.", "An NTP server for the site."]
+  },
+  "resolver-bypass": {
+    "meaning": "DNS went to a resolver this device had not been using.",
+    "check": [
+      "See the resolver address.",
+      "Check whether the device hard-codes a public resolver."
+    ],
+    "benignCauses": [
+      "A device shipped with 8.8.8.8.",
+      "A guest network using a different resolver."
+    ]
+  },
+  "rogue-dhcp": {
+    "meaning": "A DHCP offer came from a server that is not the learned one.",
+    "check": [
+      "Compare the server address with the real DHCP server.",
+      "See whether a new router was plugged in."
+    ],
+    "benignCauses": [
+      "A new legitimate DHCP server during a cutover.",
+      "A phone hotspot bridging onto the LAN."
+    ]
+  },
+  "rogue-ra": {
+    "meaning": "A router advertisement came from a new router.",
+    "check": [
+      "Compare the source with the known gateway.",
+      "See whether a new router was installed."
+    ],
+    "benignCauses": ["A new legitimate gateway.", "A travel router plugged into the LAN."]
+  },
+  "slow-exfil": {
+    "meaning": "Upload volume climbed above the learned hourly pattern.",
+    "check": [
+      "Compare bytes out with the same hour on earlier days.",
+      "See the destination of the upload."
+    ],
+    "benignCauses": ["A camera uploading more video than usual.", "A backup that grew."]
+  },
+  "sni-missing": {
+    "meaning": "A TLS session to an unlearned address carried no server name.",
+    "check": ["See the destination address.", "Check whether the peer is an IP-based device API."],
+    "benignCauses": ["A device API that uses a raw IP.", "A middlebox that strips SNI."]
+  },
+  "spam-relay": {
+    "meaning": "Outbound mail volume exceeded the relay limit.",
+    "check": [
+      "See the destination port and the recipients if present.",
+      "Check whether the device should send mail."
+    ],
+    "benignCauses": ["A scanner emailing documents.", "A printer sending status mail."]
+  },
+  "src-spoof": {
+    "meaning": "The source address does not belong to the device lease.",
+    "check": [
+      "Compare the source IP with the DHCP lease.",
+      "See whether the sensor is mis-attributing the device."
+    ],
+    "benignCauses": ["A shared NAT address.", "A sensor that stamps the wrong device id."]
+  },
+  "state-cap": {
+    "meaning": "The engine hit a state cap and could not store more.",
+    "check": [
+      "Read the cap named in the warning or anomaly.",
+      "See whether one device is creating unbounded keys."
+    ],
+    "benignCauses": [
+      "A noisy device filling a destination set.",
+      "A test that exceeds a lowered cap."
+    ]
+  },
+  "stream-to-new-destination": {
+    "meaning": "Media-sized or streaming traffic went to a new destination.",
+    "check": [
+      "See the destination and port.",
+      "Check whether a new viewer or cloud recorder was added."
+    ],
+    "benignCauses": ["A new phone viewing the camera.", "A vendor cloud recorder."]
+  },
+  "supply-chain-suspect": {
+    "meaning": "An update or download matched a suspect supply-chain indicator.",
+    "check": [
+      "Confirm the indicator and the file host.",
+      "See whether the download is a known firmware host."
+    ],
+    "benignCauses": [
+      "A vendor host newly added to the indicator list.",
+      "A mirror of a legitimate firmware file."
+    ]
+  },
+  "tftp-activity": {
+    "meaning": "TFTP traffic was seen.",
+    "check": ["See the peer and direction.", "Check whether a boot or firmware path uses TFTP."],
+    "benignCauses": ["A device network-booting.", "A phone loading a config by TFTP."]
+  },
+  "threat-intel-match": {
+    "meaning": "A name or address matched a loaded indicator.",
+    "check": [
+      "Read the indicator value and source.",
+      "See whether the hit is a destination the device should avoid."
+    ],
+    "benignCauses": [
+      "An indicator that is broader than the incident.",
+      "A shared CDN address also used by a listed host."
+    ]
+  },
+  "tier-silent": {
+    "meaning": "A detector tier this deployment asked for produced no events.",
+    "check": ["See which tier is named.", "Check whether the sensor emits that event type."],
+    "benignCauses": [
+      "A sensor that does not export TLS or DNS.",
+      "A quiet device with no traffic in that tier."
+    ]
+  },
+  "tls-on-odd-port": {
+    "meaning": "TLS appeared on a port this device had not used for TLS.",
+    "check": ["See the port.", "Check whether a service moved off 443."],
+    "benignCauses": ["A device admin UI on 8443.", "A vendor API on a high port."]
+  },
+  "tor-or-proxy": {
+    "meaning": "Traffic matched a Tor or proxy indicator.",
+    "check": [
+      "Confirm the indicator source and value.",
+      "See whether the device should be anonymous."
+    ],
+    "benignCauses": [
+      "A proxy the operator configured.",
+      "A shared address that also appears on a Tor list."
+    ]
+  },
+  "tunnel-service": {
+    "meaning": "A tunnel or remote-access name was new for this device.",
+    "check": ["See the name.", "Check whether remote access was enabled."],
+    "benignCauses": [
+      "A person enabling a vendor remote-support name.",
+      "A Tailscale or similar client installed on purpose."
+    ]
+  },
+  "update-from-new-source": {
+    "meaning": "A large download came from a source this device had not used.",
+    "check": ["See the source and the byte count.", "Check whether it is a firmware host."],
+    "benignCauses": ["A firmware mirror.", "A CDN fronting the vendor download."]
+  },
+  "update-over-cleartext": {
+    "meaning": "A large download arrived in cleartext.",
+    "check": [
+      "See the port and the byte count.",
+      "Check whether the vendor offers TLS for updates."
+    ],
+    "benignCauses": [
+      "A legacy firmware server on port 80.",
+      "A local cache serving images in cleartext."
+    ]
+  },
+  "upload-ratio-shift": {
+    "meaning": "The share of bytes sent upward shifted from the learned ratio.",
+    "check": [
+      "Compare the new ratio with the learned samples.",
+      "See the destination of the upload."
+    ],
+    "benignCauses": ["A camera uploading a long clip.", "A backup window."]
+  },
+  "upnp-port-open": {
+    "meaning": "A new WAN port mapping was created.",
+    "check": ["See the protocol and port.", "Check which device requested the mapping."],
+    "benignCauses": [
+      "A game or camera opening a port on purpose.",
+      "A controller refreshing an existing mapping that looked new."
+    ]
+  },
+  "vertical-scan": {
+    "meaning": "Many ports were touched on one host.",
+    "check": ["See the host and the port count.", "Check whether an admin scan is running."],
+    "benignCauses": [
+      "A vulnerability scan the operator started.",
+      "A controller probing one appliance."
+    ]
+  },
+  "volume-spike-hourly": {
+    "meaning": "Bytes in this hour exceeded the learned hourly limit.",
+    "check": [
+      "Compare the hour with the same hour on earlier days.",
+      "See which destination took the bytes."
+    ],
+    "benignCauses": [
+      "A camera uploading in its usual hour, but more.",
+      "A backup scheduled in that hour."
+    ]
+  },
+  "volume-spike": {
+    "meaning": "Bytes in the window exceeded the learned limit.",
+    "check": ["Compare the byte count with the limit in the explain.", "See the destination."],
+    "benignCauses": ["A firmware download.", "A camera stream."]
+  },
+  "vpn-protocol": {
+    "meaning": "A VPN or SSH protocol this device had not used appeared.",
+    "check": ["See the kind and port.", "Check whether remote access was turned on."],
+    "benignCauses": ["An admin SSH session.", "A VPN client enabled after an update."]
+  },
+  "went-silent": {
+    "meaning": "A device that is usually active in this hour went quiet.",
+    "check": ["See the gap in the anomaly.", "Check power, Wi-Fi, and the sensor."],
+    "benignCauses": ["The device was unplugged.", "The device sleeps longer than the learned gap."]
+  },
+  "wrong-time": {
+    "meaning": "The device was active in an hour it had not used.",
+    "check": ["See the hour.", "Check whether a schedule or timezone changed."],
+    "benignCauses": ["A person using the device late.", "A timezone or clock change."]
+  },
+  "zone-violation": {
+    "meaning": "Traffic crossed from one configured zone to another.",
+    "check": [
+      "See the source and destination zones.",
+      "Check whether that path is supposed to exist."
+    ],
+    "benignCauses": [
+      "A hub in one zone talking to a sensor in another.",
+      "A zone map that is coarser than the LAN."
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { isPublic } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'posture-wan-exposed',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'posture',
@@ -34,6 +36,7 @@ const detector = {
       actual: `wan reachable on :${ev.dstPort}`,
       expected: 'not reachable from the public internet',
       data: { srcIp: ev.srcIp, dstPort: ev.dstPort },
+      explain: explainMatch({ observed: ev.dstPort, matched: ev.srcIp, source: 'wan' }),
     };
   },
 

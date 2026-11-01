@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'credential-stuffing-out',
@@ -10,6 +11,7 @@ const detector = {
     rel: '0.4',
     fpRisk: '',
     dedupGroup: 'proxy-relay',
+    explains: true,
   },
   requires: ['T1'],
   category: 'monetization',
@@ -44,6 +46,12 @@ const detector = {
       actual: `${dev.sites.size} short logins`,
       expected: `< ${ctx.options.minSites} unrelated login targets per window`,
       data: { sites: dev.sites.size },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.sites.size,
+        threshold: ctx.options.minSites,
+        formula: `minSites=${ctx.options.minSites}`,
+      }),
     };
   },
 

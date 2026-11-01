@@ -3,6 +3,7 @@
 const { SampleRing } = require('../engine/caps');
 const { summarize } = require('../engine/math');
 const { readSamples } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 const FAIL = new Set(['rejected', 'no-response', 'reset']);
 
@@ -14,6 +15,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Low; the most robust scan signal',
     attack: ['T1046'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -61,6 +63,12 @@ const detector = {
       actual: `${Math.round(ratio * 100)}% failed (${attempts} attempts)`,
       expected: `<= ${Math.round(limit * 100)}% failed`,
       data: { ratio, attempts, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ratio,
+        threshold: limit,
+        formula: `max(minRatio=${ctx.options.minRatio}, mean=${stats.mean} + sigma=${ctx.options.sigma} × std=${stats.std}) = ${limit}`,
+      }),
     };
   },
 

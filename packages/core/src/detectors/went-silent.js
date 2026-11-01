@@ -2,6 +2,8 @@
 
 const { HubvikError } = require('../errors');
 
+const { explainThreshold } = require('./lib');
+
 const HOUR = 3600e3;
 
 /**
@@ -40,6 +42,7 @@ const detector = {
     ],
     rel: '0.2',
     fpRisk: 'Medium',
+    explains: true,
   },
   requires: ['T0'],
   category: 'timing',
@@ -78,6 +81,12 @@ const detector = {
       actual: `silent for ${spanLabel(gap)}`,
       expected: `gaps <= ${spanLabel(dev.maxGap * ctx.options.factor)} during active hours`,
       data: { gapMs: gap, maxGap: dev.maxGap },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: gap,
+        threshold: dev.maxGap * ctx.options.factor,
+        formula: `maxGap=${dev.maxGap} × factor=${ctx.options.factor}`,
+      }),
     };
   },
 

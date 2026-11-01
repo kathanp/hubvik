@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const WRITE = new Set(['WriteProperty', 'WritePropertyMultiple', 'fc5', 'fc6', 'fc15', 'fc16']);
 
@@ -11,6 +11,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -39,6 +40,7 @@ const detector = {
       actual: key,
       expected: 'writes only to a learned target',
       data: { key },
+      explain: explainNewMember({ observed: key, learnedCount: dev.seen.size }),
     };
   },
 

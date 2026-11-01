@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const WRITE = new Set(['WriteProperty', 'WritePropertyMultiple', 'fc5', 'fc6', 'fc15', 'fc16']);
 
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -50,6 +52,12 @@ const detector = {
       actual: `${count} writes/window`,
       expected: `<= ${Math.round(limit)}`,
       data: { count, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: count,
+        threshold: limit,
+        formula: `max(minWrites=${ctx.options.minWrites}, factor=${ctx.options.factor} × learnedMax=${dev.max})`,
+      }),
     };
   },
 

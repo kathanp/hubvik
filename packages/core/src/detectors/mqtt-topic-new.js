@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'mqtt-topic-new',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'app',
@@ -38,6 +39,7 @@ const detector = {
       actual: topic,
       expected: 'only a learned topic prefix',
       data: { topic },
+      explain: explainNewMember({ observed: topic, learnedCount: dev.seen.size }),
     };
   },
 

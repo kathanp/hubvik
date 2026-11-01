@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'new-country',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Medium',
+    explains: true,
   },
   requires: ['T1'],
   category: 'destination',
@@ -53,6 +54,7 @@ const detector = {
       actual: country,
       expected: `${dev.seen.size} known countries`,
       data: { country },
+      explain: explainNewMember({ observed: country, learnedCount: dev.seen.size }),
     };
   },
 

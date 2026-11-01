@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const detector = {
   id: 'ot-spoof',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -40,6 +42,7 @@ const detector = {
         actual: `${claim.target} claimed by ${claim.peerIp}`,
         expected: `${claim.target} stays on ${previous}`,
         data: { target: claim.target, peerIp: claim.peerIp, previous },
+        explain: explainChanged({ observed: claim.peerIp, previous }),
       };
     }
     if (!previous) dev.owners.set(claim.target, claim.peerIp);

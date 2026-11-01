@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'new-client-fingerprint',
@@ -10,6 +10,7 @@ const detector = {
     rel: '0.4',
     fpRisk: 'Low on single-purpose IoT, medium after firmware updates',
     attack: ['T1036'],
+    explains: true,
   },
   requires: ['T3'],
   category: 'tls',
@@ -43,6 +44,7 @@ const detector = {
       actual: ev.ja4,
       expected: `${dev.seen.size} known client fingerprints`,
       data: { ja4: ev.ja4 },
+      explain: explainNewMember({ observed: ev.ja4, learnedCount: dev.seen.size }),
     };
   },
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const PORTS = new Set([22, 23, 3389, 554, 1883, 8080]);
 
@@ -12,6 +13,7 @@ const detector = {
     rel: '0.3',
     fpRisk: 'Low',
     attack: ['T1110'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -49,6 +51,12 @@ const detector = {
       actual: `${dev.src} sent ${dev.count} auth attempts`,
       expected: `<= ${ctx.options.minHits} per window`,
       data: { srcIp: dev.src, count: dev.count },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.count,
+        threshold: ctx.options.minHits,
+        formula: `minHits=${ctx.options.minHits}`,
+      }),
     };
   },
 

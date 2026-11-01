@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'fast-flux',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['dns'],
     rel: '0.4',
     fpRisk: 'Medium',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -46,6 +48,12 @@ const detector = {
       actual: `${ev.qname} has ${row.ips.size} short-lived answers`,
       expected: `< ${ctx.options.minAnswers} answers, or a normal TTL`,
       data: { qname: ev.qname, answers: row.ips.size },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: row.ips.size,
+        threshold: ctx.options.minAnswers,
+        formula: `minAnswers=${ctx.options.minAnswers}`,
+      }),
     };
   },
 

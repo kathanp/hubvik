@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'ot-error-burst',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -37,6 +39,12 @@ const detector = {
       actual: `${dev.count} protocol errors`,
       expected: `<= ${ctx.options.minErrors} per window`,
       data: { count: dev.count },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.count,
+        threshold: ctx.options.minErrors,
+        formula: `minErrors=${ctx.options.minErrors}`,
+      }),
     };
   },
 
