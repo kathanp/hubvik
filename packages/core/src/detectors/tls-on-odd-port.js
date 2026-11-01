@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'tls-on-odd-port',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['tls'],
     rel: '0.4',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T3'],
   category: 'tls',
@@ -37,6 +38,7 @@ const detector = {
       actual: `TLS on port ${key}`,
       expected: 'TLS only on a learned port',
       data: { port: ev.dstPort },
+      explain: explainNewMember({ observed: key, learnedCount: dev.seen.size }),
     };
   },
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'gratuitous-arp-flood',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['arp'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -37,6 +39,12 @@ const detector = {
       actual: `${dev.count} gratuitous ARP`,
       expected: `<= ${ctx.options.minCount} per window`,
       data: { count: dev.count },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.count,
+        threshold: ctx.options.minCount,
+        formula: `minCount=${ctx.options.minCount}`,
+      }),
     };
   },
 

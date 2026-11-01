@@ -3,6 +3,7 @@
 const { SampleRing } = require('../engine/caps');
 const { summarize } = require('../engine/math');
 const { readSamples } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'nxdomain-burst',
@@ -12,6 +13,7 @@ const detector = {
     rel: '0.2',
     fpRisk: 'Low',
     attack: ['T1568'],
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -56,6 +58,12 @@ const detector = {
       actual: `${value} NXDOMAIN answers`,
       expected: `<= ${limit} NXDOMAIN answers/window`,
       data: { count: value, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: value,
+        threshold: limit,
+        formula: `max(minCount=${ctx.options.minCount}, factor=${ctx.options.factor} × learnedMax=${stats.max})`,
+      }),
     };
   },
 

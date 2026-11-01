@@ -2,7 +2,7 @@
 
 const { isBogon } = require('../engine/net');
 const { assertState } = require('./state');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'lan-sweep',
@@ -13,6 +13,7 @@ const detector = {
     fpRisk: 'Low',
     attack: ['T1046'],
     stage: 'recon',
+    explains: true,
   },
   requires: ['T1'],
   category: 'scan',
@@ -46,6 +47,12 @@ const detector = {
       actual: `${dev.targets.size} local targets`,
       expected: `<= ${ctx.options.minTargets} local targets per window`,
       data: { targets: dev.targets.size },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.targets.size,
+        threshold: ctx.options.minTargets,
+        formula: `minTargets=${ctx.options.minTargets}`,
+      }),
     };
   },
 

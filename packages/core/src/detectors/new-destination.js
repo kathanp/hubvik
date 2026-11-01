@@ -4,7 +4,7 @@ const { HubvikError } = require('../errors');
 
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
-const { isGroupDst } = require('./lib');
+const { isGroupDst, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'new-destination',
@@ -27,6 +27,7 @@ const detector = {
     fpRisk: 'Medium: CDNs rotate hostnames',
     attack: ['T1071'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T0'],
   category: 'destination',
@@ -79,6 +80,7 @@ const detector = {
       actual: ev.dst,
       expected: `${dev.dsts.size} known hosts`,
       data: { dst: ev.dst, known: dev.dsts.size },
+      explain: explainNewMember({ observed: ev.dst, learnedCount: dev.dsts.size }),
     };
   },
 

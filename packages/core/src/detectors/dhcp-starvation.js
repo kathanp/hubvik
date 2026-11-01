@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'dhcp-starvation',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['dhcp'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T4'],
   category: 'link',
@@ -37,6 +39,12 @@ const detector = {
       actual: `${bag.macs.size} DHCP discovers`,
       expected: `<= ${ctx.options.minMacs} new MACs per window`,
       data: { macs: bag.macs.size },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: bag.macs.size,
+        threshold: ctx.options.minMacs,
+        formula: `minMacs=${ctx.options.minMacs}`,
+      }),
     };
   },
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'ot-new-master',
@@ -10,6 +10,7 @@ const detector = {
     rel: '0.4',
     fpRisk: '',
     attack: ['T0867'],
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -37,6 +38,7 @@ const detector = {
       actual: ev.peerIp,
       expected: 'only a learned master or client',
       data: { peerIp: ev.peerIp, op: ev.op },
+      explain: explainNewMember({ observed: ev.peerIp, learnedCount: dev.seen.size }),
     };
   },
 

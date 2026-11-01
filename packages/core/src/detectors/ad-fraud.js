@@ -2,6 +2,7 @@
 
 const { exactHit } = require('../engine/indicators');
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'ad-fraud',
@@ -10,6 +11,7 @@ const detector = {
     consumes: ['dns'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T2'],
   category: 'monetization',
@@ -40,6 +42,12 @@ const detector = {
       actual: `${dev.names.size} ad domains`,
       expected: `< ${ctx.options.minDomains} ad or tracker names per window`,
       data: { names: [...dev.names] },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.names.size,
+        threshold: ctx.options.minDomains,
+        formula: `minDomains=${ctx.options.minDomains}`,
+      }),
     };
   },
 

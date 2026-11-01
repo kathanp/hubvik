@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainNewMember } = require('./lib');
 
 const detector = {
   id: 'answer-drift',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['dns'],
     rel: '0.4',
     fpRisk: 'Medium (CDN changes); could indicate DNS hijack or spoofing',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -44,6 +46,11 @@ const detector = {
       actual: `${ev.qname} -> ${novel}`,
       expected: `${ev.qname} -> ${previous[0]}`,
       data: { qname: ev.qname, answer: novel, previous },
+      explain: explainNewMember({
+        observed: novel,
+        learnedCount: previous.length,
+        sample: previous,
+      }),
     };
   },
 

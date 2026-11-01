@@ -1533,7 +1533,7 @@ repo only (not published): test/ eval/ bench/ examples/ fuzz/
 separate packages: @hubvik/adapter-*, @hubvik/export-*
 ```
 
-`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap in `scripts/pack-check.mjs` is 956 * 1024 bytes. D-86 recorded 900 KB. D-111 records the 956 KiB cap and the 3.1.0 changelog figure of 971688 bytes unpacked. The measured unpacked size on 2026-10-22 was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
+`package.json`: `exports` with `types` + `require`; `files` whitelist; `repository`, `bugs`, `homepage`; `engines.node >= 22`; `sideEffects: false`. Check with `npm pack --dry-run` before each publish. The unpacked core cap in `scripts/pack-check.mjs` is 1024 * 1024 bytes. D-86 recorded 900 KB. D-111 records the 956 KiB cap and the 3.1.0 changelog figure of 971688 bytes unpacked. D-152 records the 1024 KiB cap. The 3.4.0 pack measured 1014694 bytes unpacked. The measured unpacked size on 2026-10-22 was 824522 bytes. OpenWrt-class hosts that run Node have far more flash, and Node itself is > 30 MB. No packed file may exceed 60 KB. `src/data/` must total at most 200 KB. `src/engine/engine.js` is no longer exempt (D-35).
 
 ## C9. Versioning
 
@@ -1564,7 +1564,7 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **1.6**   | B24 (0.12): `dispersed-flood`, `txt-channel`, `inbound-lateral`, `short-lived-cert`. All shadow. `tls.cert.notBefore` is kept when it is a finite number. No change to the live anomaly stream while `shadow` is false                                  | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-102 to D-106 approved                                | [ ]                                                                                                                                                    |
 | **2.0.1** | B25 (0.13): `h2-fanout`, `onion-name`, `proxy-fanin`, `scatter-udp`. All shadow. The call surface is unchanged from 1.6.0                                                                                                                               | Each row fires on its attack, is silent one step outside its threshold, is silent on one 14-day benign pass per simulated class, and rejects an over-cap import. D-107 to D-110 approved                                | [ ]                                                                                                                                                    |
 | **3.3.0** | Planned, not built. WP-61 to WP-65 (J1–J5): detector freeze, holdout scorecard, profile `all` or `core`, on-box pilot, device bench. No new detector row                                                                                                | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds                                                                                                                    | [ ]                                                                                                                                                    |
-| **3.4.0** | Planned, not built. WP-66 to WP-68 (J6–J8): detector families default off, explain on every live detector, operator advice. No new detector row                                                                                                         | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                                                                                                                                   | [ ]                                                                                                                                                    |
+| **3.4.0** | WP-66 to WP-68 (J6–J8): detector families default off, explain on every live detector, operator advice. No new detector row                                                                                                                             | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                                                                                                                                   | [x]                                                                                                                                                    |
 | **3.5.0** | Planned, not built. WP-69 (J9): coverage map and pipeline self-test. No new detector row                                                                                                                                                                | the 3.4.0 gate met; J9 done-when met                                                                                                                                                                                    | [ ]                                                                                                                                                    |
 | **3.6.0** | Planned, not built. WP-70 (J10): lock readiness score. The engine never calls `lock()`. No new detector row                                                                                                                                             | the 3.5.0 gate met; J10 done-when met                                                                                                                                                                                   | [ ]                                                                                                                                                    |
 
@@ -2233,7 +2233,7 @@ A pilot that turns on every live row will page on detectors that have no evidenc
 
 `'all'` is byte-identical to today. `'core'` enables only the live detectors listed in `packages/core/src/data/profiles/core.json`. Shadow detectors still follow the `shadow` option. `detectors[id].enabled`, when set, wins over `profile`.
 
-`packages/core/src/data/profiles/core.json` is built by `scripts/build-core-profile.mjs` from the tune scorecard. Membership is D-119: every hard rule (B10), every engine-integrity detector (B11), and every live detector whose tune suggestion is `keep`. If the scorecard has no `keep` row, the file is hard rules plus integrity only. Approving that membership rule is Q-39.
+`packages/core/src/data/profiles/core.json` is built by `scripts/build-core-profile.mjs` from the tune scorecard. Membership is D-119: every hard rule (B10), every engine-integrity detector (B11), and every live detector whose tune suggestion is `keep`. If the scorecard has no `keep` row, the file is hard rules plus integrity only. Approving that membership rule is Q-39. The 2026-10-31 tune scorecard had no `keep` row: 17 attack instances and every unique count was 0. That file is the hard-rule list. It is not evidence that those detectors earned a place.
 
 `stats().detectors` uses reason `"profile"` for a detector the profile turned off.
 
@@ -3059,21 +3059,21 @@ These packages are planned. None of them is built. Every box stays open. They ad
 
 #### WP-66 — Detector families (J6).
 
-- [ ] Option `families` is `false` or `true`. Default `false`. With `false`, `test/diff/` stays byte-identical.
-- [ ] Membership is `src/data/families.json` D-130: `beacon`, `flood`, `dns-channel`, `proxy`, and `scan`, with the ids listed in J6.
-- [ ] With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window. The anomaly stream is unchanged. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
+- [x] Option `families` is `false` or `true`. Default `false`. With `false`, `test/diff/` stays byte-identical.
+- [x] Membership is `src/data/families.json` D-130: `beacon`, `flood`, `dns-channel`, `proxy`, and `scan`, with the ids listed in J6.
+- [x] With `families: true`, incident scoring and the alert path take the highest `severityWeight × confidence` per family per device per window. The anomaly stream is unchanged. Each anomaly gains `data.family` only while the option is on. Hard rules still always alert.
 - **Done when:** on the all-tier benign matrix and every replay, incident and alert counts with `true` are less than or equal to the counts with `false`, and no replay loses its incident. D-130 is approved (D-144). Families stay opt-in until a pilot shows fewer alerts with no lost incident.
 
 #### WP-67 — Explain coverage (J7).
 
-- [ ] `meta.explains` is true on every live detector. Each explain has `test`, `observed`, and `threshold` or `learned`.
-- [ ] Once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100% D-131. That figure is a check target, not a detection rate.
+- [x] `meta.explains` is true on every live detector. Each explain has `test`, `observed`, and `threshold` or `learned`.
+- [x] Once 3.4.0 ships, `spec-coverage` fails when live explain coverage is below 100% D-131. That figure is a check target, not a detection rate.
 - **Done when:** J7's done-when holds. Shadow detectors are not required to explain.
 
 #### WP-68 — Operator advice (J8).
 
-- [ ] `src/data/advice.json` has one entry per live detector: `meaning`, `check` (at most 3 steps D-132), `benignCauses` (at most 3 D-133). Each string is at most 200 characters D-134. The file is at most 40 KB D-135 and stays inside the 200 KB `src/data` cap. No detection-rate claim.
-- [ ] `explain(id).advice` returns that entry. A test fails if a live detector has no entry. Shadow detectors may have none.
+- [x] `src/data/advice.json` has one entry per live detector: `meaning`, `check` (at most 3 steps D-132), `benignCauses` (at most 3 D-133). Each string is at most 200 characters D-134. The file is at most 40 KB D-135 and stays inside the 200 KB `src/data` cap. No detection-rate claim.
+- [x] `explain(id).advice` returns that entry. A test fails if a live detector has no entry. Shadow detectors may have none.
 - **Done when:** J8's done-when holds. D-132 to D-135 are approved as starting values (D-148).
 
 #### WP-69 — Coverage map and self-test (J9).

@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'lan-via-proxy',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'proxy',
@@ -35,6 +37,12 @@ const detector = {
       actual: `LAN flow to ${ev.dstIp} just after inbound bytes`,
       expected: 'LAN sessions that are not tied to a fresh WAN session',
       data: { dstIp: ev.dstIp, delayMs: ev.ts - dev.inboundTs },
+      explain: explainThreshold({
+        test: 'lt',
+        observed: ev.ts - dev.inboundTs,
+        threshold: ctx.options.followMs,
+        formula: `followMs=${ctx.options.followMs}`,
+      }),
     };
   },
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'long-connection',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'timing',
@@ -48,6 +49,12 @@ const detector = {
       actual: `${dst} for ${Math.round(ev.durationMs / 1000)}s`,
       expected: `sessions <= ${Math.round(limit / 1000)}s to a known host`,
       data: { dst, durationMs: ev.durationMs, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ev.durationMs,
+        threshold: limit,
+        formula: `max(minDurationMs=${ctx.options.minDurationMs}, learned p99) = ${limit}`,
+      }),
     };
   },
 

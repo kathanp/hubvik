@@ -1,7 +1,7 @@
 'use strict';
 
 const { isPublic } = require('../engine/net');
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'direct-ip',
@@ -12,6 +12,7 @@ const detector = {
     fpRisk: 'Low on IoT; hard-coded C2 IPs are classic',
     attack: ['T1071'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T1', 'T2'],
   category: 'destination',
@@ -47,6 +48,11 @@ const detector = {
       actual: ev.dstIp,
       expected: 'an address this device resolved',
       data: { dstIp: ev.dstIp },
+      explain: explainNewMember({
+        observed: ev.dstIp,
+        learnedCount: dev.seen.size,
+        sample: dev.seen.toArray(),
+      }),
     };
   },
 

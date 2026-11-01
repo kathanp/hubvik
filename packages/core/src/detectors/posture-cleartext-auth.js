@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const PORTS = new Set([21, 23]);
 
@@ -11,6 +11,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'posture',
@@ -43,6 +44,7 @@ const detector = {
       actual: `cleartext auth on port ${port}`,
       expected: 'authenticated sessions over TLS',
       data: { port },
+      explain: explainMatch({ observed: port, matched: port, source: 'port' }),
     };
   },
 

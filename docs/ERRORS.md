@@ -1877,6 +1877,11 @@ Fix: Correct the input so this passes: "minhash state must be an object". The li
 Cause: `add()` in `packages/core/src/engine/stats/minhash.js` throws it when `typeof token !== 'string'`. The message is "minhash token must be a string".
 Fix: Pass a string. The check says "minhash token must be a string".
 
+## FAMILIES_IS_INVALID
+
+Cause: `parseFamilies()` in `packages/core/src/engine/validate/index.js` throws it when `families` is not `true` or `false`. The message is "families is invalid".
+Fix: Pass `true` or `false`, or leave the option out.
+
 ## PROFILE_IS_INVALID
 
 Cause: `parseProfile()` in `packages/core/src/engine/validate/index.js` throws it when `profile` is not `all` or `core`. The message is "profile is invalid". `coreIdSet()` throws the same code when the core profile file has no `ids` array.

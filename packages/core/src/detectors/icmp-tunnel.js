@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'icmp-tunnel',
@@ -10,6 +11,7 @@ const detector = {
     rel: '0.3',
     fpRisk: '',
     attack: ['T1572'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'tunnel',
@@ -38,6 +40,12 @@ const detector = {
       actual: `${Math.round(bytes / pkts)} bytes/packet`,
       expected: `< ${ctx.options.minBytesPerPacket} bytes per ICMP packet`,
       data: { bytes, pkts },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: bytes / pkts,
+        threshold: ctx.options.minBytesPerPacket,
+        formula: `minBytesPerPacket=${ctx.options.minBytesPerPacket}`,
+      }),
     };
   },
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'stream-to-new-destination',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'app',
@@ -40,6 +41,7 @@ const detector = {
       actual: dst,
       expected: 'media only to a learned host',
       data: { dst, port: ev.dstPort, bytesOut: ev.bytesOut },
+      explain: explainNewMember({ observed: dst, learnedCount: dev.seen.size }),
     };
   },
 

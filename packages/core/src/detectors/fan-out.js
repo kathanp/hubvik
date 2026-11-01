@@ -2,6 +2,7 @@
 
 const { emptyStats, pushSample, statsOf } = require('../engine/math');
 const { readStreamState } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'fan-out',
@@ -24,6 +25,7 @@ const detector = {
     fpRisk: 'Low',
     attack: ['T1046'],
     stage: 'recon',
+    explains: true,
   },
   requires: ['T0'],
   category: 'scan',
@@ -58,6 +60,12 @@ const detector = {
         expected: `<= ${limit}`,
         data: { hosts: win.dstCount, limit },
         attack: ['T1046'],
+        explain: explainThreshold({
+          test: 'gt',
+          observed: win.dstCount,
+          threshold: limit,
+          formula: `max(minFanout=${ctx.options.minFanout}, fanoutFactor=${ctx.options.fanoutFactor} × learnedMax=${dev.stats.max}) = ${limit}`,
+        }),
       };
     }
   },

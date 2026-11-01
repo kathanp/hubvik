@@ -2,6 +2,7 @@
 
 const { LruSet } = require('../engine/caps');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainNewMember } = require('./lib');
 
 /** @param {any} ev */
 function broker(ev) {
@@ -16,6 +17,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'app',
@@ -49,6 +51,7 @@ const detector = {
       actual: id,
       expected: `${dev.brokers.size} known MQTT brokers`,
       data: { broker: id, port: ev.dstPort },
+      explain: explainNewMember({ observed: id, learnedCount: dev.brokers.size }),
     };
   },
 

@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainChanged } = require('./lib');
 
 const detector = {
   id: 'cert-change',
@@ -13,6 +14,7 @@ const detector = {
     fpRisk: 'Low; strong MITM signal',
     attack: ['T1557'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T3'],
   category: 'tls',
@@ -42,6 +44,7 @@ const detector = {
       actual: `${ev.sni} issuer ${issuer}`,
       expected: `issuer ${previous}`,
       data: { sni: ev.sni, issuer, previous },
+      explain: explainChanged({ observed: issuer, previous }),
     };
   },
 

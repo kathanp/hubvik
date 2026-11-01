@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainMatch } = require('./lib');
 
 const detector = {
   id: 'mqtt-wildcard-subscribe',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'app',
@@ -32,6 +33,7 @@ const detector = {
       actual: ev.target,
       expected: 'subscriptions to specific topics',
       data: { topic: ev.target },
+      explain: explainMatch({ observed: ev.target, matched: ev.target, source: 'target' }),
     };
   },
 

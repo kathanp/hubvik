@@ -3,6 +3,7 @@
 const { HubvikError } = require('../errors');
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'ot-value-out-of-range',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['app'],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -38,6 +40,7 @@ const detector = {
     const row = dev.ranges.get(sample.target);
     if (!row || row.n < ctx.options.minSamples) return;
     if (sample.value >= row.min && sample.value <= row.max) return;
+    const low = sample.value < row.min;
     dev.fired.add(sample.target);
     return {
       severity: ctx.options.severity,
@@ -46,6 +49,12 @@ const detector = {
       actual: `${sample.target} = ${sample.value}`,
       expected: `${row.min}..${row.max}`,
       data: { target: sample.target, value: sample.value, min: row.min, max: row.max },
+      explain: explainThreshold({
+        test: low ? 'lt' : 'gt',
+        observed: sample.value,
+        threshold: low ? row.min : row.max,
+        formula: `${row.min}..${row.max}`,
+      }),
     };
   },
 

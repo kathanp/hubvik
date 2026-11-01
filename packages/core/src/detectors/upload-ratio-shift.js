@@ -3,6 +3,7 @@
 const { SampleRing } = require('../engine/caps');
 const { summarize } = require('../engine/math');
 const { readSamples } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'upload-ratio-shift',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'volume',
@@ -53,6 +55,12 @@ const detector = {
       actual: `${Math.round(ratio * 100)}% upload`,
       expected: `<= ${Math.round(limit * 100)}% upload`,
       data: { ratio, limit, bytes: total },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: ratio,
+        threshold: limit,
+        formula: `min(1, learnedMax=${stats.max} + shift=${ctx.options.shift})`,
+      }),
     };
   },
 

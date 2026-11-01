@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'ipv6-tunnel',
@@ -10,6 +10,7 @@ const detector = {
     rel: '0.3',
     fpRisk: '',
     attack: ['T1572'],
+    explains: true,
   },
   requires: ['T1'],
   category: 'tunnel',
@@ -43,6 +44,7 @@ const detector = {
       actual: kind,
       expected: 'no IPv6-in-IPv4 tunnel',
       data: { kind },
+      explain: explainNewMember({ observed: kind, learnedCount: dev.seen.size }),
     };
   },
 

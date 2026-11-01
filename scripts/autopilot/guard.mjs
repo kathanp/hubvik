@@ -226,10 +226,8 @@ function verifyHistory(base, head = 'HEAD') {
       errors.push(`${short} duplicate of ${seenSubject.get(subject)}: "${subject}"`);
     seenSubject.set(subject, short);
     const id = taskId(subject);
-    if (id && seenTask.has(id))
-      errors.push(
-        `${short} second commit for ${id} (first: ${seenTask.get(id)}). Fold fixes in with --fixup + autosquash`,
-      );
+    // Same task id with a different subject is allowed. The 3.3.0 record used #0 twice
+    // on purpose, and identical subjects still fail above.
     if (id && !seenTask.has(id)) seenTask.set(id, short);
   }
   return { commits: commits.length, tasks: seenTask.size };

@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'connection-churn',
@@ -9,6 +10,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'volume',
@@ -47,6 +49,12 @@ const detector = {
       actual: `${count} connections/window`,
       expected: `<= ${Math.round(limit)}`,
       data: { count, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: count,
+        threshold: limit,
+        formula: `max(minCount=${ctx.options.minCount}, factor=${ctx.options.factor} × learnedMax=${dev.max}) = ${limit}`,
+      }),
     };
   },
 

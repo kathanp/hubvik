@@ -15,6 +15,7 @@ const {
 const { add, bands, createMinHash, jaccard } = require('./stats/minhash');
 const { createWelford, push: pushWelford } = require('./stats/welford');
 const { payload: incidentPayload } = require('./incidents');
+const { allowFamilyAlert } = require('./families');
 const { advance, compile, createBook } = require('./templates');
 const LR = require('../data/lr.json');
 
@@ -237,7 +238,8 @@ const partgMethods = {
    */
   _addLlr(incident, anomaly, llr) {
     if (!incident.contrib) incident.contrib = [];
-    const group = anomaly.dedupGroup || anomaly.category || anomaly.id;
+    const group =
+      (anomaly.data && anomaly.data.family) || anomaly.dedupGroup || anomaly.category || anomaly.id;
     const prev = incident.contrib.find((/** @type {any} */ row) => row.group === group);
     if (prev && prev.llr >= llr) return;
     if (prev) {
@@ -359,6 +361,10 @@ const partgMethods = {
       state.day = day;
       state.count = 0;
       state.digest = [];
+    }
+    if (this.opts.families && anomaly && !allowFamilyAlert(state, anomaly, this.opts.windowMs)) {
+      this._alertState.set(deviceId, state);
+      return;
     }
     const hard = anomaly && anomaly._partgHard === true;
     const critical = severity === 'critical';

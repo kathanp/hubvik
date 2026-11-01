@@ -2,6 +2,7 @@
 
 const { domainFamily } = require('../engine/net');
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const detector = {
   id: 'peer-divergence',
@@ -22,6 +23,7 @@ const detector = {
     ],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'fleet',
@@ -59,6 +61,12 @@ const detector = {
       actual: family,
       expected: `a family shared by at least half of ${peers.length} peers`,
       data: { family, peers: peers.length, have },
+      explain: explainThreshold({
+        test: 'lt',
+        observed: have * 2,
+        threshold: peers.length,
+        formula: `have=${have} × 2 < peers=${peers.length}`,
+      }),
     };
   },
 

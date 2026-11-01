@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { createEngine, detectors } = require('../src/index.js');
+const { ATTACKS: MORE, optionsForAttack } = require('./explain-attacks.js');
 
 const DAY = 24 * 3600e3;
 const NUMERIC = new Set(['gt', 'gte', 'lt']);
@@ -35,6 +36,7 @@ function flow(extra = {}) {
  * @type {Record<string, (engine: any) => void>}
  */
 const ATTACKS = {
+  ...MORE,
   'src-spoof'(engine) {
     engine.feed({
       type: 'dhcp',
@@ -805,6 +807,7 @@ function optionsFor(id) {
   if (id === 'policy-violation') {
     options.policy = [{ id: 'no-telnet', severity: 'high', match: { direction: 'out', port: 23 } }];
   }
+  Object.assign(options, optionsForAttack(id));
   return options;
 }
 

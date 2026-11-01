@@ -117,3 +117,5 @@ Appended. The open items above are unchanged.
 29. **J2 scorecard suggestion rule.** Resolved 2026-10-31. Approved as D-149. The gate is the detector's default severity C6.3 gate. No new rate was invented.
 
 30. **Q-35. Holdout captures.** Resolved 2026-10-31. Every IoT-23 capture on disk other than iot23-malware is holdout (D-150). On this machine that is iot23-honeypot. Re-measure on holdout before the 0.6 gate.
+
+31. **Q-38. docs.versioned is not in protected.json.** Resolved 2026-10-31. Add `docs.versioned` with README.md, docs/DEVELOPERS.md, docs/OPERATIONS.md, and docs/ARCHITECTURE.md (D-151). The open item above is unchanged. The directory `.autopilot/` stays gitignored, so a clone does not carry the file.

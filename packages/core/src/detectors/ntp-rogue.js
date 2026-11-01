@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'ntp-rogue',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.3',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T1'],
   category: 'tunnel',
@@ -42,6 +43,7 @@ const detector = {
       actual: dst,
       expected: 'NTP only to a learned server',
       data: { dst },
+      explain: explainNewMember({ observed: dst, learnedCount: dev.seen.size }),
     };
   },
 

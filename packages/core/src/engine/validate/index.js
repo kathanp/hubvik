@@ -233,6 +233,7 @@ function validateOptions(raw) {
     classSuggest: input.classSuggest == null ? false : bool(input.classSuggest, 'classSuggest'),
     responseHints: input.responseHints == null ? false : bool(input.responseHints, 'responseHints'),
     profile: parseProfile(input.profile),
+    families: parseFamilies(input.families),
     coreIds: coreIdSet(input.profile),
     scoring: parseScoring(input.scoring),
     alerts: input.alerts == null ? false : bool(input.alerts, 'alerts'),
@@ -326,6 +327,16 @@ function parseBudget(value) {
         : num(input.recoverWindows, 'budget.recoverWindows', { min: 1, integer: true }),
     clock: input.clock || (() => process.hrtime.bigint()),
   };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function parseFamilies(value) {
+  if (value == null || value === false) return false;
+  if (value === true) return true;
+  throw new HubvikError('FAMILIES_IS_INVALID', 'families is invalid');
 }
 
 /**

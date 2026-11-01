@@ -1,6 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
+const { explainThreshold } = require('./lib');
 
 const RECON = new Set(['Who-Is', 'Who-Has', 'fc43']);
 const PORTS = new Set([47808, 502, 102, 44818, 20000, 1911, 4911]);
@@ -13,6 +14,7 @@ const detector = {
     rel: '0.4',
     fpRisk: '',
     stage: 'recon',
+    explains: true,
   },
   requires: ['T5'],
   category: 'ot',
@@ -42,6 +44,12 @@ const detector = {
       actual: `${dev.targets.size} OT targets`,
       expected: `<= ${ctx.options.minTargets} discovery targets per window`,
       data: { targets: dev.targets.size },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: dev.targets.size,
+        threshold: ctx.options.minTargets,
+        formula: `minTargets=${ctx.options.minTargets}`,
+      }),
     };
   },
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const { assertState } = require('./state');
-const { scratchBag } = require('./lib');
+const { scratchBag, explainThreshold } = require('./lib');
 
 const detector = {
   id: 'fleet-wave',
@@ -22,6 +22,7 @@ const detector = {
     ],
     rel: '0.4',
     fpRisk: '',
+    explains: true,
   },
   requires: ['T0'],
   category: 'fleet',
@@ -54,6 +55,12 @@ const detector = {
       actual: dst,
       expected: 'a new destination that is not spreading across devices',
       data: { dst, peersAffected: row.devices.size, sameGroup },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: row.devices.size,
+        threshold: ctx.options.minDevices,
+        formula: `minDevices=${ctx.options.minDevices}`,
+      }),
     };
   },
 

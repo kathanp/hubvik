@@ -7,6 +7,8 @@ const { noteThreat } = require('./promote');
 const { noteCampaign } = require('./campaigns');
 const { spread } = require('./contagion');
 const { noteIncident } = require('./incidents');
+const { familyIndex } = require('./families');
+const { adviceFor } = require('./advice');
 const ATTACK = require('../data/attack-map.json');
 
 /**
@@ -136,6 +138,8 @@ module.exports = {
       })),
     };
     if (row.learned) copy.learned = { ...row.learned };
+    const advice = adviceFor(row.detector);
+    if (advice) copy.advice = advice;
     return copy;
   },
 
@@ -434,6 +438,10 @@ module.exports = {
       }
       if (det.meta && typeof det.meta.dedupGroup === 'string') {
         anomaly.dedupGroup = det.meta.dedupGroup;
+      }
+      if (this.opts.families) {
+        const name = familyIndex().get(det.id);
+        if (name) /** @type {Record<string, unknown>} */ (anomaly.data).family = name;
       }
       if (this.opts.evidence !== false) {
         anomaly.evidence = evidenceOf(device, event, item);

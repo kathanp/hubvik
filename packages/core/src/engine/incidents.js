@@ -51,7 +51,7 @@ function decay(incident, elapsed) {
  */
 function addWeight(incident, anomaly) {
   const weight = weightOf(anomaly);
-  const group = anomaly.dedupGroup;
+  const group = (anomaly.data && anomaly.data.family) || anomaly.dedupGroup;
   if (!group) {
     incident.raw += weight;
     return;
@@ -193,4 +193,4 @@ function ackIncident(engine, anomalyId) {
   }
 }
 
-module.exports = { noteIncident, ackIncident, payload };
+module.exports = { noteIncident, ackIncident, payload, weightOf };

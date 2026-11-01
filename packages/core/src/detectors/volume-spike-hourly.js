@@ -4,6 +4,7 @@ const { HubvikError } = require('../errors');
 
 const { emptyStats, pushSample, statsOf } = require('../engine/math');
 const { readStreamState } = require('./samples');
+const { explainThreshold } = require('./lib');
 
 /**
  * @param {number} ts
@@ -35,6 +36,7 @@ const detector = {
     fpRisk: 'Lower than flat baseline',
     attack: ['T1498'],
     stage: 'impact',
+    explains: true,
   },
   requires: ['T0'],
   category: 'volume',
@@ -67,6 +69,12 @@ const detector = {
       actual: `${win.bytes} bytes at hour ${hour}`,
       expected: `<= ${Math.round(limit)} bytes at hour ${hour}`,
       data: { bytes: win.bytes, hour, limit },
+      explain: explainThreshold({
+        test: 'gt',
+        observed: win.bytes,
+        threshold: limit,
+        formula: `max(minBytes=${ctx.options.minBytes}, mean + sigma=${ctx.options.sigma} × std, max × peakFactor=${ctx.options.peakFactor})`,
+      }),
     };
   },
 

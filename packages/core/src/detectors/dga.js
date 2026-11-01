@@ -1,6 +1,6 @@
 'use strict';
 
-const { entropy } = require('./lib');
+const { entropy, explainThreshold } = require('./lib');
 const { assertState } = require('./state');
 const BIGRAMS = new Set(require('../data/bigrams.json'));
 
@@ -13,6 +13,7 @@ const detector = {
     fpRisk: 'Medium per name, low per burst',
     attack: ['T1568.002'],
     stage: 'c2',
+    explains: true,
   },
   requires: ['T2'],
   category: 'dns',
@@ -41,6 +42,12 @@ const detector = {
       actual: `${dev.count} generated-looking names`,
       expected: `< ${ctx.options.minBurst} per window`,
       data: { count: dev.count, sample: ev.qname },
+      explain: explainThreshold({
+        test: 'gte',
+        observed: dev.count,
+        threshold: ctx.options.minBurst,
+        formula: `minBurst=${ctx.options.minBurst}`,
+      }),
     };
   },
 

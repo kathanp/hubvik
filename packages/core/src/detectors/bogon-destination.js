@@ -3,6 +3,7 @@
 const { LruSet } = require('../engine/caps');
 const { isBogon } = require('../engine/net');
 const { assertState, readStrings, fillSet } = require('./state');
+const { explainMatch } = require('./lib');
 
 const detector = {
   id: 'bogon-destination',
@@ -11,6 +12,7 @@ const detector = {
     consumes: ['flow'],
     rel: '0.2',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'destination',
@@ -38,6 +40,7 @@ const detector = {
       actual: ev.dstIp,
       expected: 'a globally routable destination',
       data: { dstIp: ev.dstIp },
+      explain: explainMatch({ observed: ev.dstIp, matched: ev.dstIp, source: 'bogon' }),
     };
   },
 

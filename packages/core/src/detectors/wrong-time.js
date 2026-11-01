@@ -4,6 +4,7 @@ const { HubvikError } = require('../errors');
 
 const { LruSet } = require('../engine/caps');
 const { assertSafeKeys } = require('../engine/validate');
+const { explainNewMember } = require('./lib');
 
 const detector = {
   id: 'wrong-time',
@@ -24,6 +25,7 @@ const detector = {
     ],
     rel: '0.1',
     fpRisk: 'Medium',
+    explains: true,
   },
   requires: ['T0'],
   category: 'timing',
@@ -63,6 +65,7 @@ const detector = {
       actual: `active at hour ${hour}`,
       expected: `hours ${known.join(',')}`,
       data: { hour, knownHours: known },
+      explain: explainNewMember({ observed: hour, learnedCount: dev.hours.size, sample: known }),
     };
   },
 

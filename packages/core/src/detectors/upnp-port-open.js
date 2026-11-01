@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'upnp-port-open',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['mapping'],
     rel: '0.3',
     fpRisk: 'Low',
+    explains: true,
   },
   requires: ['T1'],
   category: 'exposure',
@@ -37,6 +38,7 @@ const detector = {
       actual: key,
       expected: 'no new WAN port mapping',
       data: { proto: ev.proto, port: ev.port },
+      explain: explainNewMember({ observed: key, learnedCount: dev.seen.size }),
     };
   },
 

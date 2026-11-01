@@ -323,6 +323,8 @@ export interface EngineOptions {
   /** Default `additive`. `lr` scores incidents with the likelihood-ratio posterior. */
   /** Default `'all'`. `'core'` runs the live set in `data/profiles/core.json`. */
   profile?: 'all' | 'core';
+  /** Default false. When true, one family counts once in an incident and an alert window. */
+  families?: boolean;
   scoring?: 'additive' | 'lr';
   /** Default false. When true, the engine also emits `alert`. */
   alerts?: boolean;
@@ -651,6 +653,7 @@ export class Engine extends EventEmitter {
     margin?: number;
     evidence: unknown;
     suppressWith: Array<{ method: 'allow' | 'suppress' | 'relearn'; args: unknown[] }>;
+    advice?: { meaning: string; check: string[]; benignCauses: string[] };
   } | null;
   on(event: 'anomaly', listener: (anomaly: Anomaly) => void): this;
   on(event: 'shadow-anomaly', listener: (anomaly: Anomaly) => void): this;

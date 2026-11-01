@@ -1,6 +1,6 @@
 'use strict';
 
-const { seenState, exportSeen, importSeen, memorySeen } = require('./lib');
+const { seenState, exportSeen, importSeen, memorySeen, explainNewMember } = require('./lib');
 
 const detector = {
   id: 'sni-missing',
@@ -9,6 +9,7 @@ const detector = {
     consumes: ['tls'],
     rel: '0.4',
     fpRisk: 'Medium',
+    explains: true,
   },
   requires: ['T3'],
   category: 'tls',
@@ -36,6 +37,7 @@ const detector = {
       actual: ev.dstIp,
       expected: 'TLS to a learned address, or a handshake that carries SNI',
       data: { dstIp: ev.dstIp },
+      explain: explainNewMember({ observed: ev.dstIp, learnedCount: dev.seen.size }),
     };
   },
 
