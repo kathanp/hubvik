@@ -51,7 +51,9 @@ test('the hourly ring sums event time and a long gap clears it', () => {
   const gap = createEngine({ learnMs: 0, tiers: ['T1'], horizons: true });
   /** @type {string[]} */
   const warnings = [];
-  gap.on('warning', (warning) => warnings.push(warning.code));
+  gap.on('warning', (warning) => {
+    if (warning.code !== 'LOCK_SUGGESTED') warnings.push(warning.code);
+  });
   gap.feed(flow(0, 100));
   gap.feed(flow(25 * HOUR, 5));
   const after = gap.checkpoint({ createdAt: 3 }).devices.d.progress.horizon;

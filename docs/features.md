@@ -1,4 +1,4 @@
-> Version: 3.4.0 · Updated: 2026-10-31
+> Version: 3.5.0 · Updated: 2026-11-01
 
 # hubvik — what it does and what it is not
 
@@ -6,11 +6,11 @@ hubvik is a **detector library**, not a protection appliance. It watches per-dev
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **hubvik 3.4.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.3.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
+Status: **hubvik 3.5.0 prototype — not validated on real traffic.** On 2026-11-01, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.4.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
 
 ## Roadmap
 
-3.3.0 and 3.4.0 are in this tree. 3.5.0 and 3.6.0 are still a plan. The detail is `docs/SPEC.md` section 0.20 and Part J.
+3.3.0, 3.4.0, and 3.5.0 are in this tree. The next release is 4.0.0, one tag, specified in `docs/SPEC.md` section 0.21. The 3.5.0 gate passed on 2026-11-01. 4.0.0 is not a tag yet. Each npm tag is one large release. Work that belongs in a version stays in that version (D-158). A new detector file still waits until C10 row 0.6 is ticked.
 
 - [x] 3.3.0 J1. Freeze the detector list so a new detector file fails the check while the 0.6 gate is open.
 - [x] 3.3.0 J2. Split evaluation captures into tune and holdout, and write a per-detector scorecard that only proposes.
@@ -20,9 +20,8 @@ Status: **hubvik 3.4.0 prototype — not validated on real traffic.** On 2026-10
 - [x] 3.4.0 J6. Optional detector families so an incident counts one overlapping behavior once. Off by default. The anomaly stream stays as it is today.
 - [x] 3.4.0 J7. Every live detector explains what it compared.
 - [x] 3.4.0 J8. Short plain-English advice for every live detector, with no detection-rate claims.
-- [ ] 3.5.0 J9. A coverage map and a self-test that show which attacks this host can catch with the logs it actually feeds.
-- [ ] 3.6.0 J10. A lock-readiness score. It suggests when a baseline is trustworthy. The engine never locks by itself.
-- [ ] Deferred, J11. Signed device-model profile packs wait for the 30-day pilot. Any new detector row waits until C10 row 0.6 is ticked.
+- [x] 3.5.0 J9. Show which attacks this host can catch from the logs it already feeds: tiers seen, detectors active, and techniques covered or blind. Run canned attacks on a throwaway engine (horizontal scan, egress flood, DNS tunnel, new beacon, ARP gateway claim, OT dangerous op, proxy backconnect) and print the same text from the CLI. Score whether each device baseline is ready to lock. The engine never locks by itself. The host may also load a signed device-model pack, one per class that already exists, default off. It uses the same HMAC-SHA256 baseline signature. It seeds only a device the host already classed, and only while that device has no detector state. The package ships no model file. The engine does not assign a class. A new detector row still waits until C10 row 0.6 is ticked.
+- [ ] 4.0.0 Home, cameras, power, fleet, and updates, in one tag. Shadow only. Matter fabric join, Thread network change, local name takeover, and a new LAN control port. New camera talkback, a new ONVIF user, a new voice stream, and a doorbell clip burst. Plug duty change, traffic while the host says the house is away, a sensor silent while its peers talk, and an HVAC call spike. The library does not decide occupancy. A shared new destination, synchronized outbound flows, a fleet resolver change, and repeated failure then success. Per-device anomalies stay. The fleet incident is extra and off unless the host asks. A skipped firmware cadence, an update rollback, a burst of destinations after boot, and a crash-loop outbound session. Coverage names Matter and Thread when those events are missing, and says when a camera or voice class has no learned destinations yet. Self-test gains one scenario per row. The scenario cap stays 16 until a person raises it. No detector file until C10 row 0.6 is ticked.
 
 ## Validation status
 
@@ -337,298 +336,298 @@ That’s how you learn **which** detectors fail in the wild without turning npm 
 
 ## Detector catalog
 
-Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 3.4.0. Do not edit this section by hand.
+Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 3.5.0. Do not edit this section by hand.
 
-The last column is yes when the row Rel is at or below this package version. A later Rel is no even when its file is already in the tree. Those files are absent from "Not yet implemented".
+The last column is yes when the row Release is at or below this package version. A later Release is no even when its file is already in the tree. Those files are absent from "Not yet implemented".
 
 ## B1. Destination and identity
 
-| ID                   | Rel | Severity | FP risk                                                                 | In this release |
-| -------------------- | --- | -------- | ----------------------------------------------------------------------- | --------------- |
-| `new-destination`    | 0.1 | medium   | Medium: CDNs rotate hostnames                                           | yes             |
-| `new-domain-family`  | 0.2 | medium   | Low: removes CDN-subdomain noise                                        | yes             |
-| `new-port`           | 0.2 | medium   | Low for IoT                                                             | yes             |
-| `new-protocol`       | 0.2 | high     | Very low; GRE from a camera is Mirai GREIP/GREETH territory             | yes             |
-| `direct-ip`          | 0.3 | medium   | Low on IoT; hard-coded C2 IPs are classic                               | yes             |
-| `new-asn`            | 0.3 | medium   | Medium                                                                  | yes             |
-| `new-country`        | 0.3 | low      | Medium                                                                  | yes             |
-| `inbound-from-wan`   | 0.2 | high     | Low; means port forward/UPnP exposure                                   | yes             |
-| `upnp-port-open`     | 0.3 | high     | Low                                                                     | yes             |
-| `threat-intel-match` | 0.2 | critical | Depends on feed quality                                                 | yes             |
-| `bogon-destination`  | 0.2 | info     | Low                                                                     | yes             |
-| `tor-or-proxy`       | 0.3 | high     | Very low for IoT                                                        | yes             |
-| `p2p-pattern`        | 0.4 | high     | Medium (some cameras use P2P relay legitimately; baseline catches that) | yes             |
+| Detector             | Release | Severity | Risk                                                                    | In this release |
+| -------------------- | ------- | -------- | ----------------------------------------------------------------------- | --------------- |
+| `new-destination`    | 0.1     | medium   | Medium: CDNs rotate hostnames                                           | yes             |
+| `new-domain-family`  | 0.2     | medium   | Low: removes CDN-subdomain noise                                        | yes             |
+| `new-port`           | 0.2     | medium   | Low for IoT                                                             | yes             |
+| `new-protocol`       | 0.2     | high     | Very low; GRE from a camera is Mirai GREIP/GREETH territory             | yes             |
+| `direct-ip`          | 0.3     | medium   | Low on IoT; hard-coded C2 IPs are classic                               | yes             |
+| `new-asn`            | 0.3     | medium   | Medium                                                                  | yes             |
+| `new-country`        | 0.3     | low      | Medium                                                                  | yes             |
+| `inbound-from-wan`   | 0.2     | high     | Low; means port forward/UPnP exposure                                   | yes             |
+| `upnp-port-open`     | 0.3     | high     | Low                                                                     | yes             |
+| `threat-intel-match` | 0.2     | critical | Depends on feed quality                                                 | yes             |
+| `bogon-destination`  | 0.2     | info     | Low                                                                     | yes             |
+| `tor-or-proxy`       | 0.3     | high     | Very low for IoT                                                        | yes             |
+| `p2p-pattern`        | 0.4     | high     | Medium (some cameras use P2P relay legitimately; baseline catches that) | yes             |
 
 ## B2. Scanning and propagation
 
-| ID                        | Rel | Severity                                                              | FP risk                                                        | In this release |
-| ------------------------- | --- | --------------------------------------------------------------------- | -------------------------------------------------------------- | --------------- |
-| `fan-out`                 | 0.1 | high                                                                  | Low                                                            | yes             |
-| `horizontal-scan`         | 0.2 | critical                                                              | Very low                                                       | yes             |
-| `vertical-scan`           | 0.2 | high                                                                  | Low                                                            | yes             |
-| `failed-connection-ratio` | 0.2 | high                                                                  | Low; the most robust scan signal                               | yes             |
-| `lan-lateral`             | 0.2 | high                                                                  | Low on IoT (devices rarely talk east-west except hub ↔ device) | yes             |
-| `lan-sweep`               | 0.3 | high                                                                  | Low                                                            | yes             |
-| `brute-force-out`         | 0.3 | critical                                                              | Very low                                                       | yes             |
-| `brute-force-in`          | 0.3 | high                                                                  | Low                                                            | yes             |
-| `exploit-probe-http`      | 0.8 | critical outbound, low inbound, high inbound with 2xx, medium unknown | Low outbound. High inbound: internet scanners                  | yes             |
+| Detector                  | Release | Severity                                                              | Risk                                                           | In this release |
+| ------------------------- | ------- | --------------------------------------------------------------------- | -------------------------------------------------------------- | --------------- |
+| `fan-out`                 | 0.1     | high                                                                  | Low                                                            | yes             |
+| `horizontal-scan`         | 0.2     | critical                                                              | Very low                                                       | yes             |
+| `vertical-scan`           | 0.2     | high                                                                  | Low                                                            | yes             |
+| `failed-connection-ratio` | 0.2     | high                                                                  | Low; the most robust scan signal                               | yes             |
+| `lan-lateral`             | 0.2     | high                                                                  | Low on IoT (devices rarely talk east-west except hub ↔ device) | yes             |
+| `lan-sweep`               | 0.3     | high                                                                  | Low                                                            | yes             |
+| `brute-force-out`         | 0.3     | critical                                                              | Very low                                                       | yes             |
+| `brute-force-in`          | 0.3     | high                                                                  | Low                                                            | yes             |
+| `exploit-probe-http`      | 0.8     | critical outbound, low inbound, high inbound with 2xx, medium unknown | Low outbound. High inbound: internet scanners                  | yes             |
 
 ## B3. Volume and flooding
 
-| ID                         | Rel | Severity | FP risk                  | In this release |
-| -------------------------- | --- | -------- | ------------------------ | --------------- |
-| `volume-spike`             | 0.1 | high     | Medium for cameras       | yes             |
-| `volume-spike-hourly`      | 0.2 | high     | Lower than flat baseline | yes             |
-| `upload-ratio-shift`       | 0.2 | high     | Low                      | yes             |
-| `slow-exfil`               | 0.3 | high     | Medium                   | yes             |
-| `packet-flood`             | 0.2 | critical | Very low                 | yes             |
-| `protocol-mix-shift`       | 0.3 | high     | Low                      | yes             |
-| `reflection-participation` | 0.2 | critical | Very low                 | yes             |
-| `connection-churn`         | 0.3 | high     | Low                      | yes             |
+| Detector                   | Release | Severity | Risk                     | In this release |
+| -------------------------- | ------- | -------- | ------------------------ | --------------- |
+| `volume-spike`             | 0.1     | high     | Medium for cameras       | yes             |
+| `volume-spike-hourly`      | 0.2     | high     | Lower than flat baseline | yes             |
+| `upload-ratio-shift`       | 0.2     | high     | Low                      | yes             |
+| `slow-exfil`               | 0.3     | high     | Medium                   | yes             |
+| `packet-flood`             | 0.2     | critical | Very low                 | yes             |
+| `protocol-mix-shift`       | 0.3     | high     | Low                      | yes             |
+| `reflection-participation` | 0.2     | critical | Very low                 | yes             |
+| `connection-churn`         | 0.3     | high     | Low                      | yes             |
 
 ## B4. Timing and rhythm
 
-| ID                  | Rel | Severity | FP risk                                                                                                                | In this release |
-| ------------------- | --- | -------- | ---------------------------------------------------------------------------------------------------------------------- | --------------- |
-| `wrong-time`        | 0.1 | low      | Medium                                                                                                                 | yes             |
-| `new-beacon`        | 0.3 | high     | **High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline | yes             |
-| `beacon-change`     | 0.4 | medium   | Medium (firmware updates)                                                                                              | yes             |
-| `long-connection`   | 0.3 | high     | Low                                                                                                                    | yes             |
-| `went-silent`       | 0.2 | medium   | Medium                                                                                                                 | yes             |
-| `day-of-week-drift` | 0.9 | low      | Medium; needs ≥ 2 weeks learning                                                                                       | yes             |
+| Detector            | Release | Severity | Risk                                                                                                                   | In this release |
+| ------------------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | --------------- |
+| `wrong-time`        | 0.1     | low      | Medium                                                                                                                 | yes             |
+| `new-beacon`        | 0.3     | high     | **High if applied to everything**: IoT devices beacon to vendors all day. Only score destinations outside the baseline | yes             |
+| `beacon-change`     | 0.4     | medium   | Medium (firmware updates)                                                                                              | yes             |
+| `long-connection`   | 0.3     | high     | Low                                                                                                                    | yes             |
+| `went-silent`       | 0.2     | medium   | Medium                                                                                                                 | yes             |
+| `day-of-week-drift` | 0.9     | low      | Medium; needs ≥ 2 weeks learning                                                                                       | yes             |
 
 ## B5. DNS
 
-| ID                | Rel | Severity | FP risk                                                                       | In this release |
-| ----------------- | --- | -------- | ----------------------------------------------------------------------------- | --------------- |
-| `dga`             | 0.3 | high     | Medium per name, low per burst                                                | yes             |
-| `nxdomain-burst`  | 0.2 | high     | Low                                                                           | yes             |
-| `dns-tunnel`      | 0.3 | critical | Low with the combined score                                                   | yes             |
-| `resolver-bypass` | 0.2 | high     | Low on IoT, though some devices hard-code 8.8.8.8, which the baseline absorbs | yes             |
-| `answer-drift`    | 0.4 | high     | Medium (CDN changes); could indicate DNS hijack or spoofing                   | yes             |
-| `dns-rebinding`   | 0.2 | high     | Low                                                                           | yes             |
-| `fast-flux`       | 0.4 | high     | Medium                                                                        | yes             |
-| `young-domain`    | 0.8 | medium   | Medium. The host chooses the list                                             | yes             |
+| Detector          | Release | Severity | Risk                                                                          | In this release |
+| ----------------- | ------- | -------- | ----------------------------------------------------------------------------- | --------------- |
+| `dga`             | 0.3     | high     | Medium per name, low per burst                                                | yes             |
+| `nxdomain-burst`  | 0.2     | high     | Low                                                                           | yes             |
+| `dns-tunnel`      | 0.3     | critical | Low with the combined score                                                   | yes             |
+| `resolver-bypass` | 0.2     | high     | Low on IoT, though some devices hard-code 8.8.8.8, which the baseline absorbs | yes             |
+| `answer-drift`    | 0.4     | high     | Medium (CDN changes); could indicate DNS hijack or spoofing                   | yes             |
+| `dns-rebinding`   | 0.2     | high     | Low                                                                           | yes             |
+| `fast-flux`       | 0.4     | high     | Medium                                                                        | yes             |
+| `young-domain`    | 0.8     | medium   | Medium. The host chooses the list                                             | yes             |
 
 ## B6. Encrypted-traffic metadata (TLS/QUIC)
 
-| ID                       | Rel | Severity | FP risk                                                  | In this release |
-| ------------------------ | --- | -------- | -------------------------------------------------------- | --------------- |
-| `new-client-fingerprint` | 0.4 | high     | Low on single-purpose IoT, medium after firmware updates | yes             |
-| `cert-change`            | 0.4 | high     | Low; strong MITM signal                                  | yes             |
-| `sni-missing`            | 0.4 | medium   | Medium                                                   | yes             |
-| `sni-ip-mismatch`        | 0.9 | high     | Medium (CDNs)                                            | yes             |
-| `tls-on-odd-port`        | 0.4 | medium   | Low                                                      | yes             |
-| `cleartext-regression`   | 0.4 | high     | Low; downgrade attack or tampered firmware               | yes             |
+| Detector                 | Release | Severity | Risk                                                     | In this release |
+| ------------------------ | ------- | -------- | -------------------------------------------------------- | --------------- |
+| `new-client-fingerprint` | 0.4     | high     | Low on single-purpose IoT, medium after firmware updates | yes             |
+| `cert-change`            | 0.4     | high     | Low; strong MITM signal                                  | yes             |
+| `sni-missing`            | 0.4     | medium   | Medium                                                   | yes             |
+| `sni-ip-mismatch`        | 0.9     | high     | Medium (CDNs)                                            | yes             |
+| `tls-on-odd-port`        | 0.4     | medium   | Low                                                      | yes             |
+| `cleartext-regression`   | 0.4     | high     | Low; downgrade attack or tampered firmware               | yes             |
 
 ## B7. Link layer and local network
 
-| ID                        | Rel | Severity | FP risk                                           | In this release |
-| ------------------------- | --- | -------- | ------------------------------------------------- | --------------- |
-| `new-device`              | 0.2 | medium   | Low                                               | yes             |
-| `arp-spoof`               | 0.3 | critical | Low (DHCP reassignments handled via lease events) | yes             |
-| `gratuitous-arp-flood`    | 0.3 | high     | Low                                               | yes             |
-| `rogue-dhcp`              | 0.3 | critical | Very low                                          | yes             |
-| `dhcp-starvation`         | 0.3 | high     | Low                                               | yes             |
-| `rogue-ra`                | 0.3 | critical | Very low                                          | yes             |
-| `identity-change`         | 0.5 | high     | Low; signals MAC cloning or firmware swap         | yes             |
-| `mac-randomization-churn` | 0.9 | info     | Phones do this legitimately; report, don't alarm  | yes             |
-| `discovery-spoof`         | 0.9 | high     | Low                                               | yes             |
+| Detector                  | Release | Severity | Risk                                              | In this release |
+| ------------------------- | ------- | -------- | ------------------------------------------------- | --------------- |
+| `new-device`              | 0.2     | medium   | Low                                               | yes             |
+| `arp-spoof`               | 0.3     | critical | Low (DHCP reassignments handled via lease events) | yes             |
+| `gratuitous-arp-flood`    | 0.3     | high     | Low                                               | yes             |
+| `rogue-dhcp`              | 0.3     | critical | Very low                                          | yes             |
+| `dhcp-starvation`         | 0.3     | high     | Low                                               | yes             |
+| `rogue-ra`                | 0.3     | critical | Very low                                          | yes             |
+| `identity-change`         | 0.5     | high     | Low; signals MAC cloning or firmware swap         | yes             |
+| `mac-randomization-churn` | 0.9     | info     | Phones do this legitimately; report, don't alarm  | yes             |
+| `discovery-spoof`         | 0.9     | high     | Low                                               | yes             |
 
 ## B8. Policy and allowlists
 
-| ID                 | Rel | Severity | FP risk | In this release |
-| ------------------ | --- | -------- | ------- | --------------- |
-| `policy-violation` | 0.2 | per rule |         | yes             |
-| `mud-violation`    | 0.9 | high     |         | yes             |
-| `zone-violation`   | 0.3 | high     |         | yes             |
+| Detector           | Release | Severity | Risk | In this release |
+| ------------------ | ------- | -------- | ---- | --------------- |
+| `policy-violation` | 0.2     | per rule |      | yes             |
+| `mud-violation`    | 0.9     | high     |      | yes             |
+| `zone-violation`   | 0.3     | high     |      | yes             |
 
 ## B9. Fleet and peer comparison
 
-| ID                         | Rel | Severity | FP risk | In this release |
-| -------------------------- | --- | -------- | ------- | --------------- |
-| `peer-divergence`          | 0.4 | high     |         | yes             |
-| `fleet-wave`               | 0.4 | medium   |         | yes             |
-| `fleet-baseline-poisoning` | 0.9 | high     |         | yes             |
+| Detector                   | Release | Severity | Risk | In this release |
+| -------------------------- | ------- | -------- | ---- | --------------- |
+| `peer-divergence`          | 0.4     | high     |      | yes             |
+| `fleet-wave`               | 0.4     | medium   |      | yes             |
+| `fleet-baseline-poisoning` | 0.9     | high     |      | yes             |
 
 ## B11. Engine integrity
 
-| ID            | Rel | Severity | FP risk | In this release |
-| ------------- | --- | -------- | ------- | --------------- |
-| `input-gap`   | 0.2 | high     |         | yes             |
-| `clock-jump`  | 0.2 | medium   |         | yes             |
-| `state-cap`   | 0.2 | medium   |         | yes             |
-| `alert-storm` | 0.2 | medium   |         | yes             |
-| `tier-silent` | 0.5 | high     |         | yes             |
+| Detector      | Release | Severity | Risk | In this release |
+| ------------- | ------- | -------- | ---- | --------------- |
+| `input-gap`   | 0.2     | high     |      | yes             |
+| `clock-jump`  | 0.2     | medium   |      | yes             |
+| `state-cap`   | 0.2     | medium   |      | yes             |
+| `alert-storm` | 0.2     | medium   |      | yes             |
+| `tier-silent` | 0.5     | high     |      | yes             |
 
 ## B12. Residential proxy and "proxyware" — the main IoT threat of 2025–26
 
-| ID                               | Rel | Severity | FP risk | In this release |
-| -------------------------------- | --- | -------- | ------- | --------------- |
-| `proxy-relay`                    | 0.3 | critical |         | yes             |
-| `browser-mimic`                  | 0.4 | high     |         | yes             |
-| `proxy-backconnect`              | 0.4 | critical |         | yes             |
-| `lan-via-proxy`                  | 0.4 | critical |         | yes             |
-| `adb-exposure`                   | 0.2 | critical |         | yes             |
-| `private-answer-for-public-name` | 0.2 | high     |         | yes             |
-| `blockchain-c2`                  | 0.3 | high     |         | yes             |
-| `supply-chain-suspect`           | 0.3 | critical |         | yes             |
+| Detector                         | Release | Severity | Risk | In this release |
+| -------------------------------- | ------- | -------- | ---- | --------------- |
+| `proxy-relay`                    | 0.3     | critical |      | yes             |
+| `browser-mimic`                  | 0.4     | high     |      | yes             |
+| `proxy-backconnect`              | 0.4     | critical |      | yes             |
+| `lan-via-proxy`                  | 0.4     | critical |      | yes             |
+| `adb-exposure`                   | 0.2     | critical |      | yes             |
+| `private-answer-for-public-name` | 0.2     | high     |      | yes             |
+| `blockchain-c2`                  | 0.3     | high     |      | yes             |
+| `supply-chain-suspect`           | 0.3     | critical |      | yes             |
 
 ## B13. Building automation and OT protocols
 
-| ID                      | Rel | Severity | FP risk | In this release |
-| ----------------------- | --- | -------- | ------- | --------------- |
-| `ot-new-master`         | 0.4 | critical |         | yes             |
-| `ot-write-new`          | 0.4 | high     |         | yes             |
-| `ot-dangerous-op`       | 0.4 | critical |         | yes             |
-| `ot-value-out-of-range` | 0.4 | critical |         | yes             |
-| `ot-write-rate`         | 0.4 | high     |         | yes             |
-| `ot-recon`              | 0.4 | high     |         | yes             |
-| `ot-spoof`              | 0.4 | critical |         | yes             |
-| `ot-wan-exposure`       | 0.3 | critical |         | yes             |
-| `ot-error-burst`        | 0.4 | medium   |         | yes             |
-| `ot-schedule-drift`     | 0.9 | medium   |         | yes             |
+| Detector                | Release | Severity | Risk | In this release |
+| ----------------------- | ------- | -------- | ---- | --------------- |
+| `ot-new-master`         | 0.4     | critical |      | yes             |
+| `ot-write-new`          | 0.4     | high     |      | yes             |
+| `ot-dangerous-op`       | 0.4     | critical |      | yes             |
+| `ot-value-out-of-range` | 0.4     | critical |      | yes             |
+| `ot-write-rate`         | 0.4     | high     |      | yes             |
+| `ot-recon`              | 0.4     | high     |      | yes             |
+| `ot-spoof`              | 0.4     | critical |      | yes             |
+| `ot-wan-exposure`       | 0.3     | critical |      | yes             |
+| `ot-error-burst`        | 0.4     | medium   |      | yes             |
+| `ot-schedule-drift`     | 0.9     | medium   |      | yes             |
 
 ## B14. IoT application protocols (MQTT, CoAP, RTSP/ONVIF)
 
-| ID                          | Rel | Severity | FP risk | In this release |
-| --------------------------- | --- | -------- | ------- | --------------- |
-| `mqtt-new-broker`           | 0.2 | high     |         | yes             |
-| `mqtt-wildcard-subscribe`   | 0.4 | high     |         | yes             |
-| `mqtt-topic-new`            | 0.4 | medium   |         | yes             |
-| `mqtt-publish-rate`         | 0.4 | medium   |         | yes             |
-| `coap-amplification`        | 0.2 | critical |         | yes             |
-| `stream-to-new-destination` | 0.3 | critical |         | yes             |
-| `onvif-config-change`       | 0.4 | critical |         | yes             |
+| Detector                    | Release | Severity | Risk | In this release |
+| --------------------------- | ------- | -------- | ---- | --------------- |
+| `mqtt-new-broker`           | 0.2     | high     |      | yes             |
+| `mqtt-wildcard-subscribe`   | 0.4     | high     |      | yes             |
+| `mqtt-topic-new`            | 0.4     | medium   |      | yes             |
+| `mqtt-publish-rate`         | 0.4     | medium   |      | yes             |
+| `coap-amplification`        | 0.2     | critical |      | yes             |
+| `stream-to-new-destination` | 0.3     | critical |      | yes             |
+| `onvif-config-change`       | 0.4     | critical |      | yes             |
 
 ## B15. Device monetization abuse
 
-| ID                        | Rel | Severity | FP risk | In this release |
-| ------------------------- | --- | -------- | ------- | --------------- |
-| `cryptomining`            | 0.3 | high     |         | yes             |
-| `spam-relay`              | 0.2 | high     |         | yes             |
-| `ad-fraud`                | 0.4 | medium   |         | yes             |
-| `credential-stuffing-out` | 0.4 | high     |         | yes             |
+| Detector                  | Release | Severity | Risk | In this release |
+| ------------------------- | ------- | -------- | ---- | --------------- |
+| `cryptomining`            | 0.3     | high     |      | yes             |
+| `spam-relay`              | 0.2     | high     |      | yes             |
+| `ad-fraud`                | 0.4     | medium   |      | yes             |
+| `credential-stuffing-out` | 0.4     | high     |      | yes             |
 
 ## B16. Remote access, tunnels and covert channels
 
-| ID                    | Rel | Severity | FP risk | In this release |
-| --------------------- | --- | -------- | ------- | --------------- |
-| `tunnel-service`      | 0.3 | high     |         | yes             |
-| `vpn-protocol`        | 0.3 | high     |         | yes             |
-| `icmp-tunnel`         | 0.3 | high     |         | yes             |
-| `ipv6-tunnel`         | 0.3 | high     |         | yes             |
-| `quic-new`            | 0.4 | medium   |         | yes             |
-| `ntp-rogue`           | 0.3 | medium   |         | yes             |
-| `reverse-shell-shape` | 0.9 | high     |         | yes             |
+| Detector              | Release | Severity | Risk | In this release |
+| --------------------- | ------- | -------- | ---- | --------------- |
+| `tunnel-service`      | 0.3     | high     |      | yes             |
+| `vpn-protocol`        | 0.3     | high     |      | yes             |
+| `icmp-tunnel`         | 0.3     | high     |      | yes             |
+| `ipv6-tunnel`         | 0.3     | high     |      | yes             |
+| `quic-new`            | 0.4     | medium   |      | yes             |
+| `ntp-rogue`           | 0.3     | medium   |      | yes             |
+| `reverse-shell-shape` | 0.9     | high     |      | yes             |
 
 ## B17. Firmware updates and supply chain
 
-| ID                       | Rel | Severity | FP risk | In this release |
-| ------------------------ | --- | -------- | ------- | --------------- |
-| `update-from-new-source` | 0.3 | high     |         | yes             |
-| `update-over-cleartext`  | 0.3 | medium   |         | yes             |
-| `post-update-drift`      | 0.3 | high     |         | yes             |
-| `tftp-activity`          | 0.2 | high     |         | yes             |
+| Detector                 | Release | Severity | Risk | In this release |
+| ------------------------ | ------- | -------- | ---- | --------------- |
+| `update-from-new-source` | 0.3     | high     |      | yes             |
+| `update-over-cleartext`  | 0.3     | medium   |      | yes             |
+| `post-update-drift`      | 0.3     | high     |      | yes             |
+| `tftp-activity`          | 0.2     | high     |      | yes             |
 
 ## B18. IP-layer spoofing and integrity
 
-| ID                    | Rel | Severity | FP risk | In this release |
-| --------------------- | --- | -------- | ------- | --------------- |
-| `src-spoof`           | 0.3 | critical |         | yes             |
-| `ttl-anomaly`         | 0.8 | medium   |         | yes             |
-| `llmnr-nbns-poison`   | 0.9 | high     |         | yes             |
-| `icmp-redirect`       | 0.3 | high     |         | yes             |
-| `dns-answer-mismatch` | 0.9 | high     |         | yes             |
+| Detector              | Release | Severity | Risk | In this release |
+| --------------------- | ------- | -------- | ---- | --------------- |
+| `src-spoof`           | 0.3     | critical |      | yes             |
+| `ttl-anomaly`         | 0.8     | medium   |      | yes             |
+| `llmnr-nbns-poison`   | 0.9     | high     |      | yes             |
+| `icmp-redirect`       | 0.3     | high     |      | yes             |
+| `dns-answer-mismatch` | 0.9     | high     |      | yes             |
 
 ## B19. Posture and device-class priors
 
-| ID                        | Rel | Severity | FP risk                                      | In this release |
-| ------------------------- | --- | -------- | -------------------------------------------- | --------------- |
-| `posture-listening-risky` | 0.2 | per rule |                                              | yes             |
-| `posture-cleartext-auth`  | 0.3 | per rule |                                              | yes             |
-| `posture-weak-tls`        | 0.4 | per rule |                                              | yes             |
-| `posture-wan-exposed`     | 0.2 | per rule |                                              | yes             |
-| `class-violation`         | 0.3 | high     | Low. No class is set until `setDeviceClass`. | yes             |
+| Detector                  | Release | Severity | Risk                                         | In this release |
+| ------------------------- | ------- | -------- | -------------------------------------------- | --------------- |
+| `posture-listening-risky` | 0.2     | per rule |                                              | yes             |
+| `posture-cleartext-auth`  | 0.3     | per rule |                                              | yes             |
+| `posture-weak-tls`        | 0.4     | per rule |                                              | yes             |
+| `posture-wan-exposed`     | 0.2     | per rule |                                              | yes             |
+| `class-violation`         | 0.3     | high     | Low. No class is set until `setDeviceClass`. | yes             |
 
 ## B20. 2026 threat update (new rows for 0.5)
 
-| ID                  | Rel | Severity                                  | FP risk                                             | In this release |
-| ------------------- | --- | ----------------------------------------- | --------------------------------------------------- | --------------- |
-| `egress-flood`      | 0.5 | critical                                  | Low. Camera upload is ~15 MB/window and two-way TCP | yes             |
-| `proxy-sdk-traffic` | 0.5 | medium on smart-tv/tv-box, high otherwise | Depends on the host's list                          | yes             |
+| Detector            | Release | Severity                                  | Risk                                                | In this release |
+| ------------------- | ------- | ----------------------------------------- | --------------------------------------------------- | --------------- |
+| `egress-flood`      | 0.5     | critical                                  | Low. Camera upload is ~15 MB/window and two-way TCP | yes             |
+| `proxy-sdk-traffic` | 0.5     | medium on smart-tv/tv-box, high otherwise | Depends on the host's list                          | yes             |
 
 ## B21. Shadow detectors (new rows for 0.8)
 
-| ID                          | Rel | Severity | FP risk                                                                         | In this release |
-| --------------------------- | --- | -------- | ------------------------------------------------------------------------------- | --------------- |
-| `slow-scan`                 | 0.8 | high     | Low. IoT devices rarely add 40 new host/port pairs a day                        | yes             |
-| `jitter-beacon`             | 0.8 | high     | Medium: NTP, push-notification keepalives. Baseline destinations are excluded   | yes             |
-| `multi-horizon-exfil`       | 0.8 | high     | Medium: camera event clips, cloud backups on NAS. Class prior can raise the bar | yes             |
-| `exploit-then-download`     | 0.8 | critical | Low on devices with no WAN exposure                                             | yes             |
-| `ssh-brute-then-session`    | 0.8 | critical | Very low                                                                        | yes             |
-| `cloud-storage-exfil`       | 0.8 | high     | Medium on `nas` and `camera` classes with cloud backup; baseline absorbs it     | yes             |
-| `graph-new-bridge`          | 0.8 | high     | Low, provided zones are configured. No zones means no alert                     | yes             |
-| `graph-role-change`         | 0.8 | high     | Low                                                                             | yes             |
-| `nd-spoof`                  | 0.8 | critical | Low once F8 is on; high without it (privacy addresses rotate)                   | yes             |
-| `dhcpv6-rogue`              | 0.8 | critical | Very low                                                                        | yes             |
-| `wifi-deauth-flood`         | 0.8 | high     | Low. Note that 802.11w (PMF) networks reduce the real attack surface            | yes             |
-| `evil-twin`                 | 0.8 | critical | Medium on mesh networks without `ownBssids`                                     | yes             |
-| `upnp-callstranger`         | 0.8 | critical | Very low                                                                        | yes             |
-| `matter-new-controller`     | 0.8 | high     | Low. Commissioning a new controller is rare and user-initiated                  | yes             |
-| `peer-divergence-federated` | 0.9 | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | yes             |
+| Detector                    | Release | Severity | Risk                                                                            | In this release |
+| --------------------------- | ------- | -------- | ------------------------------------------------------------------------------- | --------------- |
+| `slow-scan`                 | 0.8     | high     | Low. IoT devices rarely add 40 new host/port pairs a day                        | yes             |
+| `jitter-beacon`             | 0.8     | high     | Medium: NTP, push-notification keepalives. Baseline destinations are excluded   | yes             |
+| `multi-horizon-exfil`       | 0.8     | high     | Medium: camera event clips, cloud backups on NAS. Class prior can raise the bar | yes             |
+| `exploit-then-download`     | 0.8     | critical | Low on devices with no WAN exposure                                             | yes             |
+| `ssh-brute-then-session`    | 0.8     | critical | Very low                                                                        | yes             |
+| `cloud-storage-exfil`       | 0.8     | high     | Medium on `nas` and `camera` classes with cloud backup; baseline absorbs it     | yes             |
+| `graph-new-bridge`          | 0.8     | high     | Low, provided zones are configured. No zones means no alert                     | yes             |
+| `graph-role-change`         | 0.8     | high     | Low                                                                             | yes             |
+| `nd-spoof`                  | 0.8     | critical | Low once F8 is on; high without it (privacy addresses rotate)                   | yes             |
+| `dhcpv6-rogue`              | 0.8     | critical | Very low                                                                        | yes             |
+| `wifi-deauth-flood`         | 0.8     | high     | Low. Note that 802.11w (PMF) networks reduce the real attack surface            | yes             |
+| `evil-twin`                 | 0.8     | critical | Medium on mesh networks without `ownBssids`                                     | yes             |
+| `upnp-callstranger`         | 0.8     | critical | Very low                                                                        | yes             |
+| `matter-new-controller`     | 0.8     | high     | Low. Commissioning a new controller is rare and user-initiated                  | yes             |
+| `peer-divergence-federated` | 0.9     | high     | Depends on summary freshness; stale summaries (> 7 days) are ignored            | yes             |
 
 ## B22. Shadow detectors (new rows for 1.1, spec 3.3)
 
-| ID                         | Rel | Severity | FP risk                                                                                                          | In this release |
-| -------------------------- | --- | -------- | ---------------------------------------------------------------------------------------------------------------- | --------------- |
-| `dhcp-route-injection`     | 1.1 | high     | Low. Enterprise networks that push 121 legitimately are absorbed by the learned set                              | yes             |
-| `wpad-hijack`              | 1.1 | high     | Low. Most home and building networks never answer WPAD                                                           | yes             |
-| `ra-flood`                 | 1.1 | high     | Low                                                                                                              | yes             |
-| `karma-responder`          | 1.1 | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | yes             |
-| `cname-cloak`              | 1.1 | medium   | Depends on the host's lists                                                                                      | yes             |
-| `ja4-churn`                | 1.1 | high     | Low on single-stack IoT                                                                                          | yes             |
-| `lan-first-seen-domain`    | 1.1 | low      | High alone; that is why it is `low` and capped                                                                   | yes             |
-| `dormant-reactivation`     | 1.1 | high     | Medium: seasonal devices that update firmware on wake. A G3 `firmware-update` annotation removes it from scoring | yes             |
-| `firmware-size-divergence` | 1.1 | high     | Low once peer groups are right (G10 helps)                                                                       | yes             |
-| `stun-turn-relay`          | 1.1 | medium   | Medium: video doorbells use WebRTC. The baseline absorbs their relays                                            | yes             |
-| `port-knock`               | 1.1 | high     | Low                                                                                                              | yes             |
-| `bacnet-bbmd-write`        | 1.1 | critical | Very low                                                                                                         | yes             |
-| `modbus-unit-sweep`        | 1.1 | high     | Low                                                                                                              | yes             |
-| `mqtt-retained-command`    | 1.1 | high     | Low. Legitimate retained command topics are learned                                                              | yes             |
-| `rtsp-new-viewer`          | 1.1 | high     | Low. NVRs and hubs are learned                                                                                   | yes             |
-| `suppression-abuse`        | 1.1 | medium   | Medium after a large initial tuning session; that is why it is `medium`                                          | yes             |
-| `multivariate-outlier`     | 1.1 | medium   | Medium. Shadow until evidence says otherwise                                                                     | yes             |
-| `sequence-surprise`        | 1.1 | medium   | Medium                                                                                                           | yes             |
-| `flow-shape-change`        | 1.1 | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | yes             |
+| Detector                   | Release | Severity | Risk                                                                                                             | In this release |
+| -------------------------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------- | --------------- |
+| `dhcp-route-injection`     | 1.1     | high     | Low. Enterprise networks that push 121 legitimately are absorbed by the learned set                              | yes             |
+| `wpad-hijack`              | 1.1     | high     | Low. Most home and building networks never answer WPAD                                                           | yes             |
+| `ra-flood`                 | 1.1     | high     | Low                                                                                                              | yes             |
+| `karma-responder`          | 1.1     | high     | Low. Real APs answer for the SSIDs they host, usually 1–4                                                        | yes             |
+| `cname-cloak`              | 1.1     | medium   | Depends on the host's lists                                                                                      | yes             |
+| `ja4-churn`                | 1.1     | high     | Low on single-stack IoT                                                                                          | yes             |
+| `lan-first-seen-domain`    | 1.1     | low      | High alone; that is why it is `low` and capped                                                                   | yes             |
+| `dormant-reactivation`     | 1.1     | high     | Medium: seasonal devices that update firmware on wake. A G3 `firmware-update` annotation removes it from scoring | yes             |
+| `firmware-size-divergence` | 1.1     | high     | Low once peer groups are right (G10 helps)                                                                       | yes             |
+| `stun-turn-relay`          | 1.1     | medium   | Medium: video doorbells use WebRTC. The baseline absorbs their relays                                            | yes             |
+| `port-knock`               | 1.1     | high     | Low                                                                                                              | yes             |
+| `bacnet-bbmd-write`        | 1.1     | critical | Very low                                                                                                         | yes             |
+| `modbus-unit-sweep`        | 1.1     | high     | Low                                                                                                              | yes             |
+| `mqtt-retained-command`    | 1.1     | high     | Low. Legitimate retained command topics are learned                                                              | yes             |
+| `rtsp-new-viewer`          | 1.1     | high     | Low. NVRs and hubs are learned                                                                                   | yes             |
+| `suppression-abuse`        | 1.1     | medium   | Medium after a large initial tuning session; that is why it is `medium`                                          | yes             |
+| `multivariate-outlier`     | 1.1     | medium   | Medium. Shadow until evidence says otherwise                                                                     | yes             |
+| `sequence-surprise`        | 1.1     | medium   | Medium                                                                                                           | yes             |
+| `flow-shape-change`        | 1.1     | high     | Medium after firmware updates. Inactive until a host supplies `splt`                                             | yes             |
 
 ## B23. Shadow detectors (new rows for 1.2, spec 3.4)
 
-| ID                     | Rel | Severity | FP risk                                                             | In this release |
-| ---------------------- | --- | -------- | ------------------------------------------------------------------- | --------------- |
-| `graph-contagion`      | 1.2 | high     | Medium when the graph is dense. No graph means no alert             | yes             |
-| `doh-bypass`           | 1.2 | high     | Low once the device's own DoH resolver is in the baseline           | yes             |
-| `spectral-beacon`      | 1.2 | high     | Medium: NTP and push keepalives. Baseline destinations are excluded | yes             |
-| `modbus-address-sweep` | 1.2 | high     | Low                                                                 | yes             |
-| `mqtt-will-takeover`   | 1.2 | high     | Low. Legitimate will topics are learned                             | yes             |
+| Detector               | Release | Severity | Risk                                                                | In this release |
+| ---------------------- | ------- | -------- | ------------------------------------------------------------------- | --------------- |
+| `graph-contagion`      | 1.2     | high     | Medium when the graph is dense. No graph means no alert             | yes             |
+| `doh-bypass`           | 1.2     | high     | Low once the device's own DoH resolver is in the baseline           | yes             |
+| `spectral-beacon`      | 1.2     | high     | Medium: NTP and push keepalives. Baseline destinations are excluded | yes             |
+| `modbus-address-sweep` | 1.2     | high     | Low                                                                 | yes             |
+| `mqtt-will-takeover`   | 1.2     | high     | Low. Legitimate will topics are learned                             | yes             |
 
 ## B24. Shadow detectors (new rows for 1.6, spec 3.7)
 
-| ID                 | Rel | Severity | FP risk                                                                                      | In this release |
-| ------------------ | --- | -------- | -------------------------------------------------------------------------------------------- | --------------- |
-| `dispersed-flood`  | 1.6 | high     | Low. Two-way camera uploads do not count. A single hot destination stays with `egress-flood` | yes             |
-| `txt-channel`      | 1.6 | high     | Low. One TXT lookup does not fire                                                            | yes             |
-| `inbound-lateral`  | 1.6 | high     | Low. Hubs that already talk on the LAN are learned                                           | yes             |
-| `short-lived-cert` | 1.6 | medium   | Medium. A device that renews a one-day certificate is learned                                | yes             |
+| Detector           | Release | Severity | Risk                                                                                         | In this release |
+| ------------------ | ------- | -------- | -------------------------------------------------------------------------------------------- | --------------- |
+| `dispersed-flood`  | 1.6     | high     | Low. Two-way camera uploads do not count. A single hot destination stays with `egress-flood` | yes             |
+| `txt-channel`      | 1.6     | high     | Low. One TXT lookup does not fire                                                            | yes             |
+| `inbound-lateral`  | 1.6     | high     | Low. Hubs that already talk on the LAN are learned                                           | yes             |
+| `short-lived-cert` | 1.6     | medium   | Medium. A device that renews a one-day certificate is learned                                | yes             |
 
 ## B25. Shadow detectors (new rows for 2.0, spec 3.8)
 
-| ID            | Rel | Severity | FP risk                                                                     | In this release |
-| ------------- | --- | -------- | --------------------------------------------------------------------------- | --------------- |
-| `h2-fanout`   | 2.0 | high     | Medium. A device that opens many new HTTP/2 destinations in one window      | yes             |
-| `onion-name`  | 2.0 | high     | Low. An IoT device does not look up a Tor hidden service                    | yes             |
-| `proxy-fanin` | 2.0 | high     | Low. A learned inbound peer does not count, and a scan has no two-way bytes | yes             |
-| `scatter-udp` | 2.0 | high     | Low. DNS, NTP, and a destination at 200 packets stay with the other rows    | yes             |
+| Detector      | Release | Severity | Risk                                                                        | In this release |
+| ------------- | ------- | -------- | --------------------------------------------------------------------------- | --------------- |
+| `h2-fanout`   | 2.0     | high     | Medium. A device that opens many new HTTP/2 destinations in one window      | yes             |
+| `onion-name`  | 2.0     | high     | Low. An IoT device does not look up a Tor hidden service                    | yes             |
+| `proxy-fanin` | 2.0     | high     | Low. A learned inbound peer does not count, and a scan has no two-way bytes | yes             |
+| `scatter-udp` | 2.0     | high     | Low. DNS, NTP, and a destination at 200 packets stay with the other rows    | yes             |
 
 ## Not yet implemented
 

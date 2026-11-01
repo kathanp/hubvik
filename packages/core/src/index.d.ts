@@ -325,6 +325,8 @@ export interface EngineOptions {
   profile?: 'all' | 'core';
   /** Default false. When true, one family counts once in an incident and an alert window. */
   families?: boolean;
+  /** Default false. When true, the host may load a signed device-model pack. */
+  modelPack?: boolean;
   scoring?: 'additive' | 'lr';
   /** Default false. When true, the engine also emits `alert`. */
   alerts?: boolean;
@@ -411,7 +413,13 @@ export interface EngineStats {
   watermark: number | null;
   learningQuality: Record<
     string,
-    { windowsActive: number; families: number; suspicious: string[]; ready: boolean }
+    {
+      windowsActive: number;
+      families: number;
+      suspicious: string[];
+      ready: boolean;
+      readiness: { score: number; reasons: string[]; suggestLock: boolean };
+    }
   >;
   detectors: Record<string, { active: boolean; reason: string | null }>;
   shadow: Record<
@@ -488,6 +496,31 @@ export class Engine extends EventEmitter {
   exportSummary(opts: { key: string | Buffer; gatewayId: string }): object;
   importPeerSummaries(list: object[], opts?: { verify?: string | Buffer }): void;
   stats(): EngineStats;
+  coverage(now?: number): {
+    tiers: Record<
+      string,
+      { enabled: boolean; eventsSeen: number; lastTs: number | null; silent: boolean }
+    >;
+    detectors: Record<string, { active: boolean; reason: string | null; mode: 'live' | 'shadow' }>;
+    techniques: Record<
+      string,
+      {
+        detectors: string[];
+        coveredLive: boolean;
+        coveredShadow: boolean;
+        blockedBy: string | null;
+      }
+    >;
+    summary: { live: number; shadowOnly: number; blind: number };
+  };
+  selftest(opts?: { scenarios?: string[] }): Array<{
+    scenario: string;
+    expectedDetectors: string[];
+    fired: string[];
+    missing: string[];
+    missingReason: string | null;
+  }>;
+  loadModelPack(pack: object, opts: { verify: string | Buffer }): void;
   resolve(ip: string): string | null;
   feedback(
     key: string,

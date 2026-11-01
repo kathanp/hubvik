@@ -402,6 +402,11 @@ module.exports = {
    */
   _take(device, det, draft, learning, event, route) {
     if (!draft) return;
+    if (learning && det.hardRule === true) {
+      const hits = device.learnHard || (device.learnHard = []);
+      if (!hits.includes(det.id) && hits.length < this.registry.length) hits.push(det.id);
+    }
+    if (det.id === 'class-violation') device.classViolations = (device.classViolations || 0) + 1;
     const shadow = route === 'canary' || this._isShadow(det);
     const list = Array.isArray(draft) ? draft : [draft];
     for (const item of list) {

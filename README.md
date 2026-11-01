@@ -1,10 +1,10 @@
-> Version: 3.4.0 · Updated: 2026-10-31
+> Version: 3.5.0 · Updated: 2026-11-01
 
 # hubvik
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **hubvik 3.4.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.3.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp` are shadow rows from 2.0.1.
+Status: **hubvik 3.5.0 prototype — not validated on real traffic.** On 2026-11-01, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.4.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp` are shadow rows from 2.0.1.
 
 Roadmap: docs/SPEC.md section 0.20 (planned, not built).
 

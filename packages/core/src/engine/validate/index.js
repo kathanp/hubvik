@@ -234,6 +234,7 @@ function validateOptions(raw) {
     responseHints: input.responseHints == null ? false : bool(input.responseHints, 'responseHints'),
     profile: parseProfile(input.profile),
     families: parseFamilies(input.families),
+    modelPack: parseModelPack(input.modelPack),
     coreIds: coreIdSet(input.profile),
     scoring: parseScoring(input.scoring),
     alerts: input.alerts == null ? false : bool(input.alerts, 'alerts'),
@@ -337,6 +338,16 @@ function parseFamilies(value) {
   if (value == null || value === false) return false;
   if (value === true) return true;
   throw new HubvikError('FAMILIES_IS_INVALID', 'families is invalid');
+}
+
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function parseModelPack(value) {
+  if (value == null || value === false) return false;
+  if (value === true) return true;
+  throw new HubvikError('MODEL_PACK_IS_INVALID', 'model pack is invalid');
 }
 
 /**

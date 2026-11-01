@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createEngine } = require('hubvik');
@@ -132,4 +133,19 @@ test('the HTML report lists destinations, campaigns, and shadow hits', () => {
   assert.match(html, /<h1>Shadow<\/h1>/);
   assert.match(html, /cam onion-name aaaaaaa\.onion/);
   assert.doesNotMatch(html, /<script/);
+});
+
+test('selftest and coverage print the engine report', () => {
+  const bin = path.join(__dirname, '../src/bin.js');
+  const selftest = spawnSync(process.execPath, [bin, 'selftest'], { encoding: 'utf8' });
+  assert.strictEqual(selftest.status, 0, selftest.stderr);
+  const rows = JSON.parse(selftest.stdout);
+  assert.ok(rows.some((row) => row.scenario === 'horizontal scan' && row.missing.length === 0));
+  const events = path.join(__dirname, 'coverage-events.jsonl');
+  fs.writeFileSync(events, '{"device":"d","dst":"a.example","bytes":10,"ts":1000}\n');
+  const coverage = spawnSync(process.execPath, [bin, 'coverage', events], { encoding: 'utf8' });
+  fs.unlinkSync(events);
+  assert.strictEqual(coverage.status, 0, coverage.stderr);
+  const report = JSON.parse(coverage.stdout);
+  assert.strictEqual(report.tiers.T0.eventsSeen, 1);
 });

@@ -1,10 +1,10 @@
-> Version: 3.4.0 · Updated: 2026-10-31
+> Version: 3.5.0 · Updated: 2026-11-01
 
 # Building with hubvik
 
 hubvik is a library for a gateway. You feed it observations. It emits events. Your product decides what to do with them. The library does not block, drop, or rewrite traffic.
 
-Status: **hubvik 3.4.0 prototype — not validated on real traffic.** On 2026-10-31, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.3.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. Do not publish detection rates that this repository did not measure.
+Status: **hubvik 3.5.0 prototype — not validated on real traffic.** On 2026-11-01, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.4.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. Do not publish detection rates that this repository did not measure.
 
 Planned work that is not in this tree is `docs/SPEC.md` section 0.20.
 

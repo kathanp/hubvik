@@ -1,0 +1,18 @@
+---
+description: Each npm tag is one large release. Do not plan a thin follow-up version.
+alwaysApply: true
+---
+
+# Release size
+
+Each npm tag is one large release. Publishing takes about an hour, and a thin tag the next day looks bad. Fold leftover work into the version being specified. Do not give it the next version number.
+
+A thin tag is a single detector, a rename, a small option, a docs-only bump, or a split of work that already belongs together. Past splits to refuse: 3.5.0 vs 3.6.0, a separate J10, a deferred J11, and 4.1.0–4.4.0.
+
+Current plan:
+
+- 3.5.0 is one tag, J9: coverage, self-test, lock-readiness, and the signed model pack.
+- 4.0.0 is the next tag: every row in SPEC section 0.21, in that one tag.
+- Do not invent 3.6.0, 4.1.0, 4.2.0, 4.3.0, or 4.4.0.
+
+Git commits stay small. This rule is about npm tags, not commits. Still do not run `npm publish` or `npm login`. Still do not add a detector file before C10 row 0.6 is ticked. Still do not invent a threshold or a detection rate.

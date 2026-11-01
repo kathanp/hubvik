@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.5.0
+
+Coverage, a pipeline self-test, a lock-readiness score, and a signed device-model pack. No new detector row. Thresholds, severities, and detector defaults are unchanged. `modelPack` defaults to `false`, and that stream matches 3.4.0.
+
+`coverage(now)` reports tiers, detectors, and techniques from state the engine already has. `selftest()` runs the seven canned scenarios in `src/data/selftest.json` on a throwaway engine. `stats().learningQuality[device].readiness` is `{ score, reasons, suggestLock }`. `score` is 100 when the device is watching and every approved blocker is clear, and 0 otherwise. There is no partial weight. The engine never calls `lock()`. Warning `LOCK_SUGGESTED` fires once per device when `suggestLock` becomes true. `loadModelPack(pack, { verify })` requires `modelPack: true` and the existing HMAC-SHA256 baseline signature. The package ships no model file.
+
+`@hubvik/cli` prints `hubvik coverage <events.jsonl>` and `hubvik selftest`. Core unpacked measured 1035842 bytes. The 1024 KiB cap is unchanged.
+
+The 0.6 false-positive gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot stay open.
+
 ## 3.4.0
 
 Families, explain text, and operator advice. No new detector row. Thresholds, severities, and detector defaults are unchanged. `families` defaults to `false`, and that stream matches 3.3.0.
