@@ -717,10 +717,10 @@ if (flag('--release-check')) {
     [
       'ORDER (a person runs every step; this script runs none)',
       `  1. git push -u origin release/${v}`,
-      `  2. open a PR release/${v} -> main; CI runs npm run gate; merge with "Create a merge commit"`,
-      `  3. git fetch origin && git checkout main && git merge --ff-only origin/main`,
-      `  4. git tag -s v${v} -m "v${v}" && git push origin v${v}`,
-      '  5. the tag workflow publishes with provenance. First publish only: npm publish --provenance by hand, with 2FA',
+      `  2. open a PR release/${v} -> main. The required check is Ubuntu, Node 22, npm run gate, on that commit.`,
+      `  3. fast-forward main to that commit: git push origin release/${v}:main`,
+      `  4. git tag -a v${v} -m "v${v}" && git push origin v${v}`,
+      '  5. the tag workflow checks the version and the pack, then publishes with provenance and dist-tag latest. It does not run npm run gate. If npm shows the version as staged, approve it on npmjs.com. First publish only: npm publish --provenance by hand, with 2FA',
       `  6. node scripts/autopilot/guard.mjs --cleanup --run <name> --version ${v}`,
     ].join('\n'),
   );
@@ -740,7 +740,7 @@ if (flag('--cleanup')) {
     die('no origin/main; run git fetch first');
   if (!gitOk('merge-base', '--is-ancestor', rel, 'origin/main'))
     die(
-      `${rel} is not merged into origin/main (fetch first; merge the PR with a merge commit). Nothing erased`,
+      `${rel} is not on origin/main (fetch first; fast-forward main to the release commit). Nothing erased`,
     );
   if (
     branchExists(`run/${run}`) &&

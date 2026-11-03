@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Release size
 
-Each npm tag is one large release. Publishing takes about an hour, and a thin tag the next day looks bad. Fold leftover work into the version being specified. Do not give it the next version number.
+Each npm tag is one large release. The merge waits on one Ubuntu Node 22 gate. The tag does not run that gate again. A thin tag the next day still looks bad. Fold leftover work into the version being specified. Do not give it the next version number.
 
 A thin tag is a single detector, a rename, a small option, a docs-only bump, or a split of work that already belongs together. Past splits to refuse: 3.5.0 vs 3.6.0, a separate J10, a deferred J11, and 4.1.0–4.4.0.
 

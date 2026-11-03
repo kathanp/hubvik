@@ -2,6 +2,8 @@
 
 `npm run gate` runs every step below and lists every failure. Core is `hubvik`. Nothing here is a detection-rate claim.
 
+A pull request runs this gate once, on Ubuntu with Node 22, against the pull request head (`.github/workflows/ci.yml`). That job is the merge gate. Fast-forward `main` to that commit. A merge commit is a new SHA, so it is not the commit the pull request tested. Node 24, Node 26, and Ubuntu arm run weekly, Monday 15:00 UTC, from `.github/workflows/ci-extended.yml`. They do not block the merge. The `v*` workflow checks that the tag matches `packages/core` and the lockfile, runs `pack:check`, and publishes. It does not run this gate again.
+
 | Step          | Command                          | Threshold                                                                                                                                                                                                                                     |
 | ------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | check         | `npm run check`                  | lint, `tsc --noEmit`, and the test suites exit 0                                                                                                                                                                                              |

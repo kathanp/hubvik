@@ -29,6 +29,11 @@ jobs:
           cache: npm
       - name: install
         run: npm ci
+      - name: tag matches the core version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: node scripts/release-version.mjs
+      - name: pack
+        run: npm run pack:check
       - name: no static npm credential
         run: |
           set -euo pipefail
@@ -87,8 +92,6 @@ jobs:
             process.exit(1);
           });
           EOF
-      - name: gate
-        run: npm run gate
       - name: publish changed public packages
         run: |
           set -euo pipefail

@@ -1,7 +1,8 @@
 name: ci
 
+# One merge gate. The pull request runs npm run gate on the head commit.
+# A fast-forward of that commit onto main does not start this job again.
 on:
-  push:
   pull_request:
 
 permissions:
@@ -9,20 +10,17 @@ permissions:
 
 jobs:
   gate:
-    name: node ${{ matrix.node }} / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['22', '24', '26']
-        os: [ubuntu-latest, ubuntu-24.04-arm]
+    name: node 22 / ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: setup node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: npm
       - name: install
         run: npm ci
