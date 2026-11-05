@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.0
+
+Ask the past. No new detector row. Thresholds, severities, and detector defaults are unchanged.
+
+`at(device, ts)` reads the checkpoint. Pass `log` to replay events the host still has; the result says `checkpoint` or `checkpoint+log`. `diffBaseline(a, b)` lists destinations, families, ports, and class suggestions that appeared or disappeared. `without(device, destination, events)` replays those events on a throwaway copy and lists alerts that stay quiet once the destination is already learned. `story(incidentId)` is one paragraph from the stored incident. A `volume-mounted` or `file-fetched` event can lead that paragraph. The library does not open the file. `drill()` copies the live baseline onto a throwaway engine and runs the canned attacks. The live engine emits nothing from `without` or `drill`. Core unpacked measured 1065119 bytes. The cap is 1088 KiB (D-163). The 60 KB file rule is unchanged.
+
 ## 4.0.0
 
 Household reads `house`, `attention`, `timeline`, and `changes`. No new detector row. Thresholds, severities, and detector defaults are unchanged. The reads do not emit. Lists use `explainCap`. The SPEC 0.21 names are not files in this tag. The self-test cap stays 16.

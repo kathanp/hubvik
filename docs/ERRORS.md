@@ -280,6 +280,18 @@ Headings below stay in their existing order. This list only groups them.
 - [TIMELINE_QUIET_IS_INVALID](#timeline_quiet_is_invalid)
 - [CHANGES_SINCE_IS_INVALID](#changes_since_is_invalid)
 - [CHANGES_QUIET_IS_INVALID](#changes_quiet_is_invalid)
+- [AT_DEVICE_IS_INVALID](#at_device_is_invalid)
+- [AT_TS_IS_INVALID](#at_ts_is_invalid)
+- [AT_LOG_IS_INVALID](#at_log_is_invalid)
+- [AT_DEVICE_IS_UNKNOWN](#at_device_is_unknown)
+- [AT_LOG_IS_REQUIRED](#at_log_is_required)
+- [AT_CHECKPOINT_IS_INVALID](#at_checkpoint_is_invalid)
+- [DIFF_BASELINE_IS_INVALID](#diff_baseline_is_invalid)
+- [WITHOUT_DEVICE_IS_INVALID](#without_device_is_invalid)
+- [WITHOUT_DESTINATION_IS_INVALID](#without_destination_is_invalid)
+- [WITHOUT_EVENTS_ARE_INVALID](#without_events_are_invalid)
+- [STORY_INCIDENT_IS_INVALID](#story_incident_is_invalid)
+- [HOST_FACT_NAME_IS_INVALID](#host_fact_name_is_invalid)
 - [WAVES_SINCE_IS_INVALID](#waves_since_is_invalid)
 - [DRIFT_DAY_IS_INVALID](#drift_day_is_invalid)
 - [DRIFT_DEVICE_IS_INVALID](#drift_device_is_invalid)
@@ -1018,6 +1030,66 @@ Fix: Pass a finite number for `sinceTs`.
 
 Cause: `changesOf()` throws it when `quietMs` is passed and is not a finite number >= 0. The message is "quietMs is invalid".
 Fix: Omit `quietMs`, or pass a finite number >= 0.
+
+## AT_DEVICE_IS_INVALID
+
+Cause: `atOf()` in `packages/core/src/engine/past.js` throws it when the device id is not a string of 1 to 255 characters, or the id is a forbidden key. The message is "device id is invalid".
+Fix: Pass a device id of 1 to 255 characters.
+
+## AT_TS_IS_INVALID
+
+Cause: `atOf()` throws it when `ts` is not a finite number. The message is "at ts is invalid".
+Fix: Pass a finite number for `ts`.
+
+## AT_LOG_IS_INVALID
+
+Cause: `atOf()` throws it when `opts.log` is passed and is not an array. The message is "at log is invalid".
+Fix: Omit `log`, or pass an array of events.
+
+## AT_DEVICE_IS_UNKNOWN
+
+Cause: `atOf()` throws it when that device is not in the checkpoint or the replay. The message is "at device is unknown".
+Fix: Pass a device the checkpoint or the log has already seen.
+
+## AT_LOG_IS_REQUIRED
+
+Cause: `atOf()` throws it when no log is passed and the device's last event is after `ts`. The message is "at log is required".
+Fix: Pass `opts.log` with the events the host still has, or pass a `ts` at or after the device's last event.
+
+## AT_CHECKPOINT_IS_INVALID
+
+Cause: `atOf()` throws it when `opts.checkpoint` is passed and is not an object. The message is "at checkpoint is invalid".
+Fix: Omit `checkpoint`, or pass a checkpoint object.
+
+## DIFF_BASELINE_IS_INVALID
+
+Cause: `diffBaselineOf()` throws it when either baseline is missing a `devices` object, or a device id is a forbidden key. The message is "baseline is invalid".
+Fix: Pass two baseline objects that each have a `devices` object.
+
+## WITHOUT_DEVICE_IS_INVALID
+
+Cause: `withoutOf()` throws it when the device id is not a string of 1 to 255 characters, or the id is a forbidden key. The message is "device id is invalid".
+Fix: Pass a device id of 1 to 255 characters.
+
+## WITHOUT_DESTINATION_IS_INVALID
+
+Cause: `withoutOf()` throws it when `destination` is not a string of 1 to 255 characters. The message is "without destination is invalid".
+Fix: Pass the destination string.
+
+## WITHOUT_EVENTS_ARE_INVALID
+
+Cause: `withoutOf()` throws it when `events` is not an array. The message is "without events are invalid".
+Fix: Pass the events the host still has.
+
+## STORY_INCIDENT_IS_INVALID
+
+Cause: `storyOf()` throws it when `incidentId` is not a non-empty string, or no stored incident has that id. The message is "story incident is invalid".
+Fix: Pass the id of an incident the engine still stores.
+
+## HOST_FACT_NAME_IS_INVALID
+
+Cause: `hostFact()` in `packages/core/src/engine/validate/index.js` throws it when `name` is present and is not a string. The message is "host fact name is invalid".
+Fix: Omit `name`, or pass a string.
 
 ## WAVES_SINCE_IS_INVALID
 

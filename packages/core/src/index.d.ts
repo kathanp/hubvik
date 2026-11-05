@@ -181,6 +181,13 @@ export interface WifiEvent {
   reason?: number;
 }
 
+export interface HostFactEvent {
+  type: 'volume-mounted' | 'file-fetched';
+  device: string;
+  ts?: number;
+  name?: string;
+}
+
 export type FeedEvent =
   | SummaryEvent
   | FlowEvent
@@ -192,7 +199,8 @@ export type FeedEvent =
   | DiscoveryEvent
   | DhcpEvent
   | NdEvent
-  | WifiEvent;
+  | WifiEvent
+  | HostFactEvent;
 
 export interface PolicyRule {
   id: string;
@@ -721,6 +729,51 @@ export class Engine extends EventEmitter {
     incidentsOpened: string[];
     incidentsClosed: string[];
   };
+  at(
+    device: string,
+    ts: number,
+    opts?: { checkpoint?: object; log?: FeedEvent[] },
+  ): {
+    device: string;
+    ts: number;
+    source: 'checkpoint' | 'checkpoint+log';
+    mode: string;
+    suggestion: { class: string; score: number } | null;
+    destinations: string[];
+    families: string[];
+    ports: string[];
+    readiness: { score: number; reasons: string[]; suggestLock: boolean } | null;
+    incident: {
+      id: string;
+      severity: string;
+      firstTs: number;
+      lastTs: number;
+      detectors: string[];
+    } | null;
+  };
+  diffBaseline(
+    before: object,
+    after: object,
+  ): {
+    devices: Array<{
+      device: string;
+      destinations: { appeared: string[]; disappeared: string[] };
+      families: { appeared: string[]; disappeared: string[] };
+      ports: { appeared: string[]; disappeared: string[] };
+      suggestions: { appeared: string[]; disappeared: string[] };
+    }>;
+  };
+  without(
+    device: string,
+    destination: string,
+    events: FeedEvent[],
+  ): {
+    device: string;
+    destination: string;
+    quiet: Array<{ detector: string; ts: number; actual: string }>;
+  };
+  story(incidentId: string): { incident: string; text: string };
+  drill(): ReturnType<Engine['selftest']>;
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

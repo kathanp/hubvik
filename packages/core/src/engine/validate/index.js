@@ -71,7 +71,28 @@ function validateEvent(raw) {
   }
   if (type === 'mapping') return { event: mappingEvent(raw, ts), warnings };
   if (type === 'app') return { event: appEvent(raw, ts, warnings), warnings };
+  if (type === 'volume-mounted' || type === 'file-fetched') {
+    return { event: hostFact(raw, type, ts), warnings };
+  }
   throw new HubvikError('UNKNOWN_EVENT_TYPE', `unknown event type ${type}`);
+}
+
+/**
+ * A host-supplied file fact. The name is the label the host already has.
+ * This function does not open a file.
+ * @param {any} raw
+ * @param {string} type
+ * @param {number} ts
+ */
+function hostFact(raw, type, ts) {
+  let name = '';
+  if (raw.name != null) {
+    if (typeof raw.name !== 'string') {
+      throw new HubvikError('HOST_FACT_NAME_IS_INVALID', 'host fact name is invalid');
+    }
+    name = raw.name.length > 255 ? raw.name.slice(0, 255) : raw.name;
+  }
+  return { type, device: raw.device, ts, name };
 }
 
 /**

@@ -1,6 +1,7 @@
 'use strict';
 
 const { HubvikError } = require('../errors');
+const { FORBIDDEN_KEYS } = require('./constants');
 
 const { assertSafeKeys, validateEvent } = require('./validate');
 const { readFeedback, noteNoisy } = require('./feedback');
@@ -57,6 +58,11 @@ module.exports = {
       /** @type {Record<string, unknown>} */
       const row = { peerGroup: device.peerGroup, detectors };
       if (device.deviceClass) row.deviceClass = device.deviceClass;
+      if (this.opts.classSuggest && device.classScores) {
+        row.suggestions = Object.keys(device.classScores)
+          .filter((classId) => !FORBIDDEN_KEYS.has(classId))
+          .sort();
+      }
       devices[id] = row;
     }
     const body = {

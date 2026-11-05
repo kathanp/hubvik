@@ -84,6 +84,16 @@ function coverage(now) {
  * @param {{ scenarios?: string[] }} [opts]
  */
 function selftest(opts = {}) {
+  const { createEngine } = require('./engine');
+  return runScenarios(/** @type {any} */ (createEngine(this.opts.raw)), opts);
+}
+
+/**
+ * Canned attacks on an engine the caller already built. Does not build that engine.
+ * @param {any} box
+ * @param {{ scenarios?: string[] }} [opts]
+ */
+function runScenarios(box, opts = {}) {
   const file = SCENARIOS;
   if (!file || !Array.isArray(file.scenarios)) {
     throw new HubvikError('SELFTEST_IS_INVALID', 'selftest is invalid');
@@ -105,8 +115,6 @@ function selftest(opts = {}) {
       if (!names.has(name)) throw new HubvikError('SELFTEST_IS_INVALID', 'selftest is invalid');
     }
   }
-  const { createEngine } = require('./engine');
-  const box = /** @type {any} */ (createEngine(this.opts.raw));
   /** @type {{ scenario: string, expectedDetectors: string[], fired: string[], missing: string[], missingReason: string | null }[]} */
   const results = [];
   let n = 0;
@@ -288,4 +296,4 @@ function arp(device, ts, ip, mac) {
   return { type: 'arp', device, ts, op: 'reply', ip, mac };
 }
 
-module.exports = { coverage, selftest, SCENARIO_CAP, EVENT_CAP };
+module.exports = { coverage, selftest, runScenarios, SCENARIO_CAP, EVENT_CAP };

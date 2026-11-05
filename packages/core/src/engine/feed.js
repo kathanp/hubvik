@@ -16,6 +16,25 @@ const { createTable, note } = require('./correlate');
  * Installed on Engine.prototype. Behavior is unchanged.
  */
 
+/**
+ * Remember a host-supplied file fact. This does not open the file.
+ * @param {any} engine
+ * @param {any} event
+ * @returns {void}
+ */
+function rememberFact(engine, event) {
+  if (!Array.isArray(engine._hostFacts)) engine._hostFacts = [];
+  const cap = engine.opts && engine.opts.explainCap;
+  const limit = typeof cap === 'number' && cap >= 0 ? cap : 1000;
+  engine._hostFacts.push({
+    ts: event.ts,
+    type: event.type,
+    device: event.device,
+    name: event.name || '',
+  });
+  if (engine._hostFacts.length > limit) engine._hostFacts.shift();
+}
+
 module.exports = {
   /**
    * @this {any}
@@ -76,6 +95,10 @@ module.exports = {
     if (this.watermark == null || event.ts > this.watermark) this.watermark = event.ts;
     this.lastEventTs = this.watermark;
     device.lastTs = event.ts;
+    if (event.type === 'volume-mounted' || event.type === 'file-fetched') {
+      rememberFact(this, event);
+      return;
+    }
     /** @type {any} */ (this)._advanceTo(device, start);
     /** @type {any} */ (this)._note(device, event);
     if (event.tier) {

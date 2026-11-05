@@ -26,6 +26,7 @@ const { learningMethods } = require('./learning');
 const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = require('./finish09');
 const { partgMethods } = require('./partg');
 const { reportMethods } = require('./report');
+const { pastMethods } = require('./past');
 const { coverage, selftest } = require('./coverage');
 const { loadModelPack, applyStoredPack } = require('./modelpack');
 
@@ -838,6 +839,7 @@ Object.assign(
   finishMethods,
   partgMethods,
   reportMethods,
+  pastMethods,
   { coverage, selftest, loadModelPack },
 );
 

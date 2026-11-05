@@ -1,4 +1,4 @@
-> Version: 4.0.0 · Updated: 2026-11-04
+> Version: 4.1.0 · Updated: 2026-11-05
 
 # hubvik — what it does and what it is not
 
@@ -6,11 +6,11 @@ hubvik is a **detector library**, not a protection appliance. It watches per-dev
 
 That boundary is normal for a serious npm package. Respected security packages on npm are narrow libraries (hashing, JWT, headers, rate limits, dep scanning). They harden one layer; they do not turn `npm install` into a firewall, IPS, EDR, or “you’re safe now” product. Real IoT/OT network security is sold as platforms, not as one blocking npm module.
 
-Status: **hubvik 4.0.0 prototype — not validated on real traffic.** On 2026-11-04, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.5.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
+Status: **hubvik 4.1.0 prototype — not validated on real traffic.** On 2026-11-05, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "4.0.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot.
 
 ## Roadmap
 
-3.3.0, 3.4.0, 3.5.0, and the 4.0.0 household reads are in this tree. The twenty 0.21 detector names are not. The next planned tag is 4.1.0, specified in `docs/SPEC.md` section 0.22. The 3.5.0 gate passed on 2026-11-01. 4.1.0 through 4.5.0 are not tags yet. Each npm tag is one large release. Work that belongs in a version stays in that version (D-158, D-161). A new detector file still waits until C10 row 0.6 is ticked.
+3.3.0 through 4.1.0 are in this tree. 4.1.0 is the past reads. The twenty 0.21 detector names are not. The next planned tag is 4.2.0, specified in `docs/SPEC.md` section 0.22. The 4.0.0 gate passed on 2026-11-04. 4.2.0 through 4.5.0 are not tags yet. Each npm tag is one large release. Work that belongs in a version stays in that version (D-158, D-161). A new detector file still waits until C10 row 0.6 is ticked.
 
 - [x] 3.3.0 J1. Freeze the detector list so a new detector file fails the check while the 0.6 gate is open.
 - [x] 3.3.0 J2. Split evaluation captures into tune and holdout, and write a per-detector scorecard that only proposes.
@@ -23,7 +23,7 @@ Status: **hubvik 4.0.0 prototype — not validated on real traffic.** On 2026-11
 - [x] 3.5.0 J9. Show which attacks this host can catch from the logs it already feeds: tiers seen, detectors active, and techniques covered or blind. Run canned attacks on a throwaway engine (horizontal scan, egress flood, DNS tunnel, new beacon, ARP gateway claim, OT dangerous op, proxy backconnect) and print the same text from the CLI. Score whether each device baseline is ready to lock. The engine never locks by itself. The host may also load a signed device-model pack, one per class that already exists, default off. It uses the same HMAC-SHA256 baseline signature. It seeds only a device the host already classed, and only while that device has no detector state. The package ships no model file. The engine does not assign a class. A new detector row still waits until C10 row 0.6 is ticked.
 - [x] 4.0.0 Household screen reads `house(now)`, `attention(now)`, `timeline(sinceTs)`, and `changes(sinceTs)`. They describe facts already stored. Lists use `explainCap`. Leave `quietMs` out and the quiet rows are empty. They do not detect and do not block.
 - [ ] 4.0.0 Home, cameras, power, fleet, and updates stay behavior only until C10 row 0.6 is ticked. Shadow only. Matter fabric join, Thread network change, local name takeover, and a new LAN control port. New camera talkback, a new ONVIF user, a new voice stream, and a doorbell clip burst. Plug duty change, traffic while the host says the house is away, a sensor silent while its peers talk, and an HVAC call spike. The library does not decide occupancy. A shared new destination, synchronized outbound flows, a fleet resolver change, and repeated failure then success. Per-device anomalies stay. The fleet incident is extra and off unless the host asks. A skipped firmware cadence, an update rollback, a burst of destinations after boot, and a crash-loop outbound session. Coverage does not yet name Matter and Thread when those events are missing, or a camera or voice class with no learned destinations. Self-test does not gain a scenario per row. The scenario cap stays 16 until a person raises it. No detector file until C10 row 0.6 is ticked.
-- [ ] 4.1.0 Ask the past. `at(device, ts)`, `diffBaseline`, `without`, `story`, and `drill`. A host-supplied volume or file event can lead the story. The library does not open the file. The live engine emits nothing from the drill.
+- [x] 4.1.0 Ask the past. `at(device, ts)`, `diffBaseline`, `without`, `story`, and `drill`. A host-supplied volume or file event can lead the story. The library does not open the file. The live engine emits nothing from the drill.
 - [ ] 4.2.0 Many houses, sketches only. One signed sketch per gateway per day. No raw flows. A bad signature changes nothing. The fleet report stays off until the host turns it on, and it stays quiet when there are no peers.
 - [ ] 4.3.0 The install proves what this host can see. `doctor` names which 4.0.0 behaviors the logs still leave blind, prints the smallest adapter set and one options object, and runs that plan on a throwaway engine. The engine does not assign a class.
 - [ ] 4.4.0 A signed attestation. Self-test writes engine version, options hash, coverage, and fired or blind per canned scenario. `verifyAttestation` checks the signature. The document has no detection-rate field. Bench lines are the measurements from that gate.
@@ -342,7 +342,7 @@ That’s how you learn **which** detectors fail in the wild without turning npm 
 
 ## Detector catalog
 
-Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 4.0.0. Do not edit this section by hand.
+Generated by `scripts/spec-coverage.mjs` from the detector rows and the detector files. Core 4.1.0. Do not edit this section by hand.
 
 The last column is yes when the row Release is at or below this package version. A later Release is no even when its file is already in the tree. Those files are absent from "Not yet implemented".
 
