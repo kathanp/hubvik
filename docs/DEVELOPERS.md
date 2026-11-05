@@ -1,4 +1,4 @@
-> Version: 3.5.0 · Updated: 2026-11-01
+> Version: 4.0.0 · Updated: 2026-11-04
 
 # Building with hubvik
 
@@ -314,7 +314,7 @@ JA4 is copied as a string. The library does not compute JA4 or JA4S. A peer comp
 
 `counts(sinceTs)` is the fire count per detector on that ring. `hints(sinceTs)` lists hint text already stored on those anomalies and does not apply it. With `responseHints` left off the list is empty. `noisy()` reads the same labels as `stats().precision` and returns detectors already over that bar. `quiet(now, quietMs)` lists seen devices whose last event is at least `quietMs` before `now`. It does not emit `went-silent`.
 
-`attacks(sinceTs)` lists, per device, the kill-chain stages, technique ids, and up to 8 destinations already carried by those anomalies. `progressing` is true when two or more stages have been seen. `waves(sinceTs)` lists a detector that already fired on three or more devices. `openIncidents(now)` returns incidents the engine already opened and has not closed. `shadow(sinceTs)` reads shadow anomalies the engine already emitted, capped by `explainCap`, and does not promote them. `campaigns(now)` returns campaigns already opened. `overview(now, sinceTs)` returns those reads, plus `counts`, in one object. Leave `sinceTs` out and it is 0. None of these calls runs a new detector or emits an anomaly.
+`attacks(sinceTs)` lists, per device, the kill-chain stages, technique ids, and up to 8 destinations already carried by those anomalies. `progressing` is true when two or more stages have been seen. `waves(sinceTs)` lists a detector that already fired on three or more devices. `openIncidents(now)` returns incidents the engine already opened and has not closed. `shadow(sinceTs)` reads shadow anomalies the engine already emitted, capped by `explainCap`, and does not promote them. `campaigns(now)` returns campaigns already opened. `overview(now, sinceTs)` returns those reads, plus `counts`, in one object. Leave `sinceTs` out and it is 0. `house(now, quietMs)`, `attention(now)`, `timeline(sinceTs, quietMs)`, and `changes(sinceTs, quietMs)` are the household screen. Lists stop at `explainCap`. Leave `quietMs` out and the quiet rows are empty. None of these calls runs a new detector or emits an anomaly.
 
 A first look in one process can pass `learnMs: 0` and call `lock()` before `feed`. A gateway that is still learning should keep the default `learnMs` of 7 days and call `lock()` only after someone has reviewed the baseline.
 

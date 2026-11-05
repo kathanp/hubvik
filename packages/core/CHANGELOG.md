@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.0
+
+Household reads `house`, `attention`, `timeline`, and `changes`. No new detector row. Thresholds, severities, and detector defaults are unchanged. The reads do not emit. Lists use `explainCap`. The SPEC 0.21 names are not files in this tag. The self-test cap stays 16.
+
 ## 3.5.0
 
 Coverage, a pipeline self-test, a lock-readiness score, and a signed device-model pack. No new detector row. Thresholds, severities, and detector defaults are unchanged. `modelPack` defaults to `false`, and that stream matches 3.4.0.

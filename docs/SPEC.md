@@ -22,7 +22,7 @@ Earlier drafts, newest first.
 
 3.2 (2026-10-20) added 0.6, 0.7, WP-28 to WP-38, and Q-14 to Q-19. 3.1 (2026-10-18) added 0.5, B21, Part F, and WP-11 to WP-26. 3.0 (2026-10-17) added Part 0, A2.3, A4.1, A7.1, B20, C6, and Part E.
 
-**Start here (3.9).** Read 0.20 first. It is the planned roadmap for 3.3.0 to 3.5.0. Nothing in it is built, and it changes no behavior. Then read 0.19. It records deviations as of 2026-10-31 and changes no behavior. Then read 0.6, 0.7, 0.8 and 0.9. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
+**Start here (3.9).** Read 0.20 first. It is the roadmap from 3.3.0 through 4.5.0. 3.3.0, 3.4.0, and 3.5.0 are built. 4.0.0 ships the four household reads. The twenty 0.21 detector names, and 4.1.0 through 4.5.0, are planned and not built. Then read 0.19. It records deviations as of 2026-10-31 and changes no behavior. Then read 0.6, 0.7, 0.8 and 0.9. 0.6 and 0.7 say what is true about the tree on 2026-10-20 and how AUTOPILOT reads this file. 0.8 says what 3.3 adds. 0.9 says what 3.4 adds and what may be built while the 0.6 gate is open. The 3.4 work packages are WP-52 to WP-58 in Part E. Part H specifies them.
 
 **How to read this.** Part 0 says what is wrong with the current tree and must be fixed before anything new is built. Part A is the engine. Part B is every detector worth building, each tagged with the release it belongs in and the input it needs. Part C covers scoring, operations, evaluation and the roadmap. Part D lists what is deliberately left out. **Part E is the ordered work list for the coding agent.** Part F (3.1) specifies advanced engine capabilities; its work packages are WP-11 to WP-26. Part G (3.3) specifies false-positive reduction, evidence fusion, integrity and advanced statistical capabilities; its work packages are WP-39 to WP-51. Part H (3.4) specifies sequential alert control and contagion; its work packages are WP-52 to WP-58. Part J (planned) specifies evidence, noise, and operator intelligence for 3.3.0 to 3.5.0; its work packages are WP-61 to WP-69. Appendix B lists the sources behind every threat claim in this file.
 
@@ -518,11 +518,11 @@ These notes record what the tree contains while a gate or a question is still op
 - Q-36. `hubvik` 3.2.0 is on npm while Q-14 is open and the release check lists a missing disclosure email as a blocker. `packages/core/SECURITY.md` has no disclosure email.
 - Q-35. The bogon-destination severity decision used the same IoT-23 malware capture the false-positive rate is measured on.
 
-## 0.20 Roadmap 3.3.0 to 4.0.0 (3.3.0, 3.4.0, and 3.5.0 are built)
+## 0.20 Roadmap 3.3.0 to 4.5.0 (3.3.0, 3.4.0, and 3.5.0 are built)
 
-3.3.0, 3.4.0, and 3.5.0 are in this tree. 4.0.0 is not. This section adds no detector row. Rule 0.1 and the detector freeze stay in force: no new detector file until C10 row 0.6 is ticked.
+3.3.0, 3.4.0, 3.5.0, and the 4.0.0 household reads are in this tree. The twenty 0.21 detector names are not. 4.1.0 through 4.5.0 are not. This section adds no detector row. Rule 0.1 and the detector freeze stay in force: no new detector file until C10 row 0.6 is ticked.
 
-The goal is to make hubvik proven and useful, not larger. Evidence comes first (3.3.0). Noise and explanation come next (3.4.0). 3.5.0 is one item, J9 (WP-69): a coverage map, a pipeline self-test, a lock-readiness score, and a host-supplied signed device-model pack. The pack is off unless the host loads it. The package ships no model file, because there is no pilot corpus. 3.5.0 does not wait for the 30-day pilot (D-147). Families stay opt-in until that pilot. The score is 100 or 0 (D-159). Partial weights are not used. The pack does not add a detector row (D-156). The next npm release is 4.0.0. Each npm tag is one large release. Work that belongs in a version stays in that version. It does not become the next version number (D-158).
+The goal is to make hubvik proven and useful, not larger. Evidence comes first (3.3.0). Noise and explanation come next (3.4.0). 3.5.0 is one item, J9 (WP-69): a coverage map, a pipeline self-test, a lock-readiness score, and a host-supplied signed device-model pack. The pack is off unless the host loads it. The package ships no model file, because there is no pilot corpus. 3.5.0 does not wait for the 30-day pilot (D-147). Families stay opt-in until that pilot. The score is 100 or 0 (D-159). Partial weights are not used. The pack does not add a detector row (D-156). The current npm release is 4.0.0, the four household reads. After it, the planned majors are 4.1.0, 4.2.0, 4.3.0, 4.4.0, and 4.5.0 (D-161). The twenty 0.21 detector names stay unfiled until C10 row 0.6 is ticked. Each npm tag is one large release. Work that belongs in a version stays in that version. It does not become the next version number (D-158).
 
 No sentence here is a detection rate or a false-positive rate. Targets below are behavior. They are not measurements.
 
@@ -532,12 +532,17 @@ No sentence here is a detection rate or a false-positive rate. Targets below are
 | 3.4.0   | WP-66 to WP-68 (J6–J8) | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                | 3.3.0                              |
 | 3.5.0   | WP-69 (J9)             | the 3.4.0 gate met; J9 done-when met                                                                 | 3.4.0                              |
 | 4.0.0   | 0.21                   | the 3.5.0 gate met; 0.6 ticked before any new detector file                                          | 3.5.0                              |
+| 4.1.0   | 0.22                   | the 4.0.0 gate met                                                                                   | 4.0.0                              |
+| 4.2.0   | 0.22                   | the 4.1.0 gate met                                                                                   | 4.1.0                              |
+| 4.3.0   | 0.22                   | the 4.2.0 gate met                                                                                   | 4.2.0                              |
+| 4.4.0   | 0.22                   | the 4.3.0 gate met                                                                                   | 4.3.0                              |
+| 4.5.0   | 0.22                   | the 4.4.0 gate met                                                                                   | 4.4.0                              |
 
-Part J specifies 3.3.0 through 3.5.0. Section 0.21 is one later release, 4.0.0 (D-157). The signed model pack is part of J9 (D-156). A new detector file still waits until C10 row 0.6 is ticked.
+Part J specifies 3.3.0 through 3.5.0. Section 0.21 is the next release, 4.0.0. Section 0.22 is the planned majors after it (D-161). The signed model pack is part of J9 (D-156). A new detector file still waits until C10 row 0.6 is ticked.
 
-## 0.21 One later release, 4.0.0 (planned, not built)
+## 0.21 One later release, 4.0.0
 
-4.0.0 comes after 3.5.0. It is one npm tag. It is not in the tree. A new detector file is still forbidden until C10 row 0.6 is ticked. Until that tick, the names below are behavior only. Every new row ships as shadow. It emits `shadow-anomaly` and does not page. Numeric thresholds are not set. A person records each number as a D-n before a file is written (D-155, D-157). No sentence in this section is a detection rate.
+4.0.0 comes after 3.5.0. It is one npm tag. The four household reads below are in this tree. A new detector file is still forbidden until C10 row 0.6 is ticked. Until that tick, the twenty names below are behavior only. They are not files in this tag. Every new row ships as shadow. It emits `shadow-anomaly` and does not page. Numeric thresholds are not set. A person records each number as a D-n before a file is written (D-155, D-157). No sentence in this section is a detection rate. Coverage does not yet add a Matter, Thread, camera, or voice line beyond the technique map it already had.
 
 The library still only reports. It does not block, drop, or rewrite traffic. It does not call `lock()`. Signed device-model packs stay in J9.
 
@@ -584,9 +589,68 @@ Per-device anomalies stay. A fleet incident is extra, capped, and off unless the
 
 `selftest` gains one scenario for each row in this section. J9 already names 7 scenarios, and this section names 20 rows. The scenario cap stays D-136, which is 16, until a person raises it. The full list does not fit until that cap is raised.
 
+### Household screen
+
+The developer's app is the screen the household sees. 4.0.0 adds four reads so that app can show the whole house first. The reads do not detect, do not emit, and do not block. They describe facts the engine has already stored. A list in these reads is capped by `explainCap`. The default is 1000, the same cap `digest` already uses. When `quietMs` is omitted, quiet rows are empty. A wave on the timeline is the report-ring time when a detector first reaches three devices, the same bar `waves()` already uses. That ring is not in the checkpoint.
+
+- `house(now)`. One object for the gateway. It includes the `overview(now)` summary, `inventory()`, one `digest` sentence per device, and which devices `quiet` would list. Each device also carries its class suggestion, whether it is learning or watching, when it was last seen, the open incident if one is open, the advice sentence already stored for the top detector of that incident, and lock readiness. The house also includes a blind list from `coverage()`: one line for each behavior the logs on this gateway cannot see.
+- `attention(now)`. The open items, highest stored severity first. Each item has the device, the digest sentence, and the advice sentence. This is the top of the screen.
+- `timeline(sinceTs)`. The house in time order: a device first seen, an incident opened, a wave started, a device gone quiet. The same facts `digest` and `overview` already hold.
+- `changes(sinceTs)`. What is different since `sinceTs`: devices first seen, incidents opened, incidents closed, devices gone quiet.
+
+The engine still does not assign a class, call `lock()`, or decide that the house is empty. The app draws the page.
+
 ### Gate
 
-The 3.5.0 gate has passed. `npm run gate` is green. No new row is live. D-85 is unchanged. The benign-matrix incident counts are written into `docs/BENCHMARKS.md` from a run, not from a guess.
+The 3.5.0 gate has passed. No new detector row is live. D-85 is unchanged. `house`, `attention`, `timeline`, and `changes` are in this tree, and each read leaves the anomaly stream unchanged. The twenty names above stay unfiled. The self-test cap stays 16.
+
+## 0.22 Planned majors after 4.0.0 (not built)
+
+These five tags come after 4.0.0, in this order. None is in the tree. None adds a detector file before C10 row 0.6 is ticked. None claims a detection rate. The library still only reports.
+
+### 4.1.0 Ask the past
+
+- `at(device, ts)` returns the device as the checkpoint knew it at that time: mode, class suggestion, destinations, families, lock readiness, and any open incident. The result says whether it used the checkpoint alone or the checkpoint plus a log the host still has.
+- `diffBaseline(a, b)` lists destinations, families, ports, and class suggestions that appeared or disappeared.
+- `without(device, destination)` runs on a throwaway copy and lists which alerts would have stayed quiet if that destination had already been learned.
+- `story(incident)` fills one fixed paragraph from the alerts already stored. The same inputs produce the same paragraph. There is no model and no network call.
+- `drill()` copies the live baseline onto a throwaway engine, runs the canned attacks, and returns fired and blind per scenario. The live engine emits nothing from the drill.
+- If the host feeds a `volume-mounted` or `file-fetched` event, `story` can name it as the earliest host-supplied fact before the network alerts. The library does not open the file.
+
+### 4.2.0 Many houses, sketches only
+
+- A gateway exports one signed sketch per day. The HMAC is the same construction a baseline already uses. A bad signature is dropped and changes nothing.
+- The sketch may carry destination families, resolver identities, update-host families, and a coarse beacon bucket. The host chooses that granularity. Raw flows are not in the sketch.
+- A peer sketch older than the stale window the federated summaries already use is ignored.
+- The report can say: rare here and rare among peers; new here while common among peers; a family that overlapped many peers and had been absent the day before.
+- The host may load a signed allow sketch of known update hosts.
+- Imported sketches are capped. The cap is an option. Its default number is not set here. With no peers, the report stays quiet. The fleet report stays off until the host turns it on.
+
+### 4.3.0 The install proves what this host can see
+
+- The host points `doctor` at the logs it already has. `doctor` parses a sample, names the event types that sample contained, and lists each 4.0.0 behavior those types still leave blind, with the reason.
+- It prints the smallest adapter set and one engine options object for that sample.
+- It runs that plan on a throwaway engine over the sample and attaches the coverage map.
+- A new device still gets the class suggestion the engine already computes, with the ports, names, and schedule that produced it. The engine does not assign the class.
+- Running `doctor` again after more logs rewrites the plan when a new event type has shown up.
+
+### 4.4.0 A signed attestation
+
+- Self-test writes one versioned document: engine version, hash of the options, coverage summary, each canned scenario as fired or blind, and the bench lines the release gate already measured.
+- The document is signed with the same HMAC. `verifyAttestation(doc, key)` checks the signature and the hash.
+- The same events and the same options produce the same fired and blind lists.
+- The document has no detection-rate field.
+
+### 4.5.0 The household record
+
+- The host may set a display name and a group on a device. The library does not invent rooms and does not assign a class.
+- `timeline` and `attention` survive a restart because they are stored in the checkpoint. Both stay capped. The cap is an option. Its default number is not set here.
+- An item the host acknowledges stays acknowledged.
+- `changes` can be taken against a mark the screen stored.
+
+### Gate
+
+Each version's gate is the previous version's gate, then `npm run gate` green on that version's tree. No new detector row is live. D-85 is unchanged.
 
 # PART A — ENGINE
 
@@ -1629,7 +1693,12 @@ Rows 0.1–0.4 are history. Their gate column records what was planned; the **Me
 | **3.3.0** | Planned, not built. WP-61 to WP-65 (J1–J5): detector freeze, holdout scorecard, profile `all` or `core`, on-box pilot, device bench. No new detector row                                                                                                | J1–J5 built; a scorecard committed for every existing results file; `npm run gate` green; D-85 holds                                                                                                                    | [ ]                                                                                                                                                    |
 | **3.4.0** | WP-66 to WP-68 (J6–J8): detector families default off, explain on every live detector, operator advice. No new detector row                                                                                                                             | the 3.3.0 gate met; J6–J8 built; benign-matrix incident counts recorded in BENCHMARKS                                                                                                                                   | [x]                                                                                                                                                    |
 | **3.5.0** | WP-69 (J9): coverage map, pipeline self-test, lock readiness score, and a host-supplied signed model pack (default off, no pack file in the package). The engine never calls `lock()`. No new detector row. One npm publish                             | the 3.4.0 gate met; J9 done-when met                                                                                                                                                                                    | [x]                                                                                                                                                    |
-| **4.0.0** | Planned, not built. One tag for every row in 0.21: home control, cameras and voice, power and presence, a fleet campaign, and updates. Shadow only. No file until C10 row 0.6 is ticked. Self-test cap stays D-136 until a person raises it             | the 3.5.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
+| **4.0.0** | `house`, `attention`, `timeline`, and `changes` are in this tree. The twenty 0.21 names stay behavior only until C10 row 0.6 is ticked. No detector file in this tag. Self-test cap stays 16                                                            | the 3.5.0 gate met; the four household reads leave the anomaly stream unchanged                                                                                                                                         | [x]                                                                                                                                                    |
+| **4.1.0** | Planned, not built. Ask the past: `at`, `diffBaseline`, `without`, `story`, `drill`. A host-supplied volume or file event can lead the story. The library does not open the file                                                                        | the 4.0.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
+| **4.2.0** | Planned, not built. Signed daily sketches across gateways. No raw flows. The fleet report stays off until the host turns it on                                                                                                                          | the 4.1.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
+| **4.3.0** | Planned, not built. `doctor` names which 4.0.0 behaviors the logs on this host still leave blind, and prints the adapter set and options for that sample                                                                                                | the 4.2.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
+| **4.4.0** | Planned, not built. A signed self-test attestation. Fired and blind per scenario. No detection-rate field                                                                                                                                               | the 4.3.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
+| **4.5.0** | Planned, not built. Host-assigned display name and group. `timeline` and `attention` survive restart. Acknowledgements stick                                                                                                                            | the 4.4.0 gate met                                                                                                                                                                                                      | [ ]                                                                                                                                                    |
 
 ---
 

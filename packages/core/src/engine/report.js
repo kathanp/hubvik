@@ -2,6 +2,7 @@
 
 const { HubvikError } = require('../errors');
 const { precisionOf } = require('./feedback');
+const { houseOf, attentionOf, timelineOf, changesOf } = require('./house');
 const STAGES = require('../data/stages.json');
 const ATTACK = require('../data/attack-map.json');
 
@@ -304,6 +305,26 @@ const reportMethods = {
    */
   overview(now, sinceTs) {
     return overviewOf(this, now, sinceTs);
+  },
+
+  /** Household object. Does not emit. @this {any} @param {number} now @param {number} [quietMs] */
+  house(now, quietMs) {
+    return houseOf(this, now, quietMs);
+  },
+
+  /** Open incidents, highest severity first. Does not emit. @this {any} @param {number} now */
+  attention(now) {
+    return attentionOf(this, now);
+  },
+
+  /** Time-ordered stored facts. Does not emit. @this {any} @param {number} sinceTs @param {number} [quietMs] */
+  timeline(sinceTs, quietMs) {
+    return timelineOf(this, sinceTs, quietMs);
+  },
+
+  /** Changes since sinceTs. Does not emit. @this {any} @param {number} sinceTs @param {number} [quietMs] */
+  changes(sinceTs, quietMs) {
+    return changesOf(this, sinceTs, quietMs);
   },
 };
 

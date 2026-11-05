@@ -673,6 +673,54 @@ export class Engine extends EventEmitter {
       lastTs: number;
     }>;
   };
+  house(
+    now: number,
+    quietMs?: number,
+  ): {
+    now: number;
+    overview: ReturnType<Engine['overview']>;
+    devices: Array<{
+      device: string;
+      mode: string;
+      class: string | null;
+      suggestion: { class: string; score: number } | null;
+      learning: boolean;
+      lastSeen: number | null;
+      sentence: string;
+      quiet: boolean;
+      incident: ReturnType<Engine['openIncidents']>['incidents'][number] | null;
+      advice: string | null;
+      readiness: { score: number; reasons: string[]; suggestLock: boolean } | null;
+    }>;
+    blind: Array<{ technique: string; reason: string }>;
+  };
+  attention(now: number): {
+    now: number;
+    items: Array<{
+      device: string;
+      severity: string;
+      score: number;
+      sentence: string;
+      advice: string | null;
+    }>;
+  };
+  timeline(
+    sinceTs: number,
+    quietMs?: number,
+  ): {
+    sinceTs: number;
+    events: Array<{ ts: number; kind: string; device: string; detector?: string }>;
+  };
+  changes(
+    sinceTs: number,
+    quietMs?: number,
+  ): {
+    sinceTs: number;
+    devicesFirstSeen: string[];
+    devicesQuiet: string[];
+    incidentsOpened: string[];
+    incidentsClosed: string[];
+  };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

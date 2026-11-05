@@ -31,6 +31,7 @@ const {
   mergeCampaigns,
   overviewOf,
 } = require('./report');
+const { houseOf, attentionOf, timelineOf, changesOf } = require('./house');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
 const WEEK = 7 * 24 * 3600 * 1000;
@@ -1093,6 +1094,26 @@ class Sharded extends EventEmitter {
    */
   overview(now, sinceTs) {
     return overviewOf(this, now, sinceTs);
+  }
+
+  /** @param {number} now @param {number} [quietMs] */
+  house(now, quietMs) {
+    return houseOf(this, now, quietMs);
+  }
+
+  /** @param {number} now */
+  attention(now) {
+    return attentionOf(this, now);
+  }
+
+  /** @param {number} sinceTs @param {number} [quietMs] */
+  timeline(sinceTs, quietMs) {
+    return timelineOf(this, sinceTs, quietMs);
+  }
+
+  /** @param {number} sinceTs @param {number} [quietMs] */
+  changes(sinceTs, quietMs) {
+    return changesOf(this, sinceTs, quietMs);
   }
 
   /** @returns {Promise<void>} */

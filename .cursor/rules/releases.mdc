@@ -7,12 +7,13 @@ alwaysApply: true
 
 Each npm tag is one large release. The merge waits on one Ubuntu Node 22 gate. The tag does not run that gate again. A thin tag the next day still looks bad. Fold leftover work into the version being specified. Do not give it the next version number.
 
-A thin tag is a single detector, a rename, a small option, a docs-only bump, or a split of work that already belongs together. Past splits to refuse: 3.5.0 vs 3.6.0, a separate J10, a deferred J11, and 4.1.0–4.4.0.
+A thin tag is a single detector, a rename, a small option, a docs-only bump, or a split of work that already belongs together. Past thin splits to refuse: 3.5.0 vs 3.6.0, a separate J10, and a deferred J11.
 
 Current plan:
 
 - 3.5.0 is one tag, J9: coverage, self-test, lock-readiness, and the signed model pack.
-- 4.0.0 is the next tag: every row in SPEC section 0.21, in that one tag.
-- Do not invent 3.6.0, 4.1.0, 4.2.0, 4.3.0, or 4.4.0.
+- 4.0.0 is the household reads `house`, `attention`, `timeline`, and `changes`. The twenty 0.21 rows stay in that version and stay unfiled until C10 row 0.6 is ticked. They do not become 4.0.1 or 4.1.0.
+- 4.1.0 through 4.5.0 are the planned majors in SPEC section 0.22. Each one stays whole. Do not split one of them into a thinner tag.
+- Do not invent 3.6.0 or 4.6.0.
 
 Git commits stay small. This rule is about npm tags, not commits. Still do not run `npm publish` or `npm login`. Still do not add a detector file before C10 row 0.6 is ticked. Still do not invent a threshold or a detection rate.

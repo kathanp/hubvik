@@ -60,12 +60,12 @@ test('the release version check accepts this tree and rejects a different tag', 
   assert.equal(versionsMatch('3.5.0', '3.5.0', '3.5.0'), true);
   assert.equal(versionsMatch('3.5.0', '3.4.0', '3.5.0'), false);
   assert.equal(versionsMatch('', '3.5.0', '3.5.0'), false);
-  assert.equal(evaluate(ROOT, 'refs/tags/v3.5.0'), '');
+  assert.equal(evaluate(ROOT, 'refs/tags/v4.0.0'), '');
   assert.match(evaluate(ROOT, 'refs/tags/v9.9.9'), /release version check failed/);
 
   const ok = spawnSync(process.execPath, ['scripts/release-version.mjs'], {
     cwd: ROOT,
-    env: { ...process.env, GITHUB_REF: 'refs/tags/v3.5.0' },
+    env: { ...process.env, GITHUB_REF: 'refs/tags/v4.0.0' },
     encoding: 'utf8',
   });
   assert.equal(ok.status, 0, ok.stderr);

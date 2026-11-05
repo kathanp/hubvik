@@ -273,6 +273,13 @@ Headings below stay in their existing order. This list only groups them.
 - [CAMPAIGNS_NOW_IS_INVALID](#campaigns_now_is_invalid)
 - [OVERVIEW_NOW_IS_INVALID](#overview_now_is_invalid)
 - [OVERVIEW_SINCE_IS_INVALID](#overview_since_is_invalid)
+- [HOUSE_NOW_IS_INVALID](#house_now_is_invalid)
+- [HOUSE_QUIET_IS_INVALID](#house_quiet_is_invalid)
+- [ATTENTION_NOW_IS_INVALID](#attention_now_is_invalid)
+- [TIMELINE_SINCE_IS_INVALID](#timeline_since_is_invalid)
+- [TIMELINE_QUIET_IS_INVALID](#timeline_quiet_is_invalid)
+- [CHANGES_SINCE_IS_INVALID](#changes_since_is_invalid)
+- [CHANGES_QUIET_IS_INVALID](#changes_quiet_is_invalid)
 - [WAVES_SINCE_IS_INVALID](#waves_since_is_invalid)
 - [DRIFT_DAY_IS_INVALID](#drift_day_is_invalid)
 - [DRIFT_DEVICE_IS_INVALID](#drift_device_is_invalid)
@@ -976,6 +983,41 @@ Fix: Pass a value that satisfies "overview now is invalid".
 
 Cause: `overviewOf()` in `packages/core/src/engine/report.js` throws it when `typeof since !== 'number' || !Number.isFinite(since)`. The message is "overview sinceTs is invalid".
 Fix: Pass a value that satisfies "overview sinceTs is invalid".
+
+## HOUSE_NOW_IS_INVALID
+
+Cause: `houseOf()` in `packages/core/src/engine/house.js` throws it when `now` is not a finite number. The message is "house now is invalid".
+Fix: Pass a finite number for `now`.
+
+## HOUSE_QUIET_IS_INVALID
+
+Cause: `houseOf()` throws it when `quietMs` is passed and is not a finite number >= 0. The message is "quietMs is invalid".
+Fix: Omit `quietMs`, or pass a finite number >= 0.
+
+## ATTENTION_NOW_IS_INVALID
+
+Cause: `attentionOf()` throws it when `now` is not a finite number. The message is "attention now is invalid".
+Fix: Pass a finite number for `now`.
+
+## TIMELINE_SINCE_IS_INVALID
+
+Cause: `timelineOf()` throws it when `sinceTs` is not a finite number. The message is "timeline sinceTs is invalid".
+Fix: Pass a finite number for `sinceTs`.
+
+## TIMELINE_QUIET_IS_INVALID
+
+Cause: `timelineOf()` throws it when `quietMs` is passed and is not a finite number >= 0. The message is "quietMs is invalid".
+Fix: Omit `quietMs`, or pass a finite number >= 0.
+
+## CHANGES_SINCE_IS_INVALID
+
+Cause: `changesOf()` throws it when `sinceTs` is not a finite number. The message is "changes sinceTs is invalid".
+Fix: Pass a finite number for `sinceTs`.
+
+## CHANGES_QUIET_IS_INVALID
+
+Cause: `changesOf()` throws it when `quietMs` is passed and is not a finite number >= 0. The message is "quietMs is invalid".
+Fix: Omit `quietMs`, or pass a finite number >= 0.
 
 ## WAVES_SINCE_IS_INVALID
 
