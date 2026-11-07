@@ -14,7 +14,8 @@ Current plan:
 - 3.5.0 is one tag, J9: coverage, self-test, lock-readiness, and the signed model pack.
 - 4.0.0 is the household reads `house`, `attention`, `timeline`, and `changes`. The twenty 0.21 rows stay in that version and stay unfiled until C10 row 0.6 is ticked. They do not become 4.0.1 or 4.1.0.
 - 4.1.0 is the past reads `at`, `diffBaseline`, `without`, `story`, and `drill`.
-- 4.2.0 through 4.5.0 are the planned majors in SPEC section 0.22. Each one stays whole. Do not split one of them into a thinner tag.
+- 4.2.0 is the signed daily sketches `exportSketch`, `importSketches`, `fleet`, and the allow sketch.
+- 4.3.0 through 4.5.0 are the planned majors in SPEC section 0.22. Each one stays whole. Do not split one of them into a thinner tag.
 - Do not invent 3.6.0 or 4.6.0.
 
 Git commits stay small. This rule is about npm tags, not commits. Still do not run `npm publish` or `npm login`. Still do not add a detector file before C10 row 0.6 is ticked. Still do not invent a threshold or a detection rate.

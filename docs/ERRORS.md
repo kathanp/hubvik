@@ -292,6 +292,13 @@ Headings below stay in their existing order. This list only groups them.
 - [WITHOUT_EVENTS_ARE_INVALID](#without_events_are_invalid)
 - [STORY_INCIDENT_IS_INVALID](#story_incident_is_invalid)
 - [HOST_FACT_NAME_IS_INVALID](#host_fact_name_is_invalid)
+- [SKETCH_KEY_IS_INVALID](#sketch_key_is_invalid)
+- [SKETCH_FIELDS_ARE_INVALID](#sketch_fields_are_invalid)
+- [SKETCH_BUCKET_IS_INVALID](#sketch_bucket_is_invalid)
+- [SKETCH_CAP_IS_INVALID](#sketch_cap_is_invalid)
+- [SKETCHES_MUST_BE_AN_ARRAY](#sketches_must_be_an_array)
+- [ARRAY_SKETCHES_EXCEEDS_CAP](#array_sketches_exceeds_cap)
+- [ALLOW_UPDATES_ARE_INVALID](#allow_updates_are_invalid)
 - [WAVES_SINCE_IS_INVALID](#waves_since_is_invalid)
 - [DRIFT_DAY_IS_INVALID](#drift_day_is_invalid)
 - [DRIFT_DEVICE_IS_INVALID](#drift_device_is_invalid)
@@ -1090,6 +1097,41 @@ Fix: Pass the id of an incident the engine still stores.
 
 Cause: `hostFact()` in `packages/core/src/engine/validate/index.js` throws it when `name` is present and is not a string. The message is "host fact name is invalid".
 Fix: Omit `name`, or pass a string.
+
+## SKETCH_KEY_IS_INVALID
+
+Cause: a sketch call throws it when `key` or `verify` is not a string or a Buffer. The message is "sketch key is invalid".
+Fix: Pass the same key a baseline signature already uses.
+
+## SKETCH_FIELDS_ARE_INVALID
+
+Cause: `exportSketch()` throws it when `fields` is empty or names something other than `families`, `resolvers`, `updates`, or `beacons`. The message is "sketch fields are invalid".
+Fix: Pass the granularity the host chose.
+
+## SKETCH_BUCKET_IS_INVALID
+
+Cause: `exportSketch()` throws it when `beacons` is requested and `bucketMs` is not an integer of at least 1. The message is "sketch bucket is invalid".
+Fix: Pass the bucket width. There is no default.
+
+## SKETCH_CAP_IS_INVALID
+
+Cause: `importSketches()` throws it when `cap` is not an integer of at least 1. The message is "sketch cap is invalid".
+Fix: Pass the cap. This version sets no default.
+
+## SKETCHES_MUST_BE_AN_ARRAY
+
+Cause: `importSketches()` throws it when `list` is not an array. The message is "sketches must be an array".
+Fix: Pass an array of sketches.
+
+## ARRAY_SKETCHES_EXCEEDS_CAP
+
+Cause: `importSketches()` throws it when the stored book would grow past `cap`. The message is "array sketches exceeds cap".
+Fix: Pass a larger cap, or fewer sketches. The previous book is left in place.
+
+## ALLOW_UPDATES_ARE_INVALID
+
+Cause: `exportAllowSketch()` throws it when `updates` is not an array of names of 1 to 255 characters. The message is "allow updates are invalid".
+Fix: Pass the update-host families the host already listed.
 
 ## WAVES_SINCE_IS_INVALID
 

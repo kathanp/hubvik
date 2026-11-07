@@ -774,6 +774,39 @@ export class Engine extends EventEmitter {
   };
   story(incidentId: string): { incident: string; text: string };
   drill(): ReturnType<Engine['selftest']>;
+  exportSketch(opts: {
+    key: string | Buffer;
+    gatewayId: string;
+    fields: Array<'families' | 'resolvers' | 'updates' | 'beacons'>;
+    bucketMs?: number;
+  }): {
+    v: 1;
+    kind: 'day';
+    gatewayId: string;
+    day: number;
+    families?: string[];
+    resolvers?: string[];
+    updates?: string[];
+    beacons?: number[];
+    sig: { alg: 'HMAC-SHA256'; mac: string };
+  };
+  importSketches(list: object[], opts: { verify: string | Buffer; cap: number }): void;
+  exportAllowSketch(opts: { key: string | Buffer; updates: string[] }): {
+    v: 1;
+    kind: 'allow';
+    updates: string[];
+    sig: { alg: 'HMAC-SHA256'; mac: string };
+  };
+  importAllowSketch(sketch: object, opts: { verify: string | Buffer }): { updates: string[] };
+  fleet(opts?: { on?: boolean }): {
+    on: boolean;
+    rows: Array<{
+      kind: 'rare-here-rare-peers' | 'new-here-common-peers' | 'overlap-absent-yesterday';
+      field: 'families' | 'updates';
+      name: string;
+      day: number;
+    }>;
+  };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

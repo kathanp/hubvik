@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.2.0
+
+Signed daily sketches. No new detector row. Thresholds, severities, and detector defaults are unchanged.
+
+`exportSketch` signs one sketch for the watermark's UTC day. The host chooses `families`, `resolvers`, `updates`, and `beacons`. Raw flows are not included. `importSketches` requires `cap` and drops a bad signature. A sketch older than 7 days is ignored. `fleet()` stays off until `{ on: true }`, and it stays empty with fewer than 3 peer gateways. `exportAllowSketch` signs update hosts the host already listed. The live engine emits nothing from these calls.
+
 ## 4.1.0
 
 Ask the past. No new detector row. Thresholds, severities, and detector defaults are unchanged.

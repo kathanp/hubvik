@@ -27,6 +27,7 @@ const { methods: finishMethods, createShardedEngine: sharded, zonedClock } = req
 const { partgMethods } = require('./partg');
 const { reportMethods } = require('./report');
 const { pastMethods } = require('./past');
+const { sketchMethods } = require('./sketch');
 const { coverage, selftest } = require('./coverage');
 const { loadModelPack, applyStoredPack } = require('./modelpack');
 
@@ -840,6 +841,7 @@ Object.assign(
   partgMethods,
   reportMethods,
   pastMethods,
+  sketchMethods,
   { coverage, selftest, loadModelPack },
 );
 

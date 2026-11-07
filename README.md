@@ -1,4 +1,4 @@
-> Version: 4.1.0 · Updated: 2026-11-05
+> Version: 4.2.0 · Updated: 2026-11-07
 
 # hubvik
 
