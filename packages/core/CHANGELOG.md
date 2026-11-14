@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.3.0
+
+The install plan. No new detector row. Thresholds, severities, and detector defaults are unchanged.
+
+`doctor(sample)` reads JSONL or an array of events the host already has. It names the event types in that sample and lists each 4.0.0 behavior those types still leave blind, with the reason. `thread-network-change` stays blind: no event type carries a Thread network name, channel, or border router. The return value includes the smallest shipped adapter set and one options object, `{ tiers, classSuggest: true }`. `learnMs` stays the engine default. The plan runs on a throwaway engine and attaches `coverage`. A device that received a class suggestion includes the ports, the stored names, and the hour bucket that produced it. `assigned` stays null. The live engine emits nothing from `doctor`. A later call with a new event type returns a new plan.
+
+`@hubvik/cli` 0.1.4 includes that plan on `hubvik doctor`. Core unpacked measured 1093500 bytes. The cap stays 1088 KiB (D-163).
+
 ## 4.2.0
 
 Signed daily sketches. No new detector row. Thresholds, severities, and detector defaults are unchanged.

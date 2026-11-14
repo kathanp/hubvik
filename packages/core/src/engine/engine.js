@@ -28,6 +28,7 @@ const { partgMethods } = require('./partg');
 const { reportMethods } = require('./report');
 const { pastMethods } = require('./past');
 const { sketchMethods } = require('./sketch');
+const { doctorMethods } = require('./doctor');
 const { coverage, selftest } = require('./coverage');
 const { loadModelPack, applyStoredPack } = require('./modelpack');
 
@@ -842,6 +843,7 @@ Object.assign(
   reportMethods,
   pastMethods,
   sketchMethods,
+  doctorMethods,
   { coverage, selftest, loadModelPack },
 );
 

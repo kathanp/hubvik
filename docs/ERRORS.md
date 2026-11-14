@@ -254,6 +254,7 @@ Headings below stay in their existing order. This list only groups them.
 - [CONSUMES_MUST_BE_AN_ARRAY](#consumes_must_be_an_array)
 - [CONSUMES_UNKNOWN_EVENT_TYPE](#consumes_unknown_event_type)
 - [COUNT_IS_INVALID](#count_is_invalid)
+- [DOCTOR_SAMPLE_IS_INVALID](#doctor_sample_is_invalid)
 - [DETECTORS_MUST_BE_AN_ARRAY](#detectors_must_be_an_array)
 - [DETECTOR_DEFAULTS_IS_INVALID](#detector_defaults_is_invalid)
 - [DETECTOR_ID_IS_INVALID](#detector_id_is_invalid)
@@ -882,6 +883,11 @@ Fix: Correct the input so this passes: "detectors.${id}.enabled must be boolean"
 
 Cause: `validateOptions()` in `packages/core/src/engine/validate/index.js` throws it when `value.mode != null && value.mode !== 'live' && value.mode !== 'shadow'`. The message is "detectors.${id}.mode must be live or shadow".
 Fix: Correct the input so this passes: "detectors.${id}.mode must be live or shadow". The library does not change traffic.
+
+## DOCTOR_SAMPLE_IS_INVALID
+
+Cause: `doctor()` throws it when `sample` is not a string and not an array. The message is "doctor sample is invalid".
+Fix: Pass JSONL or an array of events the host already has. A bad line inside that sample is skipped.
 
 ## DETECTORS_MUST_BE_AN_ARRAY
 

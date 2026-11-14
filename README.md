@@ -1,14 +1,14 @@
-> Version: 4.2.0 · Updated: 2026-11-07
+> Version: 4.3.0 · Updated: 2026-11-14
 
 # hubvik
 
 Per-device network anomaly detection for IoT gateways. The publishable package is [`packages/core`](packages/core).
 
-Status: **hubvik 3.5.0 prototype — not validated on real traffic.** On 2026-11-01, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "3.4.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. The 3.2.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp` are shadow rows from 2.0.1.
+Status: **hubvik 4.3.0 prototype — not validated on real traffic.** On 2026-11-14, before this version was published, `npm view hubvik dist-tags --json` returned `{ "latest": "4.2.0" }`. `@hubvik/pilot` was not on npm. The library only reports. It does not block, drop, or rewrite traffic. A default engine emits the same live anomalies as 1.6.0. Open gates: the 0.6 gate, the Raspberry Pi 4 bench, the API freeze, the security review, and the 30-day pilot. The 4.3.0 notes are in [`packages/core/CHANGELOG.md`](packages/core/CHANGELOG.md). `h2-fanout`, `onion-name`, `proxy-fanin`, and `scatter-udp` are shadow rows from 2.0.1.
 
-Roadmap: docs/SPEC.md section 0.20 (planned, not built).
+Roadmap: docs/SPEC.md section 0.22. 4.3.0 is the setup plan from `doctor`. 4.4.0 and 4.5.0 are planned and not built.
 
-How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is in [`docs/features.md`](docs/features.md). `overview(now)` returns attacks, waves, incidents, campaigns, shadow hits, and counts in one call.
+How to feed events, indicators, and policy is [`docs/DEVELOPERS.md`](docs/DEVELOPERS.md). The detector catalog is in [`docs/features.md`](docs/features.md). `overview(now)` returns attacks, waves, incidents, campaigns, shadow hits, and counts in one call. `doctor(sample)` reads logs the host already has and reports which 4.0.0 behaviors those logs still leave blind. It does not assign a class.
 
 ## Install
 

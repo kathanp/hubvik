@@ -807,6 +807,21 @@ export class Engine extends EventEmitter {
       day: number;
     }>;
   };
+  doctor(sample: string | object[]): {
+    eventTypes: string[];
+    blind: Array<{ behavior: string; reason: string }>;
+    adapters: string[];
+    options: { tiers: string[]; classSuggest: true };
+    coverage: ReturnType<Engine['coverage']>;
+    suggestions: Array<{
+      device: string;
+      rows: Array<{ class: string; score: number; reasons: string[] }>;
+      ports: number[];
+      names: string[];
+      schedule: { hour: number; bytes: number } | null;
+      assigned: string | null;
+    }>;
+  };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;

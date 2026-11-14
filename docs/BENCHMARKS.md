@@ -630,3 +630,17 @@ Gate (`npm run gate`, Node v24.21.0, darwin arm64, Apple M1) exited 0 on 2026-11
 The 4-shard median was 3.79 µs versus single 3.83 µs. Estimate 2.29 KB/device. Devices 1000 on the watching line, 200 and 6948925 events on the 7-day lines.
 
 The 1,000-device median is 0.54 µs over the 4.1.0 gate on this same host (3.29 µs). D-85 names an x86 host. This run is arm64. The 12 µs and 120 KB/device gate still held.
+
+## 4.3.0 — install plan, 2026-11-14
+
+Gate (`npm run gate`, Node v22.23.3, darwin arm64, Apple M1) exited 0 on 2026-11-14. Coverage 97.49% lines, 86.62% branches, 94.81% functions. Core unpacked 1093500 bytes. The unpacked cap stays 1088 KiB (D-163). Budgets were not changed: median under 12 µs, retained under 120 KB/device. The install plan does not change incident grouping, so the 3.4.0 family table still stands. The twenty SPEC 0.21 detector names are not in this tag.
+
+| Line                                | median `feed()` |        retained |
+| ----------------------------------- | --------------: | --------------: |
+| 1,000 devices, two summaries        |         3.46 µs |  9.61 KB/device |
+| 200 devices, 7 days, then `lock()`  |         4.13 µs | 59.84 KB/device |
+| 200 devices, 7 days, `shadow: true` |         6.17 µs | 73.11 KB/device |
+
+The 4-shard median was 3.17 µs versus single 3.46 µs. Estimate 2.29 KB/device. Devices 1000 on the watching line, 200 and 6948925 events on the 7-day lines.
+
+The 1,000-device median is 0.37 µs under the 4.2.0 line recorded above (3.83 µs on Node 24). This run is Node 22, the merge gate. D-85 names an x86 host. This run is arm64. The 12 µs and 120 KB/device gate still held.

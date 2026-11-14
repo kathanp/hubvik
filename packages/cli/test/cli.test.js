@@ -149,3 +149,15 @@ test('selftest and coverage print the engine report', () => {
   const report = JSON.parse(coverage.stdout);
   assert.strictEqual(report.tiers.T0.eventsSeen, 1);
 });
+
+test('doctor attaches the install plan from the sample', () => {
+  const report = doctor(
+    '{"type":"dns","device":"cam","ts":1000,"qname":"cdn.vendor.example","qtype":"A","rcode":"NOERROR","resolver":"192.0.2.53"}\n',
+    { createEngine },
+  );
+  assert.strictEqual(report.malformed, 0);
+  assert.ok(report.plan);
+  assert.deepStrictEqual(report.plan.eventTypes, ['dns']);
+  assert.deepStrictEqual(report.plan.adapters, ['@hubvik/adapter-dnsmasq']);
+  assert.strictEqual(report.plan.options.classSuggest, true);
+});

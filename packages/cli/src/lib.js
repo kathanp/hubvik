@@ -143,6 +143,7 @@ function doctor(eventsJsonl, opts) {
     clockDisorder,
     reorderMs5000WouldAbsorb,
     noSplt: spltEvents === 0,
+    plan: typeof engine.doctor === 'function' ? engine.doctor(eventsJsonl) : null,
   };
 }
 

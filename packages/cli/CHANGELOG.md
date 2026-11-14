@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+`hubvik doctor` adds `plan` from `doctor(sample)`: event types, blind 4.0.0 behaviors, the smallest adapter set, one options object, the coverage map, and class suggestions. The engine does not assign a class. The earlier doctor fields stay.
+
 ## 0.1.3
 
 The HTML report adds Destinations, Campaigns, and Shadow sections when the JSONL already has those rows. Inline CSS. No script.
