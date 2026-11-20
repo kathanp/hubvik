@@ -9,4 +9,5 @@ export const Engine = api.Engine;
 export const detectors = api.detectors;
 export const SEVERITY = api.SEVERITY;
 export const HubvikError = api.HubvikError;
+export const verifyAttestation = api.verifyAttestation;
 export default api;

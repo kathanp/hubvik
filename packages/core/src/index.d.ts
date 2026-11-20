@@ -822,6 +822,15 @@ export class Engine extends EventEmitter {
       assigned: string | null;
     }>;
   };
+  attest(opts: { key: string | Buffer; bench: string[] }): {
+    v: 1;
+    engine: string;
+    optionsHash: string;
+    coverage: { live: number; shadowOnly: number; blind: number };
+    scenarios: Array<{ scenario: string; status: 'fired' | 'blind'; fired: string[] }>;
+    bench: string[];
+    sig: { alg: 'HMAC-SHA256'; mac: string };
+  };
   explain(anomalyId: string): {
     anomalyId: string;
     detector: string;
@@ -860,6 +869,7 @@ export class Engine extends EventEmitter {
   on(event: string | symbol, listener: (...args: unknown[]) => void): this;
 }
 
+export function verifyAttestation(doc: object, key: string | Buffer): boolean;
 export function createEngine(opts?: EngineOptions): Engine;
 export function createShardedEngine(opts: EngineOptions & { shards: number; inline: true }): Engine;
 export const detectors: Record<string, Detector>;

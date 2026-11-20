@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.4.0
+
+A signed attestation. No new detector row. Thresholds, severities, and detector defaults are unchanged.
+
+`attest({ key, bench })` runs the canned self-test on a throwaway engine and returns one signed document: engine version, SHA-256 of the canonical options, the coverage summary, each canned scenario as fired or blind, and the bench lines the caller already measured. The library copies `bench`. It does not time `feed()`. The HMAC is the baseline construction. `verifyAttestation(doc, key)` checks that signature and rejects a field named `detectionRate`, `detection-rate`, or `detection_rate`. The same events and the same options produce the same fired and blind lists. The live engine emits nothing from `attest`.
+
+Core unpacked measured 1100510 bytes. The cap stays 1088 KiB (D-163).
+
 ## 4.3.0
 
 The install plan. No new detector row. Thresholds, severities, and detector defaults are unchanged.

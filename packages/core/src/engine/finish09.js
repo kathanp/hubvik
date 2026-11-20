@@ -35,6 +35,7 @@ const { houseOf, attentionOf, timelineOf, changesOf } = require('./house');
 const { pastMethods } = require('./past');
 const { sketchMethods } = require('./sketch');
 const { doctorMethods } = require('./doctor');
+const { attestMethods } = require('./attest');
 
 const SHED_ORDER = ['T5', 'T3', 'T2', 'T1', 'T0'];
 const WEEK = 7 * 24 * 3600 * 1000;
@@ -1156,6 +1157,6 @@ function reportRows(engines) {
   return rows;
 }
 
-Object.assign(Sharded.prototype, pastMethods, sketchMethods, doctorMethods);
+Object.assign(Sharded.prototype, pastMethods, sketchMethods, doctorMethods, attestMethods);
 
 module.exports = { methods, createShardedEngine, zonedClock };

@@ -277,6 +277,9 @@ Headings below stay in their existing order. This list only groups them.
 - [HOUSE_NOW_IS_INVALID](#house_now_is_invalid)
 - [HOUSE_QUIET_IS_INVALID](#house_quiet_is_invalid)
 - [ATTENTION_NOW_IS_INVALID](#attention_now_is_invalid)
+- [ATTEST_BENCH_IS_INVALID](#attest_bench_is_invalid)
+- [ATTEST_IS_INVALID](#attest_is_invalid)
+- [ATTEST_KEY_IS_INVALID](#attest_key_is_invalid)
 - [TIMELINE_SINCE_IS_INVALID](#timeline_since_is_invalid)
 - [TIMELINE_QUIET_IS_INVALID](#timeline_quiet_is_invalid)
 - [CHANGES_SINCE_IS_INVALID](#changes_since_is_invalid)
@@ -1023,6 +1026,21 @@ Fix: Omit `quietMs`, or pass a finite number >= 0.
 
 Cause: `attentionOf()` throws it when `now` is not a finite number. The message is "attention now is invalid".
 Fix: Pass a finite number for `now`.
+
+## ATTEST_BENCH_IS_INVALID
+
+Cause: `attest()` throws it when `bench` is not an array of strings. The message is "attest bench is invalid".
+Fix: Pass the bench lines the release gate already printed. Each line is a string. This call does not measure them.
+
+## ATTEST_IS_INVALID
+
+Cause: `attest()` throws it when the argument is missing or not an object. The message is "attest is invalid".
+Fix: Pass `{ key, bench }`. `key` is a string or a Buffer. `bench` is an array of strings.
+
+## ATTEST_KEY_IS_INVALID
+
+Cause: `attest()` throws it when `key` is not a string or a Buffer. The message is "attest key is invalid".
+Fix: Pass the same kind of HMAC key the baseline signature already uses.
 
 ## TIMELINE_SINCE_IS_INVALID
 
